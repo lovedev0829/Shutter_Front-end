@@ -1,7 +1,7 @@
 {
   "routes": [
     {
-      "route": "/{*path}",
+      "route": "/{*}",
       "rewrite": "/index.html"
     }
   ]
