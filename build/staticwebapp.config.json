@@ -3,6 +3,10 @@
     {
       "route": "/mudbug",
       "rewrite": "/index.html"
+    },
+    {
+      "route": "/admin",
+      "rewrite": "/index.html"
     }
   ]
 }
