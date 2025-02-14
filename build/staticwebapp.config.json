@@ -1,4 +1,9 @@
 {
+  "routes": [
+    
+    {
       "route": "/{*path}",
-      "rewrite": "/index.html"
+      "serve": "/index.html"
+    }
+  ]
 }
