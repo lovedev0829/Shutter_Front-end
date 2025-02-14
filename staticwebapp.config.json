@@ -1,8 +1,1 @@
-{
-  "routes": [
-    {
-      "route": "/bt02",
-      "rewrite": "/index.html"
-    }
-  ]
-}
+{}
