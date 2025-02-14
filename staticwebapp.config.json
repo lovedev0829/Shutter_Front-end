@@ -3,14 +3,6 @@
     {
       "route": "*",
       "rewrite": "/index.html"
-    },
-    {
-      "route": "/admin/*",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/bt02/*",
-      "rewrite": "/index.html"
     }
   ]
 }
