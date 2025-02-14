@@ -1,7 +1,7 @@
 {
   "routes": [
     {
-      "route": "/bt02",
+      "route": "/",
       "rewrite": "/index.html"
     }
   ]
