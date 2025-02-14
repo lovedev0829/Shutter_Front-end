@@ -1,7 +1,11 @@
 {
   "routes": [
     {
-      "route": ".*",
+      "route": "/admin",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/bt01",
       "rewrite": "/index.html"
     }
   ]
