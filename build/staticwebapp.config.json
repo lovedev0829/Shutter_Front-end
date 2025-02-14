@@ -1,9 +1,8 @@
 {
   "routes": [
     {
-      "route": ".*",
-      "rewrite": "index.html",
-      "statusCode": 404
+      "route": "/mudbug",
+      "rewrite": "/index.html"
     }
   ]
 }
