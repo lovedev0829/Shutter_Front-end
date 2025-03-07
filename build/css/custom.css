@@ -943,7 +943,7 @@ label.form-check-label {
   box-shadow: none;
   background: var(--secondary-color);
 }
-.bs-wizard > .bs-wizard-step.complete > .progress > .progress-bar {
+.bs-wizard > .bs-wizard-step.Abandon > .progress > .progress-bar {
   width: 100%;
 }
 .bs-wizard > .bs-wizard-step.active > .progress > .progress-bar {
@@ -975,7 +975,7 @@ label.form-check-label {
   position: relative;
   top: -2px;
 }
-.bs-wizard > .bs-wizard-step.complete a.bs-wizard-dot svg path {
+.bs-wizard > .bs-wizard-step.Abandon a.bs-wizard-dot svg path {
   fill: #fff;
 }
 /*END Form Wizard*/
