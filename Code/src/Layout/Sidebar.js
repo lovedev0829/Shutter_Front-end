@@ -44,6 +44,7 @@ export default function Sidebar() {
     ArchiveCustomer: "Order management",
     Reports: "Order management",
     EstimationBreakdown: "Order management",
+    Tenant: "User management",
     Partners: "User management",
     ManageProduct: "User management",
     Users: "User management",

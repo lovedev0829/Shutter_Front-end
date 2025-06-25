@@ -46,6 +46,7 @@ export const apiUrls = {
   GetAllMstContactType:"Common/GetAllMstContactType",
   GetAllTax:"Common/GetAllTax",
   EstimationUniquename:"Common/EstimationUniquename",
+  GetAllTenantAnd_Users:"Common/GetAllTenantAnd_Users",
   ContactBreakdown:"Common/ContactBreakdown",
   ContactUniqueIdBreakdown:"Common/ContactUniqueIdBreakdown",
   ContactJobBreakdown:"Common/ContactJobBreakdown",

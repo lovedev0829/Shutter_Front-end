@@ -1,7 +1,23 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { HasPermission } from "../helpers/common";
 
-export default function SideBarLink({ href, name, icon,handleClosemenu }) {
+export default function SideBarLink({ href, name, icon, handleClosemenu }) {
+  const loginuser = JSON.parse(localStorage.getItem("userData"));
+
+  const Tablist = [
+    HasPermission("GHLView") &&
+      !loginuser.isGHLConfigSameAsTenant && {
+        id: "#ghl",
+      },
+    HasPermission("StripeView") && {
+      id: "#Stripe",
+    },
+    HasPermission("EmailConfigurationView") && {
+      id: "#Email",
+    },
+  ].filter(Boolean);
+
   return (
     <>
       <li>
@@ -22,8 +38,11 @@ export default function SideBarLink({ href, name, icon,handleClosemenu }) {
               case "/reports":
                 activeTab = "#FinanceReports";
                 break;
-                 case "/configuration":
-                activeTab = "#ghl";
+              case "/configuration":
+                const preference = ["#ghl", "#Stripe", "#Email"];
+                activeTab =
+                  preference.find((id) => Tablist.some((t) => t.id === id)) ||
+                  "#ghl";
                 break;
               default:
                 activeTab = "#vendorlisttabd";

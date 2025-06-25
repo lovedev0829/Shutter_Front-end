@@ -77,7 +77,10 @@ export default function Index() {
     }
   };
   useEffect(() => {
-    TenantlistAPI();
+    if(HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant){
+ TenantlistAPI();
+    }
+   
     // eslint-disable-next-line
   }, [code]);
 
@@ -92,28 +95,29 @@ export default function Index() {
   //     GetAccessToken();
   //   }
   // }, [code]);
+  const loginuser = JSON.parse(localStorage.getItem("userData"));
 
-  const Tablist = [
-    HasPermission("GHLView") && {
-      status: true,
-      id: "#ghl",
-      svg: <GhlSvg />,
-      title: "GHL Configuration",
-    },
-    HasPermission("StripeView") && {
-      status: false,
-      id: "#Stripe",
-      svg: <StripeSvg />,
-      title: "Stripe Configuration",
-    },
+ const Tablist = [
+  HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant && {
+    status: true,
+    id: "#ghl",
+    svg: <GhlSvg />,
+    title: "GHL Configuration",
+  },
+  HasPermission("StripeView") && {
+    status: false,
+    id: "#Stripe",
+    svg: <StripeSvg />,
+    title: "Stripe Configuration",
+  },
+  HasPermission("EmailConfigurationView") && {
+    status: false,
+    id: "#Email",
+    svg: <EmailSvg />,
+    title: "Email Configuration",
+  },
+].filter(Boolean);
 
-    HasPermission("EmailConfigurationView") && {
-      status: false,
-      id: "#Email",
-      svg: <EmailSvg />,
-      title: "Email Configuration",
-    },
-  ];
 
   const handleTabchnage = (value) => {
     setTabdata(value || Tablist[0]?.id);
@@ -319,6 +323,8 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [expirationTime]);
 
+ 
+
   return (
     <>
       {loder && <ApiLoder />}
@@ -331,9 +337,10 @@ export default function Index() {
                 <Tab Tablist={Tablist} handleTabchnage={handleTabchnage} />
               </ul>
               <div className="tab-content" id="ghl">
+                 { HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant && (
                 <div
                   className={`tab-pane fade ${
-                    initialActiveTab === "#ghl" ? "show active" : ""
+                    initialActiveTab === "#ghl" && !loginuser.isGHLConfigSameAsTenant ? "show active" : ""
                   }`}
                   id="ghl"
                   role="tabpanel"
@@ -580,6 +587,7 @@ export default function Index() {
                     </div>
                   </div>
                 </div>
+                 )}
                 {/* vendorlisttab */}
 
                 {HasPermission("StripeView") && (
