@@ -22,6 +22,7 @@ import AddEditDiscount from "../Discount/AddEditDiscount";
 
 export default function Index() {
   const [tenantList, setTenantList] = useState([]);
+  
   const [coupan, setCoupan] = useState([]);
   const [totalTax, settotalTax] = useState(0);
   const [cupondata, setCoupandata] = useState({});
@@ -32,8 +33,13 @@ export default function Index() {
   const [isview, setisview] = useState(false);
   const param = useParams();
   const [refresh, setRefresh] = useState(true);
+  const [users, setUsers] = useState([]);
   const [history, setHistory] = useState(false);
   const [object, setObject] = useState("");
+
+
+const loginuser = JSON.parse(localStorage.getItem("userData"));
+  
   const [value, setValue] = useState({
     estimateName: "",
     termsCondition: "",
@@ -50,6 +56,7 @@ export default function Index() {
     additionalCost: 0,
     productsList: [],
     isTaxApplicable: true,
+    preparedBy:loginuser?.userId
   });
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
@@ -338,8 +345,30 @@ export default function Index() {
     }
   };
 
+
+    const GetAllTenantAnd_Users = async () => {
+    startLoading();
+    try {
+      const apiResponse = await callAPI(
+        apiUrls.GetAllTenantAnd_Users,
+        {},
+        "GET"
+      );
+      stopLoading();
+      if (apiResponse?.data?.isSuccess) {
+        setUsers(apiResponse?.data?.data)
+      } else {
+        setUsers([])
+      }
+    } catch (error) {
+       setUsers([])
+      stopLoading();
+    }
+  };
+
   useEffect(() => {
     TenantlistAPI();
+    GetAllTenantAnd_Users();
     if (param.estimateId) {
       setRefresh(false);
       EstimatelistAPI();
@@ -645,7 +674,37 @@ export default function Index() {
                           `required`
                         )}
                       </div>
+
+                      
                     </div>
+                     <div className="estimate-input">
+                    <select
+                            className="form-select"
+                            onChange={handleChange}
+                            style={{height: "30px", fontSize: "12px",minWidth:"244px"}}
+                            name="preparedBy" value={value?.preparedBy}
+                          >
+                            
+                            <option value="">
+                             Prepared by
+                            </option>
+                            {users?.map((val,i)=>(
+                            <option value={val.userId} key={i}>
+                           {val?.firstName + " " + val?.lastName + " " + val?.suffix}
+                            </option>
+                            ))}
+                           
+                          </select>
+                          
+                           <div className="error">
+                        {simpleValidator.current.message(
+                          "Prepared by",
+                          value?.preparedBy,
+                          `required`
+                        )}
+                      </div>
+                          </div>
+
                   </div>
                   <div className="heading_width_search d-flex align-items-center gap-3">
                     <Link

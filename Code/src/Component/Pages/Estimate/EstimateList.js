@@ -204,6 +204,7 @@ export default function EstimateList({ listdata }) {
               <tr>
                 <th scope="col">SN</th>
                 <th scope="col">Estimate Title</th>
+                   <th scope="col">Prepared by</th>
                 <th scope="col">Create Date</th>
                 <th scope="col">Total Amount</th>
                 <th scope="col">Status</th>
@@ -226,6 +227,7 @@ export default function EstimateList({ listdata }) {
                       {val?.estimateName}
                     </Link>
                   </td>
+                  <td>{val?.preparedByName || "---"}</td>
                   <td>{moment(val?.createdDate).format("MM-DD-YYYY") || ""}</td>
                   <td>
                     {defaultConfig.currencySign} {val?.grandTotal}
