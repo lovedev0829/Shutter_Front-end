@@ -192,6 +192,7 @@ export const apiUrls = {
   UpdateJobStatus:"Job/UpdateJobStatus",
   CreateAppointment:"Job/CreateAppointment",
   GetAppointment:"Job/GetAppointment",
+  UpdateJobPowderCoatColor: `Job/UpdateJobPowderCoatColor`,
   //taxes
   Tax: "Tax/GetAll",
   TaxCreate: "Tax/Create",
@@ -275,9 +276,12 @@ export const apiUrls = {
   JobContactDelete:"JobContact/Delete",
   JobContactActiveInActive:"JobContact/ActiveInActive",
   
-
-
-
-
+  // Powder Coat Color APIs
+  GetPowderCoatColorsForDropdown: `PowderCoatColor/GetAllForDropdown`,
+  GetAllPowderCoatColor: `PowderCoatColor/GetAll`,
+  PowderCoatColorCreate: `PowderCoatColor/Create`,
+  PowderCoatColorUpdate: `PowderCoatColor/Update`,
+  PowderCoatColorDelete: `PowderCoatColor/Delete`,
+  PowderCoatColorActiveInActive: `PowderCoatColor/ActiveInActive`,
 
 };

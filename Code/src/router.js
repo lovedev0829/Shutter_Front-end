@@ -260,6 +260,16 @@ const routes = [
 
   },
 
+   //PowderCoatColor 
+  {
+    guard: Authenticated,
+    layout: SidebarLayout,
+    exact: true,
+    path: '/powdercoatcolor',
+    element: lazy(() => import('./Component/Pages/PowderCoatColor/Index'))
+
+  },
+
   //Products 
   {
     guard: Authenticated,

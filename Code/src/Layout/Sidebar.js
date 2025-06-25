@@ -53,6 +53,7 @@ export default function Sidebar() {
     Products: "Master",
     Options: "Master",
     Expression: "Master",
+    PowderCoatColor: "Master",
     OptionExpression: "Master",
     ProductType: "Settings",
     JobType: "Settings",

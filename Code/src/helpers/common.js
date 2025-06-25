@@ -5,8 +5,10 @@ import { t } from "i18next";
 import { Dialog } from "@mui/material";
 import { Link } from "react-router-dom";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Appointment from "./Appointment";
+import { callAPI } from "../utils/apiUtils";
+import { apiUrls } from "../utils/apiUrls";
 
 const ApiLoder = () => {
   return (
@@ -217,13 +219,84 @@ function BackButton({ link }) {
   );
 }
 
-function JobUi({ tenantList }) {
+function JobUi({ tenantList, onJobUpdate }) {
   const [open, setOpen] = useState(false);
   const [childData, setChildData] = useState("");
+  const [powderCoatColors, setPowderCoatColors] = useState([]);
+  const [selectedPowderCoatColor, setSelectedPowderCoatColor] = useState(tenantList?.powderCoatColorId || "");
+  const [loadingColors, setLoadingColors] = useState(false);
+  const [updatingColor, setUpdatingColor] = useState(false);
 
   const handleChildData = (data) => {
     setChildData(data);
   };
+
+  // Load powder coat colors
+  const loadPowderCoatColors = async () => {
+    try {
+      setLoadingColors(true);
+      const response = await callAPI(apiUrls.GetPowderCoatColorsForDropdown, {}, "GET");
+      if (response?.data?.isSuccess) {
+        setPowderCoatColors(response.data.data);
+      } else {
+        setPowderCoatColors([]);
+        ErrorMessage(response?.data?.message || "Failed to load powder coat colors");
+      }
+    } catch (error) {
+      console.error("Error loading powder coat colors:", error);
+      ErrorMessage("Error loading powder coat colors");
+      setPowderCoatColors([]);
+    } finally {
+      setLoadingColors(false);
+    }
+  };
+
+  // Update job powder coat color
+  const updateJobPowderCoatColor = async (colorId) => {
+    try {
+      setUpdatingColor(true);
+      
+      const response = await callAPI(apiUrls.UpdateJobPowderCoatColor, {
+        jobId: tenantList?.jobId,
+        powderCoatColorId: colorId || null
+      }, "POST");
+      
+      if (response?.data?.isSuccess) {
+        setSelectedPowderCoatColor(colorId);
+        if (onJobUpdate) {
+          onJobUpdate({ ...tenantList, powderCoatColorId: colorId });
+        }
+        SuccessMessage("Powder coat color updated successfully");
+      } else {
+        ErrorMessage(response?.data?.message || "Failed to update powder coat color");
+      }
+    } catch (error) {
+      console.error("Error updating powder coat color:", error);
+      ErrorMessage("Error updating powder coat color");
+    } finally {
+      setUpdatingColor(false);
+    }
+  };
+
+  const handlePowderCoatColorChange = (e) => {
+    const colorId = e.target.value;
+    updateJobPowderCoatColor(colorId);
+  };
+
+  useEffect(() => {
+    loadPowderCoatColors();
+  }, []);
+
+  useEffect(() => {
+    setSelectedPowderCoatColor(tenantList?.powderCoatColorId || "");
+  }, [tenantList?.powderCoatColorId]);
+
+  // Ensure the selected color is set after colors are loaded
+  useEffect(() => {
+    if (powderCoatColors.length > 0 && tenantList?.powderCoatColorId) {
+      setSelectedPowderCoatColor(tenantList.powderCoatColorId);
+    }
+  }, [powderCoatColors, tenantList?.powderCoatColorId]);
   return (
     <div className="row">
       <div className="col-lg-3 col-6">
@@ -278,6 +351,30 @@ function JobUi({ tenantList }) {
           <span>{tenantList?.notes ? tenantList?.notes : "---"}</span>
         </div>
       </div>
+
+      <div className="col-lg-3">
+        <div className="additional_direction">
+          <h6 className="mb-1">Powder Coating Color</h6>
+          <div className="position-relative">
+            {loadingColors && <SelectBoxLoader />}
+            <select 
+              className="selectboxdropdown"
+              style={{ width: "200px" }}
+              value={selectedPowderCoatColor}
+              onChange={handlePowderCoatColorChange}
+              disabled={updatingColor || !HasPermission("JobEdit")}
+            >
+              <option value="">Select Color</option>
+              {powderCoatColors.map((color) => (
+                <option key={color.id} value={color.id}>
+                  {color.colorName}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
          {HasPermission("JobEdit") && (
       <div className="col-lg-3">
         <div className="additional_direction">
