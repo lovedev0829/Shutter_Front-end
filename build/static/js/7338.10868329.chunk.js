@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkshutter=self.webpackChunkshutter||[]).push([[7338],{7338:(e,s,a)=>{a.r(s),a.d(s,{default:()=>r});a(2791);var c=a(184);function r(){return(0,c.jsx)("div",{className:"row justify-content-center",children:(0,c.jsx)("div",{className:"col-md-5",children:(0,c.jsxs)("div",{className:"message-box _success _failed",children:[(0,c.jsx)("i",{className:"fa fa-times-circle","aria-hidden":"true"}),(0,c.jsx)("h2",{children:" Your payment failed "}),(0,c.jsx)("p",{children:" Try again later "})]})})})}}}]);
-//# sourceMappingURL=7338.10868329.chunk.js.map
