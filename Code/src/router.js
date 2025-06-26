@@ -5,15 +5,8 @@ import Authenticated from './Guard/Authenticated';
 import Guest from './Guard/Guest';
 import BaseLayout from './Layout/BaseLayout';
 import LoadScreen from './Component/loaderScreen';
-
 export function RenderRout() {
-  
-  const token = localStorage.getItem('accessToken')
-  
-  if(!token && window.location.pathname !== '/login'){
-    window.location.href = '/login'
-  }
-
+ 
   return (
     <>
       <Router>

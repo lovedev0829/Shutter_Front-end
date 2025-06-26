@@ -8,7 +8,7 @@ const Guest = ({ children }) => {
  useEffect(() => {
   if (token) {
     navigate('/dashboard')
-  }
+ }
 }, [token,navigate]);
 
 
