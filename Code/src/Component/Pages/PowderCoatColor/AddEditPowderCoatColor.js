@@ -91,8 +91,9 @@ const AddEditPowderCoatColor = ({
 
       const response = await callAPI(
         action === "add" ? apiUrls.PowderCoatColorCreate : apiUrls.PowderCoatColorUpdate,
-        payload,
-        "POST"
+        {},
+        "POST",
+        payload
       );
 
       if (response?.data?.isSuccess) {

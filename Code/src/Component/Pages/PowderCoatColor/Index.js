@@ -38,7 +38,6 @@ export default function Index() {
 
   const columns = [
     { key: "colorName", label: "Color Name", sort: true },
-    { key: "colorCode", label: "Color Code", sort: true },
     { key: "cost", label: "Cost", sign: true, sort: true },
     { key: "description", label: "Description", sort: true },
     { key: "isActive", label: "Status" },
@@ -330,10 +329,10 @@ export default function Index() {
       {open && (
         <AddEditPowderCoatColor
           open={open}
-          handleclose={handleclose}
+          handleClose={handleclose}
           action={action}
           PowderCoatColorListAPI={refreshPowderCoatColorList}
-          object={object}
+          selectedData={object}
         />
       )}
       {delOpen && (

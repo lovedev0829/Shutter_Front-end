@@ -9,12 +9,12 @@ import { removeAuth } from '../../../helpers/auth';
 export default function Logout({ open, handleClose}) {
   const dispatch = useDispatch()
   const navigate = useNavigate();
-  const code = JSON.parse(localStorage.getItem('code'));
+  // const code = JSON.parse(localStorage.getItem('code'));
   const handleLogout = async () => {
     
         handleClose();
         dispatch(Profile({}))
-        navigate(`/${code}`)
+        navigate(`/login`)
         SuccessMessage('Logout Sucessfully !!');
         removeAuth();
     // try {
