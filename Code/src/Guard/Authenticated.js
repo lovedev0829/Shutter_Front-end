@@ -3,7 +3,7 @@ import {useNavigate } from 'react-router-dom';
 
 
 const Authenticated = ({ children }) => {
-    const token = localStorage.getItem('accessToken')
+  const token = localStorage.getItem('accessToken')
   const navigate = useNavigate();
   const code = JSON.parse(localStorage.getItem('code'));
   
