@@ -258,7 +258,7 @@ export default function Index() {
             <div className="d-flex align-items-center justify-content-between mb-30">
               <TableTitle title="Manage Powder Coat Colors" />
               <div className="heading_width_search d-flex align-items-center gap-3">
-                {/* {HasPermission("PowderCoatColorAdd") && (
+                {HasPermission("PowderCoatColorAdd") && (
                   <AddEditButton
                     handleClick={() => {
                       setAction("add");
@@ -266,14 +266,7 @@ export default function Index() {
                     }}
                     title="Add Color"
                   />
-                )} */}
-                <AddEditButton
-                    handleClick={() => {
-                      setAction("add");
-                      setOpen(true);
-                    }}
-                    title="Add Color"
-                  />
+                )}
               </div>
             </div>
             <div className="d-block d-lg-flex gap-2">
@@ -294,10 +287,8 @@ export default function Index() {
                   edituser={handleedit}
                   handledelete={handledelete}
                   handlestatus={handlestatus}
-                //   deletepermission="PowderCoatColorDelete"
-                //   editpermission="PowderCoatColorEdit"
-                  deletepermission="SubTenantDelete"
-                  editpermission="SubTenantDelete"
+                  deletepermission="PowderCoatColorDelete"
+                  editpermission="PowderCoatColorEdit"
                   handleFilterSortChange={handleFilterSortChange}
                   sortColumn={filter.sortColumn}
                   sortDirection={filter.sortDirection}
