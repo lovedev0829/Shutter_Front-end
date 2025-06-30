@@ -9,6 +9,9 @@ export default function Header(props) {
   const user = JSON.parse(localStorage.getItem("userData"));
   const [open, setOpen] = useState(false);
   const [notifications, setnotifications] = useState([]);
+  const [tenantList, setTenantList] = useState([]);
+  const userName = user?.username;
+  const currentTenantId = user?.tenantId;
 
   const NotificationlistAPI = async () => {
     try {
@@ -21,8 +24,16 @@ export default function Header(props) {
     } catch (error) {}
   };
 
+  const getTenantsListByUsername = async () => {
+    const apiResponse = await callAPI(apiUrls.GetTenantsListByUsername, {UserName: userName}, "GET");
+    if (apiResponse?.data?.isSuccess) {
+      setTenantList(apiResponse?.data?.data);
+    }
+  }
+
   useEffect(() => {
     NotificationlistAPI();
+    getTenantsListByUsername();
   }, []);
 
   const navigate = useNavigate();
@@ -80,6 +91,71 @@ export default function Header(props) {
     } catch (error) {}
   };
 
+  const handleTenantChange = async (e) => {
+    const tenantId = e.target.value;
+    
+    try {
+      // Get complete user data for the selected tenant from backend
+      const apiResponse = await callAPI(apiUrls.GetUserDataForTenantSwitch, {
+        UserName: userName,
+        TenantId: tenantId
+      }, "GET");
+      
+      if (apiResponse?.data?.isSuccess) {
+        const completeUserData = apiResponse.data.data;
+        
+        // Update userData in localStorage with complete data from backend
+        localStorage.setItem("userData", JSON.stringify(completeUserData));
+        localStorage.setItem("tenantId", tenantId);
+        
+        // Reload the page to apply all changes
+        window.location.reload();
+      } else {
+        console.error("Failed to fetch user data for tenant switch:", apiResponse?.data?.message);
+        // Fallback to basic tenant switching if API fails
+        const selectedTenant = tenantList.find(tenant => tenant.tenantId === tenantId);
+        if (selectedTenant) {
+          const currentUserData = JSON.parse(localStorage.getItem("userData"));
+          const updatedUserData = {
+            ...currentUserData,
+            tenantId: selectedTenant.tenantId,
+            code: selectedTenant.code,
+            companyName: selectedTenant.companyName,
+            logo: selectedTenant.logo,
+            primaryColor: selectedTenant.primaryColor,
+            secondaryColor: currentUserData.secondaryColor || "",
+            email: selectedTenant.email,
+            phone: selectedTenant.phoneNumber
+          };
+          localStorage.setItem("userData", JSON.stringify(updatedUserData));
+        }
+        localStorage.setItem("tenantId", tenantId);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error switching tenant:", error);
+      // Fallback to basic tenant switching on error
+      const selectedTenant = tenantList.find(tenant => tenant.tenantId === tenantId);
+      if (selectedTenant) {
+        const currentUserData = JSON.parse(localStorage.getItem("userData"));
+        const updatedUserData = {
+          ...currentUserData,
+          tenantId: selectedTenant.tenantId,
+          code: selectedTenant.code,
+          companyName: selectedTenant.companyName,
+          logo: selectedTenant.logo,
+          primaryColor: selectedTenant.primaryColor,
+          secondaryColor: currentUserData.secondaryColor || "",
+          email: selectedTenant.email,
+          phone: selectedTenant.phoneNumber
+        };
+        localStorage.setItem("userData", JSON.stringify(updatedUserData));
+      }
+      localStorage.setItem("tenantId", tenantId);
+      window.location.reload();
+    }
+  }
+
   const dropdownRef = useRef(null); // Ref for detecting outside clicks
   useEffect(() => {
     function handleClickOutside(event) {
@@ -91,23 +167,123 @@ export default function Header(props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   return (
-    <>
-      <div className="top_header d-flex align-items-center justify-content-between">
-        <h1>
-          {users?.companyName ? users?.companyName : user?.companyName} -{" "}
+          <>
+        <div 
+        className="top_header d-flex align-items-center justify-content-between" 
+        style={{ 
+          padding: '10px 15px',
+          gap: '10px',
+          flexWrap: 'nowrap',
+          minHeight: '60px'
+        }}
+      >
+          <div 
+            className="tenant-selector d-flex align-items-center" 
+            style={{ 
+              gap: '8px', 
+              minWidth: '150px', 
+              maxWidth: '280px',
+              flexShrink: 0
+            }}
+          >
+            <label 
+              htmlFor="tenant-select" 
+              className="form-label mb-0 text-nowrap d-none d-md-block" 
+              style={{ 
+                fontSize: '13px', 
+                fontWeight: '500',
+                color: '#6c757d'
+              }}
+            >
+              Tenant:
+            </label>
+            <select 
+              id="tenant-select"
+              className="form-select form-select-sm" 
+              value={currentTenantId} 
+              onChange={(e) => handleTenantChange(e)} 
+              style={{ 
+                flex: '1',
+                minWidth: '100px',
+                fontSize: '13px',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                padding: '4px 8px'
+              }}
+              title="Select Tenant"
+            >
+              {tenantList?.map((tenant) => (
+                <option key={tenant?.tenantId} value={tenant?.tenantId}>
+                  {tenant?.code}
+                </option>
+              ))}
+            </select>
+          </div>
+        <h1 
+          className="header-title text-center flex-grow-1 mx-3"
+          style={{ 
+            fontSize: 'clamp(1rem, 2.5vw, 1.5rem)', 
+            fontWeight: '600',
+            margin: '0',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <span className="d-none d-lg-inline">
+            {users?.companyName ? users?.companyName : user?.companyName} -{" "}
+          </span>
           {props.title}
         </h1>
 
         <div
-          className="header_notification"
-          style={{ cursor: "pointer" }}
+          className="header_notification position-relative"
+          style={{ 
+            cursor: "pointer",
+            flexShrink: 0,
+            minWidth: '50px'
+          }}
           onClick={() => setOpen(!open)}
         >
-          <div className="header_icon position-relative notification d-flex align-items-center justify-content-center">
-            <img src="/image/notification.svg" alt="" loading="lazy"/>
-            <span className="notification_alert">
-              {notifications?.filter((notif) => !notif?.isReaded)?.length}
-            </span>
+          <div 
+            className="header_icon position-relative notification d-flex align-items-center justify-content-center"
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              transition: 'background-color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.1)'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
+          >
+            <img 
+              src="/image/notification.svg" 
+              alt="Notifications" 
+              loading="lazy"
+              style={{ width: '20px', height: '20px' }}
+            />
+            {notifications?.filter((notif) => !notif?.isReaded)?.length > 0 && (
+              <span 
+                className="notification_alert position-absolute"
+                style={{
+                  top: '-2px',
+                  right: '-2px',
+                  minWidth: '18px',
+                  height: '18px',
+                  fontSize: '11px',
+                  borderRadius: '50%',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold'
+                }}
+              >
+                {notifications?.filter((notif) => !notif?.isReaded)?.length}
+              </span>
+            )}
           </div>
         </div>
 

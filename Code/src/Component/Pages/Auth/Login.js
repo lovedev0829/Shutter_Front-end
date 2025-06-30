@@ -13,7 +13,7 @@ import { Eyeclose, Eyeopen } from "../../../SvgFile/Index";
 import InputField2 from "../../Form/InputField2";
 
 export default function Login() {
-  const [input, setInput] = useState({ username: "", password: "",companyCode:"" });
+  const [input, setInput] = useState({ username: "", password: "", companyCode:"" });
   const [data, setData] = useState({});
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,50 +76,7 @@ export default function Login() {
   
   const param = useParams();
 
-  function changeFavicon(users) {
-    let favicon = document.querySelector("link[rel~='icon']");
-    if (!favicon) {
-        favicon = document.createElement("link");
-        favicon.rel = "icon";
-        document.head.appendChild(favicon);
-    }
-    favicon.href = users?.logo ||"/image/logo.svg";
-    document.title = users?.companyName
-    ? `${users?.companyName} ${''}`.trim()
-    : document.title;
-}
-
-
-  const GetData = async () => {
-    setloader(true);
-    try {
-      const response = await callAPIWithoutAuth(
-        apiUrls.HomePageContent,
-        {CompanyCode:param.type},
-        "GET"
-      );
-      setloader(false);
-      if (response.data.isSuccess) {
-        let datas = response?.data?.data;
-        setData(datas)
-        changeFavicon(datas)
-        localStorage.setItem("code", JSON.stringify(param.type));
-      } else {
-        navigate("/404");
-        ErrorMessage(response.data.message);
-      }
-    } catch (e) {
-      navigate("/404");
-      setloader(false);
-    }
-  };
-  const token = localStorage.getItem('accessToken')
-
   useEffect(() => {
-    if(!token){
-      GetData();
-    }
-   
     setInput((prevInput) => ({ ...prevInput, 'companyCode': param.type }));
      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [param.type]);

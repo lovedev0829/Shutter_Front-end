@@ -11,7 +11,6 @@ export const apiUrls = {
   GetAllJobs: "Common/GetAllJobs",
   GetAllDiscount: "Common/GetAllDiscount",
   //Comman Api
-  HomePageContent: "Auth/HomePageContent",
   permissionlist: "Module/modules",
   uploadFiles: "Common/FileUpload",
   GetAllJobTitle: "Common/GetAllJobTitle",
@@ -76,6 +75,8 @@ export const apiUrls = {
   TenantUpdate: "Tenant/Update",
   TenantDelete: "Tenant/Delete",
   TenantActiveInActive: "Tenant/ActiveInActive",
+  GetTenantsListByUsername: "Tenant/GetTenantsListByUsername",
+  GetUserDataForTenantSwitch: "Tenant/GetUserDataForTenantSwitch",
   //Sub Tanent
   SubTenant: "SubTenant/GetAll",
   SubTenantCreate: "SubTenant/Create",

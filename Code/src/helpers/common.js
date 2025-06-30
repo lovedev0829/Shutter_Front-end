@@ -280,7 +280,9 @@ function JobUi({ tenantList, onJobUpdate }) {
 
   const handlePowderCoatColorChange = (e) => {
     const colorId = e.target.value;
-    updateJobPowderCoatColor(colorId);
+    if( colorId != "") {
+      updateJobPowderCoatColor(colorId);
+    }
   };
 
   useEffect(() => {

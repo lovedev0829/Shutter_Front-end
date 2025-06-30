@@ -7,6 +7,14 @@ import BaseLayout from './Layout/BaseLayout';
 import LoadScreen from './Component/loaderScreen';
 export function RenderRout() {
  
+  const token = localStorage.getItem('accessToken')
+  
+  const url = window.location.pathname
+
+  if(!token && (url !== '/login' && url !== '/admin')){
+      window.location.href = '/login'
+  }
+
   return (
     <>
       <Router>
