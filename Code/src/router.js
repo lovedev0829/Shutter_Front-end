@@ -13,6 +13,10 @@ export function RenderRout() {
 
   if(!token && (url !== '/login' && url !== '/admin')){
       window.location.href = '/login'
+  } else if (token && url == "/") {
+      window.location.href = '/dashboard'
+  } else if(!token && url == "/") {
+      window.location.href = '/login' 
   }
 
   return (

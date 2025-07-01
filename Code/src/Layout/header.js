@@ -93,66 +93,23 @@ export default function Header(props) {
 
   const handleTenantChange = async (e) => {
     const tenantId = e.target.value;
-    
     try {
-      // Get complete user data for the selected tenant from backend
-      const apiResponse = await callAPI(apiUrls.GetUserDataForTenantSwitch, {
-        UserName: userName,
-        TenantId: tenantId
-      }, "GET");
+        const apiResponse = await callAPI(apiUrls.GetUserDataForTenantSwitch, {
+            UserName: userName,
+            TenantId: tenantId
+        }, "GET");
       
-      if (apiResponse?.data?.isSuccess) {
-        const completeUserData = apiResponse.data.data;
-        
-        // Update userData in localStorage with complete data from backend
-        localStorage.setItem("userData", JSON.stringify(completeUserData));
-        localStorage.setItem("tenantId", tenantId);
-        
-        // Reload the page to apply all changes
-        window.location.reload();
-      } else {
-        console.error("Failed to fetch user data for tenant switch:", apiResponse?.data?.message);
-        // Fallback to basic tenant switching if API fails
-        const selectedTenant = tenantList.find(tenant => tenant.tenantId === tenantId);
-        if (selectedTenant) {
-          const currentUserData = JSON.parse(localStorage.getItem("userData"));
-          const updatedUserData = {
-            ...currentUserData,
-            tenantId: selectedTenant.tenantId,
-            code: selectedTenant.code,
-            companyName: selectedTenant.companyName,
-            logo: selectedTenant.logo,
-            primaryColor: selectedTenant.primaryColor,
-            secondaryColor: currentUserData.secondaryColor || "",
-            email: selectedTenant.email,
-            phone: selectedTenant.phoneNumber
-          };
-          localStorage.setItem("userData", JSON.stringify(updatedUserData));
-        }
-        localStorage.setItem("tenantId", tenantId);
-        window.location.reload();
-      }
+        if (apiResponse?.data?.isSuccess) {
+
+            const completeUserData = apiResponse.data.data;
+
+            localStorage.setItem("userData", JSON.stringify(completeUserData));
+            localStorage.setItem("accessToken", completeUserData.token);
+            
+            window.location.reload();
+        } 
     } catch (error) {
-      console.error("Error switching tenant:", error);
-      // Fallback to basic tenant switching on error
-      const selectedTenant = tenantList.find(tenant => tenant.tenantId === tenantId);
-      if (selectedTenant) {
-        const currentUserData = JSON.parse(localStorage.getItem("userData"));
-        const updatedUserData = {
-          ...currentUserData,
-          tenantId: selectedTenant.tenantId,
-          code: selectedTenant.code,
-          companyName: selectedTenant.companyName,
-          logo: selectedTenant.logo,
-          primaryColor: selectedTenant.primaryColor,
-          secondaryColor: currentUserData.secondaryColor || "",
-          email: selectedTenant.email,
-          phone: selectedTenant.phoneNumber
-        };
-        localStorage.setItem("userData", JSON.stringify(updatedUserData));
-      }
-      localStorage.setItem("tenantId", tenantId);
-      window.location.reload();
+        console.error("Error switching tenant:", error);
     }
   }
 
