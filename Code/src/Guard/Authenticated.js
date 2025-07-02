@@ -9,7 +9,7 @@ const Authenticated = ({ children }) => {
   
  useEffect(() => {
   if (!token) {
-    navigate(`/${code?code:"admin"}`)
+    navigate(`/login`)
  }
 
 }, [token,navigate,code]);
