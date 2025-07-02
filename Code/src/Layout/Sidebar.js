@@ -127,7 +127,7 @@ export default function Sidebar() {
       });
       delete grouped["Order management"];
     }
-
+    console.log(links)
     // Push remaining categories in any order
     Object.entries(grouped).forEach(([category, items]) => {
       ordered.push({ category, items });
@@ -231,7 +231,7 @@ export default function Sidebar() {
                               <SideBarLink
                                 key={i}
                                 href={item?.url}
-                                name={item.roleName}
+                                name={item.roleDisplayName}
                                 icon={item.icon}
                                 handleClosemenu={handleClosemenu}
                               />
