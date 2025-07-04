@@ -168,18 +168,19 @@ export default function Index() {
                         <th scope="col">Width</th>
                         <th scope="col">Height</th>
 
-                        
-                        {items?.map((vals, ind) =>  vals.componentId && (
-                          <th scope="col" key={ind}>
-                            <Link
-                              className="color-blue"
-                              to={`/component/detail/${vals.componentId}`}
-                             
-                            >
-                              {vals?.componentName}
-                            </Link>
-                          </th>
-                        ))}
+                        {items?.map(
+                          (vals, ind) =>
+                            vals.componentId && (
+                              <th scope="col" key={ind}>
+                                <Link
+                                  className="color-blue"
+                                  to={`/component/detail/${vals.componentId}`}
+                                >
+                                  {vals?.componentName}
+                                </Link>
+                              </th>
+                            )
+                        )}
                         {items &&
                           items
                             .flatMap((val) => val?.optionTaxDetails || [])
@@ -192,7 +193,7 @@ export default function Index() {
                               </th>
                             ))}
                         <th scope="col">Sub Total</th>
-                           <th scope="col">Over Head</th>
+                        <th scope="col">Over Head</th>
                         <th scope="col">Total</th>
                       </tr>
                     </thead>
@@ -203,7 +204,6 @@ export default function Index() {
                           <Link
                             className="color-blue"
                             to={`/products/detail/${items[0]?.productId}`}
-                          
                           >
                             {items[0]?.productName}
                           </Link>
@@ -211,11 +211,14 @@ export default function Index() {
                         <td>{items[0]?.quantity}</td>
                         <td>{items[0]?.buildWidth}</td>
                         <td>{items[0]?.buildHeight}</td>
-                        {items?.map((vals, ind) =>  vals.componentId &&(
-                          <td key={ind}>
-                            {defaultConfig.currencySign} {vals?.price}
-                          </td>
-                        ))}
+                        {items?.map(
+                          (vals, ind) =>
+                            vals.componentId && (
+                              <td key={ind}>
+                                {defaultConfig.currencySign} {vals?.price}
+                              </td>
+                            )
+                        )}
                         {items &&
                           items
                             .flatMap((val) => val?.optionTaxDetails || [])
@@ -230,32 +233,33 @@ export default function Index() {
                             ))}
                         <td style={{ whiteSpace: "nowrap" }}>
                           {defaultConfig.currencySign}{" "}
-                          {Number(
-                                items[0]?.productPrice ||
-                                  items[0]?.totalPrice ||
-                                  0
-                              )?.toFixed(2)}
-                     
+                          {(
+                            Number(
+                              items[0]?.productPrice ||
+                                items[0]?.totalPrice ||
+                                0
+                            ) + Number(items[0]?.additionalCost || 0)
+                          )?.toFixed(2)}
                         </td>
                         <td style={{ whiteSpace: "nowrap" }}>
                           {(
-                                Number(
-                                  items[0]?.componentMarkup ||
-                                    0
-                                ) + Number(items[0]?.productMarkup || 0) + Number(items[0]?.optionMarkup || 0)
-                              )?.toFixed(2)}
+                            Number(items[0]?.componentMarkup || 0) +
+                            Number(items[0]?.productMarkup || 0) +
+                            Number(items[0]?.optionMarkup || 0)
+                          )?.toFixed(2)}
                         </td>
                         <td style={{ whiteSpace: "nowrap" }}>
                           {(
-                                Number(
-                                  items[0]?.productPrice ||
-                                    items[0]?.totalPrice ||
-                                    0
-                                ) + Number(items[0]?.additionalCost || 0)+Number(
-                                  items[0]?.componentMarkup ||
-                                    0
-                                ) + Number(items[0]?.productMarkup || 0) + Number(items[0]?.optionMarkup || 0)
-                              )?.toFixed(2)}
+                            Number(
+                              items[0]?.productPrice ||
+                                items[0]?.totalPrice ||
+                                0
+                            ) +
+                            Number(items[0]?.additionalCost || 0) +
+                            Number(items[0]?.componentMarkup || 0) +
+                            Number(items[0]?.productMarkup || 0) +
+                            Number(items[0]?.optionMarkup || 0)
+                          )?.toFixed(2)}
                         </td>
                       </tr>
                     </tbody>
@@ -277,7 +281,6 @@ export default function Index() {
           </div>
         </div>
       </div>
-      
     </>
   );
 }

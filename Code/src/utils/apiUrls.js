@@ -63,6 +63,7 @@ export const apiUrls = {
   GenerateToken:"Common/GenerateToken",
   GetAccessToken:"Common/GetAccessToken",
   GoHighLevelAuthorization:"Common/GoHighLevelAuthorization",
+  SyncCustomField:"Common/Sync-Custom-Field",
   DeleteConfiguration:"Configuration/DeleteConfiguration",
   EmailOAuth:"EmailOAuth/LoginOauth",
   GenerateCode:"Common/GenerateCode",
