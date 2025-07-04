@@ -254,6 +254,32 @@ export default function Index() {
     }
   };
 
+
+  const handlesyccustom = async () => {
+    const isConfirmed = window.confirm("Are you sure you want to Sync Custom Field?");
+    if (isConfirmed) {
+      setLoader(true);
+      try {
+        const response = await callAPI(
+          apiUrls.SyncCustomField,
+          {},
+          "GET"
+        );
+        setLoader(false);
+
+        if (response.data.isSuccess) {
+          SuccessMessage(response.data.message);
+        } else {
+          ErrorMessage(response.data.message);
+        }
+      } catch (error) {
+        setLoader(false);
+      }
+    } else {
+      setLoader(false);
+    }
+  };
+
   const handleDelte = async () => {
     const isConfirmed = window.confirm("Are you sure you want to delete GHL?");
     if (isConfirmed) {
@@ -566,6 +592,17 @@ export default function Index() {
                                           className="btn blue-btn me-2"
                                         >
                                           GHL Stages Mapping
+                                        </button>
+                                      )}
+
+                                      {value.access_Token &&
+                                      value.refresh_Token && (
+                                        <button
+                                          type="button"
+                                          onClick={handlesyccustom}
+                                          className="btn blue-btn me-2"
+                                        >
+                                          Sync Custom Field
                                         </button>
                                       )}
                                     {value?.isConnected && (
