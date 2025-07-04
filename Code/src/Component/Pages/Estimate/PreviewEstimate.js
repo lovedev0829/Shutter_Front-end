@@ -165,7 +165,7 @@ export default function PreviewEstimate() {
             <div className="body_content">
               <div className="row mt-5 new-estimate">
                 <div className="col-lg-12">
-                  <div className="new-job_list mb-30">
+                  <div className="mb-30" style={{ paddingBottom:"50px" }}>
                     <div className="row">
                       <div className="col-lg-3">
                         <div className="additional_direction mt-0">
@@ -244,77 +244,96 @@ export default function PreviewEstimate() {
                   <div className="estimate-table task_table mb-30">
                     <div className="table-responsive">
                       <table className="table">
-                        <thead>
                           <tr>
                             <th scope="col">Window label</th>
                             <th scope="col">Window Qty</th>
                             <th scope="col">Product Type</th>
                             <th scope="col">Product</th>
-                            <th scope="col">Dimension</th>
-                            <th scope="col">Options</th>
-                               {/* <th scope="col">Wholesale Price</th> */}
                             <th scope="col">Retail Price</th>
-                            {/* {token && ( <th scope="col" className=" text-center">
-                              Breakdown
-                            </th>
-                             )} */}
                           </tr>
-                        </thead>
                         <tbody>
                           {tenantList[0]?.estimateProductList?.map((val, i) => (
                             <tr key={i}>
                               <td>{val?.label}</td>
                               <td>{val?.windowQty}</td>
                               <td>{val?.productTypeName}</td>
-                              <td>{val?.productName}</td>
                               <td>
-                                {" "}
+                              {" "}
                                 W: {val?.estimateWindowDetails?.width}”, H:{" "}
                                 {val?.estimateWindowDetails?.height}”, A:{" "}
                                 {val?.estimateWindowDetails?.archHeight}”
-                              </td>
-                              <td>
                                 <span>
                                   <ul className="colors">
                                     {val?.options?.map((vals, ind) => (
-                                      <li className="color-item" key={ind}>
-                                        {vals}
+                                      <li  key={ind}>
+                                         {`-> ${vals}`}
                                       </li>
                                     ))}
                                   </ul>
                                 </span>
                               </td>
-                               {/* <td>
-                               {defaultConfig.currencySign}   {val.wholesalePrice ?? 0}
-                              </td> */}
                               <td style={{ whiteSpace: "nowrap" }}>
                                 {" "}
                                 {defaultConfig.currencySign} 
-                                {parseFloat(((val?.totalPrice ?? val?.productPrice ?? 0) + (val?.additionalCost ?? 0) + (val?.componentMarkup ?? 0) + (val?.productMarkup ?? 0) + (val?.optionMarkup ?? 0)).toFixed(2))
-}
+                                {parseFloat(((val?.totalPrice ?? val?.productPrice ?? 0) + (val?.additionalCost ?? 0) + (val?.componentMarkup ?? 0) + (val?.productMarkup ?? 0) + (val?.optionMarkup ?? 0)).toFixed(2))}
                               </td>
-                              {/* {token && val?.totalPrice ?
-                              <td
-                                className="text-center"
-                                onClick={() => {
-                                  setHistory(true);
-                                  setObject(val);
-                                }}
-                              >
-                                <Link to="#">
-                                  {" "}
-                                  <img src="/image/breakdown.svg" alt="" loading="lazy"/>
-                                </Link>
-                              </td>:
-                              <td>
-                             
-
-                              </td>
-                               } */}
                             </tr>
                           ))}
+                            <tr >
+                                <td colSpan="2" ></td>
+                                <td style={{verticalAlign:"top"}}>
+                                    <h2 className="font-14">Order Notes</h2>
+                                    <h2 className="font-14">Terms and Conditions</h2>
+                                    <div className="terms-content">
+                                        <p>{tenantList[0]?.termsCondition}</p>
+                                    </div>
+                                </td>
+                                <td style={{verticalAlign:"top"}}>
+                                    <div className="col-md-6  mb-2">
+                                        <h2 className="font-14">Additional Notes</h2>
+                                        <div className="terms-content">
+                                            <p>{tenantList[0]?.notes}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style={{verticalAlign:"top"}}>
+                                    <div className="w-100">
+                                        <div className="d-flex justify-content-between">
+                                            <h2 className="font-14 mb-0">Subtotal:</h2>
+                                            <span className="mb-0">
+                                            {defaultConfig.currencySign}{" "}
+                                                {tenantList[0]?.subTotal}
+                                            </span>
+                                        </div>
+                                        {Number(tenantList[0]?.discount)>0 && (
+                                        <div className="d-flex justify-content-between">
+                                            <h2 className="font-14 mb-0">Discount:</h2>
+                                            <span className="mb-0">
+                                            {defaultConfig.currencySign}{" "}
+                                            {tenantList[0]?.discount}
+                                            </span>
+                                        </div>)}
+                                        {tenantList[0]?.isTaxApplicable && (
+                                            <div className="d-flex justify-content-between">
+                                                <h2 className="font-14 mb-0">Taxes:</h2>
+                                                <span className="mb-0">
+                                                {defaultConfig.currencySign}{" "}
+                                                {tenantList[0]?.tax}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="d-flex justify-content-between">
+                                            <h2 className="font-14 mb-0">Grand Total:</h2>
+                                            <span className="mb-0">
+                                            {defaultConfig.currencySign}{" "}
+                                            {tenantList[0]?.grandTotal}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
-                      </table>
+                    </table>
                     </div>
                   </div>
                   <div className="row">
@@ -417,99 +436,6 @@ export default function PreviewEstimate() {
                         </div>
                       )}
                     </div>
-                    <div className="col-md-6">
-                      <div className="adjust-pricing">
-                        <div className="middle-heading">
-                          <h4>Summary</h4>
-                        </div>
-                        { tenantList[0]?.discountCoupon &&
-                        <div className="couponapplied d-block d-md-flex align-items-center w-100 gap-3">
-                          <h2 className="font-14">Discount Applied</h2>
-
-                          <input
-                            type="text"
-                            value={
-                              tenantList[0]?.discountCoupon
-                                ? tenantList[0]?.discountCoupon
-                                : "No Discount Applied"
-                            }
-                            disabled
-                          />
-                        </div>}
-                        {/* <div className="couponapplied d-block d-md-flex align-items-center w-100 gap-3">
-                          <h2 className="font-14 mb-0">Tax Rate Applied</h2>
-
-                          <input
-                            type="text"
-                            value={
-                              tenantList[0]?.taxRate
-                                ? `(${tenantList[0]?.region}) ${tenantList[0]?.taxRate}`
-                                : "No Tax Applied"
-                            }
-                            disabled
-                          />
-                        </div> */}
-                        <div className="price-content w-100">
-                          <div className="price-content-inner">
-                            <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Subtotal:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {tenantList[0]?.subTotal}
-                              </span>
-                            </div>
-                            {/* <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Additional Cost:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {tenantList[0]?.additionalCost}
-                              </span>
-                            </div> */}
-                             {Number(tenantList[0]?.discount)>0 &&
-                            <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Discount:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {tenantList[0]?.discount}
-                              </span>
-                            </div>}
-                            {tenantList[0]?.isTaxApplicable &&
-                            <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Taxes:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {tenantList[0]?.tax}
-                              </span>
-                            </div>
-}
-                            <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Grand Total:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {tenantList[0]?.grandTotal}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="middle-heading">
-                          <h4>Order Notes</h4>
-                        </div>
-                        <div className="row">
-                          <div className="col-md-6  mb-2">
-                            <h2 className="font-14">Terms and Conditions</h2>
-                            <div className="terms-content">
-                              <p>{tenantList[0]?.termsCondition}</p>
-                            </div>
-                          </div>
-                          <div className="col-md-6  mb-2">
-                            <h2 className="font-14">Additional Notes</h2>
-                            <div className="terms-content">
-                              <p>{tenantList[0]?.notes}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -522,27 +448,27 @@ export default function PreviewEstimate() {
         handleClose={() => setApproved(false)}
         handlestatus={handlestatus}
         estimateId={tenantList[0]?.estimateId}
-        isApproved={true}
-        loder={loder}
-        title={
-          reject
-            ? "You want to reject this estimate?"
-            : "You want to approve this estimate?"
-        }
-        subtitle={
-          reject
-            ? "Please click the Confirm button to reject this estimate."
-            : "Please click the Confirm button to approve this estimate."
-        }
-      />
-      {history &&<Breakdown
-        open={history}
-        handleClose={() => setHistory(false)}
-        data={{ windowProdcutId: object.windowProductId, label: object.label }}
-        EstimateId={tenantList[0]?.estimateId}
-        IsView={true}
-      />
-}
+                        isApproved={true}
+                        loder={loder}
+                        title={
+                        reject
+                            ? "You want to reject this estimate?"
+                            : "You want to approve this estimate?"
+                        }
+                        subtitle={
+                        reject
+                            ? "Please click the Confirm button to reject this estimate."
+                            : "Please click the Confirm button to approve this estimate."
+                        }
+                    />
+                    {history &&<Breakdown
+                        open={history}
+                        handleClose={() => setHistory(false)}
+                        data={{ windowProdcutId: object.windowProductId, label: object.label }}
+                        EstimateId={tenantList[0]?.estimateId}
+                        IsView={true}
+                    />
+                }
     </>
   );
 }
