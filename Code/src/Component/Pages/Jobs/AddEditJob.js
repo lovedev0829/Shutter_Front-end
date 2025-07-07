@@ -418,11 +418,7 @@ const AddEditJob = ({ open, handleclose, LanguageListAPI, action, object }) => {
                               className="form-control"
                               id="scheduledDate"
                               name="scheduledDate"
-                              min={
-                                action === "add"
-                                  ? new Date().toISOString().slice(0, 16)
-                                  : null
-                              }
+                             
                             />
                             <span
                               style={{
