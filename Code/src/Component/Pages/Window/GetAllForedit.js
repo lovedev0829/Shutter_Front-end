@@ -14,13 +14,18 @@ function GetAllForedit({
   indexId = 0,
   optionName = [],
   setOptionName = () => {},
+  additionalCosts = [],
+  setAdditionalCosts = () => {},
   isRender = true,
+  buildRequirement = false,
+  showOptionsPopup = false
 }) {
   const [optionList, setOptionList] = useState([]);
   const [allOption, setAllOption] = useState([]);
   const [show, setShow] = useState(false);
 
-  const [localOptionName, setLocalOptionName] = useState({}); // ✅ new state
+  const [localOptionName, setLocalOptionName] = useState({});
+  const [localAdditionalCosts, setLocalAdditionalCosts] = useState({});
 
   const fetchOptions = async () => {
     try {
@@ -36,7 +41,9 @@ function GetAllForedit({
       setShow(false);
 
       if (apiResponse?.data?.isSuccess) {
-        const fetchedOptions = apiResponse?.data?.data?.map((item) => {
+
+        let fetchedOptions = apiResponse?.data?.data?.map((item) => {
+          
           const hasDefault = item.options.some((opt) => opt.isDefault === true);
 
           if (!hasDefault && item.options.length > 0) {
@@ -55,6 +62,13 @@ function GetAllForedit({
           return item; // No change needed if already has a default
         });
 
+        if(showOptionsPopup === true){
+          // Filter options based on buildRequirement
+          fetchedOptions = fetchedOptions.filter((item) => {
+            return item.buildRequirement === buildRequirement;
+          });
+        }
+        
         setOptionList(fetchedOptions);
 
         const selectedFromValues = fetchedOptions
@@ -103,7 +117,7 @@ function GetAllForedit({
       setLocalOptionName({});
     }
     // eslint-disable-next-line
-  }, [producttypeId, load]);
+  }, [producttypeId, load, showOptionsPopup, buildRequirement]);
 
   useEffect(() => {
     if (allOption.length > 0 && fn) {
@@ -138,6 +152,31 @@ function GetAllForedit({
     // eslint-disable-next-line
   }, [localOptionName]);
 
+  useEffect(() => {
+    if (typeof setAdditionalCosts === "function") {
+      setAdditionalCosts((prev) => {
+        const updated = [...prev];
+        const existingIndex = updated.findIndex(
+          (item) => item.indexId === indexId
+        );
+
+        const newEntry = {
+          indexId,
+          data: localAdditionalCosts,
+        };
+
+        if (existingIndex !== -1) {
+          updated[existingIndex] = newEntry;
+        } else {
+          updated.push(newEntry);
+        }
+
+        return updated;
+      });
+    }
+    // eslint-disable-next-line
+  }, [localAdditionalCosts]);
+
   const handleChangeOption = (
     e,
     optionGroupId,
@@ -171,6 +210,22 @@ function GetAllForedit({
     }));
   };
 
+  const handleAdditionalCostChange = (e, optionTypeId, optionGroupName, optionType) => {
+    const costValue = e.target.value;
+    const costKey = `${optionTypeId}-${indexId}`;
+    
+    setLocalAdditionalCosts((prev) => ({
+      ...prev,
+      [costKey]: {
+        optionTypeId,
+        optionGroupName,
+        optionType,
+        additionalCost: costValue,
+        requirePriceAtEstimatePreview: costValue.trim() !== "" // Auto-set to true when cost is entered
+      }
+    }));
+  };
+
   return (
     <div className="position-relative">
       {show && <SelectBoxLoader />}
@@ -184,9 +239,9 @@ function GetAllForedit({
               >
                 {item?.optionName}
               </label>
-              <div className="d-flex gap-4 flex-wrap">
+              <div className="d-flex gap-4 flex-wrap flex-column">
                 {item?.options.map((option, index) => (
-                  <div className="exp-form-check" key={index}>
+                  <div key={index}>
                     <input
                       className="form-check-input"
                       type="radio"
@@ -215,6 +270,18 @@ function GetAllForedit({
                     >
                       {option?.optionType}
                     </label>
+                    { !option?.additionalCost && (
+                          <input 
+                              type="text" 
+                              className="form-control" 
+                              id={`additionalCost-${option?.optionTypeId}-${indexId}`} 
+                              name={`additionalCost-${option?.optionTypeId}-${indexId}`} 
+                              placeholder="Enter cost"
+                              value={localAdditionalCosts[`${option?.optionTypeId}-${indexId}`]?.additionalCost || ""}
+                              onChange={(e) => handleAdditionalCostChange(e, option?.optionTypeId, item?.optionName, option?.optionType)}
+                              style={{ height: "30px", width: "100px", marginTop: "5px" }}
+                        />)
+                    }
                   </div>
                 ))}
               </div>

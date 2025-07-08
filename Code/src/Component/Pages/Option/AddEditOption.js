@@ -36,7 +36,6 @@ const AddEditOption = ({
     unit: "",
     isTaxAvailable: true,
     taxId: null,
-    requirePriceAtEstimatePreview: false,
     buildRequirement: false,
     useInCutSheet: false,
     options: [
@@ -45,6 +44,7 @@ const AddEditOption = ({
         additionalCost: "",
         isDefault: false,
         sortOrder: 0,
+        requirePriceAtEstimatePreview: false,
       },
     ],
   };
@@ -68,11 +68,7 @@ const AddEditOption = ({
     });
   };
 
-  const handleChangeRequirePrice = (e) => {
-    setValue((val) => {
-      return { ...val, ["requirePriceAtEstimatePreview"]: !value.requirePriceAtEstimatePreview };
-    });
-  }
+
 
     const handleChangeuseInCutSheet = (e) => {
      setValue((val) => {
@@ -90,17 +86,16 @@ const AddEditOption = ({
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     
-    // Custom validation for requirePriceAtEstimatePreview
-    if (value.requirePriceAtEstimatePreview === true) {
-      const priceValidationError = value.options.find(
-        (option) => 
-          (!option.additionalCost || option.additionalCost === "" || option.additionalCost === "0")
-      );
-      
-      if (priceValidationError) {
-        ErrorMessage(`Additional cost value is required for option type '${priceValidationError.optionType}' when 'Require Price at Estimate Preview' is checked.`);
-        return;
-      }
+    // Custom validation for requirePriceAtEstimatePreview per option type
+    const priceValidationError = value.options.find(
+      (option) => 
+        option.requirePriceAtEstimatePreview === true && 
+        (!option.additionalCost || option.additionalCost === "" || option.additionalCost === "0")
+    );
+    
+    if (priceValidationError) {
+      ErrorMessage(`Additional cost value is required for option type '${priceValidationError.optionType}' when 'Require Price at Estimate Preview' is checked.`);
+      return;
     }
     
     if (!formValid) {
@@ -154,7 +149,15 @@ const AddEditOption = ({
 
   useEffect(() => {
     if (action === "edit") {
-      setValue(object);
+      // Ensure all options have the requirePriceAtEstimatePreview field
+      const processedObject = {
+        ...object,
+        options: object?.options?.map(option => ({
+          ...option,
+          requirePriceAtEstimatePreview: option.requirePriceAtEstimatePreview || false
+        })) || []
+      };
+      setValue(processedObject);
     } else {
       setValue(defaultState);
     }
@@ -175,6 +178,7 @@ const AddEditOption = ({
       additionalCost: "",
       isDefault: false,
       sortOrder: maxSortOrder + 1,
+      requirePriceAtEstimatePreview: false,
     });
     setValue((val) => {
       return { ...val, options: newArray };
@@ -239,6 +243,8 @@ const AddEditOption = ({
       newArray[i].optionType = e.target.value;
     } else if (key === "additionalCost") {
       newArray[i].additionalCost = e.target.value;
+    } else if (key === "requirePriceAtEstimatePreview") {
+      newArray[i].requirePriceAtEstimatePreview = e.target.checked;
     }
 
     setValue((val) => ({
@@ -571,26 +577,6 @@ const AddEditOption = ({
                               <input
                                 className="form-check-input"
                                 type="checkbox"
-                                id="requirePriceAtEstimatePreview"
-                                name="requirePriceAtEstimatePreview"
-                                checked={value.requirePriceAtEstimatePreview || false}
-                                onChange={handleChangeRequirePrice}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="requirePriceAtEstimatePreview"
-                              >
-                                Require Price at Estimate Preview
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-4 col-md-4">
-                          <div className="form-group">
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
                                 id="buildRequirement"
                                 name="buildRequirement"
                                 checked={value.buildRequirement || false}
@@ -605,7 +591,7 @@ const AddEditOption = ({
                             </div>
                           </div>
                         </div>
-                        <div className="col-lg-4 col-md-4">
+                        <div className="col-lg-6 col-md-6">
                           <div className="form-group">
                             <div className="form-check">
                               <input
@@ -660,26 +646,55 @@ const AddEditOption = ({
                                   </div>
                                 </div>
                               </div>
-                              <div className="col-lg-4 col-md-4">
+                              <div className="col-lg-2 col-md-2">
                                 <div className="form-group">
                                   {i === 0 && (
                                     <label className="font-14">
-                                      Price {value.requirePriceAtEstimatePreview && <span className="text-danger">*</span>}
+                                      Price {val?.requirePriceAtEstimatePreview && <span className="text-danger">*</span>}
                                     </label>
                                   )}
                                   <input
                                     type="text"
                                     className="form-control"
-                                    placeholder={value.requirePriceAtEstimatePreview ? "Enter Price (Required)" : "Enter Price"}
+                                    placeholder={val?.requirePriceAtEstimatePreview ? "Enter Price (Required)" : "Enter Price"}
                                     name="additionalCost"
                                     value={val?.additionalCost}
                                     onChange={(e) => {
                                       handleContactPerson(e, i);
                                     }}
                                   />
-                                  {value.requirePriceAtEstimatePreview && (!val?.additionalCost || val?.additionalCost === "") && (
+                                  {val?.requirePriceAtEstimatePreview && (!val?.additionalCost || val?.additionalCost === "") && (
                                     <small className="text-danger">Price is required when 'Require Price at Estimate Preview' is checked</small>
                                   )}
+                                </div>
+                              </div>
+
+                              <div className="col-lg-2 col-md-2">
+                                <div className="form-group">
+                                  {i === 0 && (
+                                    <label className="font-14" style={{ fontSize: "12px" }}>
+                                      Require Price
+                                    </label>
+                                  )}
+                                                                     <div className="form-check" style={{ marginTop: i === 0 ? "0" : "8px" }}>
+                                     <input
+                                       className="form-check-input"
+                                       type="checkbox"
+                                       id={`requirePrice_${i}`}
+                                       name="requirePriceAtEstimatePreview"
+                                       checked={val?.requirePriceAtEstimatePreview || false}
+                                       onChange={(e) => {
+                                         handleContactPerson(e, i);
+                                       }}
+                                     />
+                                    <label
+                                      className="form-check-label"
+                                      htmlFor={`requirePrice_${i}`}
+                                      style={{ fontSize: "12px" }}
+                                    >
+                                      Required
+                                    </label>
+                                  </div>
                                 </div>
                               </div>
 

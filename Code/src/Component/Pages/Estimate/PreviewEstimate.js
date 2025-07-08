@@ -256,7 +256,7 @@ export default function PreviewEstimate() {
                             <tr key={i}>
                               <td>{val?.label}</td>
                               <td>{val?.windowQty}</td>
-                              <td>{val?.productTypeName}</td>
+                              <td>{val?.productName}</td>
                               <td>
                               {" "}
                                 W: {val?.estimateWindowDetails?.width}”, H:{" "}
