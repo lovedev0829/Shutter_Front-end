@@ -36,12 +36,15 @@ const AddEditOption = ({
     unit: "",
     isTaxAvailable: true,
     taxId: null,
+    buildRequirement: false,
+    useInCutSheet: false,
     options: [
       {
         optionType: "",
         additionalCost: "",
         isDefault: false,
         sortOrder: 0,
+        requirePriceAtEstimatePreview: false,
       },
     ],
   };
@@ -65,20 +68,59 @@ const AddEditOption = ({
     });
   };
 
+
+
+    const handleChangeuseInCutSheet = (e) => {
+     setValue((val) => {
+         return { ...val, useInCutSheet: !value.useInCutSheet };
+     });
+  }
+  
+  const handleChangeBuildRequirement = (e) => {
+       setValue((val) => {
+         return { ...val, buildRequirement: !value.buildRequirement };
+       });
+   }
+
   const languageAdd = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
+    
+    // Custom validation for requirePriceAtEstimatePreview per option type
+    const priceValidationError = value.options.find(
+      (option) => 
+        option.requirePriceAtEstimatePreview === true && 
+        (!option.additionalCost || option.additionalCost === "" || option.additionalCost === "0")
+    );
+    
+    if (priceValidationError) {
+      ErrorMessage(`Additional cost value is required for option type '${priceValidationError.optionType}' when 'Require Price at Estimate Preview' is checked.`);
+      return;
+    }
+    
     if (!formValid) {
       simpleValidator.current.showMessages();
       forceUpdate(1);
     } else {
       try {
         setLoader(true);
+        
+        // Clean up the data before sending
+        const cleanedValue = {
+          ...value,
+          options: value.options.map(option => ({
+            ...option,
+            additionalCost: option.additionalCost === "" ? null : parseFloat(option.additionalCost) || null
+          }))
+        };
+        
+        console.log("Sending data:", cleanedValue);
+        
         const apiResponse = await callAPI(
           action === "add" ? apiUrls.OptionCreate : apiUrls.OptionUpdate,
           {},
           "POST",
-          value
+          cleanedValue
         );
         setLoader(false);
         if (apiResponse?.data?.isSuccess) {
@@ -87,17 +129,35 @@ const AddEditOption = ({
           handleclose();
           setValue(defaultState);
         } else {
-          ErrorMessage(apiResponse?.data?.message);
+          // Handle detailed validation errors
+          if (apiResponse?.data?.errors) {
+            const errorMessages = apiResponse.data.errors.map(error => 
+              `${error.Field}: ${error.Errors.join(', ')}`
+            ).join('\n');
+            ErrorMessage(`Validation failed:\n${errorMessages}`);
+          } else {
+            ErrorMessage(apiResponse?.data?.message || "An error occurred");
+          }
         }
       } catch (error) {
         setLoader(false);
+        console.error("API Error:", error);
+        ErrorMessage("An unexpected error occurred. Please try again.");
       }
     }
   };
 
   useEffect(() => {
     if (action === "edit") {
-      setValue(object);
+      // Ensure all options have the requirePriceAtEstimatePreview field
+      const processedObject = {
+        ...object,
+        options: object?.options?.map(option => ({
+          ...option,
+          requirePriceAtEstimatePreview: option.requirePriceAtEstimatePreview || false
+        })) || []
+      };
+      setValue(processedObject);
     } else {
       setValue(defaultState);
     }
@@ -118,6 +178,7 @@ const AddEditOption = ({
       additionalCost: "",
       isDefault: false,
       sortOrder: maxSortOrder + 1,
+      requirePriceAtEstimatePreview: false,
     });
     setValue((val) => {
       return { ...val, options: newArray };
@@ -182,6 +243,8 @@ const AddEditOption = ({
       newArray[i].optionType = e.target.value;
     } else if (key === "additionalCost") {
       newArray[i].additionalCost = e.target.value;
+    } else if (key === "requirePriceAtEstimatePreview") {
+      newArray[i].requirePriceAtEstimatePreview = e.target.checked;
     }
 
     setValue((val) => ({
@@ -339,8 +402,8 @@ const AddEditOption = ({
                       <div className="col-lg-4 col-md-4">
                         <div className="form-group">
                           <InputField
-                            labelName={"Option Name"}
-                            placeholderName={"Enter Option Name"}
+                            labelName={"Group Name"}
+                            placeholderName={"Enter Group Name"}
                             type={"text"}
                             handleChange={handleChange}
                             id={"optionName"}
@@ -350,7 +413,7 @@ const AddEditOption = ({
                           />
                           <div className="error">
                             {simpleValidator.current.message(
-                              "Option Name",
+                              "Group Name",
                               value?.optionName,
                               `required`
                             )}
@@ -507,6 +570,48 @@ const AddEditOption = ({
                           </div>
                         </div>
                       )}
+                      <div class="row">
+                        <div className="col-lg-4 col-md-4">
+                          <div className="form-group">
+                            <div className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="buildRequirement"
+                                name="buildRequirement"
+                                checked={value.buildRequirement || false}
+                                                                 onChange={handleChangeBuildRequirement}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="buildRequirement"
+                              >
+                                Build Requirement
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-lg-6 col-md-6">
+                          <div className="form-group">
+                            <div className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id="useInCutSheet"
+                                name="useInCutSheet"
+                                checked={value.useInCutSheet || false}
+                                onChange={handleChangeuseInCutSheet}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="useInCutSheet"
+                              >
+                                Use in Cut Sheet
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="row">
@@ -519,13 +624,13 @@ const AddEditOption = ({
                                 <div className="form-group">
                                   {i === 0 && (
                                     <label className="font-14">
-                                      Option Value <sup>*</sup>
+                                      Option Name <sup>*</sup>
                                     </label>
                                   )}
                                   <input
                                     type="text"
                                     className="form-control"
-                                    placeholder="Enter Option Value"
+                                    placeholder="Enter Option Name"
                                     name="optionType"
                                     value={val?.optionType}
                                     onChange={(e) => {
@@ -534,36 +639,61 @@ const AddEditOption = ({
                                   />
                                   <div className="error">
                                     {simpleValidator.current.message(
-                                      "Option Type",
+                                      "Option Name",
                                       val?.optionType,
                                       "required"
                                     )}
                                   </div>
                                 </div>
                               </div>
-                              <div className="col-lg-4 col-md-4">
+                              <div className="col-lg-2 col-md-2">
                                 <div className="form-group">
                                   {i === 0 && (
                                     <label className="font-14">
-                                      Price <sup>*</sup>
+                                      Price {val?.requirePriceAtEstimatePreview && <span className="text-danger">*</span>}
                                     </label>
                                   )}
                                   <input
                                     type="text"
                                     className="form-control"
-                                    placeholder="Enter Price"
+                                    placeholder={val?.requirePriceAtEstimatePreview ? "Enter Price (Required)" : "Enter Price"}
                                     name="additionalCost"
                                     value={val?.additionalCost}
                                     onChange={(e) => {
                                       handleContactPerson(e, i);
                                     }}
                                   />
-                                  <div className="error">
-                                    {simpleValidator.current.message(
-                                      "Price",
-                                      val?.additionalCost,
-                                      "required|integer"
-                                    )}
+                                  {val?.requirePriceAtEstimatePreview && (!val?.additionalCost || val?.additionalCost === "") && (
+                                    <small className="text-danger">Price is required when 'Require Price at Estimate Preview' is checked</small>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="col-lg-2 col-md-2">
+                                <div className="form-group">
+                                  {i === 0 && (
+                                    <label className="font-14" style={{ fontSize: "12px" }}>
+                                      Require Price
+                                    </label>
+                                  )}
+                                                                     <div className="form-check" style={{ marginTop: i === 0 ? "0" : "8px" }}>
+                                     <input
+                                       className="form-check-input"
+                                       type="checkbox"
+                                       id={`requirePrice_${i}`}
+                                       name="requirePriceAtEstimatePreview"
+                                       checked={val?.requirePriceAtEstimatePreview || false}
+                                       onChange={(e) => {
+                                         handleContactPerson(e, i);
+                                       }}
+                                     />
+                                    <label
+                                      className="form-check-label"
+                                      htmlFor={`requirePrice_${i}`}
+                                      style={{ fontSize: "12px" }}
+                                    >
+                                      Required
+                                    </label>
                                   </div>
                                 </div>
                               </div>

@@ -27,7 +27,7 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
-
+  const param = useParams();
   const loginToApp = async (data) => {
    
     try {
@@ -42,11 +42,13 @@ export default function Login() {
       if (response.data.isSuccess) {
         let datas = response?.data?.data;
 
-        localStorage.setItem("accessToken", datas?.token);
         dispatch(Profile(datas));
+        localStorage.setItem("accessToken", datas?.token);
+        localStorage.setItem("code", JSON.stringify(param.type));
         localStorage.setItem("userData", JSON.stringify(datas));
         SuccessMessage(response.data.message);
         navigate("/dashboard");
+
       } else {
         ErrorMessage(response.data.message);
       }
@@ -74,8 +76,6 @@ export default function Login() {
     }
   };
   
-  const param = useParams();
-
   useEffect(() => {
     setInput((prevInput) => ({ ...prevInput, 'companyCode': param.type }));
      // eslint-disable-next-line react-hooks/exhaustive-deps
