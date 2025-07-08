@@ -37,7 +37,7 @@ const AddEditContact = ({
       website: "",
       notes: "",
       refral: "",
-      isBillingAddressSameAsAddress: false,
+      isbillingSameAddress: false,
       billingAddressVm: {
         firstName: "",
         lastName: "",
@@ -76,24 +76,10 @@ const AddEditContact = ({
         },
       }));
     } else {
-      setValue((prev) => {
-        const newState = {
-          ...prev,
-          [name]: value,
-        };
-        
-        // Auto-update billing address if "Same as Billing" is checked
-        if (prev.isBillingAddressSameAsAddress) {
-          if (name === "firstName" || name === "lastName" || name === "email") {
-            newState.billingAddressVm = {
-              ...prev.billingAddressVm,
-              [name]: value,
-            };
-          }
-        }
-        
-        return newState;
-      });
+      setValue((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
   const languageAdd = async (e) => {
@@ -210,30 +196,18 @@ const AddEditContact = ({
         },
       }));
     } else {
-      setValue((prev) => {
-        const newState = {
-          ...prev,
-          [name]: cleanedValue,
-        };
-        
-        // Auto-update billing address phone number if "Same as Billing" is checked
-        if (prev.isBillingAddressSameAsAddress && name === "phoneNumber") {
-          newState.billingAddressVm = {
-            ...prev.billingAddressVm,
-            phoneNumber: cleanedValue,
-          };
-        }
-        
-        return newState;
-      });
+      setValue((prev) => ({
+        ...prev,
+        [name]: cleanedValue,
+      }));
     }
   };
-
+  
   const handleSameAsBillingChange = (e) => {
     const isChecked = e.target.checked;
     setValue((prev) => ({
       ...prev,
-      isBillingAddressSameAsAddress: isChecked,
+      isbillingSameAddress: isChecked,
       billingAddressVm: isChecked
         ? {
             ...prev.billingAddressVm,
@@ -243,19 +217,15 @@ const AddEditContact = ({
             email: prev.email,
           }
         : {
+            ...prev.billingAddressVm,
             firstName: "",
             lastName: "",
             phoneNumber: "",
             email: "",
-            streetAddress: "",
-            city: "",
-            stateId: "",
-            zipCode: "",
           },
     }));
-  };
-  
 
+  }
 
 
   
@@ -473,34 +443,23 @@ const AddEditContact = ({
                       <div className="col-lg-12 col-md-12">
                         <div className="middle-heading">
                           <h4 className="d-flex align-items-end gap-2">
-                            {/* <input
+                            <input
                               type="checkbox"
                               style={{ border: "1px solid #8f8b8b" }}
                               className="form-check-input"
-                              name="isBillingAddressSameAsAddress"
-                              checked={value.isBillingAddressSameAsAddress}
-                              onChange={(e) => {
-                                setValue((prev) => ({
-                                  ...prev,
-                                  isBillingAddressSameAsAddress:
-                                    e.target.checked,
-                                }));
-                              }}
-                            />{" "} */}
+                              name="isbillingSameAddress"
+                              checked={value.isbillingSameAddress}
+                              onChange={handleSameAsBillingChange}
+                              // onChange={(e) => {
+                              //   setValue((prev) => ({
+                              //     ...prev,
+                              //     isbillingSameAddress:
+                              //       e.target.checked,
+                              //   }));
+                              // }}
+                            />{" "}
                             Primary/Billing Address{" "}
                           </h4>
-                          <div className="col-lg-4 col-md-4">
-                            <label for="sameBilling">
-                                Same as Billing
-                            </label>
-                            <input 
-                              id="sameBilling"
-                              type="checkbox" 
-                              checked={value.isBillingAddressSameAsAddress}
-                              onChange={handleSameAsBillingChange}
-                              style={{ marginLeft: "5px" }}
-                            />
-                          </div>
                         </div>
                       </div>
                       <div className="col-lg-3 col-md-3">
@@ -514,7 +473,6 @@ const AddEditContact = ({
                             name={"billingAddressVm.firstName"}
                             value={value.billingAddressVm?.firstName || ""}
                             required={true}
-                            disabled={value.isBillingAddressSameAsAddress}
                           />
                           <div className="error">
                             {simpleValidator.current.message(
@@ -536,7 +494,6 @@ const AddEditContact = ({
                             name={"billingAddressVm.lastName"}
                             value={value.billingAddressVm?.lastName || ""}
                             required={true}
-                            disabled={value.isBillingAddressSameAsAddress}
                           />
                           <div className="error">
                             {simpleValidator.current.message(
@@ -560,7 +517,6 @@ const AddEditContact = ({
                               value.billingAddressVm?.phoneNumber || ""
                             )}
                             required={true}
-                            disabled={value.isBillingAddressSameAsAddress}
                           />
                           <div className="error">
                             {simpleValidator.current.message(
@@ -582,7 +538,6 @@ const AddEditContact = ({
                             name={"billingAddressVm.email"}
                             value={value.billingAddressVm?.email || ""}
                             required={true}
-                            disabled={value.isBillingAddressSameAsAddress}
                           />
                           <div className="error">
                             {simpleValidator.current.message(
