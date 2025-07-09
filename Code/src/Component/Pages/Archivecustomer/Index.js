@@ -306,7 +306,7 @@ export default function Index() {
                         {val.sort && (
                           <input
                             type="text"
-                            class="form-control new-search-input"
+                            className="form-control new-search-input"
                             name="suffix"
                             placeholder="Search here"
                             value={

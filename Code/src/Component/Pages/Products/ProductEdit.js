@@ -552,7 +552,7 @@ export default function ProductEdit() {
                           {!HasPermission("SubTenantView") ? (
                             <td>
                               <select
-                                class="form-select"
+                                className="form-select"
                                 name="productType"
                                 style={{ width: "137px" }}
                                 value={val?.markupType}
@@ -569,7 +569,7 @@ export default function ProductEdit() {
                             <td>
                               {val.isComponentAvailable ? (
                                 <select
-                                  class="form-select"
+                                  className="form-select"
                                   name="productType"
                                   style={{ width: "137px" }}
                                   value={val?.priceType}
@@ -648,7 +648,7 @@ export default function ProductEdit() {
                           {!HasPermission("SubTenantView") && (
                             <td>
                               <select
-                                class="form-select"
+                                className="form-select"
                                 name="taxRateId"
                                 style={{ width: "137px" }}
                                 value={val?.taxRateId}
@@ -946,7 +946,7 @@ export default function ProductEdit() {
                                                       "SubTenantView"
                                                     ) ? (
                                                       <select
-                                                        class="form-select"
+                                                        className="form-select"
                                                         name="productType"
                                                         style={{
                                                           width: "137px",
@@ -976,7 +976,7 @@ export default function ProductEdit() {
                                                       </select>
                                                     ) : (
                                                       <select
-                                                        class="form-select"
+                                                        className="form-select"
                                                         name="productType"
                                                         style={{
                                                           width: "137px",
