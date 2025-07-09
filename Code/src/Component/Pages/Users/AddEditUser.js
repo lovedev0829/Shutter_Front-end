@@ -17,9 +17,9 @@ import AddEditJobTitle from "../Jobtitle/AddEditJobTitle";
 const AddEditUser = ({
   open,
   handleclose,
-  LanguageListAPI,
-  action,
-  object,
+ LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
 }) => {
   const defaultState = {
     firstName: "",
@@ -63,7 +63,7 @@ const AddEditUser = ({
   };
   
 
-  const languageAdd = async (e) => {
+  const UserAddEdit = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -175,7 +175,7 @@ const AddEditUser = ({
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={UserAddEdit}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
                     <div className="row">

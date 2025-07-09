@@ -19,7 +19,7 @@ function Index() {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [paginatedItems, setPaginatedItems] = useState(0);
-    const [tenantList, setTenantList] = useState([]);
+    const [OptionexpressionList, setOptionexpressionList] = useState([]);
     const [search, setsearch] = useState('');
     const [loder, setLoader] = useState(false);
     const [delOpen, setDelOpen] = useState(false)
@@ -38,7 +38,7 @@ function Index() {
         setsearch(value)
     }
     const handleChangePage = (event, newPage) => {
-        TenantlistAPI(newPage + 1, rowsPerPage, search, filter.status,
+        OptionexpressionlistAPI(newPage + 1, rowsPerPage, search, filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -47,14 +47,14 @@ function Index() {
 
     const handleChangeRowsPerPage = (event) => {
         let pageNo = 1;
-        TenantlistAPI(pageNo, parseInt(event.target.value, 10), search, filter.status,
+        OptionexpressionlistAPI(pageNo, parseInt(event.target.value, 10), search, filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(pageNo);
     };
-    const TenantlistAPI = async (page, perpage, serach, status,sortColumn,sortDirection,columnFilters) => {
+    const OptionexpressionlistAPI = async (page, perpage, serach, status,sortColumn,sortDirection,columnFilters) => {
         let query = { searchValue: serach ? serach : "", pageNo: page ? page : 1, recordPerPage: perpage ? perpage : 10, status: status, region:"",
             sortColumn:sortColumn?sortColumn:"",
       sortDirection:sortDirection?sortDirection:"asc",
@@ -66,10 +66,10 @@ function Index() {
             const apiResponse = await callAPI(apiUrls.Expression, {}, "POST", query);
         setLoader(false)
         if (apiResponse?.data?.isSuccess) {
-            setTenantList(apiResponse?.data?.data)
+            setOptionexpressionList(apiResponse?.data?.data)
             setPaginatedItems(apiResponse?.data?.totalRecords)
         } else {
-            setTenantList([])
+            setOptionexpressionList([])
             ErrorMessage(apiResponse?.data?.message)
         }
         } catch (error) {
@@ -79,7 +79,7 @@ function Index() {
     }
     const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
     useEffect(() => {
-        TenantlistAPI(1, rowsPerPage, debouncedSearch, filter.status,
+        OptionexpressionlistAPI(1, rowsPerPage, debouncedSearch, filter.status,
       filter.sortColumn,
       filter.sortDirection,
      debouncedSearchcolumn)
@@ -94,7 +94,7 @@ function Index() {
 
     const handleapi = () => {
         let pageNo = 1;
-        TenantlistAPI(pageNo, rowsPerPage, search, filter.status,
+        OptionexpressionlistAPI(pageNo, rowsPerPage, search, filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -124,7 +124,7 @@ function Index() {
                 handledelclose();
                 SuccessMessage(response.data.message)
                 let pageNo = 1;
-                TenantlistAPI(pageNo, rowsPerPage, search, filter.status,
+                OptionexpressionlistAPI(pageNo, rowsPerPage, search, filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -147,7 +147,7 @@ function Index() {
             setLoader(false)
             if (response.data.isSuccess) {
                 SuccessMessage(response.data.message)
-                TenantlistAPI(page, rowsPerPage, search, filter.status,
+                OptionexpressionlistAPI(page, rowsPerPage, search, filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -162,7 +162,7 @@ function Index() {
 
     const handleChange = (e) => {
         let pageNo = 1;
-        TenantlistAPI(pageNo, rowsPerPage, search, e.target.name === "status" ? e.target.value : filter.status,
+        OptionexpressionlistAPI(pageNo, rowsPerPage, search, e.target.name === "status" ? e.target.value : filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters
@@ -182,7 +182,7 @@ function Index() {
       };
     });
 
-    TenantlistAPI(
+    OptionexpressionlistAPI(
     1, rowsPerPage, search, filter.status,
       columnKey,
       filter.sortDirection === "asc" ? "desc" : "asc",
@@ -242,13 +242,13 @@ function Index() {
                         </div>
                         <div className="task_table mb-30">
                             <div className="table-responsive">
-                                <DynamicTable data={tenantList} columns={columns} title="Expression" rowActions={['edit', 'delete']} edituser={handleedit} handledelete={handledelete}
+                                <DynamicTable data={OptionexpressionList} columns={columns} title="Expression" rowActions={['edit', 'delete']} edituser={handleedit} handledelete={handledelete}
                                     deletepermission="OptionExpressionDelete" editpermission="OptionExpressionEdit" handlestatus={handlestatus}  handleFilterSortChange={handleFilterSortChange}
                   sortColumn={filter.sortColumn}
                   sortDirection={filter.sortDirection}
                   columnFilters={filter.columnFilters}
                   handlesearchChange={handlesearchChange}/>
-                                {tenantList && tenantList?.length > 0 &&
+                                {OptionexpressionList && OptionexpressionList?.length > 0 &&
                                     <div className="d-flex align-items-center justify-content-end bottom_nav">
                                         <nav aria-label="Page navigation example">
                                             <ul className="pagination">

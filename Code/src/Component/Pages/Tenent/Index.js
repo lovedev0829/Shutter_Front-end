@@ -113,7 +113,7 @@ export default function Index() {
     setObject("");
   };
 
-  const handleapi = () => {
+  const refreshTenantlistAPI = () => {
     let pageNo = 1;
     TenantlistAPI(pageNo, rowsPerPage, search, filter.status,
       filter.sortColumn,
@@ -312,7 +312,7 @@ export default function Index() {
         open={open}
         handleclose={handleclose}
         action={action}
-        LanguageListAPI={handleapi}
+        TenantlistAPI={refreshTenantlistAPI}
         object={object}
       />
       <Delete

@@ -18,9 +18,9 @@ import { defaultConfig } from "../../../config";
 function AddEditExpression({
   open,
   handleclose,
-  LanguageListAPI,
-  action,
-  object,
+   LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
 }) {
   const defaultState = {
     expressionName: "",
@@ -61,7 +61,7 @@ function AddEditExpression({
   const [result, setResult] = useState("");
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
-  const languageAdd = async () => {
+  const OptionexpressionAddUpdate = async () => {
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
       simpleValidator.current.showMessages();
@@ -352,7 +352,7 @@ function AddEditExpression({
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  languageAdd();
+                  OptionexpressionAddUpdate();
                 }}
               >
                 <div className="modal-body pt-0 pb-0">
