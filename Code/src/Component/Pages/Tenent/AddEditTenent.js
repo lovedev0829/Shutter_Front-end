@@ -20,7 +20,7 @@ import Selectbox from "../../Form/Selectbox";
 const AddEditTenent = ({
   open,
   handleclose,
-  LanguageListAPI,
+  TenantlistAPI,
   action,
   object,
 }) => {
@@ -53,6 +53,7 @@ const AddEditTenent = ({
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
   let debounceTimer;
+
   const handleChange = (e) => {
     if (e.target.name === "companyName" && action !== "edit") {
       clearTimeout(debounceTimer);
@@ -92,7 +93,7 @@ const AddEditTenent = ({
     }
   };
 
-  const languageAdd = async (e) => {
+  const TenantAddUpadte = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -114,7 +115,7 @@ const AddEditTenent = ({
         setLoader(false);
         if (apiResponse?.data?.isSuccess) {
           SuccessMessage(apiResponse?.data?.message);
-          await LanguageListAPI();
+          await TenantlistAPI();
           handleclose();
           setImage("");
           setValue(defaultState);
@@ -230,7 +231,7 @@ const AddEditTenent = ({
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={TenantAddUpadte}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design window-form-design">
                     <div className="imagesec d-flex align-items-center gap-3 mb-30">

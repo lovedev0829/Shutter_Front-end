@@ -27,7 +27,7 @@ function Index() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
-  const [tenantList, setTenantList] = useState([]);
+  const [TaxList, setTaxList] = useState([]);
   const [search, setsearch] = useState("");
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
@@ -47,7 +47,7 @@ function Index() {
     setsearch(value);
   };
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(
+    TaxlistAPI(
       newPage + 1,
       rowsPerPage,
       search,
@@ -62,7 +62,7 @@ function Index() {
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(
+    TaxlistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       search,
@@ -75,7 +75,7 @@ function Index() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page, perpage, serach, status, region,sortColumn,sortDirection,columnFilters) => {
+  const TaxlistAPI = async (page, perpage, serach, status, region,sortColumn,sortDirection,columnFilters) => {
     let query = {
       searchValue: serach ? serach : "",
       pageNo: page ? page : 1,
@@ -91,10 +91,10 @@ function Index() {
       const apiResponse = await callAPI(apiUrls.Tax, {}, "POST", query);
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
-        setTenantList(apiResponse?.data?.data);
+        setTaxList(apiResponse?.data?.data);
         setPaginatedItems(apiResponse?.data?.totalRecords);
       } else {
-        setTenantList([]);
+        setTaxList([]);
         ErrorMessage(apiResponse?.data?.message);
       }
     } catch (error) {
@@ -103,7 +103,7 @@ function Index() {
   };
   const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
   useEffect(() => {
-    TenantlistAPI(
+    TaxlistAPI(
       1,
       rowsPerPage,
       debouncedSearch,
@@ -123,7 +123,7 @@ function Index() {
 
   const handleapi = () => {
     let pageNo = 1;
-    TenantlistAPI(pageNo, rowsPerPage, search, filter.status, filter.region,
+    TaxlistAPI(pageNo, rowsPerPage, search, filter.status, filter.region,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -150,7 +150,7 @@ function Index() {
         handledelclose();
         SuccessMessage(response.data.message);
         let pageNo = 1;
-        TenantlistAPI(
+        TaxlistAPI(
           pageNo,
           rowsPerPage,
           search,
@@ -184,7 +184,7 @@ function Index() {
       setLoader(false);
       if (response.data.isSuccess) {
         SuccessMessage(response.data.message);
-        TenantlistAPI(page, rowsPerPage, search, filter.status, filter.region,
+        TaxlistAPI(page, rowsPerPage, search, filter.status, filter.region,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -198,7 +198,7 @@ function Index() {
 
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(
+    TaxlistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -223,7 +223,7 @@ function Index() {
       };
     });
 
-    TenantlistAPI(
+    TaxlistAPI(
       1,
       rowsPerPage,
       search,
@@ -288,7 +288,7 @@ function Index() {
             <div className="task_table mb-30">
               <div className="table-responsive">
                 <DynamicTable
-                  data={tenantList}
+                  data={TaxList}
                   columns={columns}
                   title="Taxes"
                   rowActions={["edit", "delete"]}
@@ -303,7 +303,7 @@ function Index() {
                   columnFilters={filter.columnFilters}
                   handlesearchChange={handlesearchChange}
                 />
-                {tenantList && tenantList?.length > 0 && (
+                {TaxList && TaxList?.length > 0 && (
                   <div className="d-flex align-items-center justify-content-end bottom_nav">
                     <nav aria-label="Page navigation example">
                       <ul className="pagination">

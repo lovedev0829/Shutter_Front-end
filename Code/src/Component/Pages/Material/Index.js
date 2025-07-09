@@ -30,7 +30,7 @@ export default function Index() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
-  const [tenantList, setTenantList] = useState([]);
+  const [MaterialList, setMaterialList] = useState([]);
   const [search, setsearch] = useState("");
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
@@ -44,14 +44,14 @@ export default function Index() {
   });
 
   const columns = [
-    { key: "materialName", label: "Name", sort: true  },
-    { key: "unitCost", label: "Unit Cost", sign: true, sort: true  },
+    { key: "materialName", label: "Name", sort: true },
+    { key: "unitCost", label: "Unit Cost", sign: true, sort: true },
     //  { key: "nonRatedUnitCost", label: "Non Rated Cost",sign:true  },
-    { key: "unitOfMeasurement", label: "Unit Of Measure", sort: true  },
-    { key: "stockQuantity", label: "Inventory", sort: true  },
-    { key: "reorderLevel", label: "Reorder level", sort: true  },
-    { key: "companyName", label: "Vendor", sort: true  },
-    { key: "sku", label: "SKU", sort: true  },
+    { key: "unitOfMeasurement", label: "Unit Of Measure", sort: true },
+    { key: "stockQuantity", label: "Inventory", sort: true },
+    { key: "reorderLevel", label: "Reorder level", sort: true },
+    { key: "companyName", label: "Vendor", sort: true },
+    { key: "sku", label: "SKU", sort: true },
     { key: "isCutSheet", label: "Cut Sheet" },
     // { key: 'notes', label: 'Notes' },
     { key: "isActive", label: "Status" },
@@ -62,7 +62,7 @@ export default function Index() {
   };
 
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(
+    MateriallistAPI(
       newPage + 1,
       rowsPerPage,
       search,
@@ -77,7 +77,7 @@ export default function Index() {
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(
+    MateriallistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       search,
@@ -90,7 +90,16 @@ export default function Index() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page, perpage, serach, productType, vendor,sortColumn,sortDirection,columnFilters) => {
+  const MateriallistAPI = async (
+    page,
+    perpage,
+    serach,
+    productType,
+    vendor,
+    sortColumn,
+    sortDirection,
+    columnFilters
+  ) => {
     let query = {
       searchValue: serach ? serach : "",
       pageNo: page ? page : 1,
@@ -99,19 +108,19 @@ export default function Index() {
       status: "2",
       productType: productType,
       vendor: vendor,
-       sortColumn:sortColumn?sortColumn:"",
-      sortDirection:sortDirection?sortDirection:"asc",
-      columnFilters:columnFilters || []
+      sortColumn: sortColumn ? sortColumn : "",
+      sortDirection: sortDirection ? sortDirection : "asc",
+      columnFilters: columnFilters || [],
     };
     setLoader(true);
     try {
       const apiResponse = await callAPI(apiUrls.Material, {}, "POST", query);
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
-        setTenantList(apiResponse?.data?.data);
+        setMaterialList(apiResponse?.data?.data);
         setPaginatedItems(apiResponse?.data?.totalRecords);
       } else {
-        setTenantList([]);
+        setMaterialList([]);
         ErrorMessage(apiResponse?.data?.message);
       }
     } catch (error) {
@@ -120,7 +129,7 @@ export default function Index() {
   };
   const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
   useEffect(() => {
-    TenantlistAPI(
+    MateriallistAPI(
       1,
       rowsPerPage,
       debouncedSearch,
@@ -140,7 +149,7 @@ export default function Index() {
 
   const handleapi = () => {
     let pageNo = 1;
-    TenantlistAPI(
+    MateriallistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -179,7 +188,7 @@ export default function Index() {
         handledelclose();
         SuccessMessage(response.data.message);
         let pageNo = 1;
-        TenantlistAPI(
+        MateriallistAPI(
           pageNo,
           rowsPerPage,
           search,
@@ -215,7 +224,7 @@ export default function Index() {
       setLoader(false);
       if (response.data.isSuccess) {
         SuccessMessage(response.data.message);
-        TenantlistAPI(
+        MateriallistAPI(
           page,
           rowsPerPage,
           search,
@@ -235,7 +244,7 @@ export default function Index() {
 
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(
+    MateriallistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -260,7 +269,7 @@ export default function Index() {
       };
     });
 
-    TenantlistAPI(
+    MateriallistAPI(
       1,
       rowsPerPage,
       search,
@@ -362,7 +371,7 @@ export default function Index() {
             <div className="task_table mb-30">
               <div className="table-responsive">
                 <DynamicTable
-                  data={tenantList}
+                  data={MaterialList}
                   columns={columns}
                   title="Material"
                   rowActions={["edit", "delete"]}
@@ -371,18 +380,18 @@ export default function Index() {
                   handlestatus={handlestatus}
                   deletepermission="MaterialDelete"
                   editpermission="MaterialEdit"
-                   handleFilterSortChange={handleFilterSortChange}
-                sortColumn={filter.sortColumn}
-                sortDirection={filter.sortDirection}
-                columnFilters={filter.columnFilters}
-                handlesearchChange={handlesearchChange}
+                  handleFilterSortChange={handleFilterSortChange}
+                  sortColumn={filter.sortColumn}
+                  sortDirection={filter.sortDirection}
+                  columnFilters={filter.columnFilters}
+                  handlesearchChange={handlesearchChange}
                 />
-                {tenantList && tenantList?.length > 0 && (
+                {MaterialList && MaterialList?.length > 0 && (
                   <div className="d-flex align-items-center justify-content-end bottom_nav">
                     <nav aria-label="Page navigation example">
                       <ul className="pagination">
                         <TablePagination
-                            rowsPerPageOptions={[10,25,50,100]}
+                          rowsPerPageOptions={[10, 25, 50, 100]}
                           component="div"
                           count={paginatedItems}
                           rowsPerPage={rowsPerPage}
@@ -399,23 +408,25 @@ export default function Index() {
           </div>
         </div>
       </div>
-      {open &&<AddEditMaterial
-        open={open}
-        handleclose={handleclose}
-        action={action}
-        LanguageListAPI={handleapi}
-        object={object}
-      />
-}
-    {delOpen &&<Delete
-        open={delOpen}
-        handleClose={handledelclose}
-        title={object.materialName}
-        id={object?.materialId}
-        handleDelete={handleDelete}
-        loder={loder}
-      />
-    }
+      {open && (
+        <AddEditMaterial
+          open={open}
+          handleclose={handleclose}
+          action={action}
+          LanguageListAPI={handleapi}
+          object={object}
+        />
+      )}
+      {delOpen && (
+        <Delete
+          open={delOpen}
+          handleClose={handledelclose}
+          title={object.materialName}
+          id={object?.materialId}
+          handleDelete={handleDelete}
+          loder={loder}
+        />
+      )}
     </>
   );
 }

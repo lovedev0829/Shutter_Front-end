@@ -12,9 +12,9 @@ import Allstate from "../../../helpers/Allstate";
 const AddEditVender = ({
   open,
   handleclose,
-  LanguageListAPI,
-  action,
-  object,
+ LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
 }) => {
   const defaultState = useMemo(
     () => ({
@@ -58,7 +58,7 @@ const AddEditVender = ({
   };
   
 
-  const languageAdd = async (e) => {
+  const VendorAddUpdate = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -145,7 +145,7 @@ const AddEditVender = ({
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={VendorAddUpdate}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
                     <div className="row">

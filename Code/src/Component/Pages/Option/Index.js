@@ -22,7 +22,7 @@ export default function Index() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
-  const [tenantList, setTenantList] = useState([]);
+  const [OptionsList, setOptionsList] = useState([]);
   const [search, setsearch] = useState('');
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false)
@@ -48,7 +48,7 @@ export default function Index() {
  
 
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(newPage + 1, rowsPerPage, search,filter.productType,filter.status,
+    OptionslistAPI(newPage + 1, rowsPerPage, search,filter.productType,filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -57,14 +57,14 @@ export default function Index() {
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(pageNo, parseInt(event.target.value, 10), search,filter.productType,filter.status,
+    OptionslistAPI(pageNo, parseInt(event.target.value, 10), search,filter.productType,filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page,perpage,serach,productType,status,sortColumn,sortDirection,columnFilters) => {
+  const OptionslistAPI = async (page,perpage,serach,productType,status,sortColumn,sortDirection,columnFilters) => {
     let query={searchValue:serach?serach:"",pageNo:page?page:1,recordPerPage:perpage?perpage:10,tenantId:"",productType:productType,status:status,
        sortColumn:sortColumn?sortColumn:"",
       sortDirection:sortDirection?sortDirection:"asc",
@@ -76,10 +76,10 @@ export default function Index() {
         const apiResponse = await callAPI(apiUrls.Option,{}, "POST",query);
        setLoader(false)
       if (apiResponse?.data?.isSuccess) {
-           setTenantList(apiResponse?.data?.data)
+           setOptionsList(apiResponse?.data?.data)
           setPaginatedItems(apiResponse?.data?.totalRecords)
       } else {
-        setTenantList([])
+        setOptionsList([])
         ErrorMessage(apiResponse?.data?.message)
       }
       } catch (error) {
@@ -88,7 +88,7 @@ export default function Index() {
   }
   const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
   useEffect(() => {
-    TenantlistAPI(1, rowsPerPage, debouncedSearch,filter.productType,filter.status, filter.sortColumn,
+    OptionslistAPI(1, rowsPerPage, debouncedSearch,filter.productType,filter.status, filter.sortColumn,
       filter.sortDirection,
       debouncedSearchcolumn)
     setPage(1);
@@ -98,7 +98,7 @@ export default function Index() {
   const handleclose = () => {
     setOpen(false)
     setObject("")
-    TenantlistAPI(page, rowsPerPage,search,filter.productType,filter.status,
+    OptionslistAPI(page, rowsPerPage,search,filter.productType,filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -106,7 +106,7 @@ export default function Index() {
 
   const handleapi = () => {
          let pageNo = 1;
-        TenantlistAPI(pageNo, rowsPerPage,search,filter.productType,filter.status,
+        OptionslistAPI(pageNo, rowsPerPage,search,filter.productType,filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -137,7 +137,7 @@ export default function Index() {
       handledelclose();
       SuccessMessage(response.data.message)
       let pageNo = 1;
-      TenantlistAPI(pageNo, rowsPerPage,search,filter.productType,filter.status,
+      OptionslistAPI(pageNo, rowsPerPage,search,filter.productType,filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -162,7 +162,7 @@ export default function Index() {
      setLoader(false)
      if(response.data.isSuccess){
       SuccessMessage(response.data.message)
-      TenantlistAPI(page, rowsPerPage,search,filter.productType,filter.status,
+      OptionslistAPI(page, rowsPerPage,search,filter.productType,filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -176,7 +176,7 @@ export default function Index() {
 
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(pageNo, rowsPerPage,search,e.target.name === 'productType' ? e.target.value : filter.productType,e.target.name === 'status' ? e.target.value : filter.status,
+    OptionslistAPI(pageNo, rowsPerPage,search,e.target.name === 'productType' ? e.target.value : filter.productType,e.target.name === 'status' ? e.target.value : filter.status,
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters);
@@ -196,7 +196,7 @@ export default function Index() {
       };
     });
 
-    TenantlistAPI(
+    OptionslistAPI(
      1, rowsPerPage,search,filter.productType,filter.status,
       columnKey,
       filter.sortDirection === "asc" ? "desc" : "asc",
@@ -267,13 +267,13 @@ export default function Index() {
         
         <div className="task_table mb-30">
           <div className="table-responsive">
-          <DynamicTable data={tenantList} columns={columns}  title="Options" rowActions={['edit', 'delete']} edituser={handleedit} handledelete={handledelete} handlestatus={handlestatus}
+          <DynamicTable data={OptionsList} columns={columns}  title="Options" rowActions={['edit', 'delete']} edituser={handleedit} handledelete={handledelete} handlestatus={handlestatus}
           deletepermission="OptionsDelete" editpermission="OptionsEdit"  handleFilterSortChange={handleFilterSortChange}
                 sortColumn={filter.sortColumn}
                 sortDirection={filter.sortDirection}
                 columnFilters={filter.columnFilters}
                 handlesearchChange={handlesearchChange} />
-          {tenantList && tenantList?.length > 0 &&
+          {OptionsList && OptionsList?.length > 0 &&
             <div className="d-flex align-items-center justify-content-end bottom_nav">
         <nav aria-label="Page navigation example">
           <ul className="pagination">

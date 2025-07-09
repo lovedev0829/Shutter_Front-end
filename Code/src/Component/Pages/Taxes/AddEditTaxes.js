@@ -22,7 +22,7 @@ function AddEditTaxes({ open, handleclose, LanguageListAPI, action, object }) {
   const [loader, setLoader] = useState(false);
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
-  const languageAdd = async (e) => {
+  const TaxAddUpdate = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -105,7 +105,7 @@ function AddEditTaxes({ open, handleclose, LanguageListAPI, action, object }) {
                 }}
               ></i>
             </div>
-            <form onSubmit={languageAdd}>
+            <form onSubmit={TaxAddUpdate}>
               <div className="modal-body modale-scroll">
                 <div className="form-design">
                   <div className="row">
@@ -130,7 +130,7 @@ function AddEditTaxes({ open, handleclose, LanguageListAPI, action, object }) {
                         </div>
                       </div>
                     </div>
-                     <div className="col-lg-4 col-md-4">
+                    <div className="col-lg-4 col-md-4">
                       <div className="form-group">
                         <InputField
                           labelName={"Municipality %"}
@@ -151,7 +151,7 @@ function AddEditTaxes({ open, handleclose, LanguageListAPI, action, object }) {
                         </div>
                       </div>
                     </div>
-                     <div className="col-lg-4 col-md-4">
+                    <div className="col-lg-4 col-md-4">
                       <div className="form-group">
                         <InputField
                           labelName={"City %"}
@@ -167,12 +167,12 @@ function AddEditTaxes({ open, handleclose, LanguageListAPI, action, object }) {
                           {simpleValidator.current.message(
                             "City",
                             value?.city,
-                           `required|numeric`
+                            `required|numeric`
                           )}
                         </div>
                       </div>
                     </div>
-                     <div className="col-lg-4 col-md-4">
+                    <div className="col-lg-4 col-md-4">
                       <div className="form-group">
                         <InputField
                           labelName={"State %"}
@@ -188,7 +188,7 @@ function AddEditTaxes({ open, handleclose, LanguageListAPI, action, object }) {
                           {simpleValidator.current.message(
                             "State",
                             value?.state,
-                             `required|numeric`
+                            `required|numeric`
                           )}
                         </div>
                       </div>

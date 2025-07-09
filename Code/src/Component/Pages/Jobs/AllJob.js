@@ -20,7 +20,7 @@ import { useDebounce } from "use-debounce";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function AllJob() {
-  const [tenantList, setTenantList] = useState([]);
+  const [JobsList, setJobsList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -49,7 +49,7 @@ export default function AllJob() {
             (item) => item.jobStatusId === param.id
           );
           if (foundItem) {
-            TenantlistAPI(
+            JobslistAPI(
               1,
               rowsPerPage,
               filter.tenantId,
@@ -75,7 +75,7 @@ export default function AllJob() {
     }
   };
 
-  const TenantlistAPI = async (
+  const JobslistAPI = async (
     page,
     perpage,
     tenantId,
@@ -101,10 +101,10 @@ export default function AllJob() {
       const apiResponse = await callAPI(apiUrls.GetAllJobs, {}, "POST", body);
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
-        setTenantList(apiResponse?.data?.data);
+        setJobsList(apiResponse?.data?.data);
         setPaginatedItems(apiResponse?.data?.totalRecords);
       } else {
-        setTenantList([]);
+        setJobsList([]);
         ErrorMessage(apiResponse?.data?.message);
       }
     } catch (error) {
@@ -119,7 +119,7 @@ export default function AllJob() {
    const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
 
   useEffect(() => {
-    TenantlistAPI(
+    JobslistAPI(
       1,
       rowsPerPage,
       filter.tenantId,
@@ -150,7 +150,7 @@ export default function AllJob() {
   ];
 
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(
+    JobslistAPI(
       newPage + 1,
       rowsPerPage,
       filter.tenantId,
@@ -166,7 +166,7 @@ export default function AllJob() {
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(
+    JobslistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       filter.tenantId,
@@ -183,7 +183,7 @@ export default function AllJob() {
 
   const handleChange = (name, value) => {
     let pageNo = 1;
-    TenantlistAPI(
+    JobslistAPI(
       pageNo,
       rowsPerPage,
       name === "tenantId" ? value : filter.tenantId,
@@ -202,7 +202,7 @@ export default function AllJob() {
 
   const handleChanges = (e) => {
     let pageNo = 1;
-    TenantlistAPI(
+    JobslistAPI(
       pageNo,
       rowsPerPage,
       e.target.name === "tenantId" ? e.target.value : filter.tenantId,
@@ -224,7 +224,7 @@ export default function AllJob() {
   };
 
   const handleapi = () => {
-    TenantlistAPI(
+    JobslistAPI(
       page,
       rowsPerPage,
       filter.tenantId,
@@ -346,7 +346,7 @@ export default function AllJob() {
       };
     });
    
-    TenantlistAPI(
+    JobslistAPI(
         1,
       rowsPerPage,
       filter.tenantId,
@@ -565,7 +565,7 @@ const handlesearchChange = (columnKey, value = null) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {tenantList?.map((val, i) => (
+                    {JobsList?.map((val, i) => (
                       <tr key={i}>
                         <td
                           onClick={
@@ -617,7 +617,7 @@ const handlesearchChange = (columnKey, value = null) => {
                   </tbody>
                 </table>
 
-                {tenantList && tenantList?.length > 0 && (
+                {JobsList && JobsList?.length > 0 && (
                   <div className="d-flex align-items-center justify-content-end bottom_nav">
                     <nav aria-label="Page navigation example">
                       <ul className="pagination">

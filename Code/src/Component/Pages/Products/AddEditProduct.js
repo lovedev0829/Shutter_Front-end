@@ -24,9 +24,9 @@ import Select from "react-select";
 const AddEditProduct = ({
   open,
   handleclose,
-  LanguageListAPI,
-  action,
-  object,
+ LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
 }) => {
   const defaultState = {
     productName: "",
@@ -69,7 +69,7 @@ const AddEditProduct = ({
     });
   };
 
-  const languageAdd = async (e) => {
+  const ProductsAddUpdate = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -351,7 +351,7 @@ const AddEditProduct = ({
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={ProductsAddUpdate}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
                     <div className="row">

@@ -20,7 +20,7 @@ import Selectbox from "../../Form/Selectbox";
 const AddEditSubTenent = ({
   open,
   handleclose,
-  LanguageListAPI,
+  SubTenantlistAPI,
   action,
   object,
 }) => {
@@ -93,7 +93,7 @@ const AddEditSubTenent = ({
     }
   };
 
-  const languageAdd = async (e) => {
+  const SubTenantAddUpdate = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -115,7 +115,7 @@ const AddEditSubTenent = ({
         setLoader(false);
         if (apiResponse?.data?.isSuccess) {
           SuccessMessage(apiResponse?.data?.message);
-          await LanguageListAPI();
+          await SubTenantlistAPI();
           handleclose();
           setValue(defaultState);
           setImage("");
@@ -235,7 +235,7 @@ const AddEditSubTenent = ({
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={SubTenantAddUpdate}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design window-form-design">
                     <div className="imagesec d-flex align-items-center gap-3 mb-30">

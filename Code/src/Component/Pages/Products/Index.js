@@ -28,7 +28,7 @@ export default function Index() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
-  const [tenantList, setTenantList] = useState([]);
+  const [ProductsList, setProductsList] = useState([]);
   const [search, setsearch] = useState("");
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
@@ -50,7 +50,7 @@ export default function Index() {
   };
 
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(
+    ProductslistAPI(
       newPage + 1,
       rowsPerPage,
       search,
@@ -65,7 +65,7 @@ export default function Index() {
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(
+    ProductslistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       search,
@@ -78,7 +78,7 @@ export default function Index() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page, perpage, serach, productType, status,sortColumn,sortDirection,columnFilters) => {
+  const ProductslistAPI = async (page, perpage, serach, productType, status,sortColumn,sortDirection,columnFilters) => {
     let query = {
       searchValue: serach ? serach : "",
       pageNo: page ? page : 1,
@@ -95,10 +95,10 @@ export default function Index() {
       const apiResponse = await callAPI(apiUrls.Product, {}, "POST", query);
     setLoader(false);
     if (apiResponse?.data?.isSuccess) {
-      setTenantList(apiResponse?.data?.data);
+      setProductsList(apiResponse?.data?.data);
       setPaginatedItems(apiResponse?.data?.totalRecords);
     } else {
-      setTenantList([]);
+      setProductsList([]);
       ErrorMessage(apiResponse?.data?.message)
     }
     } catch (error) {
@@ -107,7 +107,7 @@ export default function Index() {
   };
    const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
   useEffect(() => {
-    TenantlistAPI(
+    ProductslistAPI(
       1,
       rowsPerPage,
       debouncedSearch,
@@ -128,7 +128,7 @@ export default function Index() {
 
   const handleapi = () => {
     let pageNo = 1;
-    TenantlistAPI(
+    ProductslistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -166,7 +166,7 @@ export default function Index() {
         handledelclose();
         SuccessMessage(response.data.message);
         let pageNo = 1;
-        TenantlistAPI(
+        ProductslistAPI(
           pageNo,
           rowsPerPage,
           search,
@@ -202,7 +202,7 @@ export default function Index() {
       setLoader(false);
       if (response.data.isSuccess) {
         SuccessMessage(response.data.message);
-        TenantlistAPI(
+        ProductslistAPI(
           page,
           rowsPerPage,
           search,
@@ -228,7 +228,7 @@ export default function Index() {
 
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(
+    ProductslistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -253,7 +253,7 @@ export default function Index() {
       };
     });
 
-    TenantlistAPI(
+    ProductslistAPI(
          1,
           rowsPerPage,
           search,
@@ -328,7 +328,7 @@ export default function Index() {
             <div className="task_table mb-30">
               <div className="table-responsive">
                 <DynamicTable
-                  data={tenantList}
+                  data={ProductsList}
                   columns={columns}
                   title="Products"
                   rowActions={["edit", "delete", "view"]}
@@ -344,7 +344,7 @@ export default function Index() {
                 columnFilters={filter.columnFilters}
                 handlesearchChange={handlesearchChange}
                 />
-                {tenantList && tenantList?.length > 0 && (
+                {ProductsList && ProductsList?.length > 0 && (
                   <div className="d-flex align-items-center justify-content-end bottom_nav">
                     <nav aria-label="Page navigation example">
                       <ul className="pagination">

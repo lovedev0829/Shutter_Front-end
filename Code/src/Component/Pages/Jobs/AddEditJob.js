@@ -25,7 +25,13 @@ import AddEditContact from "../Contacts/AddEditContact";
 import AddEditJobType from "../JobType/AddEditJobType";
 import GetAllStages from "../../../helpers/GetAllStages";
 
-const AddEditJob = ({ open, handleclose, LanguageListAPI, action, object }) => {
+const AddEditJob = 
+({ open,
+   handleclose,
+   LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
+     }) => {
   let param = useParams();
 
   const defaultState = {
@@ -60,7 +66,7 @@ const AddEditJob = ({ open, handleclose, LanguageListAPI, action, object }) => {
     });
   };
 
-  const languageAdd = async (e) => {
+  const JobAddUpdate = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -206,7 +212,7 @@ const AddEditJob = ({ open, handleclose, LanguageListAPI, action, object }) => {
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={JobAddUpdate}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
                     <div className="row">

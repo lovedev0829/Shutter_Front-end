@@ -23,9 +23,9 @@ import AddEditTaxes from "../Taxes/AddEditTaxes";
 const AddEditOption = ({
   open,
   handleclose,
-  LanguageListAPI,
-  action,
-  object,
+  LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
 }) => {
   const defaultState = {
     productTypeId: "",
@@ -82,7 +82,7 @@ const AddEditOption = ({
        });
    }
 
-  const languageAdd = async (e) => {
+  const OptionsAddUpdate = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     
@@ -326,7 +326,7 @@ const AddEditOption = ({
                   }}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={OptionsAddUpdate}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
                     <div className="row">

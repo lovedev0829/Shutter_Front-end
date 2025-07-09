@@ -31,7 +31,7 @@ export default function Index() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
-  const [tenantList, setTenantList] = useState([]);
+  const [ContactsList, setContactsList] = useState([]);
   const [search, setsearch] = useState("");
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
@@ -92,7 +92,7 @@ export default function Index() {
   };
 
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(
+    ContactlistAPI(
       newPage + 1,
       rowsPerPage,
       search,
@@ -107,7 +107,7 @@ export default function Index() {
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(
+    ContactlistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       search,
@@ -120,7 +120,7 @@ export default function Index() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page, perpage, serach, tenantId, status,sortColumn,sortDirection,columnFilters) => {
+  const ContactlistAPI = async (page, perpage, serach, tenantId, status,sortColumn,sortDirection,columnFilters) => {
     let query = {
       searchValue: serach ? serach : "",
       pageNo: page ? page : 1,
@@ -136,17 +136,17 @@ export default function Index() {
       const apiResponse = await callAPI(apiUrls.Contact, {}, "POST", query);
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
-        setTenantList(apiResponse?.data?.data);
+        setContactsList(apiResponse?.data?.data);
         setPaginatedItems(apiResponse?.data?.totalRecords);
       } else {
-        setTenantList([]);
+        setContactsList([]);
       }
     } catch (error) {
       setLoader(false);
     }
   };
   useEffect(() => {
-    TenantlistAPI(
+    ContactlistAPI(
       1,
       rowsPerPage,
       debouncedSearch,
@@ -165,9 +165,9 @@ export default function Index() {
     setObject(defaultState);
   };
 
-  const handleapi = () => {
+  const refreshContactlistAPI = () => {
     let pageNo = 1;
-    TenantlistAPI(
+    ContactlistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -205,7 +205,7 @@ export default function Index() {
         handledelclose();
         SuccessMessage(response.data.message);
         let pageNo = 1;
-        TenantlistAPI(
+        ContactlistAPI(
           pageNo,
           rowsPerPage,
           search,
@@ -241,7 +241,7 @@ export default function Index() {
       setLoader(false);
       if (response.data.isSuccess) {
         SuccessMessage(response.data.message);
-        TenantlistAPI(
+        ContactlistAPI(
           page,
           rowsPerPage,
           search,
@@ -267,7 +267,7 @@ export default function Index() {
 
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(
+    ContactlistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -292,7 +292,7 @@ export default function Index() {
       };
     });
     let pageNo = 1;
-    TenantlistAPI(
+    ContactlistAPI(
       pageNo,
       rowsPerPage,
       search,
@@ -375,7 +375,7 @@ const handlesearchChange = (columnKey, value = null) => {
               </div>
               <div className="d-flex justify-content-between gap-2 ">
                 {HasPermission("ContactAdd") && (
-                  <ImportFile LanguageListAPI={handleapi} type="contact" />
+                  <ImportFile LanguageListAPI={refreshContactlistAPI} type="contact" />
                 )}
                 <ExportFile
                   type="contact"
@@ -393,7 +393,7 @@ const handlesearchChange = (columnKey, value = null) => {
 
             <div className="table-responsive">
               <DynamicTable
-                data={tenantList}
+                data={ContactsList}
                 columns={columns}
                 title="Contact"
                 rowActions={filter.tenantId ? [] : ["edit", "delete", "view"]}
@@ -409,7 +409,7 @@ const handlesearchChange = (columnKey, value = null) => {
                 columnFilters={filter.columnFilters}
                 handlesearchChange={handlesearchChange}
               />
-              {tenantList && tenantList?.length > 0 && (
+              {ContactsList && ContactsList?.length > 0 && (
                 <div className="d-flex align-items-center justify-content-end bottom_nav">
                   <nav aria-label="Page navigation example">
                     <ul className="pagination">
@@ -434,7 +434,7 @@ const handlesearchChange = (columnKey, value = null) => {
         open={open}
         handleclose={handleclose}
         action={action}
-        LanguageListAPI={handleapi}
+        LanguageListAPI={refreshContactlistAPI}
         object={object}
       />}
       {delOpen &&<Delete
