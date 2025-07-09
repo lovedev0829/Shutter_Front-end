@@ -37,7 +37,7 @@ const AddEditContact = ({
       website: "",
       notes: "",
       refral: "",
-      isBillingAddressSameAsAddress: false,
+      isbillingSameAddress: false,
       billingAddressVm: {
         firstName: "",
         lastName: "",
@@ -203,7 +203,29 @@ const AddEditContact = ({
     }
   };
   
+  const handleSameAsBillingChange = (e) => {
+    const isChecked = e.target.checked;
+    setValue((prev) => ({
+      ...prev,
+      isbillingSameAddress: isChecked,
+      billingAddressVm: isChecked
+        ? {
+            ...prev.billingAddressVm,
+            firstName: prev.firstName,
+            lastName: prev.lastName,
+            phoneNumber: prev.phoneNumber,
+            email: prev.email,
+          }
+        : {
+            ...prev.billingAddressVm,
+            firstName: "",
+            lastName: "",
+            phoneNumber: "",
+            email: "",
+          },
+    }));
 
+  }
 
 
   
@@ -421,20 +443,21 @@ const AddEditContact = ({
                       <div className="col-lg-12 col-md-12">
                         <div className="middle-heading">
                           <h4 className="d-flex align-items-end gap-2">
-                            {/* <input
+                            <input
                               type="checkbox"
                               style={{ border: "1px solid #8f8b8b" }}
                               className="form-check-input"
-                              name="isBillingAddressSameAsAddress"
-                              checked={value.isBillingAddressSameAsAddress}
-                              onChange={(e) => {
-                                setValue((prev) => ({
-                                  ...prev,
-                                  isBillingAddressSameAsAddress:
-                                    e.target.checked,
-                                }));
-                              }}
-                            />{" "} */}
+                              name="isbillingSameAddress"
+                              checked={value.isbillingSameAddress}
+                              onChange={handleSameAsBillingChange}
+                              // onChange={(e) => {
+                              //   setValue((prev) => ({
+                              //     ...prev,
+                              //     isbillingSameAddress:
+                              //       e.target.checked,
+                              //   }));
+                              // }}
+                            />{" "}
                             Primary/Billing Address{" "}
                           </h4>
                         </div>

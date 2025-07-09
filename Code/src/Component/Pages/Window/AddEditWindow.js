@@ -55,8 +55,9 @@ function AddEditWindow({
   const [value, setValue] = useState(object ? object : defaultState);
   //optionname
   const [optionName, setOptionName] = useState([]);
+  //additional costs for options without prices
+  const [additionalCosts, setAdditionalCosts] = useState([]);
 
-  console.log("===================", optionName);
   const [show, setShow] = useState(false);
   const [imageLoader, setImageLoader] = useState(false);
   const [vendor, setvendor] = useState(false);
@@ -71,6 +72,7 @@ function AddEditWindow({
   const [showOptionsPopup, setShowOptionsPopup] = useState(false);
   const [activeProductIndex, setActiveProductIndex] = useState(null);
   const [popupMode, setPopupMode] = useState("");
+  const [activeOptionsTab, setActiveOptionsTab] = useState("options");
 
   const handleChange = (e, index = null) => {
     const { name, value } = e.target;
@@ -93,11 +95,18 @@ function AddEditWindow({
     } else {
       try {
         setLoader(true);
+        
+        // Prepare submission data including additional costs
+        const submissionData = {
+          ...value,
+          additionalCosts: additionalCosts
+        };
+        
         const apiResponse = await callAPI(
           action === "add" ? apiUrls.WindowCreate : apiUrls.WindowUpdate,
           {},
           "POST",
-          value
+          submissionData
         );
         setLoader(false);
         if (apiResponse?.data?.isSuccess) {
@@ -177,6 +186,15 @@ function AddEditWindow({
       return filtered;
     });
 
+    setAdditionalCosts((prevAdditionalCosts) => {
+      let filtered = prevAdditionalCosts.filter((entry) => entry.indexId !== i);
+      filtered = filtered.map((entry) => ({
+        ...entry,
+        indexId: entry.indexId > i ? entry.indexId - 1 : entry.indexId,
+      }));
+      return filtered;
+    });
+
     if (newArray?.length <= 0) {
       simpleValidator.current.purgeFields([
         "productTypeId",
@@ -217,11 +235,13 @@ function AddEditWindow({
 
   const handleClearState = () => {
     setValue(defaultState);
+    setShowOptionsPopup(false)
     resetObject();
     handleclose();
     simpleValidator.current.hideMessages();
     forceUpdate();
     setOptionName([]);
+    setAdditionalCosts([]);
   };
 
   const handleImageDelelet = (data) => {
@@ -230,13 +250,6 @@ function AddEditWindow({
       return { ...val, photo: arr };
     });
   };
-
-  // const handleRadioChange = (e) => {
-  //   setValue({
-  //     ...value,
-  //     isRated: e.target.value === "true",
-  //   });
-  // };
 
   const handleapi = () => {
     setvendorlist((prev) => !prev);
@@ -247,7 +260,6 @@ function AddEditWindow({
   const handleapioption = () => {
     setoptionlist((prev) => !prev);
   };
-
   return (
     <>
       <Dialog
@@ -332,47 +344,7 @@ function AddEditWindow({
                           </div>
                         </div>
                       </div>
-                      {/* <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <label className="font-14">Is Rated</label>
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="flexRadioDefault"
-                                id="flexRadioDefault2"
-                                value="true"
-                                checked={value.isRated === true}
-                                onChange={handleRadioChange}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="flexRadioDefault2"
-                              >
-                                Yes
-                              </label>
-                            </div>
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="flexRadioDefault"
-                                id="flexRadioDefault1"
-                                value="false"
-                                checked={value.isRated === false}
-                                onChange={handleRadioChange}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="flexRadioDefault1"
-                              >
-                                No
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div> */}
+                      
                       <div className="row">
                         <label className="font-14">Dimensions </label>
                         <div className="col-lg-4 col-md-4">
@@ -554,17 +526,6 @@ function AddEditWindow({
                                     )}
                                     {action === "edit" && (
                                       <>
-                                        {/* <img
-                                          src="/image/plusblue.svg"
-                                          alt=""
-                                          loading="lazy"
-                                          style={{ cursor: "pointer",marginLeft:"10px" }}
-                                          onClick={() => {
-                                            setActiveProductIndex(i);
-                                            setShowOptionsPopup(true);
-                                            setPopupMode(action);
-                                          }}
-                                        /> */}
                                         <div className="new-option-wrapper">
                                           {optionName
                                             .filter(
@@ -618,24 +579,16 @@ function AddEditWindow({
                                           indexId={i}
                                           optionName={optionName}
                                           setOptionName={setOptionName}
+                                          additionalCosts={additionalCosts}
+                                          setAdditionalCosts={setAdditionalCosts}
                                           isRender={false}
+                                          buildRequirement={false}
+                                          showOptionsPopup={false}
                                         />
                                       </>
                                     )}
                                     {action === "add" && (
                                       <>
-                                        {/* <img
-                                          src="/image/plusblue.svg"
-                                          alt=""
-                                          loading="lazy"
-                                          style={{ cursor: "pointer",marginLeft:"10px" }}
-                                          onClick={() => {
-                                            setActiveProductIndex(i);
-                                            setShowOptionsPopup(true);
-                                            setPopupMode(action);
-                                          }}
-                                        /> */}
-
                                         {optionName
                                           .filter(
                                             (entry) => entry.indexId === i
@@ -683,7 +636,11 @@ function AddEditWindow({
                                           indexId={i}
                                           optionName={optionName}
                                           setOptionName={setOptionName}
+                                          additionalCosts={additionalCosts}
+                                          setAdditionalCosts={setAdditionalCosts}
                                           isRender={false}
+                                          buildRequirement={false}
+                                          showOptionsPopup={false}
                                         />
                                       </>
                                     )}
@@ -808,72 +765,110 @@ function AddEditWindow({
                               <button
                                 type="button"
                                 className="btn-close btn-closee"
-                                onClick={() => setShowOptionsPopup(false)}
+                                onClick={() => {
+                                  setShowOptionsPopup(false);
+                                  setoptionlist((prev) => !prev); // Force refresh of inline components
+                                }}
                               ></button>
                             </div>
                             <div className="modal-body">
-                              {popupMode === "add" ? (
-                                <GetAllOptions
-                                  fn={(e) =>
-                                    handleproduct(e, activeProductIndex)
-                                  }
-                                  value={
-                                    value.windowProducts[activeProductIndex]
-                                      ?.optionTypeId || []
-                                  }
-                                  name="optionTypeId"
-                                  load={optionlist}
-                                  producttypeId={
-                                    value.windowProducts[activeProductIndex]
-                                      ?.productId
-                                  }
-                                  indexId={activeProductIndex}
-                                  optionName={optionName}
-                                  setOptionName={setOptionName}
-                                />
-                              ) : (
-                                <GetAllForedit
-                                  fn={(e) =>
-                                    handleproduct(e, activeProductIndex)
-                                  }
-                                  values={
-                                    value.windowProducts[activeProductIndex]
-                                      ?.optionTypeId
-                                  }
-                                  optiondata={
-                                    value.windowProducts[activeProductIndex]
-                                      ?.optionTypeId
-                                  }
-                                  name="optionTypeId"
-                                  load={optionlist}
-                                  producttypeId={
-                                    value.windowProducts[activeProductIndex]
-                                      ?.productId
-                                  }
-                                  indexId={activeProductIndex}
-                                  optionName={optionName}
-                                  setOptionName={setOptionName}
-                                />
-                              )}
-                            </div>
-                            <div className="modal-footer">
-                              <div className="form-style form-group d-flex align-items-center justify-content-end w-100 gap-4">
+                              {/* Tab Navigation */}
+                              <div className="nav nav-tabs mb-3" role="tablist">
                                 <button
+                                  className={`nav-link ${activeOptionsTab === 'options' ? 'active' : ''}`}
+                                  onClick={() => setActiveOptionsTab('options')}
                                   type="button"
-                                  className="btn blue-btn"
-                                  onClick={() => setShowOptionsPopup(false)}
                                 >
-                                  Submit
+                                  Options
                                 </button>
-                                <Link
-                                  className="cancel"
-                                  to="#"
-                                  onClick={() => setShowOptionsPopup(false)}
+                                <button
+                                  className={`nav-link ${activeOptionsTab === 'buildRequirements' ? 'active' : ''}`}
+                                  onClick={() => setActiveOptionsTab('buildRequirements')}
+                                  type="button"
                                 >
-                                  Cancel
-                                </Link>
+                                  Build Requirements
+                                </button>
+                              </div>
+
+                              {/* Tab Content */}
+                              <div className="tab-content">
+                                {popupMode === "add" ? (
+                                  <GetAllOptions
+                                    fn={(e) =>
+                                      handleproduct(e, activeProductIndex)
+                                    }
+                                    value={
+                                      value.windowProducts[activeProductIndex]
+                                        ?.optionTypeId || []
+                                    }
+                                    name="optionTypeId"
+                                    load={optionlist}
+                                    producttypeId={
+                                      value.windowProducts[activeProductIndex]
+                                        ?.productId
+                                    }
+                                    indexId={activeProductIndex}
+                                    optionName={optionName}
+                                    setOptionName={setOptionName}
+                                    additionalCosts={additionalCosts}
+                                    setAdditionalCosts={setAdditionalCosts}
+                                    buildRequirement={activeOptionsTab === 'buildRequirements'}
+                                    showOptionsPopup={showOptionsPopup}
+                                  />
+                                ) : (
+                                  <GetAllForedit
+                                    fn={(e) =>
+                                      handleproduct(e, activeProductIndex)
+                                    }
+                                    values={
+                                      value.windowProducts[activeProductIndex]
+                                        ?.optionTypeId
+                                    }
+                                    optiondata={
+                                      value.windowProducts[activeProductIndex]
+                                        ?.optionTypeId
+                                    }
+                                    name="optionTypeId"
+                                    load={optionlist}
+                                    producttypeId={
+                                      value.windowProducts[activeProductIndex]
+                                        ?.productId
+                                    }
+                                    indexId={activeProductIndex}
+                                    optionName={optionName}
+                                    setOptionName={setOptionName}
+                                    additionalCosts={additionalCosts}
+                                    setAdditionalCosts={setAdditionalCosts}
+                                    buildRequirement={activeOptionsTab === 'buildRequirements'}
+                                    showOptionsPopup={showOptionsPopup}
+
+                                  />
+                                )}
                               </div>
                             </div>
+                                                          <div className="modal-footer">
+                                <div className="form-style form-group d-flex align-items-center justify-content-end w-100 gap-4">
+                                  <button
+                                    type="button"
+                                    className="btn blue-btn"
+                                    onClick={() => {
+                                      setShowOptionsPopup(false);
+                                      setoptionlist((prev) => !prev); // Force refresh of inline components
+                                    }}
+                                  >
+                                    Submit
+                                  </button>
+                                  <Link
+                                    className="cancel"
+                                    onClick={() => {
+                                      setShowOptionsPopup(false);
+                                      setoptionlist((prev) => !prev); // Force refresh of inline components
+                                    }}
+                                  >
+                                    Cancel
+                                  </Link>
+                                </div>
+                              </div>
                           </div>
                         </div>
                       )}
