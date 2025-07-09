@@ -295,7 +295,7 @@ const AddnewWindow = ({
                     </Link>
                     <button
                       type="button"
-                      class="btn blue-btn"
+                      className="btn blue-btn"
                       onClick={() => {
                         handleSenddata(selectedParentId);
                         setSelectedParentId([]);

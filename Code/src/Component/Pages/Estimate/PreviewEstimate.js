@@ -36,6 +36,7 @@ export default function PreviewEstimate() {
       );
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
+        console.log(apiResponse?.data?.data)
         setTenantList(apiResponse?.data?.data);
       } else {
          ErrorMessage(apiResponse.data.message);
@@ -239,6 +240,14 @@ export default function PreviewEstimate() {
                           </span>
                         </div>
                       </div>
+                      <div className="col-lg-3">
+                        <div className="additional_direction mt-0">
+                          <h6 className="mb-1">Powder Coating Color</h6>
+                          <span>
+                            {tenantList[0]?.jobDetails?.powderCoatColor}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div className="estimate-table task_table mb-30">
@@ -265,9 +274,11 @@ export default function PreviewEstimate() {
                                 <span>
                                   <ul className="colors">
                                     {val?.options?.map((vals, ind) => (
-                                      <li  key={ind}>
-                                         {`-> ${vals}`}
-                                      </li>
+                                      !val?.hidePreviews?.[ind] && (
+                                        <li key={ind}>
+                                           {`-> ${vals}`}
+                                        </li>
+                                      )
                                     ))}
                                   </ul>
                                 </span>

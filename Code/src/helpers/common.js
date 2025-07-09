@@ -389,7 +389,7 @@ function JobUi({ tenantList, onJobUpdate }) {
                 )} | ${moment(childData.scheduleDateTime).format("hh:mm A")}`
               : "Add Appointment"}
               {!childData?.scheduleDateTime?<i className="fa fa-plus appom" aria-hidden="true"></i>:
-              <i class="fa fa-pencil appom" aria-hidden="true"></i>}
+              <i className="fa fa-pencil appom" aria-hidden="true"></i>}
           </span>
         </div>
       </div>
