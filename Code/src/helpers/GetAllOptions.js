@@ -41,8 +41,21 @@ export default function GetAllOptions({
 
       if (apiResponse?.data?.isSuccess) {
         let fetchedOptions = apiResponse.data.data.filter((item) => {
-          const hasDefault = item.options.some((opt) => opt.isDefault);
-          return hasDefault && item.options.length > 0;
+          const hasDefault = item.options.some((opt) => opt.isDefault === true);
+
+          if (!hasDefault && item.options.length > 0) {
+            // Clone options array and set the first one to default
+            const updatedInnerOptions = item.options.map((opt, index) => ({
+              ...opt,
+              isDefault: index === 0 ? true : opt.isDefault,
+            }));
+
+            return {
+              ...item,
+              options: updatedInnerOptions,
+            };
+          }
+          return item;
         });
 
         // Filter by buildRequirement when in popup mode
