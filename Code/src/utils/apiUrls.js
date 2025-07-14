@@ -278,6 +278,13 @@ export const apiUrls = {
   JobContactUpdate:"JobContact/Edit",
   JobContactDelete:"JobContact/Delete",
   JobContactActiveInActive:"JobContact/ActiveInActive",
+
+  ///Upload Document in job APIs
+  UploadDocument:"UploadDocument/Create",
+  UploadDocumentGetAll:"UploadDocument/GetAll",
+  UploadDocumentUpdate:"UploadDocument/Update",
+  UploadDocumentDelete:"UploadDocument/Delete",
+  UploadDocumentDownloadBlobAsBase64:"UploadDocument/DownloadBlobAsBase64",
   
   // Powder Coat Color APIs
   GetPowderCoatColorsForDropdown: `PowderCoatColor/GetAllForDropdown`,

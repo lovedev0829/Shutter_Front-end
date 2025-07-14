@@ -18,6 +18,7 @@ import JobTab from "../../Form/JobTab";
 import InvoiceList from "../Invoice/InvoiceList";
 import Jobschedulelist from "../Jobschedule/Jobschedulelist";
 import JobContactList from "../JobContact/JobContactList";
+import AllDocumentlist from "../Documentupload/AllDocumentlist";
 
 export default function JobDetiels() {
   const [tenantList, setTenantList] = useState([]);
@@ -95,6 +96,11 @@ export default function JobDetiels() {
       status: false,
       id: "#contacttab",
       title: "Contacts",
+    },
+    HasPermission("JobContactView") && {
+      status: false,
+      id: "#documenttab",
+      title: "Documents",
     },
   ].filter(Boolean);
 
@@ -233,6 +239,18 @@ export default function JobDetiels() {
                   >
                     {HasPermission("JobContactView") &&
                       tabdata === "#contacttab" && <JobContactList />}
+                  </div>
+                  <div
+                    className={`tab-pane fade ${
+                      initialActiveTab === "#documenttab" ? "show active" : ""
+                    }`}
+                    id="documenttab"
+                    role="tabpanel"
+                    aria-labelledby="pills-playbook-tab"
+                    tabIndex={0}
+                  >
+                    {HasPermission("JobContactView") &&
+                      tabdata === "#documenttab" && <AllDocumentlist />}
                   </div>
                 </div>
               </div>
