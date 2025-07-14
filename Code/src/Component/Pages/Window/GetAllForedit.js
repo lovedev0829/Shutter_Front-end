@@ -9,106 +9,90 @@ function GetAllForedit({
   load,
   name = "optionTypeId",
   disabled = false,
-  className = null,
   producttypeId = "",
   indexId = 0,
-  optionName = [],
   setOptionName = () => {},
-  additionalCosts = [],
   setAdditionalCosts = () => {},
   isRender = true,
   buildRequirement = false,
   showOptionsPopup = false
 }) {
+  // Main state
   const [optionList, setOptionList] = useState([]);
   const [allOption, setAllOption] = useState([]);
   const [show, setShow] = useState(false);
 
+  // Local state for tracking changes
   const [localOptionName, setLocalOptionName] = useState({});
   const [localAdditionalCosts, setLocalAdditionalCosts] = useState({});
 
   const fetchOptions = async () => {
-    try {
-      if (!producttypeId) return;
-      setShow(true);
+    if (!producttypeId) return;
 
+    try {
+      setShow(true);
       const query = {
         productId: producttypeId,
-        isManageProductOption: HasPermission("SubTenantView") ? false : true,
+        isManageProductOption: !HasPermission("SubTenantView"),
       };
 
       const apiResponse = await callAPI(apiUrls.GetAllOption, query, "GET", {});
-      setShow(false);
 
       if (apiResponse?.data?.isSuccess) {
-
-        let fetchedOptions = apiResponse?.data?.data?.map((item) => {
-          
-          const hasDefault = item.options.some((opt) => opt.isDefault === true);
-
-          if (!hasDefault && item.options.length > 0) {
-            // Clone options array and set the first one to default
-            const updatedInnerOptions = item.options.map((opt, index) => ({
-              ...opt,
-              isDefault: index === 0 ? true : opt.isDefault,
-            }));
-
-            return {
-              ...item,
-              options: updatedInnerOptions,
-            };
-          }
-
-          return item; // No change needed if already has a default
+        let fetchedOptions = apiResponse.data.data.filter((item) => {
+          const hasDefault = item.options.some((opt) => opt.isDefault);
+          return hasDefault && item.options.length > 0;
         });
 
-        if(showOptionsPopup === true){
-          // Filter options based on buildRequirement
-          fetchedOptions = fetchedOptions.filter((item) => {
-            return item.buildRequirement === buildRequirement;
-          });
+        // Filter by buildRequirement when in popup mode
+        if (showOptionsPopup) {
+          fetchedOptions = fetchedOptions.filter(
+            (item) => item.buildRequirement === buildRequirement
+          );
         }
-        
+
         setOptionList(fetchedOptions);
 
-        const selectedFromValues = fetchedOptions
+        // Set up selected options with defaults
+        const selectedOptions = fetchedOptions
           .map((item) => {
             const selected = item.options.find((opt) =>
-              values
-                .map((v) => v.toLowerCase())
-                .includes(opt.optionTypeId?.toLowerCase())
+              values.some((v) => v.toLowerCase() === opt.optionTypeId?.toLowerCase())
             );
 
-            const defaultOption =
-              selected || item.options.find((o) => o.isDefault);
+            const defaultOption = selected || item.options.find((o) => o.isDefault);
 
-            // ✅ Update localOptionName state initially
             if (defaultOption) {
+              // Update local option name
               setLocalOptionName((prev) => ({
                 ...prev,
                 [`${item.optionName}-${indexId}`]: defaultOption.optionType,
               }));
+
+              return {
+                optionName: `${item.optionId}-${indexId}`,
+                value: defaultOption.optionTypeId,
+              };
             }
-
-            return {
-              optionName: `${item.optionId}-${indexId}`,
-              value: defaultOption?.optionTypeId || null,
-            };
+            return null;
           })
-          .filter((opt) => opt.value !== null);
+          .filter(Boolean);
 
-        setAllOption(selectedFromValues);
+        setAllOption(selectedOptions);
       } else {
-        setOptionList([]);
-        setAllOption([]);
-        setLocalOptionName({});
+        resetState();
       }
     } catch (error) {
+      resetState();
+    } finally {
       setShow(false);
-      setOptionList([]);
-      setAllOption([]);
-      setLocalOptionName({});
     }
+  };
+
+  const resetState = () => {
+    setOptionList([]);
+    setAllOption([]);
+    setLocalOptionName({});
   };
 
   useEffect(() => {
@@ -126,19 +110,13 @@ function GetAllForedit({
     // eslint-disable-next-line
   }, [allOption]);
 
-  // ✅ Sync with parent component
+  // Sync with parent components
   useEffect(() => {
     if (typeof setOptionName === "function") {
       setOptionName((prev) => {
         const updated = [...prev];
-        const existingIndex = updated.findIndex(
-          (item) => item.indexId === indexId
-        );
-
-        const newEntry = {
-          indexId,
-          data: localOptionName,
-        };
+        const existingIndex = updated.findIndex((item) => item.indexId === indexId);
+        const newEntry = { indexId, data: localOptionName };
 
         if (existingIndex !== -1) {
           updated[existingIndex] = newEntry;
@@ -156,14 +134,8 @@ function GetAllForedit({
     if (typeof setAdditionalCosts === "function") {
       setAdditionalCosts((prev) => {
         const updated = [...prev];
-        const existingIndex = updated.findIndex(
-          (item) => item.indexId === indexId
-        );
-
-        const newEntry = {
-          indexId,
-          data: localAdditionalCosts,
-        };
+        const existingIndex = updated.findIndex((item) => item.indexId === indexId);
+        const newEntry = { indexId, data: localAdditionalCosts };
 
         if (existingIndex !== -1) {
           updated[existingIndex] = newEntry;
@@ -177,13 +149,7 @@ function GetAllForedit({
     // eslint-disable-next-line
   }, [localAdditionalCosts]);
 
-  const handleChangeOption = (
-    e,
-    optionGroupId,
-    optionTypeId,
-    optionGroupName,
-    labelText
-  ) => {
+  const handleChangeOption = (e, optionGroupId, optionTypeId, optionGroupName, labelText) => {
     const updatedOption = {
       optionName: `${optionGroupId}-${indexId}`,
       value: optionTypeId,
@@ -194,16 +160,11 @@ function GetAllForedit({
         (opt) => opt.optionName === updatedOption.optionName
       );
 
-      if (existingIndex !== -1) {
-        const newOptions = [...prevOptions];
-        newOptions[existingIndex] = updatedOption;
-        return newOptions;
-      } else {
-        return [...prevOptions, updatedOption];
-      }
+      return existingIndex !== -1
+        ? prevOptions.map((opt, i) => (i === existingIndex ? updatedOption : opt))
+        : [...prevOptions, updatedOption];
     });
 
-    // ✅ Update localOptionName with label
     setLocalOptionName((prev) => ({
       ...prev,
       [`${optionGroupName}-${indexId}`]: labelText,
@@ -221,7 +182,7 @@ function GetAllForedit({
         optionGroupName,
         optionType,
         additionalCost: costValue,
-        requirePriceAtEstimatePreview: costValue.trim() !== "" // Auto-set to true when cost is entered
+        requirePriceAtEstimatePreview: costValue.trim() !== ""
       }
     }));
   };
@@ -266,7 +227,7 @@ function GetAllForedit({
                     />
                     <label
                       className="form-check-label"
-                      htmlFor={`flexCheck-${option?.optionTypeId}-${indexId}`}
+                      htmlFor={`additionalCost-${option?.optionTypeId}-${indexId}`}
                     >
                       {option?.optionType}
                     </label>
