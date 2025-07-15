@@ -3,6 +3,7 @@ import Loginsidebar from "../Auth/Loginsidebar";
 import SimpleReactValidator from "simple-react-validator";
 import { ApiLoder, CustomMessages, ErrorMessage, SuccessMessage } from "../../../helpers/common";
 import InputField2 from "../../Form/InputField2";
+import Selectbox from "../../Form/Selectbox";
 import SubmitButton from "../../Form/SubmitButton";
 import { callAPIWithoutAuth } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -12,15 +13,64 @@ function ForgetPassword() {
   const simpleValidator = useRef(new SimpleReactValidator({ messages: CustomMessages }));
   const [, forceUpdate] = useState();
     const [email, setEmail] = useState('');
+    const [companyCode, setCompanyCode] = useState('');
+    const [companyCodes, setCompanyCodes] = useState([]);
     const [loader, setLoader] = useState(false)
     const [data, setData] = useState({});
     const param = useParams();
     const navigate = useNavigate();
 
-    const sendForgetRequest = async (email) => {
+    // Function to fetch company codes for the specific email
+    const fetchCompanyCodeByEmail = async (emailValue) => {
+        // Only fetch if email is provided and looks valid
+        if (!emailValue || !emailValue.includes('@')) {
+            setCompanyCodes([]);
+            setCompanyCode('');
+            return;
+        }
+
+        try {
+            const response = await callAPIWithoutAuth(
+                `${apiUrls.GetCompanyCodesByEmail}?email=${encodeURIComponent(emailValue)}`, 
+                {}, 
+                'GET'
+            );
+            
+            if (response.data.isSuccess) {
+                const companyCodes = response.data.data || [];
+                
+                // Format for dropdown
+                const formattedCodes = companyCodes.map(code => ({ 
+                    value: code.code, 
+                    label: code.name ? `${code.code} - ${code.name}` : code.code
+                }));
+                
+                setCompanyCodes(formattedCodes);
+                
+                // Auto-populate the first company code if found
+                if (formattedCodes.length > 0) {
+                    setCompanyCode(formattedCodes[0].value);
+                } else {
+                    setCompanyCode('');
+                }
+            } else {
+                setCompanyCodes([]);
+                setCompanyCode('');
+            }
+        } catch (error) {
+            console.error('Error fetching company codes:', error);
+            setCompanyCodes([]);
+            setCompanyCode('');
+        }
+    };
+
+    const sendForgetRequest = async (email, companyCode) => {
       setLoader(true)
         try{
-         const response = await callAPIWithoutAuth(apiUrls.ForgetPassword, {}, 'POST', {email:email,code:param.type})
+         const response = await callAPIWithoutAuth(apiUrls.ForgetPassword, {}, 'POST', {
+             email: email,
+             code: companyCode,
+         })
          setLoader(false)
          if(response.data.isSuccess){
           SuccessMessage(response.data.message)
@@ -32,63 +82,33 @@ function ForgetPassword() {
         }
     }
 
+    // Handle email change with debouncing for company code lookup
+    const handleEmailChange = (e) => {
+        const emailValue = e.target.value;
+        setEmail(emailValue);
+        
+        // Debounce the API call
+        const timeoutId = setTimeout(() => {
+            fetchCompanyCodeByEmail(emailValue);
+        }, 500);
+        
+        return () => clearTimeout(timeoutId);
+    };
+
     function handleSubmit(e){
       e.preventDefault(); 
       const formValid = simpleValidator.current.allValid();
       if (!formValid) {
         simpleValidator.current.showMessages();
         forceUpdate(1);
+      } else if (companyCodes.length === 0 || !companyCode) {
+        ErrorMessage("Please enter a valid email to load company codes, then select a company code.");
       } else {
-        sendForgetRequest(email)
+        sendForgetRequest(email, companyCode)
       }
-     
      
     }
 
-    function changeFavicon(users) {
-      let favicon = document.querySelector("link[rel~='icon']");
-      if (!favicon) {
-          favicon = document.createElement("link");
-          favicon.rel = "icon";
-          document.head.appendChild(favicon);
-      }
-      favicon.href = users?.logo ||"/image/logo.svg";
-      document.title = users?.firstName
-      ? `${users?.firstName} ${users?.lastName || ''}`.trim()
-      : document.title;
-  }
-
-    const GetData = async () => {
-      setLoader(true);
-      try {
-        const response = await callAPIWithoutAuth(
-          apiUrls.HomePageContent,
-          {CompanyCode:param.type},
-          "GET"
-        );
-        setLoader(false);
-        if (response.data.isSuccess) {
-          let datas = response?.data?.data;
-          setData(datas)
-         changeFavicon(datas)
-          localStorage.setItem("code", JSON.stringify(param.type));
-        } else {
-          navigate("/404");
-          ErrorMessage(response.data.message);
-        }
-      } catch (e) {
-        navigate("/404");
-        setLoader(false);
-      }
-    };
-    const token = localStorage.getItem('accessToken')
-  
-    useEffect(() => {
-      if(!token){
-        GetData();
-      }
-     // eslint-disable-next-line
-    }, [param.type]);
 
 
   return (
@@ -102,18 +122,19 @@ function ForgetPassword() {
               <div className="inner_content_one forgot-password">
                 <h1>Forgot Your Password?</h1>
                 <p>
-                  Don’t Worry! Reseting your password is easy. Just type in the
+                  Don't Worry! Reseting your password is easy. Just type in the
                   email your registered.
                 </p>
                 <form className="form_sec mt-5" onSubmit={handleSubmit}>
                   <div className="row">
                     <div className="col-lg-12 mb-lg-4 mb-md-4 mb-3">
-                      <InputField2    labelName="Email"
+                      <InputField2    
+                        labelName="Email"
                         type="text"
                         placeholder="abc12@gmail.com"
                         name="email"
                         id="email"
-                        handleChange={(e)=>{setEmail(e.target.value)}}
+                        handleChange={handleEmailChange}
                         value={email}
                          />
                       <div className="error">
@@ -121,6 +142,25 @@ function ForgetPassword() {
                           "email",
                           email,
                           "required|email",
+                        )}
+                      </div>
+                    </div>
+                    <div className="col-lg-12 mb-lg-4 mb-md-4 mb-3">
+                      <Selectbox
+                        labelName="Company Code"
+                        options={companyCodes.length > 0 ? companyCodes : [{ value: '', label: email && email.includes('@') ? 'No company codes found for this email' : 'Enter email first' }]}
+                        handleChange={(e) => setCompanyCode(e.target.value)}
+                        value={companyCode}
+                        id="companyCode"
+                        name="companyCode"
+                        required={true}
+                        disabledselectBox={companyCodes.length === 0}
+                      />
+                      <div className="error">
+                        {simpleValidator.current.message(
+                          "companyCode",
+                          companyCode,
+                          "required",
                         )}
                       </div>
                     </div>

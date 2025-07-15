@@ -8,6 +8,7 @@ export const apiUrls = {
   UpdateSettingById: "Common/UpdateSettingById",
   ForgetPassword: "Auth/ForgetPassword",
   VerifyForgetPassword: "Auth/VerifyForgetPassword",
+  GetCompanyCodesByEmail: "Auth/GetCompanyCodesByEmail",
   GetAllJobs: "Common/GetAllJobs",
   GetAllDiscount: "Common/GetAllDiscount",
   //Comman Api
