@@ -4,7 +4,7 @@ import { callAPI } from "../utils/apiUtils";
 import { ApiLoder, ErrorMessage } from "./common";
 
 
-export default function ExportFile({type,serach="",page,perpage,tenantId="",status,Url,jobStatus="",vendor="",productType="",WindowProductId="",EstimationId="",toDate=null,formDate=null}) {
+export default function ExportFile({type,serach="",page,perpage,tenantId="",status,Url,jobStatus="",vendor="",productType="",WindowProductId="",EstimationId="",toDate=null,formDate=null,filterType=""}) {
   const [loder, setLoader] = useState(false);
  
   const postImage = async () => {
@@ -13,7 +13,7 @@ export default function ExportFile({type,serach="",page,perpage,tenantId="",stat
       const apiResponse = await callAPI(
         `${Url}`,
         {Type:type,WindowProductId:WindowProductId,
-          EstimationId:EstimationId},
+          EstimationId:EstimationId,...(filterType ? { filterType: filterType } : {})},
         "POST",
         {
             searchValue: serach ? serach : "",

@@ -196,7 +196,7 @@ export default function FinanceReport() {
               <Link to="#">Print</Link>
             </div> */}
             <div className="btn blue-btn small_btn">
-               <ExportFile type="invoice"  serach={search} page={page} perpage={rowsPerPage}  status={"2"} Url={apiUrls.ExportContacts} toDate={filter.toDate} formDate={filter.formDate}/>
+               <ExportFile type="invoice"  serach={search} page={page} perpage={rowsPerPage}  status={"2"} Url={apiUrls.ExportContacts} toDate={filter.toDate} formDate={filter.formDate} filterType={value.orderStatus}/>
             </div>
           </div>
         </div>

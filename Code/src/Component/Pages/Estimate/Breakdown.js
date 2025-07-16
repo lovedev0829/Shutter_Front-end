@@ -210,7 +210,7 @@ const Breakdown = ({
                                   </th>
                                 )
                             )}
-
+{/* 
                             {tenantList &&
                               tenantList
                                 .flatMap((val) => val?.optionTaxDetails || [])
@@ -221,7 +221,7 @@ const Breakdown = ({
                                   <th key={idx}>
                                     {opt.optionName} - {opt.optionTypeName}
                                   </th>
-                                ))}
+                                ))} */}
 
                             <th scope="col">Sub Total</th>
                             <th scope="col">Over Head</th>
@@ -251,7 +251,7 @@ const Breakdown = ({
                               ) : null
                             )}
 
-                            {tenantList &&
+                            {/* {tenantList &&
                               tenantList
                                 .flatMap((val) => val?.optionTaxDetails || [])
                                 .sort((a, b) =>
@@ -262,7 +262,7 @@ const Breakdown = ({
                                     {defaultConfig.currencySign}{" "}
                                     {opt.optionPrice || 0}
                                   </td>
-                                ))}
+                                ))} */}
 
                             <td style={{ whiteSpace: "nowrap" }}>
                               {defaultConfig.currencySign}{" "}
