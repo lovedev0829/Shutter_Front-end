@@ -13,11 +13,10 @@ import { Eyeclose, Eyeopen } from "../../../SvgFile/Index";
 import InputField2 from "../../Form/InputField2";
 
 export default function Login() {
-  const [input, setInput] = useState({ username: "", password: "", companyCode:"" });
-  const [data, setData] = useState({});
+  const [data, setData] = useState({ username: "", password: "", companyCode:"" });
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setInput((prevInput) => ({ ...prevInput, [name]: value }));
+    setData((prev) => ({ ...prev, [name]: value }));
   };
 
   const [loader, setloader] = useState(false);
@@ -40,12 +39,12 @@ export default function Login() {
       );
       setloader(false);
       if (response.data.isSuccess) {
-        let datas = response?.data?.data;
+        let res = response?.data?.data;
 
-        dispatch(Profile(datas));
-        localStorage.setItem("accessToken", datas?.token);
-        localStorage.setItem("code", JSON.stringify(param.type));
-        localStorage.setItem("userData", JSON.stringify(datas));
+        dispatch(Profile(res));
+        localStorage.setItem("accessToken", res?.token);
+        localStorage.setItem("code", JSON.stringify(data.companyCode));
+        localStorage.setItem("userData", JSON.stringify(res));
         SuccessMessage(response.data.message);
         navigate("/dashboard");
 
@@ -72,12 +71,12 @@ export default function Login() {
       simpleValidator.current.showMessages();
       forceUpdate(1);
     } else {
-      loginToApp(input);
+      loginToApp(data);
     }
   };
   
   useEffect(() => {
-    setInput((prevInput) => ({ ...prevInput, 'companyCode': param.type }));
+    setData((prev) => ({ ...prev, 'companyCode': param.type?? "login" }));
      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [param.type]);
 
@@ -101,14 +100,14 @@ export default function Login() {
                         name="username"
                         id="email"
                         handleChange={handleChange}
-                        value={input.username}
+                        value={data.username}
                         
                       />
 
                        <div className="error">
                           {simpleValidator.current.message(
                             "username",
-                            input?.username,
+                            data?.username,
                             "required|email",
 
                           )}
@@ -123,13 +122,13 @@ export default function Login() {
                           name="password"
                           id="password"
                           handleChange={handleChange}
-                          value={input.password}
+                          value={data.password}
                      
                         />
                      <div className="error">
                           {simpleValidator.current.message(
                             "password",
-                            input?.password,
+                            data?.password,
                             "required"
                           )}
                         </div>
@@ -152,7 +151,7 @@ export default function Login() {
                             Remember me
                           </label>
                         </div> */}
-                        <Link to={`/forget-password/${param.type}`} className="link_forget" style={{color:data?.primaryColor}}>
+                        <Link to={`/forget-password`} className="link_forget" style={{color:data?.primaryColor}}>
                           Forgot Password?
                         </Link>
                       </div>

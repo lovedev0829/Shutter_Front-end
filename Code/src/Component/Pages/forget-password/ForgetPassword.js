@@ -10,8 +10,9 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { useNavigate, useParams } from "react-router-dom";
 
 function ForgetPassword() {
-  const simpleValidator = useRef(new SimpleReactValidator({ messages: CustomMessages }));
-  const [, forceUpdate] = useState();
+
+    const simpleValidator = useRef(new SimpleReactValidator({ messages: CustomMessages }));
+    const [, forceUpdate] = useState();
     const [email, setEmail] = useState('');
     const [companyCode, setCompanyCode] = useState('');
     const [companyCodes, setCompanyCodes] = useState([]);
@@ -22,7 +23,7 @@ function ForgetPassword() {
 
     // Function to fetch company codes for the specific email
     const fetchCompanyCodeByEmail = async (emailValue) => {
-        // Only fetch if email is provided and looks valid
+
         if (!emailValue || !emailValue.includes('@')) {
             setCompanyCodes([]);
             setCompanyCode('');
@@ -39,7 +40,6 @@ function ForgetPassword() {
             if (response.data.isSuccess) {
                 const companyCodes = response.data.data || [];
                 
-                // Format for dropdown
                 const formattedCodes = companyCodes.map(code => ({ 
                     value: code.code, 
                     label: code.name ? `${code.code} - ${code.name}` : code.code
@@ -47,9 +47,8 @@ function ForgetPassword() {
                 
                 setCompanyCodes(formattedCodes);
                 
-                // Auto-populate the first company code if found
                 if (formattedCodes.length > 0) {
-                    setCompanyCode(formattedCodes[0].value);
+                    setCompanyCode(formattedCodes[0].value);                   
                 } else {
                     setCompanyCode('');
                 }
@@ -65,29 +64,27 @@ function ForgetPassword() {
     };
 
     const sendForgetRequest = async (email, companyCode) => {
-      setLoader(true)
+        setLoader(true)
         try{
-         const response = await callAPIWithoutAuth(apiUrls.ForgetPassword, {}, 'POST', {
-             email: email,
-             code: companyCode,
-         })
-         setLoader(false)
-         if(response.data.isSuccess){
-          SuccessMessage(response.data.message)
-         }else{
-          ErrorMessage(response.data.message)
-         }
+            const response = await callAPIWithoutAuth(apiUrls.ForgetPassword, {}, 'POST', {
+                email: email,
+                code: companyCode,
+            })
+            setLoader(false)
+            if(response.data.isSuccess){
+                SuccessMessage(response.data.message)
+            }else{
+                ErrorMessage(response.data.message)
+            }
         } catch(error){
            setLoader(false)
         }
     }
 
-    // Handle email change with debouncing for company code lookup
     const handleEmailChange = (e) => {
         const emailValue = e.target.value;
         setEmail(emailValue);
         
-        // Debounce the API call
         const timeoutId = setTimeout(() => {
             fetchCompanyCodeByEmail(emailValue);
         }, 500);
@@ -96,20 +93,58 @@ function ForgetPassword() {
     };
 
     function handleSubmit(e){
-      e.preventDefault(); 
-      const formValid = simpleValidator.current.allValid();
-      if (!formValid) {
-        simpleValidator.current.showMessages();
-        forceUpdate(1);
-      } else if (companyCodes.length === 0 || !companyCode) {
-        ErrorMessage("Please enter a valid email to load company codes, then select a company code.");
-      } else {
-        sendForgetRequest(email, companyCode)
-      }
+        e.preventDefault(); 
+        const formValid = simpleValidator.current.allValid();
+        if (!formValid) {
+                simpleValidator.current.showMessages();
+                forceUpdate(1);
+        } else if (companyCodes.length === 0 || !companyCode) {
+                ErrorMessage("Please enter a valid email to load company codes, then select a company code.");
+        } else {
+                sendForgetRequest(email, companyCode)
+        }
      
     }
 
+    function changeFavicon(users) {
+      let favicon = document.querySelector("link[rel~='icon']");
+      if (!favicon) {
+          favicon = document.createElement("link");
+          favicon.rel = "icon";
+          document.head.appendChild(favicon);
+      }
+      favicon.href = users?.logo ||"/image/logo.svg";
+      document.title = users?.firstName
+      ? `${users?.firstName} ${users?.lastName || ''}`.trim()
+      : document.title;
+  }
 
+    const getCompanyData = async () => {
+        try {
+            const response = await callAPIWithoutAuth(
+                apiUrls.HomePageContent,
+                {CompanyCode: companyCode},
+                "GET"
+            );
+            setLoader(false);
+            if (response.data.isSuccess) {
+                let datas = response?.data?.data;
+                setData(datas)
+                changeFavicon(datas)
+            } else {
+                navigate("/404");
+                ErrorMessage(response.data.message);
+            }
+        } catch (e) {
+            navigate("/404");
+        }
+    };
+
+    useEffect(() => {
+      if(companyCode) {
+        getCompanyData();
+      }
+    }, [companyCode])
 
   return (
     

@@ -4,6 +4,7 @@ export const apiUrls = {
   ResetPassword: "Auth/ResetPassword",
   ProfileUpdate: "Auth/ProfileUpdate",
   ProfileDetails: "Auth/ProfileDetails",
+  HomePageContent: "Auth/HomePageContent",
   SettingById: "Common/SettingById",
   UpdateSettingById: "Common/UpdateSettingById",
   ForgetPassword: "Auth/ForgetPassword",
