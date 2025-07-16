@@ -23,17 +23,16 @@ export default function Joblist({ initialActiveTab }) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [paginatedItems, setPaginatedItems] = useState(0);
   const [tenantList, setTenantList] = useState([]);
-   const [StagesList, setStagesList] = useState([]);
+  const [StagesList, setStagesList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [addresList, setaddressList] = useState([]);
   const [value, setValue] = useState({ address: "", jobStatus: "" });
-    const [JobStatus, setJobStatus] = useState([]);
+  const [JobStatus, setJobStatus] = useState([]);
   const navigate = useNavigate();
   const param = useParams();
 
   const AddresslistAPI = async () => {
-   
     try {
       const apiResponse = await callAPI(
         apiUrls.GetAllAddress,
@@ -47,7 +46,7 @@ export default function Joblist({ initialActiveTab }) {
         setaddressList([]);
       }
     } catch (error) {
-      setLoader(false)
+      setLoader(false);
     }
   };
 
@@ -94,12 +93,11 @@ export default function Joblist({ initialActiveTab }) {
     try {
       const apiResponse = await callAPI(apiUrls.GetAllStages, {}, "GET");
       if (apiResponse?.data?.isSuccess) {
-        setStagesList(apiResponse?.data?.data)
+        setStagesList(apiResponse?.data?.data);
       } else {
-        setStagesList([])
+        setStagesList([]);
       }
     } catch (error) {
-     
       setStagesList([]);
     }
   };
@@ -178,9 +176,9 @@ export default function Joblist({ initialActiveTab }) {
       status:
         stage.ghlStageId === currentStageId
           ? "active"
-          : index < StagesList.findIndex(s => s.ghlStageId === currentStageId)
-            ? "Abandon"
-            : "disabled",
+          : index < StagesList.findIndex((s) => s.ghlStageId === currentStageId)
+          ? "Abandon"
+          : "disabled",
       tooltip: stage.ghlStageName,
     }));
   };
@@ -206,9 +204,10 @@ export default function Joblist({ initialActiveTab }) {
       status:
         stage.jobStatusId === currentjobStatusId
           ? "active"
-          : index < JobStatus.findIndex(s => s.jobStatusId === currentjobStatusId)
-            ? "Abandon"
-            : "disabled",
+          : index <
+            JobStatus.findIndex((s) => s.jobStatusId === currentjobStatusId)
+          ? "Abandon"
+          : "disabled",
       tooltip: stage.jobStatusName,
     }));
   };
@@ -216,8 +215,9 @@ export default function Joblist({ initialActiveTab }) {
     <>
       {loder && <ApiLoder />}
       <div
-        className={`tab-pane fade ${initialActiveTab === "#pills-content" ? "show active" : ""
-          }`}
+        className={`tab-pane fade ${
+          initialActiveTab === "#pills-content" ? "show active" : ""
+        }`}
         id="pills-content"
         role="tabpanel"
         aria-labelledby="pills-content-tab"
@@ -257,84 +257,96 @@ export default function Joblist({ initialActiveTab }) {
             return (
               <div className="col-lg-4 col-xxl-3" key={i}>
                 <div className="notes_card">
-                  {StagesList?.length>0 ?
-                  <div className="job-status">
-                    <div
-                      className="row bs-wizard justify-content-center"
-                      style={{ borderBottom: 0 }}
-                    >
-                      {Steps.map((step, index) => (
-                        <div
-                          key={index}
-                          className={`col-md-2 col-2 bs-wizard-step ${step.status === "Abandon"
-                              ? "Abandon"
-                              : step.status === "active"
+                  {StagesList?.length > 0 ? (
+                    <div className="job-status">
+                      <div
+                        className="row bs-wizard justify-content-center"
+                        style={{ borderBottom: 0 }}
+                      >
+                        {Steps.map((step, index) => (
+                          <div
+                            key={index}
+                            className={`col-md-2 col-2 bs-wizard-step ${
+                              step.status === "Abandon"
+                                ? "Abandon"
+                                : step.status === "active"
                                 ? "active"
                                 : "disabled"
                             }`}
-                        >
-                          <div className="progress">
-                            <div className="progress-bar" />
+                          >
+                            <div className="progress">
+                              <div className="progress-bar" />
+                            </div>
+                            <Tooltip title={step.tooltip}>
+                              <span className="bs-wizard-dot">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  id="check"
+                                >
+                                  <path
+                                    fill="#fff"
+                                    d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"
+                                  />
+                                </svg>
+                              </span>
+                            </Tooltip>
                           </div>
-                          <Tooltip title={step.tooltip}>
-                            <span className="bs-wizard-dot">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                id="check"
-                              >
-                                <path
-                                  fill="#fff"
-                                  d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"
-                                />
-                              </svg>
-                            </span>
-                          </Tooltip>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-:
-                  <div className="job-status">
-                    <div
-                      className="row bs-wizard justify-content-center"
-                      style={{ borderBottom: 0 }}
-                    >
-                      {Steps2.map((step, index) => (
-                        <div
-                          key={index}
-                          className={`col-md-2 col-2 bs-wizard-step ${step.status === "Abandon"
-                              ? "Abandon"
-                              : step.status === "active"
+                  ) : (
+                    <div className="job-status">
+                      <div
+                        className="row bs-wizard justify-content-center"
+                        style={{ borderBottom: 0 }}
+                      >
+                        {Steps2.map((step, index) => (
+                          <div
+                            key={index}
+                            className={`col-md-2 col-2 bs-wizard-step ${
+                              step.status === "Abandon"
+                                ? "Abandon"
+                                : step.status === "active"
                                 ? "active"
                                 : "disabled"
                             }`}
-                        >
-                          <div className="progress">
-                            <div className="progress-bar" />
+                          >
+                            <div className="progress">
+                              <div className="progress-bar" />
+                            </div>
+                            <Tooltip title={step.tooltip}>
+                              <span className="bs-wizard-dot">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  id="check"
+                                >
+                                  <path
+                                    fill="#fff"
+                                    d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"
+                                  />
+                                </svg>
+                              </span>
+                            </Tooltip>
                           </div>
-                          <Tooltip title={step.tooltip}>
-                            <span className="bs-wizard-dot">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                id="check"
-                              >
-                                <path
-                                  fill="#fff"
-                                  d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"
-                                />
-                              </svg>
-                            </span>
-                          </Tooltip>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-          }
+                  )}
                   <div className="notes_header d-flex align-items-center justify-content-between mb-2">
                     <div className="title-job">
-                      <h6 className="mb-0 font-16">{val?.jobName}</h6>
+                      <h6
+                        className="mb-0 font-16"
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "200px",
+                        }}
+                      >
+                        {val?.jobName}
+                      </h6>
                       <span>
                         {val?.streetAddress}, {val?.city}, {val?.state}-{" "}
                         {val?.zipCode} ({val?.label})
@@ -348,7 +360,11 @@ export default function Joblist({ initialActiveTab }) {
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                         >
-                          <img src="/image/three-dot-new.svg" alt="" loading="lazy" />
+                          <img
+                            src="/image/three-dot-new.svg"
+                            alt=""
+                            loading="lazy"
+                          />
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end shadow w-100">
                           <li>
@@ -365,7 +381,7 @@ export default function Joblist({ initialActiveTab }) {
                               <img
                                 src="/image/eye.svg"
                                 alt=""
-                               loading="lazy"
+                                loading="lazy"
                                 className="me-1"
                               />{" "}
                               View Job
@@ -426,54 +442,50 @@ export default function Joblist({ initialActiveTab }) {
                         <li>{val?.notes ? val?.notes : "---"}</li>
                       </ul>
                     </div>
-                    {val?.attachmentsAny &&
-                      val?.attachmentsAny?.length > 0 && (
-                        <div className="pricing_terms border-0 mb-0 pb-0">
-                          <p>Attachment</p>
+                    {val?.attachmentsAny && val?.attachmentsAny?.length > 0 && (
+                      <div className="pricing_terms border-0 mb-0 pb-0">
+                        <p>Attachment</p>
 
-                          <div className="image-attached">
-
-                            {val?.attachmentsAny &&
-                              val?.attachmentsAny?.length > 0 &&
-                              val?.attachmentsAny.map((val, i) => {
-                                const fileExtension = val
-                                  .split(".")
-                                  .pop()
-                                  .toLowerCase();
-                                const isImage = ["jpeg", "jpg", "png"].includes(
-                                  fileExtension
-                                );
-                                return (
-                                  <div className="attached_image" key={i}>
-                                    <Link
-
-                                      to={val.trim()}
-                                      target="_blank"
-                                      className="d-block attchment-file tax_document"
-                                    >
-                                      {isImage ? (
-                                        <img
-                                          src={val}
-                                          alt={`Preview ${val}`}
-                                          loading="lazy"
-                                          height={30}
-                                          width={30}
-                                        />
-                                      ) : (
-                                        <img
-                                          src="/image/file.svg"
-                                          alt="File preview"
-                                          loading="lazy"
-                                        />
-                                      )}
-                                    </Link>
-                                  </div>
-                                );
-                              })}
-
-                          </div>
+                        <div className="image-attached">
+                          {val?.attachmentsAny &&
+                            val?.attachmentsAny?.length > 0 &&
+                            val?.attachmentsAny.map((val, i) => {
+                              const fileExtension = val
+                                .split(".")
+                                .pop()
+                                .toLowerCase();
+                              const isImage = ["jpeg", "jpg", "png"].includes(
+                                fileExtension
+                              );
+                              return (
+                                <div className="attached_image" key={i}>
+                                  <Link
+                                    to={val.trim()}
+                                    target="_blank"
+                                    className="d-block attchment-file tax_document"
+                                  >
+                                    {isImage ? (
+                                      <img
+                                        src={val}
+                                        alt={`Preview ${val}`}
+                                        loading="lazy"
+                                        height={30}
+                                        width={30}
+                                      />
+                                    ) : (
+                                      <img
+                                        src="/image/file.svg"
+                                        alt="File preview"
+                                        loading="lazy"
+                                      />
+                                    )}
+                                  </Link>
+                                </div>
+                              );
+                            })}
                         </div>
-                      )}
+                      </div>
+                    )}
                   </div>
                   <div className="buttons_group gap-3 mt-3 d-flex align-items-center justify-content-between">
                     {HasPermission("EstimateView") && (
@@ -491,7 +503,10 @@ export default function Joblist({ initialActiveTab }) {
                       <button
                         onClick={() => {
                           navigate(`/contacts/job/${val?.jobId}`);
-                          localStorage.setItem("activeTab", "#window-measurement");
+                          localStorage.setItem(
+                            "activeTab",
+                            "#window-measurement"
+                          );
                         }}
                         className="btn blue-btn w-50"
                       >
@@ -504,13 +519,18 @@ export default function Joblist({ initialActiveTab }) {
             );
           })}
           {(!tenantList || tenantList?.length === 0) && (
-             <div className="col-lg-4 col-xxl-3">
-            <div className="jobempty">
-            <div className="text-center border-0 no-records">
-              <img src="/image/no-records.svg" alt=" " loading="lazy" className="img-fluid" />
-              <p className="font-14">No Records Found</p>
-            </div>
-            </div>
+            <div className="col-lg-4 col-xxl-3">
+              <div className="jobempty">
+                <div className="text-center border-0 no-records">
+                  <img
+                    src="/image/no-records.svg"
+                    alt=" "
+                    loading="lazy"
+                    className="img-fluid"
+                  />
+                  <p className="font-14">No Records Found</p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -532,14 +552,15 @@ export default function Joblist({ initialActiveTab }) {
           </div>
         )}
       </div>
-     {open && <AddEditJob
-        open={open}
-        handleclose={handleclose}
-        action={action}
-        LanguageListAPI={handleapi}
-        object={object}
-      />
-     }
+      {open && (
+        <AddEditJob
+          open={open}
+          handleclose={handleclose}
+          action={action}
+          LanguageListAPI={handleapi}
+          object={object}
+        />
+      )}
       <Delete
         open={delOpen}
         handleClose={handledelclose}
