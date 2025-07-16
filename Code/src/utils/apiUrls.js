@@ -4,10 +4,12 @@ export const apiUrls = {
   ResetPassword: "Auth/ResetPassword",
   ProfileUpdate: "Auth/ProfileUpdate",
   ProfileDetails: "Auth/ProfileDetails",
+  HomePageContent: "Auth/HomePageContent",
   SettingById: "Common/SettingById",
   UpdateSettingById: "Common/UpdateSettingById",
   ForgetPassword: "Auth/ForgetPassword",
   VerifyForgetPassword: "Auth/VerifyForgetPassword",
+  GetCompanyCodesByEmail: "Auth/GetCompanyCodesByEmail",
   GetAllJobs: "Common/GetAllJobs",
   GetAllDiscount: "Common/GetAllDiscount",
   //Comman Api

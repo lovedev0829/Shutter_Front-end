@@ -11,13 +11,13 @@ export function RenderRout() {
   
   const url = window.location.pathname
 
-  if(!token && (url !== '/login' && url !== '/admin')){
-      window.location.href = '/login'
-  } else if (token && url == "/") {
-      window.location.href = '/dashboard'
-  } else if(!token && url == "/") {
-      window.location.href = '/login' 
-  }
+  // if(!token && (url !== '/login' && url !== '/admin')){
+  //     window.location.href = '/login'
+  // } else if (token && url == "/") {
+  //     window.location.href = '/dashboard'
+  // } else if(!token && url == "/") {
+  //     window.location.href = '/login' 
+  // }
 
   return (
     <>
@@ -63,9 +63,17 @@ const routes = [
     guard: Guest,
     layout: BaseLayout,
     exact: true,
-    path: '/:type',
+    path: '/',
     element: lazy(() => import('./Component/Pages/Auth/Login'))
   },
+  {
+    guard: Guest,
+    layout: BaseLayout,
+    exact: true,
+    path: '/login',
+    element: lazy(() => import('./Component/Pages/Auth/Login'))
+  },
+
 
   // forget password
   
@@ -73,7 +81,7 @@ const routes = [
     guard: Guest,
     layout: BaseLayout,
     exact: true,
-    path: '/forget-password/:type',
+    path: '/forget-password',
     element: lazy(() => import('./Component/Pages/forget-password/ForgetPassword'))
 
   },

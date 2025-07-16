@@ -34,7 +34,6 @@ function AddEditWindow({
     contactId: listdata?.contactId,
     addressId: listdata?.addressId,
     jobId: listdata?.jobId,
-    // isRated: false,
     quantity: "",
     label: "",
     width: "",
@@ -52,27 +51,37 @@ function AddEditWindow({
       },
     ],
   };
-  const [value, setValue] = useState(object ? object : defaultState);
-  //optionname
-  const [optionName, setOptionName] = useState([]);
-  //additional costs for options without prices
-  const [additionalCosts, setAdditionalCosts] = useState([]);
 
+  // Main state
+  const [value, setValue] = useState(object || defaultState);
+  
+  // Option-related state
+  const [optionName, setOptionName] = useState([]);
+  const [additionalCosts, setAdditionalCosts] = useState([]);
+  const [optionMapping, setOptionMapping] = useState([]);
+  
+  // UI state
   const [show, setShow] = useState(false);
   const [imageLoader, setImageLoader] = useState(false);
-  const [vendor, setvendor] = useState(false);
-  const [producttype, setproducttype] = useState(false);
-  const [vendorlist, setvendorlist] = useState(false);
-  const [option, setoption] = useState(false);
-  const [optionlist, setoptionlist] = useState(false);
-  const [countryList, setCountryList] = useState([]);
   const [loader, setLoader] = useState(false);
-  const simpleValidator = useRef(new SimpleReactValidator());
-  const [, forceUpdate] = useState();
   const [showOptionsPopup, setShowOptionsPopup] = useState(false);
   const [activeProductIndex, setActiveProductIndex] = useState(null);
   const [popupMode, setPopupMode] = useState("");
   const [activeOptionsTab, setActiveOptionsTab] = useState("options");
+  
+  // Modal states
+  const [vendor, setvendor] = useState(false);
+  const [producttype, setproducttype] = useState(false);
+  const [option, setoption] = useState(false);
+  
+  // Data states
+  const [vendorlist, setvendorlist] = useState(false);
+  const [optionlist, setoptionlist] = useState(false);
+  const [countryList, setCountryList] = useState([]);
+  
+  // Validator
+  const simpleValidator = useRef(new SimpleReactValidator());
+  const [, forceUpdate] = useState();
 
   const handleChange = (e, index = null) => {
     const { name, value } = e.target;
@@ -86,69 +95,68 @@ function AddEditWindow({
     });
   };
 
-  const languageAdd = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
       simpleValidator.current.showMessages();
       forceUpdate(1);
-    } else {
-      try {
-        setLoader(true);
-        
-        // Prepare submission data including additional costs
-        const submissionData = {
-          ...value,
-          additionalCosts: additionalCosts
-        };
-        
-        const apiResponse = await callAPI(
-          action === "add" ? apiUrls.WindowCreate : apiUrls.WindowUpdate,
-          {},
-          "POST",
-          submissionData
-        );
-        setLoader(false);
-        if (apiResponse?.data?.isSuccess) {
-          SuccessMessage(apiResponse?.data?.message);
-          await LanguageListAPI();
+      return;
+    }
 
-          handleclose();
-          setValue(defaultState);
-        } else {
-          ErrorMessage(apiResponse?.data?.message);
-        }
-      } catch (error) {
-        setLoader(false);
+    try {
+      setLoader(true);
+      const submissionData = { ...value, additionalCosts };
+      const apiResponse = await callAPI(
+        action === "add" ? apiUrls.WindowCreate : apiUrls.WindowUpdate,
+        {},
+        "POST",
+        submissionData
+      );
+      
+      if (apiResponse?.data?.isSuccess) {
+        SuccessMessage(apiResponse?.data?.message);
+        await LanguageListAPI();
+        handleClearState();
+      } else {
+        ErrorMessage(apiResponse?.data?.message);
       }
+    } catch (error) {
+      ErrorMessage("An error occurred while saving the window.");
+    } finally {
+      setLoader(false);
     }
   };
-  const CountryList = async () => {
+  const fetchProductTypes = async () => {
     try {
       setShow(true);
       const apiResponse = await callAPI(apiUrls.GetAllProductType, {}, "GET");
-      setShow(false);
+      
       if (apiResponse?.data?.isSuccess) {
         setCountryList(apiResponse?.data?.data);
+      } else {
+        setCountryList([]);
       }
     } catch (error) {
-      setShow(false);
       setCountryList([]);
+    } finally {
+      setShow(false);
     }
   };
-  const AddProduct = () => {
-    const newArray = value?.windowProducts;
-    newArray.push({
+  const addProduct = () => {
+    const newProduct = {
       productId: "",
       productTypeId: "",
       optionTypeId: [],
       buildWidth: "",
       buildHeight: "",
       additionalCost: 0,
-    });
-    setValue((val) => {
-      return { ...val, windowProducts: newArray };
-    });
+    };
+    
+    setValue((prev) => ({
+      ...prev,
+      windowProducts: [...prev.windowProducts, newProduct]
+    }));
   };
 
   const handleproduct = (e, i) => {
@@ -171,47 +179,104 @@ function AddEditWindow({
     });
   };
 
-  const deleteProduct = (i) => {
-    const newArray = value.windowProducts;
-    newArray.splice(i, 1);
-    setValue((val) => {
-      return { ...val, windowProducts: newArray };
-    });
-    setOptionName((prevOptionName) => {
-      let filtered = prevOptionName.filter((entry) => entry.indexId !== i);
-      filtered = filtered.map((entry) => ({
-        ...entry,
-        indexId: entry.indexId > i ? entry.indexId - 1 : entry.indexId,
-      }));
-      return filtered;
-    });
+  const deleteProduct = (index) => {
+    // Remove product from window products
+    setValue((prev) => ({
+      ...prev,
+      windowProducts: prev.windowProducts.filter((_, i) => i !== index)
+    }));
 
-    setAdditionalCosts((prevAdditionalCosts) => {
-      let filtered = prevAdditionalCosts.filter((entry) => entry.indexId !== i);
-      filtered = filtered.map((entry) => ({
-        ...entry,
-        indexId: entry.indexId > i ? entry.indexId - 1 : entry.indexId,
-      }));
-      return filtered;
-    });
+    // Helper function to update indexed arrays
+    const updateIndexedArray = (array) => 
+      array
+        .filter((entry) => entry.indexId !== index)
+        .map((entry) => ({
+          ...entry,
+          indexId: entry.indexId > index ? entry.indexId - 1 : entry.indexId,
+        }));
 
-    if (newArray?.length <= 0) {
+    // Update all option-related state arrays
+    setOptionName(updateIndexedArray);
+    setAdditionalCosts(updateIndexedArray);
+    setOptionMapping(updateIndexedArray);
+
+    // Clear validator fields if no products remain
+    if (value.windowProducts.length <= 1) {
       simpleValidator.current.purgeFields([
         "productTypeId",
-        "productId",
+        "productId", 
         "buildWidth",
         "buildHeight",
       ]);
     }
   };
 
-  useEffect(() => {
-    if (action === "edit") {
-      setValue(object);
-    } else {
-      setValue(defaultState);
+  const removeOption = (productIndex, optionLabel) => {
+    // Find the optionTypeId that corresponds to this option using optionMapping
+    let optionTypeIdToRemove = null;
+    const mappingEntry = optionMapping.find(entry => entry.indexId === productIndex);
+    if (mappingEntry && mappingEntry.data[optionLabel]) {
+      optionTypeIdToRemove = mappingEntry.data[optionLabel];
     }
-    CountryList();
+    
+    // Remove from optionName state
+    setOptionName((prevOptionName) => {
+      return prevOptionName.map((entry) => {
+        if (entry.indexId === productIndex) {
+          const updatedData = { ...entry.data };
+          delete updatedData[optionLabel];
+          return { ...entry, data: updatedData };
+        }
+        return entry;
+      });
+    });
+
+    // Remove from additionalCosts state
+    setAdditionalCosts((prevAdditionalCosts) => {
+      return prevAdditionalCosts.map((entry) => {
+        if (entry.indexId === productIndex) {
+          const updatedData = { ...entry.data };
+          // Remove all additional costs that match the option label pattern
+          Object.keys(updatedData).forEach((key) => {
+            if (key.includes(optionLabel.replace(`-${productIndex}`, ""))) {
+              delete updatedData[key];
+            }
+          });
+          return { ...entry, data: updatedData };
+        }
+        return entry;
+      });
+    });
+
+    // Remove from optionMapping state
+    setOptionMapping((prevMapping) => {
+      return prevMapping.map((entry) => {
+        if (entry.indexId === productIndex) {
+          const updatedData = { ...entry.data };
+          delete updatedData[optionLabel];
+          return { ...entry, data: updatedData };
+        }
+        return entry;
+      });
+    });
+
+    // Remove the optionTypeId from windowProducts
+    if (optionTypeIdToRemove) {
+      setValue((prevValue) => {
+        const updatedProducts = [...prevValue.windowProducts];
+        if (updatedProducts[productIndex] && updatedProducts[productIndex].optionTypeId) {
+          updatedProducts[productIndex].optionTypeId = updatedProducts[productIndex].optionTypeId.filter(
+            (id) => id !== optionTypeIdToRemove
+          );
+        }
+        return { ...prevValue, windowProducts: updatedProducts };
+      });
+    }
+  };
+
+  useEffect(() => {
+    setValue(action === "edit" ? object : defaultState);
+    fetchProductTypes();
     setvendorlist(false);
     setoptionlist(false);
     // eslint-disable-next-line
@@ -235,31 +300,26 @@ function AddEditWindow({
 
   const handleClearState = () => {
     setValue(defaultState);
-    setShowOptionsPopup(false)
-    resetObject();
-    handleclose();
-    simpleValidator.current.hideMessages();
-    forceUpdate();
+    setShowOptionsPopup(false);
     setOptionName([]);
     setAdditionalCosts([]);
+    setOptionMapping([]);
+    simpleValidator.current.hideMessages();
+    forceUpdate();
+    resetObject?.();
+    handleclose();
   };
 
-  const handleImageDelelet = (data) => {
-    const arr = value?.photo?.filter((val, i) => i !== data);
-    setValue((val) => {
-      return { ...val, photo: arr };
-    });
+  const handleImageDelete = (index) => {
+    setValue((prev) => ({
+      ...prev,
+      photo: prev.photo?.filter((_, i) => i !== index) || []
+    }));
   };
 
-  const handleapi = () => {
-    setvendorlist((prev) => !prev);
-  };
-  const handleapiproduct = () => {
-    CountryList();
-  };
-  const handleapioption = () => {
-    setoptionlist((prev) => !prev);
-  };
+  const refreshVendorList = () => setvendorlist((prev) => !prev);
+  const refreshProductTypes = () => fetchProductTypes();
+  const refreshOptionList = () => setoptionlist((prev) => !prev);
   return (
     <>
       <Dialog
@@ -295,7 +355,7 @@ function AddEditWindow({
                   onClick={handleClearState}
                 ></i>
               </div>
-              <form onSubmit={languageAdd}>
+              <form onSubmit={handleSubmit}>
                 <div className="modal-body modale-scroll">
                   <div className="form-design window-form-design">
                     <div className="middle-heading">
@@ -543,13 +603,23 @@ function AddEditWindow({
                                                     ([label, value], idx) => (
                                                       <li
                                                         key={idx}
-                                                        className="new-option-li"
+                                                        className="new-option-li d-flex justify-content-between align-items-center"
                                                       >
-                                                        {label.replace(
-                                                          new RegExp(`-${i}$`),
-                                                          ""
-                                                        )}
-                                                        - {value}
+                                                        <span style={{marginRight: "20px"}}>
+                                                          {label.replace(
+                                                            new RegExp(`-${i}$`),
+                                                            ""
+                                                          )}
+                                                          - {value}
+                                                        </span>
+                                                        <button
+                                                          type="button"
+                                                          className="btn btn-sm btn-outline-danger"
+                                                          onClick={() => removeOption(i, label)}
+                                                          title="Remove Option"
+                                                        >
+                                                          ×
+                                                        </button>
                                                       </li>
                                                     )
                                                   )}
@@ -584,6 +654,8 @@ function AddEditWindow({
                                           isRender={false}
                                           buildRequirement={false}
                                           showOptionsPopup={false}
+                                          optionMapping={optionMapping}
+                                          setOptionMapping={setOptionMapping}
                                         />
                                       </>
                                     )}
@@ -603,13 +675,23 @@ function AddEditWindow({
                                                   ([label, value], idx) => (
                                                     <li
                                                       key={idx}
-                                                      className="new-option-li"
+                                                      className="new-option-li d-flex justify-content-between align-items-center"
                                                     >
-                                                      {label.replace(
-                                                        new RegExp(`-${i}$`),
-                                                        ""
-                                                      )}
-                                                      - {value}
+                                                      <span style={{marginRight: "20px"}}>
+                                                        {label.replace(
+                                                          new RegExp(`-${i}$`),
+                                                          ""
+                                                        )}
+                                                        - {value}
+                                                      </span>
+                                                      <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-outline-danger"
+                                                        onClick={() => removeOption(i, label)}
+                                                        title="Remove Option"
+                                                      >
+                                                        ×
+                                                      </button>
                                                     </li>
                                                   )
                                                 )}
@@ -641,6 +723,8 @@ function AddEditWindow({
                                           isRender={false}
                                           buildRequirement={false}
                                           showOptionsPopup={false}
+                                          optionMapping={optionMapping}
+                                          setOptionMapping={setOptionMapping}
                                         />
                                       </>
                                     )}
@@ -716,7 +800,7 @@ function AddEditWindow({
 
                                   <div className="add-delete" style={{marginTop:i === 0?"32px":"6px"}}>
                                     {i === value.windowProducts.length - 1 && (
-                                      <div onClick={AddProduct}>
+                                      <div onClick={addProduct}>
                                         <img
                                           src="/image/plusblue.svg"
                                           alt=""
@@ -918,7 +1002,7 @@ function AddEditWindow({
                           <PreviewFiles
                             file={value?.photo}
                             isdelete={true}
-                            handleImageDelelet={handleImageDelelet}
+                            handleImageDelelet={handleImageDelete}
                           />
                         </div>
                       </div>
@@ -943,31 +1027,35 @@ function AddEditWindow({
           </div>
         </div>
       </Dialog>
-      {vendor &&<AddEditProduct
-        open={vendor}
-        handleclose={() => setvendor(false)}
-        action={"add"}
-        LanguageListAPI={handleapi}
-        object={""}
-      />
-}
-     {option && <AddEditOption
-        open={option}
-        handleclose={() => setoption(false)}
-        action={"add"}
-        LanguageListAPI={handleapioption}
-        object={""}
-      />
-     }
+      {vendor && (
+        <AddEditProduct
+          open={vendor}
+          handleclose={() => setvendor(false)}
+          action="add"
+          LanguageListAPI={refreshVendorList}
+          object=""
+        />
+      )}
+      
+      {option && (
+        <AddEditOption
+          open={option}
+          handleclose={() => setoption(false)}
+          action="add"
+          LanguageListAPI={refreshOptionList}
+          object=""
+        />
+      )}
 
-      {producttype &&<AddEditProductType
-        open={producttype}
-        handleclose={() => setproducttype(false)}
-        action={"add"}
-        LanguageListAPI={handleapiproduct}
-        object={""}
-      />
-}
+      {producttype && (
+        <AddEditProductType
+          open={producttype}
+          handleclose={() => setproducttype(false)}
+          action="add"
+          LanguageListAPI={refreshProductTypes}
+          object=""
+        />
+      )}
     </>
   );
 }
