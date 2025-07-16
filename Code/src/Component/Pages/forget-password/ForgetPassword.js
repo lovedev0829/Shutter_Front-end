@@ -15,6 +15,7 @@ function ForgetPassword() {
     const [, forceUpdate] = useState();
     const [email, setEmail] = useState('');
     const [companyCode, setCompanyCode] = useState('');
+    const [tenantId, setTenantId] = useState('');
     const [companyCodes, setCompanyCodes] = useState([]);
     const [loader, setLoader] = useState(false)
     const [data, setData] = useState({});
@@ -41,34 +42,40 @@ function ForgetPassword() {
                 const companyCodes = response.data.data || [];
                 
                 const formattedCodes = companyCodes.map(code => ({ 
-                    value: code.code, 
+                    value: code.code,
+                    tenantId: code.tenantId,
                     label: code.name ? `${code.code} - ${code.name}` : code.code
                 }));
                 
                 setCompanyCodes(formattedCodes);
                 
                 if (formattedCodes.length > 0) {
-                    setCompanyCode(formattedCodes[0].value);                   
+                    setCompanyCode(formattedCodes[0].value);
+                    setTenantId(formattedCodes[0].tenantId);                   
                 } else {
                     setCompanyCode('');
+                    setTenantId('');
                 }
             } else {
                 setCompanyCodes([]);
                 setCompanyCode('');
+                setTenantId('');
             }
         } catch (error) {
             console.error('Error fetching company codes:', error);
             setCompanyCodes([]);
             setCompanyCode('');
+            setTenantId('');
         }
     };
 
-    const sendForgetRequest = async (email, companyCode) => {
+    const sendForgetRequest = async (email, companyCode, tenantId) => {
         setLoader(true)
         try{
             const response = await callAPIWithoutAuth(apiUrls.ForgetPassword, {}, 'POST', {
                 email: email,
                 code: companyCode,
+                tenantId: tenantId
             })
             setLoader(false)
             if(response.data.isSuccess){
@@ -92,6 +99,19 @@ function ForgetPassword() {
         return () => clearTimeout(timeoutId);
     };
 
+    const handleCompanyCodeChange = (e) => {
+        const selectedCode = e.target.value;
+        setCompanyCode(selectedCode);
+        
+        // Find the corresponding tenantId for the selected company code
+        const selectedCompany = companyCodes.find(company => company.value === selectedCode);
+        if (selectedCompany) {
+            setTenantId(selectedCompany.tenantId);
+        } else {
+            setTenantId('');
+        }
+    };
+
     function handleSubmit(e){
         e.preventDefault(); 
         const formValid = simpleValidator.current.allValid();
@@ -101,7 +121,7 @@ function ForgetPassword() {
         } else if (companyCodes.length === 0 || !companyCode) {
                 ErrorMessage("Please enter a valid email to load company codes, then select a company code.");
         } else {
-                sendForgetRequest(email, companyCode)
+                sendForgetRequest(email, companyCode, tenantId)
         }
      
     }
@@ -184,7 +204,7 @@ function ForgetPassword() {
                       <Selectbox
                         labelName="Company Code"
                         options={companyCodes.length > 0 ? companyCodes : [{ value: '', label: email && email.includes('@') ? 'No company codes found for this email' : 'Enter email first' }]}
-                        handleChange={(e) => setCompanyCode(e.target.value)}
+                        handleChange={handleCompanyCodeChange}
                         value={companyCode}
                         id="companyCode"
                         name="companyCode"
