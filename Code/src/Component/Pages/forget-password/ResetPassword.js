@@ -145,7 +145,7 @@ const ResetPassword = ({ email }) => {
                           {simpleValidator.current.message(
                             "password",
                             password,
-                            "required|min:8|max:8"
+                            "required|min:8"
                           )}
                         </div>
                 </div>
