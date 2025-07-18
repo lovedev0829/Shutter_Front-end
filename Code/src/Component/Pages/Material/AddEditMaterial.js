@@ -20,13 +20,14 @@ import AddEditProductType from "../ProductType/AddEditProductType";
 const AddEditMaterial = ({
   open,
   handleclose,
- LanguageListAPI, // Refesh Api
+  LanguageListAPI, // Refesh Api
   action, // Add or Edit
   object, // selectedData data
 }) => {
   const defaultState = {
     materialName: "",
-    unitCost: "",
+    unitCost: 0,
+    totalCost: "",
     unitOfMeasurement: "",
     stockQuantity: null,
     reorderLevel: null,
@@ -71,7 +72,6 @@ const AddEditMaterial = ({
           sku: !value.sku ? null : value.sku,
           lenght: !value.lenght ? null : value.lenght,
           width: !value.width ? null : value.width,
-         
         };
         const apiResponse = await callAPI(
           action === "add" ? apiUrls.MaterialCreate : apiUrls.MaterialUpdate,
@@ -126,6 +126,48 @@ const AddEditMaterial = ({
       });
     }
   };
+
+  useEffect(() => {
+    let totalCost = 0;
+
+// Destructure with fallbacks to 1 if values are missing or falsy
+const length = value.lenght || 1;
+const width = value.width || 1;
+
+switch (value.unitOfMeasurement) {
+  case "Each (Ea)":
+    totalCost = value.totalCost;
+    break;
+
+  case "Sq Feet":
+  case "Sq Inches":
+    totalCost = value.totalCost / (length * width);
+    break;
+
+  case "Linear Feet":
+  case "Linear Inches":
+    totalCost = value.lenght ? value.totalCost / value.lenght : value.totalCost;
+    break;
+
+  default:
+    totalCost = 0;
+    break;
+}
+
+// Handle Infinity and NaN
+if (!isFinite(totalCost) || isNaN(totalCost)) {
+  totalCost = 0;
+}
+
+setValue((val) => ({
+  ...val,
+  unitCost: totalCost,
+}));
+
+
+    // eslint-disable-next-line
+  }, [value.totalCost, value.lenght, value.width, value.unitOfMeasurement]);
+
   return (
     <>
       <Dialog
@@ -229,24 +271,39 @@ const AddEditMaterial = ({
                       <div className="col-lg-4 col-md-4">
                         <div className="form-group">
                           <InputField
+                            labelName={"Total Cost"}
+                            placeholderName={"Enter Total Cost"}
+                            type={"text"}
+                            handleChange={handleChange}
+                            id={"totalCost"}
+                            name={"totalCost"}
+                            value={value.totalCost}
+                            required={true}
+                          />
+                          <div className="error">
+                            {simpleValidator.current.message(
+                              "Total Cost",
+                              value?.totalCost,
+                              `required|numeric`
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <InputField
                             labelName={"Unit Cost"}
                             placeholderName={"Enter Unit Cost"}
                             type={"text"}
                             handleChange={handleChange}
                             id={"unitCost"}
                             name={"unitCost"}
-                            value={value.unitCost}
-                            required={true}
+                            value={value.unitCost > 0 ? value.unitCost : 0}
+                            disabled={true}
                           />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Unit Cost",
-                              value?.unitCost,
-                              `required|numeric`
-                            )}
-                          </div>
                         </div>
                       </div>
+
                       {/* <div className="col-lg-4 col-md-4">
                         <div className="form-group">
                           <InputField
@@ -289,53 +346,58 @@ const AddEditMaterial = ({
                           </div>
                         </div>
                       </div>
-                      {["Linear Feet", "Linear Inches","Sq Inches", "Sq Feet"].some((keyword) =>
+                      {[
+                        "Linear Feet",
+                        "Linear Inches",
+                        "Sq Inches",
+                        "Sq Feet",
+                      ].some((keyword) =>
                         value?.unitOfMeasurement?.includes(keyword)
                       ) && (
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Length"}
-                            placeholderName={"Enter Length"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"lenght"}
-                            name={"lenght"}
-                            value={value.lenght}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Length",
-                              value?.lenght,
-                              `numeric`
-                            )}
+                        <div className="col-lg-4 col-md-4">
+                          <div className="form-group">
+                            <InputField
+                              labelName={"Length"}
+                              placeholderName={"Enter Length"}
+                              type={"text"}
+                              handleChange={handleChange}
+                              id={"lenght"}
+                              name={"lenght"}
+                              value={value.lenght}
+                            />
+                            <div className="error">
+                              {simpleValidator.current.message(
+                                "Length",
+                                value?.lenght,
+                                `numeric`
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                       )}
-                        {["Sq Inches", "Sq Feet"].some((keyword) =>
+                      )}
+                      {["Sq Inches", "Sq Feet"].some((keyword) =>
                         value?.unitOfMeasurement?.includes(keyword)
                       ) && (
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Width"}
-                            placeholderName={"Enter Width"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"width"}
-                            name={"width"}
-                            value={value.width}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Width",
-                              value?.width,
-                              `numeric`
-                            )}
+                        <div className="col-lg-4 col-md-4">
+                          <div className="form-group">
+                            <InputField
+                              labelName={"Width"}
+                              placeholderName={"Enter Width"}
+                              type={"text"}
+                              handleChange={handleChange}
+                              id={"width"}
+                              name={"width"}
+                              value={value.width}
+                            />
+                            <div className="error">
+                              {simpleValidator.current.message(
+                                "Width",
+                                value?.width,
+                                `numeric`
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
                       )}
                       <div className="col-lg-4 col-md-4">
                         <div className="form-group">
@@ -420,7 +482,6 @@ const AddEditMaterial = ({
                             name={"sku"}
                             value={value.sku}
                           />
-                        
                         </div>
                       </div>
 
@@ -509,22 +570,24 @@ const AddEditMaterial = ({
           </div>
         </div>
       </Dialog>
-      {vendor &&<AddEditVender
-        open={vendor}
-        handleclose={() => setvendor(false)}
-        action={"add"}
-        LanguageListAPI={handleapi}
-        object={""}
-      />
-}
-     {producttype &&<AddEditProductType
-        open={producttype}
-        handleclose={() => setproducttype(false)}
-        action={"add"}
-        LanguageListAPI={handleapiproduct}
-        object={""}
-      />
-     }
+      {vendor && (
+        <AddEditVender
+          open={vendor}
+          handleclose={() => setvendor(false)}
+          action={"add"}
+          LanguageListAPI={handleapi}
+          object={""}
+        />
+      )}
+      {producttype && (
+        <AddEditProductType
+          open={producttype}
+          handleclose={() => setproducttype(false)}
+          action={"add"}
+          LanguageListAPI={handleapiproduct}
+          object={""}
+        />
+      )}
     </>
   );
 };

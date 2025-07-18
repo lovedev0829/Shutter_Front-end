@@ -45,7 +45,9 @@ export default function Index() {
 
   const columns = [
     { key: "materialName", label: "Name", sort: true },
+     { key: "totalCost", label: "Total Cost", sign: true, sort: true },
     { key: "unitCost", label: "Unit Cost", sign: true, sort: true },
+    
     //  { key: "nonRatedUnitCost", label: "Non Rated Cost",sign:true  },
     { key: "unitOfMeasurement", label: "Unit Of Measure", sort: true },
     { key: "stockQuantity", label: "Inventory", sort: true },
