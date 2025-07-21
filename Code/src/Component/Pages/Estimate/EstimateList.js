@@ -22,6 +22,7 @@ export default function EstimateList({ listdata }) {
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
+    const [isResend, setisResend] = useState(false);
   const [object, setObject] = useState("");
   const [approved, setApproved] = useState(false);
   const [text, setText] = useState("1"); // 1 for approved 2 for reject and 3 for order
@@ -87,6 +88,7 @@ export default function EstimateList({ listdata }) {
               templateId: null,
               contactId: listdata?.contactId,
               estimationId: object.estimateId,
+              isResend:isResend
             }
           : {};
       let query = text === "1" ? {} : { EstimateId: object.estimateId };
@@ -98,6 +100,7 @@ export default function EstimateList({ listdata }) {
       );
       setLoader(false);
       if (response.data.isSuccess) {
+        setisResend(false)
         SuccessMessage(response.data.message);
         setApproved(false);
         TenantlistAPI(page, rowsPerPage, 2);
@@ -204,7 +207,7 @@ export default function EstimateList({ listdata }) {
               <tr>
                 <th scope="col">SN</th>
                 <th scope="col">Estimate Title</th>
-                   <th scope="col">Prepared by</th>
+                <th scope="col">Prepared by</th>
                 <th scope="col">Create Date</th>
                 <th scope="col">Total Amount</th>
                 <th scope="col">Status</th>
@@ -245,7 +248,7 @@ export default function EstimateList({ listdata }) {
                     <td>
                       {HasPermission("EstimateEdit") && (
                         <button
-                          className="btn blue-btn small_btn"
+                          className="btn blue-btn small_btn me-2"
                           onClick={() => {
                             if (
                               val?.status === "New" ||
@@ -254,10 +257,12 @@ export default function EstimateList({ listdata }) {
                               setApproved(true);
                               setObject(val);
                               setText("1");
+                              setisResend(false)
                             } else {
                               setApproved(true);
                               setObject(val);
                               setText("2");
+                              setisResend(false)
                             }
                           }}
                           disabled={
@@ -269,6 +274,20 @@ export default function EstimateList({ listdata }) {
                             : "Send for Approval"}
                         </button>
                       )}
+                      {HasPermission("EstimateEdit") &&
+                        val?.status === "PendingForApproval" && (
+                          <button
+                            className="btn blue-btn small_btn"
+                            onClick={() => {
+                                setisResend(true)
+                              setApproved(true);
+                              setObject(val);
+                              setText("1");
+                            }}
+                          >
+                            Resend
+                          </button>
+                        )}
                     </td>
                   ) : (
                     <td></td>
@@ -282,7 +301,11 @@ export default function EstimateList({ listdata }) {
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                         >
-                          <img src="/image/three-dot.svg" alt="" loading="lazy"/>
+                          <img
+                            src="/image/three-dot.svg"
+                            alt=""
+                            loading="lazy"
+                          />
                         </button>
                         <ul className="dropdown-menu dropdown-menu-end w-100 shadow">
                           <li>
