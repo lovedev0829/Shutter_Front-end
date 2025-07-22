@@ -22,7 +22,7 @@ import AddEditDiscount from "../Discount/AddEditDiscount";
 
 export default function Index() {
   const [tenantList, setTenantList] = useState([]);
-  
+
   const [coupan, setCoupan] = useState([]);
   const [totalTax, settotalTax] = useState(0);
   const [cupondata, setCoupandata] = useState({});
@@ -37,9 +37,8 @@ export default function Index() {
   const [history, setHistory] = useState(false);
   const [object, setObject] = useState("");
 
+  const loginuser = JSON.parse(localStorage.getItem("userData"));
 
-const loginuser = JSON.parse(localStorage.getItem("userData"));
-  
   const [value, setValue] = useState({
     estimateName: "",
     termsCondition: "",
@@ -56,7 +55,7 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
     additionalCost: 0,
     productsList: [],
     isTaxApplicable: true,
-    preparedBy:loginuser?.userId
+    preparedBy: loginuser?.userId,
   });
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
@@ -345,8 +344,7 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
     }
   };
 
-
-    const GetAllTenantAnd_Users = async () => {
+  const GetAllTenantAnd_Users = async () => {
     startLoading();
     try {
       const apiResponse = await callAPI(
@@ -356,12 +354,12 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
       );
       stopLoading();
       if (apiResponse?.data?.isSuccess) {
-        setUsers(apiResponse?.data?.data)
+        setUsers(apiResponse?.data?.data);
       } else {
-        setUsers([])
+        setUsers([]);
       }
     } catch (error) {
-       setUsers([])
+      setUsers([]);
       stopLoading();
     }
   };
@@ -442,49 +440,98 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
         discountId: null,
       }));
       setCoupandata({});
+      
     }
   };
-  const Applycopan = () => {
+
+  const Applycopan = async (updatedTenantList = [], isapply = false) => {
     if (
       cupondata &&
       (cupondata.discountTypeName ||
         cupondata.fixedAmount ||
         cupondata.percentageDiscount)
     ) {
-      let discount = 0;
-      let grandTotal = 0;
-      if (cupondata?.discountTypeName === "Fixed") {
-        discount =
-          Number(cupondata?.fixedAmount) > Number(value.subTotal)
-            ? Number(value.subTotal)
-            : Number(cupondata?.fixedAmount);
-
-        grandTotal = Math.max(
-          0,
-          (value.subTotal || 0) +
-            (value.isTaxApplicable ? totalTax || 0 : value.tax || 0) -
-            (discount || 0)
-        );
-      } else if (cupondata?.discountTypeName === "Percentage") {
-        discount =
-          (value.subTotal * Number(cupondata?.percentageDiscount)) / 100;
-        grandTotal = Math.max(
-          0,
-          (value.subTotal || 0) -
-            (discount || 0) +
-            (value.isTaxApplicable ? totalTax || 0 : value.tax || 0)
-        );
-      }
-      setValue((val) => ({
-        ...val,
-        grandTotal: Number(grandTotal),
-        discount: Number(discount),
-        discountCoupon: cupondata?.couponCode,
-        discountId: cupondata?.discountId,
+      const data = updatedTenantList.map((item) => ({
+        windowProductId: item.windowProdcutId,
+        productPrice: item.totalPrice,
       }));
-      SuccessMessage(
-        `Applied coupon code ${cupondata?.couponCode} successfully!`
-      );
+
+      const payload = {
+        discountId: cupondata?.discountId,
+        products: isapply ? updatedTenantList : data,
+      };
+
+      try {
+        const apiResponse = await callAPI(
+          apiUrls.BuildEstimateAfterDiscount,
+          {},
+          "POST",
+          payload
+        );
+
+        if (apiResponse?.data?.isSuccess) {
+          const taxcost = apiResponse?.data?.data.reduce(
+            (sum, item) => sum + item.totalTaxAmount || 0,
+            0
+          );
+
+          const taxcostdd = apiResponse?.data?.data?.reduce((sum, item) => {
+            const optionTaxTotal =
+              item.optionTaxDetails?.reduce(
+                (optSum, tax) => optSum + (tax.totalTaxAmount || 0),
+                0
+              ) || 0;
+
+            return sum + optionTaxTotal;
+          }, 0);
+
+          let totaltaxs = parseFloat(taxcost) + parseFloat(taxcostdd);
+          settotalTax(totaltaxs);
+
+          let discount = 0;
+          let grandTotal = 0;
+          
+
+          if (cupondata?.discountTypeName === "Fixed") {
+            discount =
+              Number(cupondata?.fixedAmount) > Number(value.subTotal)
+                ? Number(value.subTotal)
+                : Number(cupondata?.fixedAmount);
+
+            grandTotal = Math.max(
+              0,
+              (value.subTotal || 0) +
+                (value.isTaxApplicable ? totaltaxs || 0 : value.tax || 0) -
+                (discount || 0)
+            );
+          } else if (cupondata?.discountTypeName === "Percentage") {
+            discount =
+              (value.subTotal * Number(cupondata?.percentageDiscount)) / 100;
+            grandTotal = Math.max(
+              0,
+              (value.subTotal || 0) -
+                (discount || 0) +
+                (value.isTaxApplicable ? totaltaxs || 0 : value.tax || 0)
+            );
+          }
+
+          setValue((val) => ({
+            ...val,
+            grandTotal: Number(grandTotal),
+            discount: Number(discount),
+            discountCoupon: cupondata?.couponCode,
+            discountId: cupondata?.discountId,
+            tax: totaltaxs,
+          }));
+          if (isapply) {
+            SuccessMessage(
+              `Applied coupon code ${cupondata?.couponCode} successfully!`
+            );
+          }
+        } else {
+          ErrorMessage(apiResponse?.data?.message);
+        }
+      } catch (error) {}
     }
   };
 
@@ -550,6 +597,17 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
       ...prev,
       ...totals,
     }));
+
+    // if (
+    //   cupondata &&
+    //   (cupondata.discountTypeName ||
+    //     cupondata.fixedAmount ||
+    //     cupondata.percentageDiscount)
+    // ) {
+    //   setTimeout(() => {
+    //     Applycopan(updatedTenantList, false);
+    //   }, 500); // Delay of 500ms
+    // }
   };
 
   const calculateTotals = ({ subTotal, additionalCost = 0, cupondata }) => {
@@ -674,37 +732,39 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
                           `required`
                         )}
                       </div>
-
-                      
                     </div>
-                     <div className="estimate-input">
-                    <select
-                            className="form-select"
-                            onChange={handleChange}
-                            style={{height: "30px", fontSize: "12px",minWidth:"244px"}}
-                            name="preparedBy" value={value?.preparedBy}
-                          >
-                            
-                            <option value="">
-                             Prepared by
-                            </option>
-                            {users?.map((val,i)=>(
-                            <option value={val.userId} key={i}>
-                           {val?.firstName + " " + val?.lastName + " " + val?.suffix}
-                            </option>
-                            ))}
-                           
-                          </select>
-                          
-                           <div className="error">
+                    <div className="estimate-input">
+                      <select
+                        className="form-select"
+                        onChange={handleChange}
+                        style={{
+                          height: "30px",
+                          fontSize: "12px",
+                          minWidth: "244px",
+                        }}
+                        name="preparedBy"
+                        value={value?.preparedBy}
+                      >
+                        <option value="">Prepared by</option>
+                        {users?.map((val, i) => (
+                          <option value={val.userId} key={i}>
+                            {val?.firstName +
+                              " " +
+                              val?.lastName +
+                              " " +
+                              val?.suffix}
+                          </option>
+                        ))}
+                      </select>
+
+                      <div className="error">
                         {simpleValidator.current.message(
                           "Prepared by",
                           value?.preparedBy,
                           `required`
                         )}
                       </div>
-                          </div>
-
+                    </div>
                   </div>
                   <div className="heading_width_search d-flex align-items-center gap-3">
                     <Link
@@ -950,7 +1010,7 @@ const loginuser = JSON.parse(localStorage.getItem("userData"));
                           <button
                             type="button"
                             className="btn blue-btn small_btn"
-                            onClick={Applycopan}
+                            onClick={() => Applycopan(value.productsList, true)}
                           >
                             Apply
                           </button>
