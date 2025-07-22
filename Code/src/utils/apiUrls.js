@@ -48,6 +48,7 @@ export const apiUrls = {
   GetAllTax:"Common/GetAllTax",
   EstimationUniquename:"Common/EstimationUniquename",
   GetAllTenantAnd_Users:"Common/GetAllTenantAnd_Users",
+  BuildEstimateAfterDiscount:"Estimate/BuildEstimateAfterDiscount",
   ContactBreakdown:"Common/ContactBreakdown",
   ContactUniqueIdBreakdown:"Common/ContactUniqueIdBreakdown",
   ContactJobBreakdown:"Common/ContactJobBreakdown",
