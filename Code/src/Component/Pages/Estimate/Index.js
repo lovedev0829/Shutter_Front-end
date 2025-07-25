@@ -191,17 +191,7 @@ export default function Index() {
           0
         );
 
-        const taxcostdd = apiResponse?.data?.data?.reduce((sum, item) => {
-          const optionTaxTotal =
-            item.optionTaxDetails?.reduce(
-              (optSum, tax) => optSum + (tax.totalTaxAmount || 0),
-              0
-            ) || 0;
-
-          return sum + optionTaxTotal;
-        }, 0);
-
-        let totaltax = parseFloat(taxcost) + parseFloat(taxcostdd);
+        let totaltax = parseFloat(taxcost);
         settotalTax(totaltax);
 
         setValue((val) => ({
@@ -475,17 +465,9 @@ export default function Index() {
             0
           );
 
-          const taxcostdd = apiResponse?.data?.data?.reduce((sum, item) => {
-            const optionTaxTotal =
-              item.optionTaxDetails?.reduce(
-                (optSum, tax) => optSum + (tax.totalTaxAmount || 0),
-                0
-              ) || 0;
+          
 
-            return sum + optionTaxTotal;
-          }, 0);
-
-          let totaltaxs = parseFloat(taxcost) + parseFloat(taxcostdd);
+          let totaltaxs = parseFloat(taxcost);
           settotalTax(totaltaxs);
 
           let discount = 0;
