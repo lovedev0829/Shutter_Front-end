@@ -270,6 +270,80 @@ export default function ProductEdit() {
     ProductAdd(payload);
   };
 
+  //   const handleSubmit = () => {
+  //   const permission = HasPermission("SubTenantView");
+
+  //   const createManagePartnerProducts = tenantList.map((product, index) => {
+  //     clearEdited(index);
+
+  //     return {
+  //       productId: product.productId,
+  //       ...(permission && {
+  //         wholeSalePrice: product.wholeSalePrice || 0,
+  //       }),
+  //       ...(permission && {
+  //         maxPartnerPrice: product.maxPartnerPrice || 0,
+  //       }),
+  //       ...(!permission && {
+  //         partnerSellingPrice: product.partnerSellingPrice || 0,
+  //       }),
+  //       ...(permission && {
+  //         isAvailable: product.isAvailable,
+  //       }),
+  //       ...(permission && {
+  //         tenantId: filter.tenantId,
+  //       }),
+  //       ...(!permission && {
+  //         taxRateId: product.taxRateId || null,
+  //       }),
+  //       ...(!permission && {
+  //         markupType: product.markupType || "",
+  //       }),
+  //       ...(permission && {
+  //         priceType: product.priceType || "",
+  //       }),
+
+  //       managePartnerProductOptions: product.options?.flatMap((option) =>
+  //         option.optionTypes?.map((optionType) => ({
+  //           optionId: option.optionId,
+  //           optionTypeId: optionType.optionTypeId,
+  //           ...(permission && {
+  //             isAvailable: optionType.isAvailable,
+  //           }),
+  //           ...(permission && {
+  //             wholeSalePrice: optionType.wholeSalePrice || 0,
+  //           }),
+  //           ...(permission && {
+  //             maxPrice: optionType.maxPrice || 0,
+  //           }),
+  //           ...(!permission && {
+  //             partnerSellingPrice: optionType.partnerSellingPrice || 0,
+  //           }),
+  //           ...(!permission && {
+  //             markupOptionType: optionType.markupOptionType,
+  //           }),
+  //           ...(permission && {
+  //             priceType: optionType.priceType,
+  //           }),
+  //           ...(!permission && {
+  //             taxRateId: optionType.taxRateId || null,
+  //           }),
+  //           ...(permission && {
+  //             tenantId: filter.tenantId,
+  //           }),
+  //         }))
+  //       ) || [],
+  //     };
+  //   });
+
+  //   const payload = {
+  //     createManagePartnerProducts,
+  //   };
+  //   console.log(payload)
+
+  //   ProductAdd(payload);
+  // };
+
   const Getmsrp = async (ProductId) => {
     if (!ProductId) return;
 
@@ -655,6 +729,9 @@ export default function ProductEdit() {
                                 onChange={(e) =>
                                   handleChanges(e, i, "taxRateId")
                                 }
+                                disabled={
+                                  val.isTenantProductTaxAvailable ? false : true
+                                }
                               >
                                 <option value="">Select Tax</option>
                                 {countryList?.map((item, i) => {
@@ -744,6 +821,11 @@ export default function ProductEdit() {
                                                   i,
                                                   ind
                                                 )
+                                              }
+                                              disabled={
+                                                vals.isTenantOptionTaxAvailable
+                                                  ? false
+                                                  : true
                                               }
                                             >
                                               <option value="">
