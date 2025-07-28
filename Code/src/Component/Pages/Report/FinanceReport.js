@@ -16,8 +16,14 @@ import {
   CircularProgress,
   Stack,
   Card,
-  CardContent
+  CardContent,
+  InputAdornment,
+  useTheme
 } from "@mui/material";
+import {
+  CalendarToday as CalendarIcon,
+  DateRange as DateRangeIcon
+} from "@mui/icons-material";
 import TableTitle from "../../Form/TableTitle";
 import Search from "../../Form/Search";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -30,6 +36,7 @@ import { defaultConfig } from "../../../config";
 import ExportFile from "../../../helpers/ExportFile";
 
 export default function FinanceReport() {
+  const theme = useTheme();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
@@ -155,10 +162,24 @@ export default function FinanceReport() {
         <Box sx={{ p: 3 }}>
           {/* Header Section */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
+            <Typography 
+              variant="h5" 
+              component="h2" 
+              sx={{ 
+                fontWeight: 600,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
               {value.orderReport ? value.orderReport : "All Finance Report"}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 500 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'success.main', 
+                fontWeight: 500,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
               Total Number Of {value.orderReport ? value.orderReport : "All Finance Report"}: {paginatedItems}
             </Typography>
           </Box>
@@ -169,53 +190,81 @@ export default function FinanceReport() {
               <Search handleSearch={handleSearch} />
             </Box>
             
-            <Box sx={{ position: 'relative' }}>
-              <input
-                style={{ color: "white" }}
-                type="date"
-                onChange={handleChange}
-                className="form-control selectboxdropdown"
-                name="formDate"
-                value={moment(filter.formDate).format("YYYY-MM-DD") || ""}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#212529",
-                  pointerEvents: "none",
-                }}
-              >
-                {filter.formDate ? moment(filter.formDate).format("MM-DD-YYYY") : "From Date"}
-              </span>
-              <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-            </Box>
+            <TextField
+              size="small"
+              type="date"
+              name="formDate"
+              label="From Date"
+              value={filter.formDate ? moment(filter.formDate).format("YYYY-MM-DD") : ""}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                },
+                '& input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                }
+              }}
+            />
             
-            <Box sx={{ position: 'relative' }}>
-              <input
-                style={{ color: "white" }}
-                type="date"
-                onChange={handleChange}
-                className="form-control selectboxdropdown"
-                name="toDate"
-                value={moment(filter.toDate).format("YYYY-MM-DD") || ""}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#212529",
-                  pointerEvents: "none",
-                }}
-              >
-                {filter.toDate ? moment(filter.toDate).format("MM-DD-YYYY") : "To Date"}
-              </span>
-              <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-            </Box>
+            <TextField
+              size="small"
+              type="date"
+              name="toDate"
+              label="To Date"
+              value={filter.toDate ? moment(filter.toDate).format("YYYY-MM-DD") : ""}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <DateRangeIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                },
+                '& input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                }
+              }}
+            />
 
             <ExportFile 
               type="invoice"  
@@ -234,32 +283,69 @@ export default function FinanceReport() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>Invoice Number</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Contact Name</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Invoice Date</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Due Date</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Due Amount</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>Total Amount</TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Invoice Number
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Contact Name
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Invoice Date
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Due Date
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Due Amount
+                  </TableCell>
+                  <TableCell align="right" sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Total Amount
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {tenantList?.map((val, i) => (
                   <TableRow key={i} hover>
-                    <TableCell>{val?.invoiceNumber}</TableCell>
-                    <TableCell>{val?.contactFirstName + " " + val?.contactLastName + " " + (val?.suffix ?? "")}</TableCell>
-                    <TableCell>{moment(val?.issueDate).format("MM-DD-YYYY")}</TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.invoiceNumber}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.contactFirstName + " " + val?.contactLastName + " " + (val?.suffix ?? "")}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {moment(val?.issueDate).format("MM-DD-YYYY")}
+                    </TableCell>
                     <TableCell 
                       sx={{
                         color: moment(val?.dueDate).isSame(moment(), "day") ? "error.main" : "inherit",
-                        fontWeight: moment(val?.dueDate).isSame(moment(), "day") ? 600 : 400
+                        fontWeight: moment(val?.dueDate).isSame(moment(), "day") ? 600 : 400,
+                        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                       }}
                     >
                       {moment(val?.dueDate).format("MM-DD-YYYY")}
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       {defaultConfig.currencySign} {val?.balanceDue}
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       {defaultConfig.currencySign} {val?.totalAmount}
                     </TableCell>
                   </TableRow>
@@ -275,7 +361,11 @@ export default function FinanceReport() {
                           loading="lazy"
                           style={{ width: 120, marginBottom: 16 }}
                         />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}
+                        >
                           No Finance Report
                         </Typography>
                       </Box>
@@ -296,6 +386,14 @@ export default function FinanceReport() {
               page={page - 1}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                }
+              }}
             />
           )}
         </Box>

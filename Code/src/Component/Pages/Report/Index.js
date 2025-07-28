@@ -47,37 +47,32 @@ export default function Index() {
         <Header title="Reports" />
         <div className="body_content">
           <Paper sx={{ width: '100%', mb: 3 }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs
-                value={getCurrentTabIndex()}
-                onChange={handleTabChange}
-                variant="fullWidth"
-                sx={{
-                  '& .MuiTab-root': {
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    fontSize: '14px',
-                    minHeight: 60,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 1,
-                    '&.Mui-selected': {
-                      fontWeight: 600,
-                    },
+            <Tabs
+              value={getCurrentTabIndex()}
+              onChange={handleTabChange}
+              sx={{
+                borderBottom: 1,
+                borderColor: 'divider',
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  minHeight: 48,
+                  '&.Mui-selected': {
+                    fontWeight: 600,
                   },
-                }}
-              >
-                {Tablist.map((tab, index) => (
-                  <Tab
-                    key={index}
-                    icon={tab.svg}
-                    label={tab.title}
-                    iconPosition="start"
-                  />
-                ))}
-              </Tabs>
-            </Box>
+                },
+              }}
+            >
+              {Tablist.map((tab, index) => (
+                <Tab
+                  key={index}
+                  icon={tab.svg}
+                  label={tab.title}
+                  iconPosition="start"
+                  sx={{ gap: 1 }}
+                />
+              ))}
+            </Tabs>
 
             <Box sx={{ p: 3 }}>
               {tabdata === "#FinanceReports" && <FinanceReport />}

@@ -15,8 +15,14 @@ import {
   TablePagination,
   CircularProgress,
   Stack,
-  Link as MuiLink
+  Link as MuiLink,
+  InputAdornment,
+  useTheme
 } from "@mui/material";
+import {
+  CalendarToday as CalendarIcon,
+  DateRange as DateRangeIcon
+} from "@mui/icons-material";
 import TableTitle from "../../Form/TableTitle";
 import Search from "../../Form/Search";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -30,6 +36,7 @@ import { defaultConfig } from "../../../config";
 import ExportFile from "../../../helpers/ExportFile";
 
 export default function OrderReport() {
+  const theme = useTheme();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
@@ -170,10 +177,24 @@ export default function OrderReport() {
         <Box sx={{ p: 3 }}>
           {/* Header Section */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
+            <Typography 
+              variant="h5" 
+              component="h2" 
+              sx={{ 
+                fontWeight: 600,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
               {value.orderReport ? value.orderReport : "All Order Report"} order
             </Typography>
-            <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 500 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'success.main', 
+                fontWeight: 500,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
               Total Number Of Order {value.orderReport ? value.orderReport : "All Order Report"}: {paginatedItems}
             </Typography>
           </Box>
@@ -184,53 +205,81 @@ export default function OrderReport() {
               <Search handleSearch={handleSearch} />
             </Box>
             
-            <Box sx={{ position: 'relative' }}>
-              <input
-                style={{ color: "white" }}
-                type="date"
-                onChange={handleChange}
-                className="form-control selectboxdropdown"
-                name="formDate"
-                value={moment(filter.formDate).format("YYYY-MM-DD") || ""}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#212529",
-                  pointerEvents: "none",
-                }}
-              >
-                {filter.formDate ? moment(filter.formDate).format("MM-DD-YYYY") : "From Date"}
-              </span>
-              <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-            </Box>
+            <TextField
+              size="small"
+              type="date"
+              name="formDate"
+              label="From Date"
+              value={filter.formDate ? moment(filter.formDate).format("YYYY-MM-DD") : ""}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                },
+                '& input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                }
+              }}
+            />
             
-            <Box sx={{ position: 'relative' }}>
-              <input
-                style={{ color: "white" }}
-                type="date"
-                onChange={handleChange}
-                className="form-control selectboxdropdown"
-                name="toDate"
-                value={moment(filter.toDate).format("YYYY-MM-DD") || ""}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#212529",
-                  pointerEvents: "none",
-                }}
-              >
-                {filter.toDate ? moment(filter.toDate).format("MM-DD-YYYY") : "To Date"}
-              </span>
-              <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-            </Box>
+            <TextField
+              size="small"
+              type="date"
+              name="toDate"
+              label="To Date"
+              value={filter.toDate ? moment(filter.toDate).format("YYYY-MM-DD") : ""}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <DateRangeIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                },
+                '& input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                }
+              }}
+            />
 
             <ExportFile 
               type="order"  
@@ -250,37 +299,83 @@ export default function OrderReport() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>Estimate Id</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Order Number</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Contact Name</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Order Date</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Confirmed Date</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>Total Amount</TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Estimate Id
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Order Number
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Contact Name
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Order Date
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Confirmed Date
+                  </TableCell>
+                  <TableCell align="right" sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Total Amount
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {tenantList?.map((val, i) => (
                   <TableRow key={i} hover>
-                    <TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       <Link
                         to={`/contacts/estimate/preview/${val.estimateId}`}
-                        style={{ color: '#1976d2', textDecoration: 'none' }}
+                        style={{ 
+                          color: theme.palette.primary.main, 
+                          textDecoration: 'none',
+                          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                          fontWeight: 500
+                        }}
                       >
                         {val?.estimateCode}
                       </Link>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       <Link
                         to={`/contacts/order/preview/${val.orderId}`}
-                        style={{ color: '#1976d2', textDecoration: 'none' }}
+                        style={{ 
+                          color: theme.palette.primary.main, 
+                          textDecoration: 'none',
+                          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                          fontWeight: 500
+                        }}
                       >
                         {val?.orderNumber}
                       </Link>
                     </TableCell>
-                    <TableCell>{val?.firstContactName + " " + val?.lastContactName + " " + (val?.suffix ?? "")}</TableCell>
-                    <TableCell>{moment(val?.createdDate).format("MM-DD-YYYY")}</TableCell>
-                    <TableCell>{moment(val?.createdDate).format("MM-DD-YYYY")}</TableCell>
-                    <TableCell align="right">
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.firstContactName + " " + val?.lastContactName + " " + (val?.suffix ?? "")}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {moment(val?.createdDate).format("MM-DD-YYYY")}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {moment(val?.createdDate).format("MM-DD-YYYY")}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       {defaultConfig.currencySign} {val?.grandTotal}
                     </TableCell>
                   </TableRow>
@@ -296,7 +391,11 @@ export default function OrderReport() {
                           loading="lazy"
                           style={{ width: 120, marginBottom: 16 }}
                         />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}
+                        >
                           No Order Report
                         </Typography>
                       </Box>
@@ -317,6 +416,14 @@ export default function OrderReport() {
               page={page - 1}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                }
+              }}
             />
           )}
         </Box>

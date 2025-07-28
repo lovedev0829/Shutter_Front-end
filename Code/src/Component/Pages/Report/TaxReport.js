@@ -91,10 +91,24 @@ export default function TaxReport() {
         <Box sx={{ p: 3 }}>
           {/* Header Section */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
+            <Typography 
+              variant="h5" 
+              component="h2" 
+              sx={{ 
+                fontWeight: 600,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
               All Tax Report
             </Typography>
-            <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 500 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'success.main', 
+                fontWeight: 500,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
               Total Number Of All Tax Report: {paginatedItems}
             </Typography>
           </Box>
@@ -120,21 +134,45 @@ export default function TaxReport() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>Estimation Code</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Job Code</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Contact Name</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>Tax Amount</TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Estimation Code
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Job Code
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Contact Name
+                  </TableCell>
+                  <TableCell align="right" sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Tax Amount
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {tenantList?.map((val, i) => (
                   <TableRow key={i} hover>
-                    <TableCell>{val?.estimateCode}</TableCell>
-                    <TableCell>{val?.jobDetails?.jobUniqueId}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.estimateCode}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.jobDetails?.jobUniqueId}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       {val?.jobDetails?.firstName + " " + val?.jobDetails?.lastName + " " + (val?.jobDetails?.suffix ?? "")}
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       {defaultConfig.currencySign} {val?.tax}
                     </TableCell>
                   </TableRow>
@@ -150,7 +188,11 @@ export default function TaxReport() {
                           loading="lazy"
                           style={{ width: 120, marginBottom: 16 }}
                         />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}
+                        >
                           No Tax Report
                         </Typography>
                       </Box>
@@ -171,6 +213,14 @@ export default function TaxReport() {
               page={page - 1}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                }
+              }}
             />
           )}
         </Box>
