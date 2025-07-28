@@ -430,7 +430,6 @@ export default function Index() {
         discountId: null,
       }));
       setCoupandata({});
-      
     }
   };
 
@@ -465,42 +464,27 @@ export default function Index() {
             0
           );
 
-          
-
           let totaltaxs = parseFloat(taxcost);
           settotalTax(totaltaxs);
 
-          let discount = 0;
           let grandTotal = 0;
-          
 
-          if (cupondata?.discountTypeName === "Fixed") {
-            discount =
-              Number(cupondata?.fixedAmount) > Number(value.subTotal)
-                ? Number(value.subTotal)
-                : Number(cupondata?.fixedAmount);
+          const TotaldiscountAmount = apiResponse?.data?.data.reduce(
+            (sum, item) => sum + item.discountAmount || 0,
+            0
+          );
 
-            grandTotal = Math.max(
-              0,
-              (value.subTotal || 0) +
-                (value.isTaxApplicable ? totaltaxs || 0 : value.tax || 0) -
-                (discount || 0)
-            );
-          } else if (cupondata?.discountTypeName === "Percentage") {
-            discount =
-              (value.subTotal * Number(cupondata?.percentageDiscount)) / 100;
-            grandTotal = Math.max(
-              0,
-              (value.subTotal || 0) -
-                (discount || 0) +
-                (value.isTaxApplicable ? totaltaxs || 0 : value.tax || 0)
-            );
-          }
+          grandTotal = Math.max(
+            0,
+            (value.subTotal || 0) +
+              (value.isTaxApplicable ? totaltaxs || 0 : value.tax || 0) -
+              (TotaldiscountAmount || 0)
+          );
 
           setValue((val) => ({
             ...val,
             grandTotal: Number(grandTotal),
-            discount: Number(discount),
+            discount: Number(TotaldiscountAmount),
             discountCoupon: cupondata?.couponCode,
             discountId: cupondata?.discountId,
             tax: totaltaxs,
