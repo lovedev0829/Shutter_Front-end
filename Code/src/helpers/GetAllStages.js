@@ -1,52 +1,88 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { 
+  FormControl, 
+  Select, 
+  MenuItem, 
+  CircularProgress, 
+  Box,
+  InputLabel 
+} from "@mui/material";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
-import { SelectBoxLoader } from "./common";
 
 export default function GetAllStages({ value = "", fn, load, className = null, name = "ghL_StageId" }) {
-  const [countryList, setCountryList] = useState([]);
+  const [stageList, setStageList] = useState([]);
   const [show, setShow] = useState(false);
-  const CountryList = async () => {
+  
+  const fetchStages = useCallback(async () => {
     try {
-      setShow(true)
+      setShow(true);
       const apiResponse = await callAPI(apiUrls.GetAllStages, {}, "GET");
-      setShow(false)
+      setShow(false);
       if (apiResponse?.data?.isSuccess) {
-        setCountryList(apiResponse?.data?.data)
+        setStageList(apiResponse?.data?.data);
       } else {
+        // Keep original behavior - no error handling
       }
     } catch (error) {
-      setShow(false)
-      setCountryList([]);
+      setShow(false);
+      setStageList([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    CountryList();
-  }, [load]);
-
-
+    fetchStages();
+  }, [fetchStages, load]);
 
   return (
-    <div className="position-relative">
-      {show && <SelectBoxLoader />}
-      <select value={value}
-        className={`form-select ${className}`}
-        name={name}
-        onChange={(e) => {
-          if (fn) fn(e);
-        }}
-      >
-        <option value="">Select Ghl Stage</option>
-        {countryList?.map((item, i) => {
-          return (
-
-            <option key={i} value={item?.ghlStageId} selected={item?.ghlStageId === value ? true : false}>{item?.ghlStageName}</option>
-
-          );
-        })}
-      </select>
-    </div>
+    <Box sx={{ position: 'relative', minWidth: 120 }}>
+      <FormControl fullWidth size="small" variant="outlined" className={className}>
+        <Select
+          labelId="ghl-stage-select-label"
+          value={value}
+          name={name}
+          onChange={(e) => {
+            if (fn) fn(e);
+          }}
+          disabled={show}
+          sx={{
+            '& .MuiSelect-select': {
+              display: 'flex',
+              alignItems: 'center',
+            }
+          }}
+        >
+          <MenuItem value="">
+            <em>Select Ghl Stage</em>
+          </MenuItem>
+          {stageList?.map((item, i) => {
+            return (
+              <MenuItem 
+                key={i} 
+                value={item?.ghlStageId}
+                selected={item?.ghlStageId === value ? true : false}
+              >
+                {item?.ghlStageName}
+              </MenuItem>
+            );
+          })}
+        </Select>
+        {show && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              right: 8,
+              transform: 'translateY(-50%)',
+              zIndex: 1,
+              pointerEvents: 'none',
+            }}
+          >
+            <CircularProgress size={20} />
+          </Box>
+        )}
+      </FormControl>
+    </Box>
   );
 }
 

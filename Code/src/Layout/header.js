@@ -25,7 +25,7 @@ import {
   ClickAwayListener,
   Popper
 } from '@mui/material';
-import { Notifications as NotificationsIcon } from '@mui/icons-material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { styled } from '@mui/material/styles';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({

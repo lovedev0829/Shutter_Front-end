@@ -10,10 +10,8 @@ import {
   alpha,
   IconButton
 } from '@mui/material';
-import {
-  TrendingUp as TrendingUpIcon,
-  ArrowForward as ArrowForwardIcon
-} from '@mui/icons-material';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { styled } from '@mui/material/styles';
 
 const StatsCard = styled(Card)(({ theme }) => ({

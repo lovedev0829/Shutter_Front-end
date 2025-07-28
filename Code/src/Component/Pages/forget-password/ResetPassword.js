@@ -19,7 +19,11 @@ import {
   useTheme,
   useMediaQuery
 } from "@mui/material";
-import { Visibility, VisibilityOff, LockOutlined, LockResetOutlined, ArrowBackIos } from "@mui/icons-material";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockResetOutlinedIcon from '@mui/icons-material/LockResetOutlined';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { Link } from "react-router-dom";
 
 const ResetPassword = ({ email }) => {
@@ -159,7 +163,7 @@ const ResetPassword = ({ email }) => {
                                                     fontWeight: 500
                                                 }}
                                             >
-                                                <ArrowBackIos sx={{ fontSize: 16, mr: 0.5 }} />
+                                                <ArrowBackIosIcon sx={{ fontSize: 16, mr: 0.5 }} />
                                                 Back to Sign In
                                             </Link>
                                         </Box>
@@ -203,7 +207,7 @@ const ResetPassword = ({ email }) => {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <LockOutlined color="action" />
+                                                                <LockOutlinedIcon color="action" />
                                                             </InputAdornment>
                                                         ),
                                                         endAdornment: (
@@ -213,7 +217,7 @@ const ResetPassword = ({ email }) => {
                                                                     onClick={handleTogglePasswordVisibility}
                                                                     edge="end"
                                                                 >
-                                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                                                                 </IconButton>
                                                             </InputAdornment>
                                                         ),
@@ -251,7 +255,7 @@ const ResetPassword = ({ email }) => {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <LockResetOutlined color="action" />
+                                                                <LockResetOutlinedIcon color="action" />
                                                             </InputAdornment>
                                                         ),
                                                         endAdornment: (
@@ -261,7 +265,7 @@ const ResetPassword = ({ email }) => {
                                                                     onClick={handleToggleConfirmPasswordVisibility}
                                                                     edge="end"
                                                                 >
-                                                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                                                    {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                                                                 </IconButton>
                                                             </InputAdornment>
                                                         ),

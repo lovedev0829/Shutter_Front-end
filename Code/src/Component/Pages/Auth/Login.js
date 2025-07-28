@@ -22,7 +22,10 @@ import {
   useTheme,
   useMediaQuery
 } from "@mui/material";
-import { Visibility, VisibilityOff, EmailOutlined, LockOutlined } from "@mui/icons-material";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 export default function Login() {
   const [data, setData] = useState({ username: "", password: "", companyCode: "" });
@@ -153,7 +156,7 @@ export default function Login() {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <EmailOutlined color="action" />
+                                <EmailOutlinedIcon color="action" />
                               </InputAdornment>
                             ),
                           }}
@@ -189,7 +192,7 @@ export default function Login() {
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <LockOutlined color="action" />
+                                <LockOutlinedIcon color="action" />
                               </InputAdornment>
                             ),
                             endAdornment: (
@@ -199,7 +202,7 @@ export default function Login() {
                                   onClick={handleTogglePasswordVisibility}
                                   edge="end"
                                 >
-                                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                                  {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                                 </IconButton>
                               </InputAdornment>
                             ),

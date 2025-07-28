@@ -17,6 +17,103 @@ import Selectbox from "../../Form/Selectbox";
 import moment from "moment/moment";
 import { PostImage } from "../../../utils/apiCall";
 import Allstate from "../../../helpers/Allstate";
+import {
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Divider,
+  IconButton,
+  Button,
+  Stack,
+  Paper,
+  FormControlLabel,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  FormControl,
+  FormLabel,
+  TextField,
+  styled
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import PersonIcon from '@mui/icons-material/Person';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import TaxIcon from '@mui/icons-material/AttachMoney';
+import UploadIcon from '@mui/icons-material/CloudUpload';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialog-paper': {
+    borderRadius: theme.spacing(2),
+    maxWidth: '900px',
+    width: '100%',
+    margin: theme.spacing(2),
+  },
+}));
+
+const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
+  background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+  color: '#fff',
+  padding: theme.spacing(2.5, 3),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}));
+
+const SectionCard = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: theme.spacing(1.5),
+  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+  border: '1px solid #e0e0e0',
+}));
+
+const SectionHeader = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1.5),
+  marginBottom: theme.spacing(2),
+  padding: theme.spacing(1.5),
+  backgroundColor: '#f8fafc',
+  borderRadius: theme.spacing(1),
+}));
+
+const SectionIcon = styled(Box)(({ theme }) => ({
+  width: 40,
+  height: 40,
+  borderRadius: theme.spacing(1),
+  background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#fff',
+}));
+
+const UploadBox = styled(Paper)(({ theme }) => ({
+  border: '2px dashed #e0e0e0',
+  borderRadius: theme.spacing(1),
+  padding: theme.spacing(3),
+  textAlign: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease-in-out',
+  '&:hover': {
+    borderColor: '#1976d2',
+    backgroundColor: '#f8fafc',
+  },
+}));
+
+const ActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: theme.spacing(1),
+  textTransform: 'none',
+  fontWeight: 600,
+  padding: theme.spacing(1.5, 3),
+  minWidth: 120,
+}));
 
 const AddEditContact = ({
   open,
@@ -227,626 +324,530 @@ LanguageListAPI, // Refesh Api
 
   }
 
-
-  
+  const handleCloseModal = () => {
+    handleclose();
+    setValue(defaultState);
+    simpleValidator.current.hideMessages();
+    forceUpdate();
+    setShow(false);
+  };
 
   return (
-    <>
-      <Dialog
-        open={open}
-        sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",
-            },
-          },
-        }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div
-          className="modal fade show"
-          id="contactModal"
-          tabIndex={-1}
-          aria-labelledby="exampleModalLabel"
-          aria-modal="true"
-          role="dialog"
-          style={{ display: "block", backgroundColor: "#00000080" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title" id="exampleModalLabel">
-                  {action === "add" ? "Add Contact" : "Update Contact"}
-                </h1>
+    <StyledDialog
+      open={open}
+      maxWidth="md"
+      fullWidth
+      onClose={handleCloseModal}
+    >
+      <StyledDialogTitle>
+        <Typography variant="h5" fontWeight={700}>
+          {action === "add" ? "Add Contact" : "Update Contact"}
+        </Typography>
+        <IconButton onClick={handleCloseModal} sx={{ color: '#fff' }}>
+          <CloseIcon />
+        </IconButton>
+      </StyledDialogTitle>
 
-                <i
-                  className="icofont-close btn-close"
-                  onClick={() => {
-                    handleclose();
-                    setValue(defaultState);
-                    simpleValidator.current.hideMessages();
-                    forceUpdate();
-                    setShow(false);
-                  }}
-                ></i>
-              </div>
-              <form onSubmit={ContactAddUpdate}>
-                <div className="modal-body modale-scroll">
-                  <div className="form-design">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"First Name"}
-                            placeholderName={"Enter First Name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"firstName"}
-                            name={"firstName"}
-                            value={value.firstName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "First Name",
-                              value?.firstName,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Last Name"}
-                            placeholderName={"Enter Last Name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"lastName"}
-                            name={"lastName"}
-                            value={value.lastName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Last Name",
-                              value?.lastName,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Suffix"}
-                            placeholderName={"Enter Suffix"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"suffix"}
-                            name={"suffix"}
-                            value={value.suffix}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <Selectbox
-                            labelName={"Contact Type"}
-                            options={[
-                              { value: "person", label: "Person" },
-                              { value: "organization", label: "Organization" },
-                              { value: "lead", label: "Lead" },
-                              { value: "customer", label: "Customer" },
-                            ]}
-                            handleChange={handleChange}
-                            id={"contactType"}
-                            name={"contactType"}
-                            value={value.contactType}
-                            required={true}
-                          />
+      <form onSubmit={ContactAddUpdate}>
+        <DialogContent sx={{ p: 3 }}>
+          {/* Personal Information Section */}
+          <SectionCard>
+            <CardContent sx={{ p: 3 }}>
+              <SectionHeader>
+                <SectionIcon>
+                  <PersonIcon />
+                </SectionIcon>
+                <Typography variant="h6" fontWeight={600}>
+                  Personal Information
+                </Typography>
+              </SectionHeader>
 
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Contact Type",
-                              value?.contactType,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Phone No."}
-                            placeholderName={"Enter phone number"}
-                            type={"text"}
-                            handleChange={handleChangenumber}
-                            id={"phoneNumber"}
-                            name={"phoneNumber"}
-                            value={FormatPhoneNumber(value.phoneNumber || "")}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Phone Number",
-                              value?.phoneNumber,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Email Address."}
-                            placeholderName={"Enter email address"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            idv={"email"}
-                            name={"email"}
-                            value={value.email}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "email",
-                              value?.email,
-                              "required|email"
-                            )}
-                          </div>
-                        </div>
-                      </div>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"First Name"}
+                    placeholderName={"Enter First Name"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"firstName"}
+                    name={"firstName"}
+                    value={value.firstName}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "First Name",
+                      value?.firstName,
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
 
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Referral Source"}
-                            placeholderName={"Enter Referral Source"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"referral"}
-                            name={"referral"}
-                            value={value.referral}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Website Url"}
-                            placeholderName={"Enter website url"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"website"}
-                            name={"website"}
-                            value={value.website}
-                          />
-                        </div>
-                      </div>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Last Name"}
+                    placeholderName={"Enter Last Name"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"lastName"}
+                    name={"lastName"}
+                    value={value.lastName}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "Last Name",
+                      value?.lastName,
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
 
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Notes"}
-                            placeholderName={"Enter notes"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"notes"}
-                            name={"notes"}
-                            value={value.notes}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-12 col-md-12">
-                        <div className="middle-heading">
-                          <h4 className="d-flex align-items-end gap-2">
-                            <input
-                              type="checkbox"
-                              style={{ border: "1px solid #8f8b8b" }}
-                              className="form-check-input"
-                              name="isbillingSameAddress"
-                              checked={value.isbillingSameAddress}
-                              onChange={handleSameAsBillingChange}
-                              // onChange={(e) => {
-                              //   setValue((prev) => ({
-                              //     ...prev,
-                              //     isbillingSameAddress:
-                              //       e.target.checked,
-                              //   }));
-                              // }}
-                            />{" "}
-                            Primary/Billing Address{" "}
-                          </h4>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"First Name"}
-                            placeholderName={"Enter First name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"firstName"}
-                            name={"billingAddressVm.firstName"}
-                            value={value.billingAddressVm?.firstName || ""}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "First name",
-                              value.billingAddressVm?.firstName || "",
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Last Name"}
-                            placeholderName={"Enter Last name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"lastName"}
-                            name={"billingAddressVm.lastName"}
-                            value={value.billingAddressVm?.lastName || ""}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Last name",
-                              value.billingAddressVm?.lastName || "",
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Phone No."}
-                            placeholderName={"Enter phone number"}
-                            type={"text"}
-                            handleChange={handleChangenumber}
-                            id={"phoneNumber"}
-                            name={"billingAddressVm.phoneNumber"}
-                            value={FormatPhoneNumber(
-                              value.billingAddressVm?.phoneNumber || ""
-                            )}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "phoneNumber",
-                              value.billingAddressVm?.phoneNumber || "",
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Email Address."}
-                            placeholderName={"Enter email address"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"email"}
-                            name={"billingAddressVm.email"}
-                            value={value.billingAddressVm?.email || ""}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "email",
-                              value.billingAddressVm?.email || "",
-                              "required|email"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Street Adress"}
-                            placeholderName={"Enter street address"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"streetAddress"}
-                            name={"billingAddressVm.streetAddress"}
-                            value={value.billingAddressVm?.streetAddress || ""}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "streetAddress",
-                              value.billingAddressVm?.streetAddress || "",
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Suffix"}
+                    placeholderName={"Enter Suffix"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"suffix"}
+                    name={"suffix"}
+                    value={value.suffix}
+                  />
+                </Grid>
 
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <label className="font-14">
-                            State<sup>*</sup>
-                          </label>
-                          <Allstate
-                            name="billingAddressVm.stateId"
-                            value={value.billingAddressVm?.stateId || ""}
-                            fn={handleChange}
-                            load={action}
-                          />
-                          {/* <InputField
-                            labelName={"State"}
-                            placeholderName={"Enter state"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"state"}
-                            name={"billingAddressVm.state"}
-                            value={value.billingAddressVm?.state || ""}
-                            required={true}
-                          /> */}
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "State",
-                              value.billingAddressVm?.stateId || "",
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"City"}
-                            placeholderName={"Enter city"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"city"}
-                            name={"billingAddressVm.city"}
-                            value={value.billingAddressVm?.city || ""}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "city",
-                              value.billingAddressVm?.city || "",
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-md-3">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Zip Code "}
-                            placeholderName={"Enter zip code"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"zipCode"}
-                            name={"billingAddressVm.zipCode"}
-                            value={value.billingAddressVm?.zipCode || ""}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "ZipCode",
-                              value.billingAddressVm?.zipCode || "",
-                              "required|min:5|max:6"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-12 col-md-12">
-                        <div className="middle-heading">
-                          <h4>Tax Management</h4>
-                        </div>
-                      </div>
-                      <div className="col-lg-12 col-md-12">
-                        <div className="form-group">
-                          <label className="font-14 me-4">Apply Tax</label>
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="inlineRadioOptions"
-                              id="inlineRadio1"
-                              value="true"
-                              checked={value.isTaxExemption === true}
-                              onChange={handleRadioChange}
-                            />
-                            <label
-                              className="form-check-label mb-0"
-                              htmlFor="inlineRadio1"
-                            >
-                              Yes
-                            </label>
-                          </div>
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="inlineRadioOptions"
-                              id="inlineRadio2"
-                              value="false"
-                              checked={value.isTaxExemption === false}
-                              onChange={handleRadioChange}
-                            />
-                            <label
-                              className="form-check-label mb-0"
-                              htmlFor="inlineRadio2"
-                            >
-                              No
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      {show && (
-                        <>
-                          <div className="col-lg-4 col-md-4">
-                            <div className="form-group">
-                              <label className="font-14">Upload File</label>
-                              <div className="position-relative upload-photo">
-                                {shows && <SelectBoxLoader />}
-                                <input
-                                  type="file"
-                                  className="form-control"
-                                  accept="image/png,image/jpg,image/jpeg,.doc,.docx,.pdf"
-                                  name="exemptionCertificate"
-                                  onChange={(e) => {
-                                    UploadImage(e);
-                                  }}
-                                  multiple
-                                />
-                                <span>
-                                  <img
-                                    src="/image/upload.svg"
-                                    className="me-2"
-                                    alt=" "
-                                    loading="lazy"
-                                  />{" "}
-                                  Choose File
-                                </span>
-                              </div>
-                              <PreviewFiles
-                                file={
-                                  value?.taxExemptionVm?.exemptionCertificate
-                                }
-                                isdelete={true}
-                                handleImageDelelet={handleImageDelelet}
-                              />
-                            </div>
-                          </div>
-                          <div className="col-lg-4 col-md-4">
-                            <div className="form-group">
-                              <label className="font-14">Effective Date</label>
-                              <div className="position-relative calender-input">
-                                <input
-                                  type="date"
-                                  style={{ color: "white" }}
-                                  className="form-control"
-                                  placeholder="Enter zip code"
-                                  name={"taxExemptionVm.effectiveDate"}
-                                  value={
-                                    action === "add"
-                                      ? moment(
-                                          value.taxExemptionVm?.effectiveDate
-                                        ).format("YYYY-MM-DD") || ""
-                                      : null
-                                  }
-                                  onChange={handleChange}
-                                />
-                                <span
-                                  style={{
-                                    position: "absolute",
-                                    left: "10px",
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    color: "#212529",
-                                    pointerEvents: "none",
-                                  }}
-                                >
-                                  {value.taxExemptionVm?.effectiveDate
-                                    ? moment(
-                                        value.taxExemptionVm?.effectiveDate
-                                      ).format("MM-DD-YYYY")
-                                    : "mm-dd-yyyy"}
-                                </span>
-                                <img
-                                  src="/image/calendar-alt.svg"
-                                  alt=""
-                                  loading="lazy"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-lg-4 col-md-4">
-                            <div className="form-group">
-                              <label className="font-14">Expiry Date</label>
-                              <div className="position-relative calender-input">
-                                <input
-                                  type="date"
-                                  style={{ color: "white" }}
-                                  className="form-control"
-                                  placeholder="Enter zip code"
-                                  name={"taxExemptionVm.expiryDate"}
-                                  value={
-                                    moment(
-                                      value.taxExemptionVm?.expiryDate
-                                    ).format("YYYY-MM-DD") || ""
-                                  }
-                                  onChange={handleChange}
-                                  min={
-                                    action === "add"
-                                      ? moment(
-                                          value.taxExemptionVm?.effectiveDate
-                                        ).format("YYYY-MM-DD") || ""
-                                      : null
-                                  }
-                                />
-                                <span
-                                  style={{
-                                    position: "absolute",
-                                    left: "10px",
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    color: "#212529",
-                                    pointerEvents: "none",
-                                  }}
-                                >
-                                  {value.taxExemptionVm?.expiryDate
-                                    ? moment(
-                                        value.taxExemptionVm?.expiryDate
-                                      ).format("MM-DD-YYYY")
-                                    : "mm-dd-yyyy"}
-                                </span>
-                                <img
-                                  src="/image/calendar-alt.svg"
-                                  alt=""
-                                  loading="lazy"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
-                      onClick={() => {
-                        handleclose();
-                        setValue(defaultState);
-                        simpleValidator.current.hideMessages();
-                        forceUpdate();
-                        setShow(false);
-                      }}
-                    >
-                      Cancel
-                    </Link>
-                    <SubmitButton
-                      type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
-                      disabled={loader}
+                <Grid item xs={12} sm={4}>
+                  <Selectbox
+                    labelName={"Contact Type"}
+                    options={[
+                      { value: "person", label: "Person" },
+                      { value: "organization", label: "Organization" },
+                      { value: "lead", label: "Lead" },
+                      { value: "customer", label: "Customer" },
+                    ]}
+                    handleChange={handleChange}
+                    id={"contactType"}
+                    name={"contactType"}
+                    value={value.contactType}
+                    required={true}
+                    style={{
+                      marginTop: '10px',
+                    }}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "Contact Type",
+                      value?.contactType,
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Phone No."}
+                    placeholderName={"Enter phone number"}
+                    type={"text"}
+                    handleChange={handleChangenumber}
+                    id={"phoneNumber"}
+                    name={"phoneNumber"}
+                    value={FormatPhoneNumber(value.phoneNumber || "")}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "Phone Number",
+                      value?.phoneNumber,
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Email Address."}
+                    placeholderName={"Enter email address"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    idv={"email"}
+                    name={"email"}
+                    value={value.email}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "email",
+                      value?.email,
+                      "required|email"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Referral Source"}
+                    placeholderName={"Enter Referral Source"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"referral"}
+                    name={"referral"}
+                    value={value.referral}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Website Url"}
+                    placeholderName={"Enter website url"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"website"}
+                    name={"website"}
+                    value={value.website}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    labelName={"Notes"}
+                    placeholderName={"Enter notes"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"notes"}
+                    name={"notes"}
+                    value={value.notes}
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
+          </SectionCard>
+
+          {/* Billing Address Section */}
+          <SectionCard>
+            <CardContent sx={{ p: 3 }}>
+              <SectionHeader>
+                <SectionIcon>
+                  <LocationOnIcon />
+                </SectionIcon>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h6" fontWeight={600}>
+                    Primary/Billing Address
+                  </Typography>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={value.isbillingSameAddress}
+                        onChange={handleSameAsBillingChange}
+                        color="primary"
+                      />
+                    }
+                    label="Same as contact information"
+                  />
+                </Box>
+              </SectionHeader>
+
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"First Name"}
+                    placeholderName={"Enter First name"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"firstName"}
+                    name={"billingAddressVm.firstName"}
+                    value={value.billingAddressVm?.firstName || ""}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "First name",
+                      value.billingAddressVm?.firstName || "",
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"Last Name"}
+                    placeholderName={"Enter Last name"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"lastName"}
+                    name={"billingAddressVm.lastName"}
+                    value={value.billingAddressVm?.lastName || ""}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "Last name",
+                      value.billingAddressVm?.lastName || "",
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"Phone No."}
+                    placeholderName={"Enter phone number"}
+                    type={"text"}
+                    handleChange={handleChangenumber}
+                    id={"phoneNumber"}
+                    name={"billingAddressVm.phoneNumber"}
+                    value={FormatPhoneNumber(
+                      value.billingAddressVm?.phoneNumber || ""
+                    )}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "phoneNumber",
+                      value.billingAddressVm?.phoneNumber || "",
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"Email Address."}
+                    placeholderName={"Enter email address"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"email"}
+                    name={"billingAddressVm.email"}
+                    value={value.billingAddressVm?.email || ""}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "email",
+                      value.billingAddressVm?.email || "",
+                      "required|email"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"Street Adress"}
+                    placeholderName={"Enter street address"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"streetAddress"}
+                    name={"billingAddressVm.streetAddress"}
+                    value={value.billingAddressVm?.streetAddress || ""}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "streetAddress",
+                      value.billingAddressVm?.streetAddress || "",
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <Box sx={{ mt: 0.5 }}>
+                    <Typography variant="body2" gutterBottom>
+                      State<sup style={{ color: 'red' }}>*</sup>
+                    </Typography>
+                    <Allstate
+                      name="billingAddressVm.stateId"
+                      value={value.billingAddressVm?.stateId || ""}
+                      fn={handleChange}
+                      load={action}
                     />
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </Dialog>
-    </>
+                    <Typography color="error" variant="caption">
+                      {simpleValidator.current.message(
+                        "State",
+                        value.billingAddressVm?.stateId || "",
+                        "required"
+                      )}
+                    </Typography>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"City"}
+                    placeholderName={"Enter city"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"city"}
+                    name={"billingAddressVm.city"}
+                    value={value.billingAddressVm?.city || ""}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "city",
+                      value.billingAddressVm?.city || "",
+                      "required"
+                    )}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    labelName={"Zip Code "}
+                    placeholderName={"Enter zip code"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"zipCode"}
+                    name={"billingAddressVm.zipCode"}
+                    value={value.billingAddressVm?.zipCode || ""}
+                    required={true}
+                  />
+                  <Typography color="error" variant="caption">
+                    {simpleValidator.current.message(
+                      "ZipCode",
+                      value.billingAddressVm?.zipCode || "",
+                      "required|min:5|max:6"
+                    )}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </SectionCard>
+
+          {/* Tax Management Section */}
+          <SectionCard>
+            <CardContent sx={{ p: 3 }}>
+              <SectionHeader>
+                <SectionIcon>
+                  <TaxIcon />
+                </SectionIcon>
+                <Typography variant="h6" fontWeight={600}>
+                  Tax Management
+                </Typography>
+              </SectionHeader>
+
+              <FormControl component="fieldset" sx={{ mb: 3 }}>
+                <FormLabel component="legend" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Apply Tax
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={value.isTaxExemption.toString()}
+                  onChange={handleRadioChange}
+                  sx={{ mt: 1 }}
+                >
+                  <FormControlLabel
+                    value="true"
+                    control={<Radio color="primary" />}
+                    label="Yes"
+                  />
+                  <FormControlLabel
+                    value="false"
+                    control={<Radio color="primary" />}
+                    label="No"
+                  />
+                </RadioGroup>
+              </FormControl>
+
+              {show && (
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={4}>
+                    <Box>
+                      <Typography variant="body2" fontWeight={600} color="text.primary" gutterBottom>
+                        Upload File
+                      </Typography>
+                      <UploadBox component="label">
+                        {shows && <SelectBoxLoader />}
+                        <input
+                          type="file"
+                          hidden
+                          accept="image/png,image/jpg,image/jpeg,.doc,.docx,.pdf"
+                          name="exemptionCertificate"
+                          onChange={UploadImage}
+                          multiple
+                        />
+                        <UploadIcon sx={{ fontSize: 48, color: '#1976d2', mb: 1 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          Choose Files
+                        </Typography>
+                      </UploadBox>
+                      <Box sx={{ mt: 2 }}>
+                        <PreviewFiles
+                          file={value?.taxExemptionVm?.exemptionCertificate}
+                          isdelete={true}
+                          handleImageDelelet={handleImageDelelet}
+                        />
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography variant="body2" fontWeight={600} color="text.primary" gutterBottom>
+                      Effective Date
+                    </Typography>
+                    <TextField
+                      type="date"
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      name="taxExemptionVm.effectiveDate"
+                      value={
+                        action === "add"
+                          ? moment(value.taxExemptionVm?.effectiveDate).format("YYYY-MM-DD") || ""
+                          : ""
+                      }
+                      onChange={handleChange}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography variant="body2" fontWeight={600} color="text.primary" gutterBottom>
+                      Expiry Date
+                    </Typography>
+                    <TextField
+                      type="date"
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      name="taxExemptionVm.expiryDate"
+                      value={
+                        moment(value.taxExemptionVm?.expiryDate).format("YYYY-MM-DD") || ""
+                      }
+                      onChange={handleChange}
+                      inputProps={{
+                        min: action === "add"
+                          ? moment(value.taxExemptionVm?.effectiveDate).format("YYYY-MM-DD") || ""
+                          : undefined
+                      }}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                </Grid>
+              )}
+            </CardContent>
+          </SectionCard>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3, borderTop: '1px solid #e0e0e0' }}>
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <ActionButton
+              variant="outlined"
+              onClick={handleCloseModal}
+              startIcon={<CancelIcon />}
+            >
+              Cancel
+            </ActionButton>
+            <ActionButton
+              type="submit"
+              variant="contained"
+              disabled={loader}
+              startIcon={<SaveIcon />}
+            >
+              {action === "add" ? "Submit" : "Update"}
+            </ActionButton>
+          </Stack>
+        </DialogActions>
+      </form>
+    </StyledDialog>
   );
 };
 export default AddEditContact;

@@ -21,11 +21,9 @@ import {
   Paper,
   useTheme
 } from '@mui/material';
-import {
-  TrendingUp as TrendingUpIcon,
-  Visibility as VisibilityIcon,
-  ArrowForward as ArrowForwardIcon
-} from '@mui/icons-material';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { styled } from '@mui/material/styles';
 
 const DashboardContainer = styled(Box)(({ theme }) => ({

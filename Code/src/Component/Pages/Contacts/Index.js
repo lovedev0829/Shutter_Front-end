@@ -430,28 +430,32 @@ const handlesearchChange = (columnKey, value = null) => {
           </div>
         </div>
       </div>
-      {open &&<AddEditContact
-        open={open}
-        handleclose={handleclose}
-        action={action}
-        LanguageListAPI={refreshContactlistAPI}
-        object={object}
-      />}
-      {delOpen &&<Delete
-        open={delOpen}
-        handleClose={handledelclose}
-        title={
-          object?.firstName +
-          " " +
-          object?.lastName +
-          " " +
-          (object?.suffix ?? "")
-        }
-        id={object?.contactId}
-        handleDelete={handleDelete}
-        loder={loder}
-      />
-}
+      {open && (
+        <AddEditContact
+          open={open}
+          handleclose={handleclose}
+          action={action}
+          LanguageListAPI={refreshContactlistAPI}
+          object={object}
+        />
+      )}
+      
+      {delOpen && (
+        <Delete
+          open={delOpen}
+          handleClose={handledelclose}
+          title={
+            object?.firstName +
+            " " +
+            object?.lastName +
+            " " +
+            (object?.suffix ?? "")
+          }
+          id={object?.contactId}
+          handleDelete={handleDelete}
+          loder={loder}
+        />
+      )}
     </>
   );
 }

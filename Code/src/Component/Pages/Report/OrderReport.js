@@ -1,10 +1,26 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
+import { 
+  Box, 
+  Paper, 
+  Typography, 
+  TextField, 
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  CircularProgress,
+  Stack,
+  Link as MuiLink
+} from "@mui/material";
 import TableTitle from "../../Form/TableTitle";
 import Search from "../../Form/Search";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
 import { ApiLoder } from "../../../helpers/common";
 import { useDebounce } from "use-debounce";
 import ReportFilter from "./ReportFilter";
@@ -12,6 +28,7 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import { defaultConfig } from "../../../config";
 import ExportFile from "../../../helpers/ExportFile";
+
 export default function OrderReport() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -22,32 +39,38 @@ export default function OrderReport() {
   const [debouncedSearch] = useDebounce(search, 500);
   const [value, setValue] = useState({ orderStatus: "", orderReport: "" });
   const [JobStatus, setJobStatus] = useState([]);
-const [filter, setFilter] = useState({ toDate: null, formDate: null });
+  const [filter, setFilter] = useState({ toDate: null, formDate: null });
+
   const handleSearch = (value) => {
     setsearch(value);
   };
+
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(newPage + 1, rowsPerPage, search, value.orderStatus,filter.toDate,filter.formDate);
+    TenantlistAPI(newPage + 1, rowsPerPage, search, value.orderStatus, filter.toDate, filter.formDate);
     setPage(newPage + 1);
   };
+
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
     TenantlistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       search,
-      value.orderStatus,filter.toDate,filter.formDate
+      value.orderStatus,
+      filter.toDate,
+      filter.formDate
     );
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page, perpage, serach, jobStatus,toDate,formDate) => {
+
+  const TenantlistAPI = async (page, perpage, serach, jobStatus, toDate, formDate) => {
     let query = {
       searchValue: serach ? serach : "",
       pageNo: page ? page : 1,
       recordPerPage: perpage ? perpage : 10,
-      toDate: toDate?toDate:null,
-      formDate:formDate?formDate: null,
+      toDate: toDate ? toDate : null,
+      formDate: formDate ? formDate : null,
       status: 2,
       jobStatus: jobStatus ? jobStatus : "",
     };
@@ -84,7 +107,9 @@ const [filter, setFilter] = useState({ toDate: null, formDate: null });
           1,
           rowsPerPage,
           search,
-          apiResponse?.data?.data[0]?.jobStatusId,filter.toDate,filter.formDate
+          apiResponse?.data?.data[0]?.jobStatusId,
+          filter.toDate,
+          filter.formDate
         );
         setPage(1);
       } else {
@@ -102,7 +127,7 @@ const [filter, setFilter] = useState({ toDate: null, formDate: null });
 
   useEffect(() => {
     if (value.orderStatus) {
-      TenantlistAPI(1, rowsPerPage, debouncedSearch, value.orderStatus,filter.toDate,filter.formDate);
+      TenantlistAPI(1, rowsPerPage, debouncedSearch, value.orderStatus, filter.toDate, filter.formDate);
       setPage(1);
     }
     // eslint-disable-next-line
@@ -112,18 +137,26 @@ const [filter, setFilter] = useState({ toDate: null, formDate: null });
     setValue((val) => {
       return { ...val, orderStatus: value, orderReport: name };
     });
-    TenantlistAPI(1, rowsPerPage, search, value,filter.toDate,filter.formDate);
+    TenantlistAPI(1, rowsPerPage, search, value, filter.toDate, filter.formDate);
     setPage(1);
   };
+
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(pageNo, rowsPerPage, search,value.orderStatus, e.target.name === "toDate" ? e.target.value : filter.toDate,e.target.name === "formDate" ? e.target.value : filter.formDate
+    TenantlistAPI(
+      pageNo,
+      rowsPerPage,
+      search,
+      value.orderStatus,
+      e.target.name === "toDate" ? e.target.value : filter.toDate,
+      e.target.name === "formDate" ? e.target.value : filter.formDate
     );
-    setPage(1)
+    setPage(1);
     setFilter((val) => {
-        return { ...val, [e.target.name]: e.target.value };
+      return { ...val, [e.target.name]: e.target.value };
     });
-};
+  };
+
   return (
     <>
       {loder && <ApiLoder />}
@@ -132,170 +165,162 @@ const [filter, setFilter] = useState({ toDate: null, formDate: null });
         value={value}
         JobStatus={JobStatus}
       />
-      <div className="contact-profile">
-        <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-          <TableTitle
-            title={`${
-              value.orderReport ? value.orderReport : "All Order Report"
-            } order`}
-          />
-          <div className="heading_width_search d-flex align-items-center gap-3">
-            <div className="greencolor">
-              Total Number Of Order{" "}
-              {value.orderReport ? value.orderReport : "All Order Report"} :
-              {paginatedItems}
-            </div>
-          </div>
-        </div>
-        <div className="d-block d-md-flex align-items-center gap-2 justify-content-between">
-          <div className="d-block d-md-flex gap-2 mb-30">
-            <div className="filter-dropdown dropdown ">
+      
+      <Paper sx={{ width: '100%', mb: 3 }}>
+        <Box sx={{ p: 3 }}>
+          {/* Header Section */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" component="h2" sx={{ fontWeight: 600 }}>
+              {value.orderReport ? value.orderReport : "All Order Report"} order
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 500 }}>
+              Total Number Of Order {value.orderReport ? value.orderReport : "All Order Report"}: {paginatedItems}
+            </Typography>
+          </Box>
+
+          {/* Filters Section */}
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+            <Box sx={{ flexGrow: 1 }}>
               <Search handleSearch={handleSearch} />
-            </div>
-            <div className="filter-dropdown dropdown ">
-                         <div className="position-relative calender-input">
-                           <input
-                             style={{ color: "white" }}
-                             type="date"
-                             onChange={handleChange}
-                             className="form-control selectboxdropdown"
-                             name="formDate"
-                             value={moment(filter.formDate).format("YYYY-MM-DD") || ""}
-                           />
-                           <span
-                             style={{
-                               position: "absolute",
-                               left: "10px",
-                               top: "50%",
-                               transform: "translateY(-50%)",
-                               color: "#212529",
-                               pointerEvents: "none",
-                             }}
-                           >
-                             {filter.formDate ? moment(filter.formDate).format("MM-DD-YYYY") : "From Date"}
-                           </span>
-                           <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-                         </div>
-                       </div>
-           <div className="filter-dropdown dropdown ">
-                         <div className="position-relative calender-input">
-                           <input
-                             style={{ color: "white" }}
-                             type="date"
-                             onChange={handleChange}
-                             className="form-control selectboxdropdown"
-                             name="toDate"
-                             value={moment(filter.toDate).format("YYYY-MM-DD") || ""}
-                           />
-                           <span
-                             style={{
-                               position: "absolute",
-                               left: "10px",
-                               top: "50%",
-                               transform: "translateY(-50%)",
-                               color: "#212529",
-                               pointerEvents: "none",
-                             }}
-                           >
-                             {filter.toDate ? moment(filter.toDate).format("MM-DD-YYYY") : "To Date"}
-                           </span>
-                           <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-                         </div>
-                       </div>
-                       
-          </div>
-          <div className="d-flex gap-2 mb-30 justify-content-between">
-            {/* <div className="btn blue-btn small_btn">
-              <PrintSvg />
-              <Link to="#">Print</Link>
-            </div> */}
-            <div className="btn blue-btn small_btn">
-            <ExportFile type="order"  serach={search} page={page} perpage={rowsPerPage} status={"2"} Url={apiUrls.ExportContacts} jobStatus={value.orderStatus} toDate={filter.toDate} formDate={filter.formDate}/>
-            </div>
-          </div>
-        </div>
-        <div className="estimate-table task_table mb-30">
-          <div className="table-responsive">
-            <table className="table jobscheduletable">
-              <thead>
-                <tr>
-                  <th scope="col">Estimate Id</th>
-                  <th scope="col">Order Number</th>
-                  <th scope="col">Contact Name</th>
-                  <th scope="col">Order Date</th>
-                  <th scope="col">Confirmed Date</th>
-                  <th scope="col" className="text-end actionheading">
-                    Total Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+            </Box>
+            
+            <Box sx={{ position: 'relative' }}>
+              <input
+                style={{ color: "white" }}
+                type="date"
+                onChange={handleChange}
+                className="form-control selectboxdropdown"
+                name="formDate"
+                value={moment(filter.formDate).format("YYYY-MM-DD") || ""}
+              />
+              <span
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#212529",
+                  pointerEvents: "none",
+                }}
+              >
+                {filter.formDate ? moment(filter.formDate).format("MM-DD-YYYY") : "From Date"}
+              </span>
+              <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
+            </Box>
+            
+            <Box sx={{ position: 'relative' }}>
+              <input
+                style={{ color: "white" }}
+                type="date"
+                onChange={handleChange}
+                className="form-control selectboxdropdown"
+                name="toDate"
+                value={moment(filter.toDate).format("YYYY-MM-DD") || ""}
+              />
+              <span
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#212529",
+                  pointerEvents: "none",
+                }}
+              >
+                {filter.toDate ? moment(filter.toDate).format("MM-DD-YYYY") : "To Date"}
+              </span>
+              <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
+            </Box>
+
+            <ExportFile 
+              type="order"  
+              serach={search} 
+              page={page} 
+              perpage={rowsPerPage} 
+              status={"2"} 
+              Url={apiUrls.ExportContacts} 
+              jobStatus={value.orderStatus} 
+              toDate={filter.toDate} 
+              formDate={filter.formDate}
+            />
+          </Stack>
+
+          {/* Table Section */}
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Estimate Id</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Order Number</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Contact Name</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Order Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Confirmed Date</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Total Amount</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {tenantList?.map((val, i) => (
-                  <tr key={i}>
-                    <td>
+                  <TableRow key={i} hover>
+                    <TableCell>
                       <Link
-                        className="color-blue"
                         to={`/contacts/estimate/preview/${val.estimateId}`}
-                       
+                        style={{ color: '#1976d2', textDecoration: 'none' }}
                       >
                         {val?.estimateCode}
                       </Link>
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       <Link
-                        className="color-blue"
                         to={`/contacts/order/preview/${val.orderId}`}
-                     
+                        style={{ color: '#1976d2', textDecoration: 'none' }}
                       >
                         {val?.orderNumber}
                       </Link>
-                    </td>
-                    <td>{val?.firstContactName + " " + val?.lastContactName + " " + (val?.suffix ?? "")}</td>
-                    <td>{moment(val?.createdDate).format("MM-DD-YYYY")}</td>
-                    <td> {moment(val?.createdDate).format("MM-DD-YYYY")}</td>
-                    <td>
-                      {" "}
-                      <span className="d-flex align-items-center justify-content-end gap-3">
-                        {defaultConfig.currencySign} {val?.grandTotal}
-                      </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell>{val?.firstContactName + " " + val?.lastContactName + " " + (val?.suffix ?? "")}</TableCell>
+                    <TableCell>{moment(val?.createdDate).format("MM-DD-YYYY")}</TableCell>
+                    <TableCell>{moment(val?.createdDate).format("MM-DD-YYYY")}</TableCell>
+                    <TableCell align="right">
+                      {defaultConfig.currencySign} {val?.grandTotal}
+                    </TableCell>
+                  </TableRow>
                 ))}
+                
                 {(!tenantList || tenantList?.length === 0) && (
-                  <tr>
-                    <td className="text-center border-0 no-records" colSpan={7}>
-                      <img
-                        src="/image/no-records.svg"
-                        alt=" "
-                        loading="lazy"
-                        className="img-fluid"
-                      />
-                      <p className="font-14">No Order Report </p>
-                    </td>
-                  </tr>
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <img
+                          src="/image/no-records.svg"
+                          alt="No records"
+                          loading="lazy"
+                          style={{ width: 120, marginBottom: 16 }}
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          No Order Report
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
-            {tenantList && tenantList?.length > 0 && (
-              <div className="d-flex align-items-center justify-content-end bottom_nav">
-                <nav aria-label="Page navigation example">
-                  <ul className="pagination">
-                    <TablePagination
-                      rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                      component="div"
-                      count={paginatedItems}
-                      rowsPerPage={rowsPerPage}
-                      page={page - 1}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                  </ul>
-                </nav>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Pagination */}
+          {tenantList && tenantList?.length > 0 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 25, 100]}
+              component="div"
+              count={paginatedItems}
+              rowsPerPage={rowsPerPage}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
+        </Box>
+      </Paper>
     </>
   );
 }

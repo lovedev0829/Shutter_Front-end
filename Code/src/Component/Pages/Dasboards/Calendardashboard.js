@@ -37,14 +37,12 @@ import {
   Fade,
   Skeleton
 } from '@mui/material';
-import {
-  Person as PersonIcon,
-  Work as WorkIcon,
-  Schedule as ScheduleIcon,
-  CalendarToday as CalendarIcon,
-  Launch as LaunchIcon,
-  Update as UpdateIcon
-} from '@mui/icons-material';
+import PersonIcon from '@mui/icons-material/Person';
+import WorkIcon from '@mui/icons-material/Work';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import CalendarIcon from '@mui/icons-material/CalendarToday';
+import LaunchIcon from '@mui/icons-material/Launch';
+import UpdateIcon from '@mui/icons-material/Update';
 import { styled } from '@mui/material/styles';
 
 const localizer = momentLocalizer(moment);

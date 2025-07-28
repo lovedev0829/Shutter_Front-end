@@ -28,16 +28,14 @@ import {
   ClickAwayListener,
   Paper
 } from '@mui/material';
-import {
-  ExpandMore as ExpandMoreIcon,
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  Person as PersonIcon,
-  Settings as SettingsIcon,
-  AccountCircle as AccountCircleIcon,
-  Lock as LockIcon,
-  ExitToApp as ExitToAppIcon
-} from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LockIcon from '@mui/icons-material/Lock';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { styled } from '@mui/material/styles';
 
 const StyledDrawer = styled(Drawer)(({ theme, primarycolor }) => ({

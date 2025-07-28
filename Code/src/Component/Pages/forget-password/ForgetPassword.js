@@ -23,7 +23,9 @@ import {
   MenuItem,
   FormHelperText
 } from "@mui/material";
-import { EmailOutlined, BusinessOutlined, ArrowBackIos } from "@mui/icons-material";
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { Link } from "react-router-dom";
 
 function ForgetPassword() {
@@ -221,7 +223,7 @@ function ForgetPassword() {
                                                     fontWeight: 500
                                                 }}
                                             >
-                                                <ArrowBackIos sx={{ fontSize: 16, mr: 0.5 }} />
+                                                <ArrowBackIosIcon sx={{ fontSize: 16, mr: 0.5 }} />
                                                 Back to Sign In
                                             </Link>
                                         </Box>
@@ -266,7 +268,7 @@ function ForgetPassword() {
                                                     InputProps={{
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <EmailOutlined color="action" />
+                                                                <EmailOutlinedIcon color="action" />
                                                             </InputAdornment>
                                                         ),
                                                     }}
@@ -315,7 +317,7 @@ function ForgetPassword() {
                                                         onChange={handleCompanyCodeChange}
                                                         startAdornment={
                                                             <InputAdornment position="start">
-                                                                <BusinessOutlined color="action" sx={{ ml:0 }} />
+                                                                <BusinessOutlinedIcon color="action" sx={{ ml:0 }} />
                                                             </InputAdornment>
                                                         }
                                                         sx={{
