@@ -449,6 +449,7 @@ export default function Index() {
         discountId: cupondata?.discountId,
         products: isapply ? updatedTenantList : data,
       };
+      
 
       try {
         const apiResponse = await callAPI(
