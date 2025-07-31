@@ -14,7 +14,7 @@ import { TablePagination } from "@mui/material";
 import AddEditdocument from "./AddEditdocument";
 import moment from "moment";
 
-function AllDocumentlist() {
+function AllDocumentlist({listdata}) {
   const param = useParams();
 
   const [open, setOpen] = useState(false);
@@ -164,6 +164,8 @@ function AllDocumentlist() {
     }
   };
 
+   const Loginuser = JSON.parse(localStorage.getItem("userData"));
+
   return (
     <>
       {loder && <ApiLoder />}{" "}
@@ -171,7 +173,7 @@ function AllDocumentlist() {
         <div className="d-flex gap-3 invoice-new">
           <h2 className="body_heading width-left-border mb-0">Documents</h2>
         </div>
-        {HasPermission("JobContactAdd") && (
+        {HasPermission("JobContactAdd") &&  listdata?.tenantId === Loginuser?.tenantId &&(
           <AddEditButton
             handleClick={() => {
               setAction("add");
@@ -193,7 +195,7 @@ function AllDocumentlist() {
                 <th scope="col">Document</th>
 
                 {(HasPermission("JobContactEdit") ||
-                  HasPermission("JobContactDelete")) && (
+                  HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
                   <th scope="col" className="text-end actionheading">
                     Action
                   </th>
@@ -231,7 +233,7 @@ function AllDocumentlist() {
                       </td>
 
                       {(HasPermission("JobContactEdit") ||
-                        HasPermission("JobContactDelete")) && (
+                        HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
                         <td className="text-end actiondescription">
                           <span className="d-flex align-items-center justify-content-end gap-3">
                             {HasPermission("JobContactEdit") && (

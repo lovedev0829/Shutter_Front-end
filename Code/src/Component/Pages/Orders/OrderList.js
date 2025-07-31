@@ -14,7 +14,7 @@ import SendApproved from "../Estimate/SendApproved";
 import VersionHistory from "./VersionHistory";
 import { defaultConfig } from "../../../config";
 
-export default function OrderList({ JobId }) {
+export default function OrderList({ JobId,listdata }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
@@ -130,6 +130,9 @@ export default function OrderList({ JobId }) {
       }
     };
 
+     const Loginuser = JSON.parse(localStorage.getItem("userData"));
+
+
   return (
     <>
       {loder && <ApiLoder />}
@@ -148,7 +151,7 @@ export default function OrderList({ JobId }) {
                 <th scope="col">Create Date</th>
                 <th scope="col">Total Amount</th>
                 <th scope="col">Status</th>
-                <th scope="col">Action</th>
+                {listdata?.tenantId === Loginuser?.tenantId &&<th scope="col">Action</th>}
               </tr>
             </thead>
             <tbody>
@@ -178,7 +181,7 @@ export default function OrderList({ JobId }) {
                       {val?.status}
                     </span>
                   </td>
-
+{listdata?.tenantId === Loginuser?.tenantId &&
                   <td className="text-center">
                     <div className="company-logo-dropdown">
                       <div className="dropdown">
@@ -289,6 +292,7 @@ export default function OrderList({ JobId }) {
                       </div>
                     </div>
                   </td>
+}
                 </tr>
               ))}
               {(!tenantList || tenantList?.length === 0) && (

@@ -494,6 +494,27 @@ const AddEditTenent = ({
                           </div>
                         </div>
                       </div>
+                        <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <InputField
+                            labelName={"State"}
+                            placeholderName={"Enter State"}
+                            type={"text"}
+                            handleChange={handleChange}
+                            id={"country"}
+                            name={"country"}
+                            value={value.country}
+                            required={true}
+                          />
+                          <div className="error">
+                            {simpleValidator.current.message(
+                              "State",
+                              value?.country,
+                              `required`
+                            )}
+                          </div>
+                        </div>
+                      </div>{" "}
                       <div className="col-lg-4 col-md-4">
                         <div className="form-group">
                           <InputField
@@ -515,27 +536,7 @@ const AddEditTenent = ({
                           </div>
                         </div>
                       </div>{" "}
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Country"}
-                            placeholderName={"Enter country"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"country"}
-                            name={"country"}
-                            value={value.country}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "country",
-                              value?.country,
-                              `required`
-                            )}
-                          </div>
-                        </div>
-                      </div>{" "}
+                    
                       <div className="col-lg-4 col-md-4">
                         <div className="form-group">
                           <InputField

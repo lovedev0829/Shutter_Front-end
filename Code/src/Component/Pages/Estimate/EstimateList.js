@@ -182,6 +182,8 @@ export default function EstimateList({ listdata }) {
     }
   };
 
+  const Loginuser = JSON.parse(localStorage.getItem("userData"));
+
   return (
     <>
       {loder && <ApiLoder />}
@@ -190,7 +192,7 @@ export default function EstimateList({ listdata }) {
         <div className="d-flex gap-3 invoice-new">
           <h2 className="body_heading width-left-border mb-0">Estimate</h2>
         </div>
-        {HasPermission("EstimateAdd") && (
+        {HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId && (
           <Link
             to={`/contacts/estimate/${listdata?.jobId}`}
             className={`btn blue-outline-btn small_btn`}
@@ -211,7 +213,7 @@ export default function EstimateList({ listdata }) {
                 <th scope="col">Create Date</th>
                 <th scope="col">Total Amount</th>
                 <th scope="col">Status</th>
-                <th scope="col"></th>
+                {listdata?.tenantId === Loginuser?.tenantId &&<th scope="col"></th>}
                 <th scope="col" className="text-end">
                   Action
                 </th>
@@ -244,7 +246,7 @@ export default function EstimateList({ listdata }) {
                       {val?.status}
                     </span>
                   </td>
-                  {val?.status !== "GenerateOrder" ? (
+                  {val?.status !== "GenerateOrder" && listdata?.tenantId === Loginuser?.tenantId  ? (
                     <td>
                       {HasPermission("EstimateEdit") && (
                         <button
@@ -290,7 +292,7 @@ export default function EstimateList({ listdata }) {
                         )}
                     </td>
                   ) : (
-                    <td></td>
+                    listdata?.tenantId === Loginuser?.tenantId?<td></td>:null
                   )}
                   <td>
                     <div className="company-logo-dropdown d-flex justify-content-end">
@@ -345,7 +347,7 @@ export default function EstimateList({ listdata }) {
                               Download Pdf
                             </button>
                           </li>
-                          {HasPermission("EstimateEdit") && (
+                          {HasPermission("EstimateEdit") && listdata?.tenantId === Loginuser?.tenantId && (
                             <li>
                               {(val?.status === "New" ||
                                 val?.status === "Rejected") && (
@@ -364,7 +366,7 @@ export default function EstimateList({ listdata }) {
                               )}
                             </li>
                           )}
-                          {HasPermission("EstimateDelete") && (
+                          {HasPermission("EstimateDelete") && listdata?.tenantId === Loginuser?.tenantId && (
                             <li>
                               {(val?.status === "New" ||
                                 val?.status === "Rejected") && (

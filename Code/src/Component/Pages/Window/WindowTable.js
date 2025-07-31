@@ -190,6 +190,8 @@ function WindowTable({ listdata }) {
     setObject("");
   };
   const HandleImagePreview = () => setMultiImage(false);
+ const Loginuser = JSON.parse(localStorage.getItem("userData"));
+  
   return (
     <>
       {loder && <ApiLoder />}
@@ -203,7 +205,7 @@ function WindowTable({ listdata }) {
       <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
         <div className="d-flex align-items-center gap-2 status-full-width"></div>
         <div className="heading_width_search d-flex align-items-center gap-3">
-          {HasPermission("EstimateAdd") && (
+          {HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId && (
             <Link
               to={`/contacts/estimate/${listdata?.jobId}`}
               className={`btn blue-outline-btn small_btn ${
@@ -213,7 +215,7 @@ function WindowTable({ listdata }) {
               Build Estimate
             </Link>
           )}
-          {HasPermission("WindowAdd") && (
+          {HasPermission("WindowAdd") && listdata?.tenantId === Loginuser?.tenantId &&  (
             <AddEditButton
               handleClick={() => {
                 setAction("add");
@@ -229,7 +231,7 @@ function WindowTable({ listdata }) {
         <div className="living-room-window-table mb-3" key={i}>
           <div className="d-flex align-items-center justify-content-between">
             <h2 className="mb-3 font-16">{val?.label}</h2>
-            {(HasPermission("WindowEdit") || HasPermission("WindowDelete")) && (
+            {(HasPermission("WindowEdit") || HasPermission("WindowDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
               <div className="company-logo-dropdown mb-2">
                 <div className="dropdown">
                   <button
@@ -306,6 +308,7 @@ function WindowTable({ listdata }) {
                   <tr key={ind}>
                     <td>
                       <div className="form-check table-form-check">
+                        {listdata?.tenantId === Loginuser?.tenantId && 
                         <input
                           className="form-check-input table-form-check-input"
                           type="radio"
@@ -327,6 +330,7 @@ function WindowTable({ listdata }) {
                             )
                           }
                         />
+}
                         {selectedParentId.some(
                           (id) =>
                             id.windowProductId === vals.windowProductId &&

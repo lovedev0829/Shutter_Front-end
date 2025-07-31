@@ -17,7 +17,7 @@ import moment from "moment";
 import StatusDropdown from "../../../helpers/StatusDropdown";
 import { defaultConfig } from "../../../config";
 
-export default function InvoiceList({ JobId,contactId }) {
+export default function InvoiceList({ JobId,contactId,listdata }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
   const [object, setObject] = useState("");
@@ -175,6 +175,7 @@ export default function InvoiceList({ JobId,contactId }) {
       setLoader(false);
     }
   };
+   const Loginuser = JSON.parse(localStorage.getItem("userData"));
   return (
     <>
       {loder && <ApiLoder />}
@@ -185,7 +186,7 @@ export default function InvoiceList({ JobId,contactId }) {
             <StatusDropdown value={filter.status} fn={handleChange} />
           </div>
         </div>
-        {HasPermission("InvoiceAdd") && (
+        {HasPermission("InvoiceAdd") && listdata?.tenantId === Loginuser?.tenantId && (
           <AddEditButton
             handleClick={() => {
               setAction("add");
@@ -209,7 +210,7 @@ export default function InvoiceList({ JobId,contactId }) {
                 <th scope="col">Total Amount</th>
                 <th scope="col">Balance Due</th>
                 <th scope="col">Status</th>
-                <th scope="col">Action</th>
+                 {listdata?.tenantId === Loginuser?.tenantId &&<th scope="col">Action</th>}
               </tr>
             </thead>
             <tbody>
@@ -218,8 +219,8 @@ export default function InvoiceList({ JobId,contactId }) {
                   <td>{(page - 1) * rowsPerPage + i + 1}</td>
                   <td>
                     <Link
-                      className="color-blue"
-                      to={`/contacts/payment/${val?.invoiceId}`}
+                      className={listdata?.tenantId === Loginuser?.tenantId?"color-blue":""}
+                      to={listdata?.tenantId === Loginuser?.tenantId?`/contacts/payment/${val?.invoiceId}`:"#"}
                     >
                       {" "}
                       {val?.invoiceNumber}
@@ -239,11 +240,12 @@ export default function InvoiceList({ JobId,contactId }) {
                       className={`tags ${
                         val?.isActive === true ? "active" : "inactive"
                       }-tag`}
-                      onClick={() => handleStatus(val)}
+                      onClick={() => listdata?.tenantId === Loginuser?.tenantId?handleStatus(val):null}
                     >
                       {val?.isActive === true ? "Active" : "Inactive"}
                     </span>
                   </td>
+                  {listdata?.tenantId === Loginuser?.tenantId &&
                   <td className="text-center">
                     <div className="company-logo-dropdown">
                       <div className="dropdown">
@@ -333,6 +335,7 @@ export default function InvoiceList({ JobId,contactId }) {
                       </div>
                     </div>
                   </td>
+}
                 </tr>
               ))}
               {(!tenantList || tenantList?.length === 0) && (
