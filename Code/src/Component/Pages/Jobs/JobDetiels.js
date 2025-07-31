@@ -192,7 +192,7 @@ export default function JobDetiels() {
                     tabIndex={0}
                   >
                     {HasPermission("OrderView") && tabdata === "#orders" && (
-                      <OrderList JobId={param.JobId} />
+                      <OrderList JobId={param.JobId} listdata={tenantList[0]}/>
                     )}
                   </div>
                   {/* invoice tab */}
@@ -209,6 +209,7 @@ export default function JobDetiels() {
                       <InvoiceList
                         JobId={param.JobId}
                         contactId={tenantList[0]?.contactId}
+                        listdata={tenantList[0]}
                       />
                     )}
                   </div>
@@ -225,7 +226,7 @@ export default function JobDetiels() {
                     tabIndex={0}
                   >
                     {HasPermission("JobScheduleView") &&
-                      tabdata === "#jobscheduletab" && <Jobschedulelist />}
+                      tabdata === "#jobscheduletab" && <Jobschedulelist listdata={tenantList[0]}/>}
                   </div>
                   {/*  contact tab */}
                   <div
@@ -238,7 +239,7 @@ export default function JobDetiels() {
                     tabIndex={0}
                   >
                     {HasPermission("JobContactView") &&
-                      tabdata === "#contacttab" && <JobContactList />}
+                      tabdata === "#contacttab" && <JobContactList listdata={tenantList[0]}/>}
                   </div>
                   <div
                     className={`tab-pane fade ${
@@ -250,7 +251,7 @@ export default function JobDetiels() {
                     tabIndex={0}
                   >
                     {HasPermission("JobContactView") &&
-                      tabdata === "#documenttab" && <AllDocumentlist />}
+                      tabdata === "#documenttab" && <AllDocumentlist listdata={tenantList[0]}/>}
                   </div>
                 </div>
               </div>

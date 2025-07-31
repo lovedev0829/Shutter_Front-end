@@ -571,14 +571,14 @@ const handlesearchChange = (columnKey, value = null) => {
                           onClick={
                             val?.tenantId === user?.tenantId
                               ? () => handleview(val)
-                              : undefined
+                              :  () => handleview(val)
                           }
                         >
                           <span
                             className={
                               val?.tenantId === user?.tenantId
                                 ? "color-blue"
-                                : ""
+                                : "color-blue"
                             }
                           >
                             {val?.jobCode}

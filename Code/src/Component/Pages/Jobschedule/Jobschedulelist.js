@@ -8,7 +8,7 @@ import AddEditButton from '../../Form/AddEditButton';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import StatusDropdown from '../../../helpers/StatusDropdown';
-export default function Jobschedulelist() {
+export default function Jobschedulelist({listdata}) {
   const param = useParams()
 
   const [open, setOpen] = useState(false);
@@ -137,6 +137,8 @@ export default function Jobschedulelist() {
       return { ...val, [e.target.name]: e.target.value };
     });
   };
+
+  const Loginuser = JSON.parse(localStorage.getItem("userData"));
   return (
     <>
       {loder && <ApiLoder />}
@@ -151,7 +153,7 @@ export default function Jobschedulelist() {
           </div>
         </div>
 
-        {HasPermission("JobScheduleAdd") && (
+        {HasPermission("JobScheduleAdd") && listdata?.tenantId === Loginuser?.tenantId &&  (
           <AddEditButton
             handleClick={() => {
               setAction("add");
@@ -176,7 +178,7 @@ export default function Jobschedulelist() {
                 <th scope="col">End Date</th>
                 <th scope="col">End Time</th>
                 <th scope="col">Status</th>
-                {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && <th scope="col" className="text-end">
+                {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && listdata?.tenantId === Loginuser?.tenantId  && <th scope="col" className="text-end">
                   Action
                 </th>}
               </tr>
@@ -195,10 +197,10 @@ export default function Jobschedulelist() {
                       <td>{moment(item?.dayStartTime,"HH:mm:ss").format("hh:mm A")}</td>
                       <td>{moment(item?.endDate).format("MM-DD-YYYY")}</td>
                       <td>{moment(item?.dayEndDateTime,"HH:mm:ss").format("hh:mm A")}</td>
-                      <td><span className={`tags ${item?.isActive === true ? "active" : "inactive"}-tag`} onClick={() => handleStatus(item)}>{item?.isActive === true ? "Active" : "Inactive"}</span></td>
+                      <td><span className={`tags ${item?.isActive === true ? "active" : "inactive"}-tag`} onClick={() => listdata?.tenantId === Loginuser?.tenantId?handleStatus(item):null}>{item?.isActive === true ? "Active" : "Inactive"}</span></td>
 
 
-                      {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) &&
+                      {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && listdata?.tenantId === Loginuser?.tenantId &&
                         <td className="text-end">
                           <span className="d-flex align-items-center justify-content-end gap-3">
                             {HasPermission("JobScheduleEdit") && <img src="/image/editblue.svg" role="button" alt="" loading="lazy" onClick={() => handleedit(item)} />}

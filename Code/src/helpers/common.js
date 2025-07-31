@@ -15,7 +15,12 @@ const ApiLoder = () => {
     <>
       <div className="spinner_overlay"></div>
       <div className="spinner-box">
-        <img src="/image/loder.gif" alt="" className="loading-icon" loading="lazy" />
+        <img
+          src="/image/loder.gif"
+          alt=""
+          className="loading-icon"
+          loading="lazy"
+        />
       </div>
     </>
   );
@@ -213,7 +218,8 @@ function BackButton({ link }) {
   return (
     <div className="back-option mb-2 ">
       <Link to={link} className="d-flex align-items-center">
-        <img src="/image/back.svg" className="me-1" alt="" loading="lazy"/> Back
+        <img src="/image/back.svg" className="me-1" alt="" loading="lazy" />{" "}
+        Back
       </Link>
     </div>
   );
@@ -223,7 +229,9 @@ function JobUi({ tenantList, onJobUpdate }) {
   const [open, setOpen] = useState(false);
   const [childData, setChildData] = useState("");
   const [powderCoatColors, setPowderCoatColors] = useState([]);
-  const [selectedPowderCoatColor, setSelectedPowderCoatColor] = useState(tenantList?.powderCoatColorId || "");
+  const [selectedPowderCoatColor, setSelectedPowderCoatColor] = useState(
+    tenantList?.powderCoatColorId || ""
+  );
   const [loadingColors, setLoadingColors] = useState(false);
   const [updatingColor, setUpdatingColor] = useState(false);
 
@@ -235,12 +243,18 @@ function JobUi({ tenantList, onJobUpdate }) {
   const loadPowderCoatColors = async () => {
     try {
       setLoadingColors(true);
-      const response = await callAPI(apiUrls.GetPowderCoatColorsForDropdown, {}, "GET");
+      const response = await callAPI(
+        apiUrls.GetPowderCoatColorsForDropdown,
+        {},
+        "GET"
+      );
       if (response?.data?.isSuccess) {
         setPowderCoatColors(response.data.data);
       } else {
         setPowderCoatColors([]);
-        ErrorMessage(response?.data?.message || "Failed to load powder coat colors");
+        ErrorMessage(
+          response?.data?.message || "Failed to load powder coat colors"
+        );
       }
     } catch (error) {
       console.error("Error loading powder coat colors:", error);
@@ -255,12 +269,16 @@ function JobUi({ tenantList, onJobUpdate }) {
   const updateJobPowderCoatColor = async (colorId) => {
     try {
       setUpdatingColor(true);
-      
-      const response = await callAPI(apiUrls.UpdateJobPowderCoatColor, {
-        jobId: tenantList?.jobId,
-        powderCoatColorId: colorId || null
-      }, "POST");
-      
+
+      const response = await callAPI(
+        apiUrls.UpdateJobPowderCoatColor,
+        {
+          jobId: tenantList?.jobId,
+          powderCoatColorId: colorId || null,
+        },
+        "POST"
+      );
+
       if (response?.data?.isSuccess) {
         setSelectedPowderCoatColor(colorId);
         if (onJobUpdate) {
@@ -268,7 +286,9 @@ function JobUi({ tenantList, onJobUpdate }) {
         }
         SuccessMessage("Powder coat color updated successfully");
       } else {
-        ErrorMessage(response?.data?.message || "Failed to update powder coat color");
+        ErrorMessage(
+          response?.data?.message || "Failed to update powder coat color"
+        );
       }
     } catch (error) {
       console.error("Error updating powder coat color:", error);
@@ -280,7 +300,7 @@ function JobUi({ tenantList, onJobUpdate }) {
 
   const handlePowderCoatColorChange = (e) => {
     const colorId = e.target.value;
-    if( colorId != "") {
+    if (colorId != "") {
       updateJobPowderCoatColor(colorId);
     }
   };
@@ -299,6 +319,9 @@ function JobUi({ tenantList, onJobUpdate }) {
       setSelectedPowderCoatColor(tenantList.powderCoatColorId);
     }
   }, [powderCoatColors, tenantList?.powderCoatColorId]);
+
+  const Loginuser = JSON.parse(localStorage.getItem("userData"));
+
   return (
     <div className="row">
       <div className="col-lg-3 col-6">
@@ -331,7 +354,7 @@ function JobUi({ tenantList, onJobUpdate }) {
       <div className="col-lg-2">
         <div className="additional_direction mt-0">
           <h6 className="mb-1">Job Status</h6>
-          <span style={{color: "#1e90ff"}}>{tenantList?.jobStatusName}</span>
+          <span style={{ color: "#1e90ff" }}>{tenantList?.jobStatusName}</span>
         </div>
       </div>
 
@@ -359,12 +382,17 @@ function JobUi({ tenantList, onJobUpdate }) {
           <h6 className="mb-1">Powder Coating Color</h6>
           <div className="position-relative">
             {loadingColors && <SelectBoxLoader />}
-            <select 
+
+            <select
               className="selectboxdropdown"
               style={{ width: "200px" }}
               value={selectedPowderCoatColor}
               onChange={handlePowderCoatColorChange}
-              disabled={updatingColor || !HasPermission("JobEdit")}
+              disabled={
+                updatingColor ||
+                !HasPermission("JobEdit") ||
+                tenantList?.tenantId !== Loginuser?.tenantId
+              }
             >
               <option value="">Select Color</option>
               {powderCoatColors.map((color) => (
@@ -377,34 +405,58 @@ function JobUi({ tenantList, onJobUpdate }) {
         </div>
       </div>
 
-         {HasPermission("JobEdit") && (
-      <div className="col-lg-3">
-        <div className="additional_direction">
-          <h6 className="mb-1">Appointment Date &amp; Time</h6>
-          <span onClick={() => setOpen(true)} style={{ cursor: "pointer" }}>
-           
-            {childData?.scheduleDateTime
-              ? `${moment(childData.scheduleDateTime).format(
-                  "MM-DD-YYYY"
-                )} | ${moment(childData.scheduleDateTime).format("hh:mm A")}`
-              : "Add Appointment"}
-              {!childData?.scheduleDateTime?<i className="fa fa-plus appom" aria-hidden="true"></i>:
-              <i className="fa fa-pencil appom" aria-hidden="true"></i>}
-          </span>
-        </div>
-      </div>
-      )}
+      {HasPermission("JobEdit") &&
+        tenantList?.tenantId === Loginuser?.tenantId && (
+          <div className="col-lg-3">
+            <div className="additional_direction">
+              <h6 className="mb-1">Appointment Date &amp; Time</h6>
+              <span onClick={() => setOpen(true)} style={{ cursor: "pointer" }}>
+                {childData?.scheduleDateTime
+                  ? `${moment(childData.scheduleDateTime).format(
+                      "MM-DD-YYYY"
+                    )} | ${moment(childData.scheduleDateTime).format(
+                      "hh:mm A"
+                    )}`
+                  : "Add Appointment"}
+                {!childData?.scheduleDateTime ? (
+                  <i className="fa fa-plus appom" aria-hidden="true"></i>
+                ) : (
+                  <i className="fa fa-pencil appom" aria-hidden="true"></i>
+                )}
+              </span>
+            </div>
+          </div>
+        )}
+
+      {HasPermission("JobEdit") &&
+        tenantList?.tenantId !== Loginuser?.tenantId && (
+          <div className="col-lg-3">
+            <div className="additional_direction">
+              <h6 className="mb-1">Appointment Date &amp; Time</h6>
+              <span>
+                {childData?.scheduleDateTime
+                  ? `${moment(childData.scheduleDateTime).format(
+                      "MM-DD-YYYY"
+                    )} | ${moment(childData.scheduleDateTime).format(
+                      "hh:mm A"
+                    )}`
+                  : "---"}
+              </span>
+            </div>
+          </div>
+        )}
       <div className="col-lg-3">
         <PreviewFiles file={tenantList?.attachmentsAny} />
       </div>
-     {open &&<Appointment
-        open={open}
-        handleclose={() => setOpen(false)}
-        action={open}
-        jobId={tenantList?.jobId}
-        sendToParent={handleChildData}
-      />
-     }
+      {open && (
+        <Appointment
+          open={open}
+          handleclose={() => setOpen(false)}
+          action={open}
+          jobId={tenantList?.jobId}
+          sendToParent={handleChildData}
+        />
+      )}
     </div>
   );
 }
@@ -434,7 +486,11 @@ const PreviewFiles = ({ file, isdelete = false, handleImageDelelet }) => {
                       loading="lazy"
                     />
                   ) : (
-                    <img src="/image/file.svg" alt="File preview" loading="lazy"/>
+                    <img
+                      src="/image/file.svg"
+                      alt="File preview"
+                      loading="lazy"
+                    />
                   )}
                 </Link>
                 {isdelete && (
@@ -453,10 +509,10 @@ const PreviewFiles = ({ file, isdelete = false, handleImageDelelet }) => {
 
 function FormatPhoneNumber(input) {
   // Remove everything except numbers
-  let cleaned = input?.replace(/\D/g, '');
+  let cleaned = input?.replace(/\D/g, "");
 
   // Remove leading 1 if user manually typed it
-  if (cleaned?.startsWith('1')) {
+  if (cleaned?.startsWith("1")) {
     cleaned = cleaned?.slice(1);
   }
 
@@ -466,14 +522,19 @@ function FormatPhoneNumber(input) {
   } else if (cleaned?.length <= 6) {
     return `+1(${cleaned?.slice(0, 3)}) ${cleaned?.slice(3)}`;
   } else if (cleaned?.length <= 10) {
-    return `+1(${cleaned?.slice(0, 3)}) ${cleaned?.slice(3, 6)}-${cleaned?.slice(6)}`;
+    return `+1(${cleaned?.slice(0, 3)}) ${cleaned?.slice(
+      3,
+      6
+    )}-${cleaned?.slice(6)}`;
   } else {
     // Limit to 10 digits after +1
     cleaned = cleaned?.slice(0, 10);
-    return `+1(${cleaned?.slice(0, 3)}) ${cleaned?.slice(3, 6)}-${cleaned?.slice(6)}`;
+    return `+1(${cleaned?.slice(0, 3)}) ${cleaned?.slice(
+      3,
+      6
+    )}-${cleaned?.slice(6)}`;
   }
 }
-
 
 export {
   ApiLoder,
@@ -491,5 +552,5 @@ export {
   BackButton,
   JobUi,
   PreviewFiles,
-  FormatPhoneNumber
+  FormatPhoneNumber,
 };

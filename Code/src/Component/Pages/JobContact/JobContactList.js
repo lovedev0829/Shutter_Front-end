@@ -8,7 +8,7 @@ import AddEditButton from '../../Form/AddEditButton';
 import StatusDropdown from '../../../helpers/StatusDropdown';
 import { TablePagination } from '@mui/material';
 
-function JobContactList() {
+function JobContactList({listdata}) {
     const param = useParams()
 
     const [open, setOpen] = useState(false);
@@ -137,6 +137,7 @@ function JobContactList() {
             return { ...val, [e.target.name]: e.target.value };
         });
     };
+    const Loginuser = JSON.parse(localStorage.getItem("userData"));
     return (
         <>
             {loder && <ApiLoder />} <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
@@ -151,7 +152,7 @@ function JobContactList() {
                 </div>
                 {
 
-                    HasPermission("JobContactAdd") &&
+                    HasPermission("JobContactAdd") && listdata?.tenantId === Loginuser?.tenantId &&
                     <AddEditButton
                         handleClick={() => {
                             setAction("add");
@@ -172,7 +173,7 @@ function JobContactList() {
                                 <th scope="col">Contact Name</th>
                                 <th scope="col">Status</th>
                                 {(HasPermission("JobContactEdit") ||
-                                    HasPermission("JobContactDelete")) && <th scope="col" className="text-end actionheading">
+                                    HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId  && <th scope="col" className="text-end actionheading">
                                         Action
                                     </th>}
                             </tr>
@@ -183,12 +184,12 @@ function JobContactList() {
                                     <tr>
                                         <td>{(page - 1) * rowsPerPage + index + 1}</td>
                                         <td>{item?.contactTypeName}</td>
-                                        <td><Link className="color-blue" to={`/contacts/detail/${item.contactId}`}>{item?.contactFirstname + " " + item?.contactLastname}</Link></td>
-                                        <td><span className={`tags ${item?.isActive === true ? "active" : "inactive"}-tag`} onClick={() => handleStatus(item)}>{item?.isActive === true ? "Active" : "Inactive"}</span></td>
+                                        <td><Link className={listdata?.tenantId === Loginuser?.tenantId?"color-blue":""} to={listdata?.tenantId === Loginuser?.tenantId?`/contacts/detail/${item.contactId}`:"#"}>{item?.contactFirstname + " " + item?.contactLastname}</Link></td>
+                                        <td><span className={`tags ${item?.isActive === true ? "active" : "inactive"}-tag`} onClick={() => listdata?.tenantId === Loginuser?.tenantId?handleStatus(item):null}>{item?.isActive === true ? "Active" : "Inactive"}</span></td>
 
                                         {
                                             (HasPermission("JobContactEdit") ||
-                                                HasPermission("JobContactDelete")) && <td className="text-end actiondescription">
+                                                HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId  &&<td className="text-end actiondescription">
                                                 <span className="d-flex align-items-center justify-content-end gap-3">
                                                     {
                                                         HasPermission("JobContactEdit") &&
