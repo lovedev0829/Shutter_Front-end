@@ -272,7 +272,7 @@ export default function EstimateList({ listdata }) {
                           }
                         >
                           {val?.status === "Approved"
-                            ? "Genrate Order"
+                            ? "Generate Order"  
                             : "Send for Approval"}
                         </button>
                       )}
@@ -445,12 +445,12 @@ export default function EstimateList({ listdata }) {
         title={
           text === "1"
             ? "Share Link Via Copy or Email Prospective Customer"
-            : `You want to Genrate Order for this estimate (${object.estimateName})?`
+            : `You want to Generate Order for this estimate (${object.estimateName})?`
         }
         subtitle={
           text === "1"
             ? "You can send this link via email and copy to send the customer"
-            : "Please click the Confirm button to Genrate Order for this estimate."
+            : "Please click the Confirm button to Generate Order for this estimate."
         }
         url="/contacts/estimate/preview/"
       />
