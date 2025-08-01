@@ -367,15 +367,15 @@ LanguageListAPI, // Refesh Api
                             id={"phoneNumber"}
                             name={"phoneNumber"}
                             value={FormatPhoneNumber(value.phoneNumber || "")}
-                            required={true}
+                            // required={true}
                           />
-                          <div className="error">
+                          {/* <div className="error">
                             {simpleValidator.current.message(
                               "Phone Number",
                               value?.phoneNumber,
                               "required"
                             )}
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                       <div className="col-lg-4 col-md-4">
@@ -388,13 +388,13 @@ LanguageListAPI, // Refesh Api
                             idv={"email"}
                             name={"email"}
                             value={value.email}
-                          required={true}
+                          // required={true}
                           />
                           <div className="error">
                             {simpleValidator.current.message(
                               "email",
                               value?.email,
-                              "required|email"
+                              "email"
                             )}
                           </div>
                         </div>
@@ -516,15 +516,15 @@ LanguageListAPI, // Refesh Api
                             value={FormatPhoneNumber(
                               value.billingAddressVm?.phoneNumber || ""
                             )}
-                           required={true}
+                          //  required={true}
                           />
-                          <div className="error">
+                          {/* <div className="error">
                             {simpleValidator.current.message(
                               "phoneNumber",
                               value.billingAddressVm?.phoneNumber || "",
                               "required"
                             )}
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                       <div className="col-lg-3 col-md-3">
@@ -537,13 +537,13 @@ LanguageListAPI, // Refesh Api
                             id={"email"}
                             name={"billingAddressVm.email"}
                             value={value.billingAddressVm?.email || ""}
-                          required={true}
+                          
                           />
                           <div className="error">
                             {simpleValidator.current.message(
                               "email",
                               value.billingAddressVm?.email || "",
-                              "required|email"
+                              "email"
                             )}
                           </div>
                         </div>
