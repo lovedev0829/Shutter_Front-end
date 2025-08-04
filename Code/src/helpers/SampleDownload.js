@@ -10,6 +10,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   textTransform: 'none',
   fontWeight: 600,
+  maxHeight: "43px",
   padding: theme.spacing(0.5, 2),
   fontSize: '14px',
   boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
@@ -60,6 +61,7 @@ export default function SampleDownload({ type }) {
       <StyledButton
         variant="outlined"
         onClick={postImage}
+        size="small"
         startIcon={loder ? <CircularProgress size={16} color="inherit" /> : <GetAppIcon />}
         disabled={loder}
       >

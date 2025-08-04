@@ -18,7 +18,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Chip
+  Chip,
+  Backdrop
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -44,12 +45,12 @@ import { apiUrls } from "../utils/apiUrls";
 
 const ApiLoder = () => {
   return (
-    <>
-      <div className="spinner_overlay"></div>
-      <div className="spinner-box">
-        <img src="/image/loder.gif" alt="" className="loading-icon" loading="lazy" />
-      </div>
-    </>
+    <Backdrop
+      sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      open={true}
+    >
+      <CircularProgress color="inherit" />
+    </Backdrop>
   );
 };
 
@@ -303,9 +304,18 @@ const HasPermission = (permission) => {
   return permissions?.roles.includes(permission);
 };
 
-function SelectBoxLoader() {
+function SelectBoxLoader({ size = 20, color }) {
+  const theme = useTheme();
+  
   return (
-    <CircularProgress size={20} sx={{ color: '#dc2626' }} />
+    <CircularProgress 
+      size={size} 
+      thickness={4}
+      sx={{ 
+        color: color || theme.palette.primary.main,
+        filter: `drop-shadow(0 1px 3px ${theme.palette.primary.main}30)`
+      }} 
+    />
   );
 }
 
@@ -690,7 +700,7 @@ function JobUi({ tenantList, onJobUpdate }) {
                 sx={{ 
                   borderRadius: 1,
                   backgroundColor: 'white',
-                  fontWeight: 80,
+                  fontWeight: 500,
                   '& .MuiOutlinedInput-notchedOutline': {
                     borderColor: theme.palette.grey[300],
                   },
@@ -905,8 +915,85 @@ function FormatPhoneNumber(input) {
   }
 }
 
+// Compact inline loading component for buttons and small areas
+const InlineLoader = ({ size = 16, color = "inherit" }) => (
+  <CircularProgress 
+    size={size} 
+    thickness={4}
+    sx={{ 
+      color: color,
+      animation: 'none' // Remove default animation for smoother experience
+    }} 
+  />
+);
+
+// Enhanced loading overlay for conditional loading
+const LoadingOverlay = ({ show }) => {
+  if (!show) return null;
+  
+  return <ApiLoder />;
+};
+
+// Skeleton loader for table rows and content placeholders
+const SkeletonLoader = ({ 
+  lines = 3, 
+  height = 40, 
+  showAvatar = false 
+}) => {
+  const theme = useTheme();
+  
+  return (
+    <Box sx={{ p: 2 }}>
+      {Array.from({ length: lines }).map((_, index) => (
+        <Box 
+          key={index}
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2, 
+            mb: index < lines - 1 ? 2 : 0 
+          }}
+        >
+          {showAvatar && (
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: theme.palette.grey[200]
+              }}
+            />
+          )}
+          <Box sx={{ flex: 1 }}>
+            <Box
+              sx={{
+                height: height / 2,
+                backgroundColor: theme.palette.grey[200],
+                borderRadius: 1,
+                mb: 1,
+                width: `${90 - index * 10}%`
+              }}
+            />
+            <Box
+              sx={{
+                height: height / 3,
+                backgroundColor: theme.palette.grey[100],
+                borderRadius: 1,
+                width: `${70 - index * 5}%`
+              }}
+            />
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
 export {
   ApiLoder,
+  InlineLoader,
+  LoadingOverlay,
+  SkeletonLoader,
   ErrorMessage,
   SuccessMessage,
   CommonUploadImage,

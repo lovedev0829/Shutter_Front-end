@@ -7,7 +7,16 @@ import Search from "../../Form/Search";
 import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
+import {
+  Box,
+  Container,
+  Card,
+  CardContent,
+  TablePagination,
+  Paper,
+  Backdrop,
+  CircularProgress
+} from "@mui/material";
 import AddEditMaterial from "./AddEditMaterial";
 import {
   ApiLoder,
@@ -304,11 +313,21 @@ export default function Index() {
   // selectboxdropdown
   return (
     <>
-      {loder && <ApiLoder />}
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loder}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      
       <div className="intersight_content">
         <Header title="Material" />
         <div className="body_content">
           <div className="contact-profile">
+            <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', p: 0 }}>
+              <Container maxWidth="xl" sx={{ py: 3 }}>
+                <Card elevation={2} sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: 3 }}>
             <div className="d-flex align-items-center justify-content-between mb-30">
               <TableTitle title="Manage Raw Material" />
               <div className="heading_width_search d-flex align-items-center gap-3">
@@ -342,7 +361,6 @@ export default function Index() {
                       value={filter.vendor}
                       fn={handleChange}
                       load={true}
-                      className="selectboxdropdown"
                       name="vendor"
                     />
                   )}
@@ -370,41 +388,57 @@ export default function Index() {
 
             <div className="task_table mb-30">
               <div className="table-responsive">
-                <DynamicTable
-                  data={MaterialList}
-                  columns={columns}
-                  title="Material"
-                  rowActions={["edit", "delete"]}
-                  edituser={handleedit}
-                  handledelete={handledelete}
-                  handlestatus={handlestatus}
-                  deletepermission="MaterialDelete"
-                  editpermission="MaterialEdit"
-                  handleFilterSortChange={handleFilterSortChange}
-                  sortColumn={filter.sortColumn}
-                  sortDirection={filter.sortDirection}
-                  columnFilters={filter.columnFilters}
-                  handlesearchChange={handlesearchChange}
-                />
-                {MaterialList && MaterialList?.length > 0 && (
-                  <div className="d-flex align-items-center justify-content-end bottom_nav">
-                    <nav aria-label="Page navigation example">
-                      <ul className="pagination">
-                        <TablePagination
-                          rowsPerPageOptions={[10, 25, 50, 100]}
-                          component="div"
-                          count={paginatedItems}
-                          rowsPerPage={rowsPerPage}
-                          page={page - 1}
-                          onPageChange={handleChangePage}
-                          onRowsPerPageChange={handleChangeRowsPerPage}
-                        />
-                      </ul>
-                    </nav>
-                  </div>
-                )}
+                <Box sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                  <DynamicTable
+                    data={MaterialList}
+                    columns={columns}
+                    title="Material"
+                    rowActions={["edit", "delete"]}
+                    edituser={handleedit}
+                    handledelete={handledelete}
+                    handlestatus={handlestatus}
+                    deletepermission="MaterialDelete"
+                    editpermission="MaterialEdit"
+                    handleFilterSortChange={handleFilterSortChange}
+                    sortColumn={filter.sortColumn}
+                    sortDirection={filter.sortDirection}
+                    columnFilters={filter.columnFilters}
+                    handlesearchChange={handlesearchChange}
+                  />
+                  
+                  {/* Pagination */}
+                  {MaterialList && MaterialList?.length > 0 && (
+                    <Box sx={{
+                      display: 'flex', 
+                      justifyContent: 'flex-end', 
+                      p: 2,
+                      borderTop: 1,
+                      borderColor: 'divider',
+                      marginTop: 2,
+                    }}>
+                      <TablePagination
+                        rowsPerPageOptions={[10, 25, 50, 100]}
+                        component="div"
+                        count={paginatedItems}
+                        rowsPerPage={rowsPerPage}
+                        page={page - 1}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        sx={{
+                          '& .MuiTablePagination-toolbar': {
+                            alignItems: 'baseline',
+                          }
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
               </div>
             </div>
+                  </CardContent>
+                </Card>
+              </Container>
+            </Box>
           </div>
         </div>
       </div>

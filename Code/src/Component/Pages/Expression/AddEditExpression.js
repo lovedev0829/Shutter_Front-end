@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dialog from "@mui/material/Dialog";
+import { Button, useTheme, alpha } from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -9,11 +10,10 @@ import {
   SelectBoxLoader,
   SuccessMessage,
 } from "../../../helpers/common";
-import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
 // import AllProduct from "../../../helpers/AllProduct";
 import ValidatePopup from "./Validate";
+import { Link } from "react-router-dom";
 import { defaultConfig } from "../../../config";
 
 function AddEditExpression({
@@ -50,6 +50,7 @@ function AddEditExpression({
   const [searchTerm, setSearchTerm] = useState("");
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
+  const theme = useTheme();
   const ProductsExpressionAddUpdate = async () => {
     const formValid = simpleValidator.current.allValid();
     if (!formValid) {
@@ -718,9 +719,7 @@ const updatedChips = [...clickedChips];
                 </div>
                 <div className="modal-footer">
                   <div className="form-style form-group d-flex align-items-center justify-content-end exp-form-style">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
+                    <Button
                       onClick={() => {
                         setValue(defaultState);
                         handleclose();
@@ -730,35 +729,77 @@ const updatedChips = [...clickedChips];
                         setorignalData([]);
                         setChip([]);
                       }}
+                      variant="outlined"
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        borderColor: theme.palette.grey[300],
+                        color: theme.palette.text.secondary,
+                        marginRight: 2,
+                        '&:hover': {
+                          borderColor: theme.palette.grey[400],
+                          backgroundColor: alpha(theme.palette.grey[100], 0.5),
+                        }
+                      }}
                     >
                       Cancel
-                    </Link>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className="btn blue-btn me-3"
                       onClick={handlevalidate}
+                      variant="contained"
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        marginRight: 2,
+                        background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+                        boxShadow: `0 4px 12px ${alpha(theme.palette.secondary.main, 0.3)}`,
+                        '&:hover': {
+                          background: `linear-gradient(135deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`,
+                          boxShadow: `0 6px 16px ${alpha(theme.palette.secondary.main, 0.4)}`,
+                        }
+                      }}
                     >
                       Validate
-                    </button>
+                    </Button>
 
-                    {validate ? (
-                      ""
-                    ) : (
-                      <SubmitButton
+                    {!validate && (
+                      <Button
                         type="submit"
-                        className="btn blue-btn"
-                        name={action === "add" ? "Submit" : "Update"}
+                        variant="contained"
                         disabled={loader}
-                      />
-                    )}
-                    {validate && (
-                      <button
-                        type="submit"
-                        className="btn blue-btn"
-                        disabled={true}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                          boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                          '&:hover': {
+                            background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                            boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+                          },
+                          '&:disabled': {
+                            background: theme.palette.grey[300],
+                            color: theme.palette.grey[500],
+                          }
+                        }}
                       >
                         {action === "add" ? "Submit" : "Update"}
-                      </button>
+                      </Button>
+                    )}
+                    {validate && (
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={true}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          background: theme.palette.grey[300],
+                          color: theme.palette.grey[500],
+                        }}
+                      >
+                        {action === "add" ? "Submit" : "Update"}
+                      </Button>
                     )}
                   </div>
                 </div>

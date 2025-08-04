@@ -1,12 +1,38 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import TableTitle from "../../Form/TableTitle";
-import DynamicTable from "../../Form/DynamicTable";
 import Search from "../../Form/Search";
-import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Box,
+  Chip,
+  IconButton,
+  Button,
+  TextField,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  Link as MuiLink,
+} from "@mui/material";
+import { 
+  Edit,
+  Delete as DeleteIcon,
+  Visibility,
+  ArrowUpward,
+  ArrowDownward,
+  Add,
+} from "@mui/icons-material";
 import {
   ApiLoder,
   Delete,
@@ -257,75 +283,358 @@ const handlesearchChange = (columnKey, value = null) => {
   return (
     <>
       {loder && <ApiLoder />}
-      <div>
-        <div className="contact-profile">
-          <div className="d-flex align-items-center justify-content-between mb-30">
+      <Box sx={{ p: 3 }}>
+        {/* Header Section */}
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          mb: 4 
+        }}>
             <TableTitle title="Manage Vendor Order" />
-            <div className="heading_width_search d-flex align-items-center gap-3">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {HasPermission("VendorOrderAdd") && (
-                <AddEditButton
-                  handleClick={() => {
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => {
                     setAction("add");
                     setOpen(true);
                   }}
-                  title="Add Vendor Order"
-                />
-              )}
-            </div>
-          </div>
+                sx={{
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 3,
+                  py: 1,
+                  boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+                  '&:hover': {
+                    boxShadow: '0 6px 16px rgba(25, 118, 210, 0.25)',
+                    transform: 'translateY(-1px)',
+                  },
+                }}
+              >
+                Add Vendor Order
+              </Button>
+            )}
+          </Box>
+        </Box>
 
-          <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-            <div className="filter-dropdown dropdown">
+        {/* Search and Filter Section */}
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center',
+          gap: 2,
+          mb: 4
+        }}>
+          <Box sx={{ flexGrow: 1, maxWidth: { xs: '100%', md: '300px' } }}>
               <Search handleSearch={handleSearch} />
-            </div>
-            <div className="filter-dropdown dropdown">
-              <select
-                className="form-select selectboxdropdown"
+          </Box>
+          <Box sx={{ minWidth: { xs: '100%', md: '200px' } }}>
+            <FormControl fullWidth variant="outlined" size="medium">
+              <InputLabel id="status-select-label">Status</InputLabel>
+              <Select
+                labelId="status-select-label"
+                id="status-select"
                 name="status"
                 value={filter.status}
                 onChange={handleChange}
+                label="Status"
+                sx={{
+                  borderRadius: '8px',
+                  height: "40px",
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6',
+                    },
+                  },
+                }}
               >
-                <option
-                  value="2"
-                  selected={"2" === filter.status ? true : false}
-                >
-                  Select Status
-                </option>
-                <option
-                  value={"1"}
-                  selected={"1" === filter.status ? true : false}
-                >
-                  Appoved
-                </option>
-                <option
-                  value={"0"}
-                  selected={"0" === filter.status ? true : false}
-                >
-                  Pending
-                </option>
-              </select>
-            </div>
-          </div>
+                <MenuItem value="2">Select Status</MenuItem>
+                <MenuItem value="1">Approved</MenuItem>
+                <MenuItem value="0">Pending</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
 
-          <div className="task_table mb-30">
-            <div className="table-responsive">
-              <DynamicTable
-                data={tenantList}
-                columns={columns}
-                title="Vendor Order"
-                edituser={handleedit}
-                handledelete={handledelete}
-                handlestatus={handlestatus}
-                deletepermission="VendorOrderDelete"
-                editpermission="VendorOrderEdit"
-                viewUser={handleview}
-                rowActions={["edit", "delete", "view"]}
-                 handleFilterSortChange={handleFilterSortChange}
-                sortColumn={filter.sortColumn}
-                sortDirection={filter.sortDirection}
-                columnFilters={filter.columnFilters}
-                handlesearchChange={handlesearchChange}
-              />
+        {/* Modern Table Section */}
+        <Box sx={{ width: '100%', overflow: 'hidden' }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              overflow: 'auto',
+              border: '1px solid #e3f2fd',
+              maxHeight: '70vh',
+              width: '100%',
+              '&::-webkit-scrollbar': {
+                height: '8px',
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f1f5f9',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#cbd5e1',
+                borderRadius: '4px',
+                '&:hover': {
+                  backgroundColor: '#94a3b8',
+                },
+              },
+            }}
+          >
+            <Table sx={{ minWidth: 1200 }} stickyHeader>
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.key}
+                      sx={{
+                        backgroundColor: '#f8fafc',
+                        fontWeight: 700,
+                        fontSize: '0.875rem',
+                        color: '#1e293b',
+                        borderBottom: '2px solid #e2e8f0',
+                        py: 2,
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 3,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="inherit" sx={{ fontWeight: 700 }}>
+                          {column.label}
+                        </Typography>
+                        {column.sort && (
+                          <IconButton
+                            size="small"
+                            onClick={() => handleFilterSortChange(column.key)}
+                            sx={{
+                              color: filter.sortColumn === column.key ? '#3b82f6' : '#94a3b8',
+                              '&:hover': { color: '#3b82f6' },
+                            }}
+                          >
+                            {filter.sortColumn === column.key && filter.sortDirection === 'desc' ? (
+                              <ArrowDownward fontSize="small" />
+                            ) : (
+                              <ArrowUpward fontSize="small" />
+                            )}
+                          </IconButton>
+                        )}
+                      </Box>
+                      {column.sort && (
+                        <TextField
+                          size="small"
+                          placeholder={`Search ${column.label.toLowerCase()}...`}
+                          variant="outlined"
+                          onChange={(e) => handlesearchChange(column.key, e.target.value)}
+                          value={filter.columnFilters?.find(f => f.field === column.key)?.value || ''}
+                          sx={{
+                            mt: 1,
+                            '& .MuiOutlinedInput-root': {
+                              height: '32px',
+                              fontSize: '0.75rem',
+                              borderRadius: '6px',
+                              backgroundColor: 'white',
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#3b82f6',
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#3b82f6',
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                  ))}
+                  <TableCell
+                    sx={{
+                      backgroundColor: '#f8fafc',
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      color: '#1e293b',
+                      borderBottom: '2px solid #e2e8f0',
+                      py: 2,
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 3,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tenantList && tenantList.length > 0 ? (
+                  tenantList.map((order, index) => (
+                    <TableRow
+                      key={order.vendorOrderId || index}
+                      sx={{
+                        '&:nth-of-type(odd)': {
+                          backgroundColor: '#fafbfc',
+                        },
+                        '&:hover': {
+                          backgroundColor: '#f1f5f9',
+                          transform: 'scale(1.001)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                        },
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <TableCell sx={{ py: 2 }}>
+                        <MuiLink
+                          component="button"
+                          variant="body2"
+                          onClick={() => handleview(order)}
+                          sx={{
+                            fontWeight: 600,
+                            color: '#3b82f6',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              textDecoration: 'underline',
+                              color: '#1d4ed8',
+                            },
+                          }}
+                        >
+                          {order.firstName}
+                        </MuiLink>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Typography variant="body2" sx={{ color: '#475569' }}>
+                          {order.jobName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Chip
+                          label={order.orderNumber}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#e0f2fe',
+                            color: '#0277bd',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: '#059669',
+                            fontWeight: 600,
+                            fontSize: '0.875rem',
+                          }}
+                        >
+                          ${order.totalAmount}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Typography variant="body2" sx={{ color: '#475569' }}>
+                          {order.orderDate}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Typography variant="body2" sx={{ color: '#475569' }}>
+                          {order.expectedDeliveryDate}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Typography variant="body2" sx={{ color: '#475569' }}>
+                          {order.actualDeliveryDate}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Chip
+                          label={order.vendorOrderStatus}
+                          size="small"
+                          sx={{
+                            backgroundColor: order.vendorOrderStatus === 'Approved' ? '#dcfce7' : '#fef3c7',
+                            color: order.vendorOrderStatus === 'Approved' ? '#16a34a' : '#d97706',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ py: 2, textAlign: 'center' }}>
+                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                          {HasPermission("VendorOrderEdit") && (
+                            <IconButton
+                              size="small"
+                              onClick={() => handleedit(order)}
+                              sx={{
+                                color: '#3b82f6',
+                                backgroundColor: '#eff6ff',
+                                '&:hover': {
+                                  backgroundColor: '#dbeafe',
+                                  transform: 'scale(1.1)',
+                                },
+                              }}
+                            >
+                              <Edit fontSize="small" />
+                            </IconButton>
+                          )}
+                          <IconButton
+                            size="small"
+                            onClick={() => handleview(order)}
+                            sx={{
+                              color: '#059669',
+                              backgroundColor: '#f0fdf4',
+                              '&:hover': {
+                                backgroundColor: '#dcfce7',
+                                transform: 'scale(1.1)',
+                              },
+                            }}
+                          >
+                            <Visibility fontSize="small" />
+                          </IconButton>
+                          {HasPermission("VendorOrderDelete") && (
+                            <IconButton
+                              size="small"
+                              onClick={() => handledelete(order)}
+                              sx={{
+                                color: '#ef4444',
+                                backgroundColor: '#fef2f2',
+                                '&:hover': {
+                                  backgroundColor: '#fee2e2',
+                                  transform: 'scale(1.1)',
+                                },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length + 1} sx={{ textAlign: 'center', py: 6 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                        <Typography variant="h6" sx={{ color: '#64748b', fontWeight: 600 }}>
+                          No vendor orders found
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+                          Try adjusting your search criteria or add a new vendor order
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Simple Vendor-style Pagination */}
               {tenantList && tenantList?.length > 0 && (
                 <div className="d-flex align-items-center justify-content-end bottom_nav">
                   <nav aria-label="Page navigation example">
@@ -343,28 +652,29 @@ const handlesearchChange = (columnKey, value = null) => {
                   </nav>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {open &&<VenderOrderAddEdit
+      {/* Modals */}
+      {open && (
+        <VenderOrderAddEdit
         open={open}
         handleclose={handleclose}
         action={action}
         LanguageListAPI={handleapi}
         object={object}
       />
-}
-    {delOpen &&  <Delete
+      )}
+      {delOpen && (
+        <Delete
         open={delOpen}
         handleClose={handledelclose}
-        title={object?.firstName +" " +object?.lastName}
+          title={object?.firstName + " " + object?.lastName}
         id={object?.vendorOrderId}
         handleDelete={handleDelete}
         loder={loder}
       />
-    }
+      )}
     </>
   );
 }

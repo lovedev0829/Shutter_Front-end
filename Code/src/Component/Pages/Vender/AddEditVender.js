@@ -6,7 +6,7 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { ErrorMessage, FormatPhoneNumber, SuccessMessage } from "../../../helpers/common";
 import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
+import { Button, Stack } from "@mui/material";
 import Allstate from "../../../helpers/Allstate";
 
 const AddEditVender = ({
@@ -332,26 +332,41 @@ const AddEditVender = ({
                 </div>
 
                 <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
+                  <Stack 
+                    direction="row" 
+                    spacing={2} 
+                    justifyContent="flex-end" 
+                    alignItems="center"
+                    sx={{ padding: '16px 24px' }}
+                  >
+                    <Button
+                      variant="text"
+                      color="primary"
                       onClick={() => {
                         setValue(defaultState);
                         handleclose();
                         simpleValidator.current.hideMessages();
                         forceUpdate();
                       }}
+                      sx={{
+                        textTransform: 'none',
+                        textDecoration: 'underline',
+                        fontWeight: 500,
+                        '&:hover': {
+                          textDecoration: 'underline',
+                          backgroundColor: 'transparent'
+                        }
+                      }}
                     >
                       Cancel
-                    </Link>
+                    </Button>
                     <SubmitButton
                       type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
+                      buttonName={action === "add" ? "Submit" : "Update"}
                       disabled={loader}
+                      loading={loader}
                     />
-                  </div>
+                  </Stack>
                 </div>
               </form>
             </div>

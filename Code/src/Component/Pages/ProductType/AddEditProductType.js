@@ -1,12 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dialog from "@mui/material/Dialog";
+import { 
+  Button, 
+  useTheme, 
+  alpha, 
+  TextField,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Typography,
+  Grid,
+  Box
+} from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
 import { ErrorMessage, SuccessMessage } from "../../../helpers/common";
-import SubmitButton from "../../Form/SubmitButton";
-import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
 
 const AddEditProductType = ({
   open,
@@ -20,6 +29,7 @@ const AddEditProductType = ({
     isDefault: false,
   };
 
+  const theme = useTheme();
   const [value, setValue] = useState(object ? object : defaultState);
   const [loader, setLoader] = useState(false);
   const simpleValidator = useRef(new SimpleReactValidator());
@@ -127,90 +137,125 @@ const AddEditProductType = ({
                     <div className="row">
                       <div className="col-lg-6 col-md-6">
                         <div className="form-group">
-                          <InputField
-                            labelName={"Name"}
-                            placeholderName={"Enter Name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"productName"}
-                            name={"productName"}
+                          <TextField
+                            fullWidth
+                            label="Name"
+                            size="medium"
+                            placeholder="Enter Name"
+                            variant="outlined"
+                            name="productName"
                             value={value.productName}
-                            required={true}
+                            onChange={handleChange}
+                            required
+                            error={!!simpleValidator.current.message("Name", value?.productName, "required")}
+                            helperText={simpleValidator.current.message("Name", value?.productName, "required")}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                '&:hover fieldset': {
+                                  borderColor: theme.palette.primary.main,
+                                },
+                              },
+                            }}
                           />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Name",
-                              value?.productName,
-                              "required"
-                            )}
-                          </div>
                         </div>
                       </div>
                       <div className="col-lg-6 col-md-6">
-                      <div className="form-group">
-                        <label className="font-14">Default Selected</label>
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="flexRadioDefault"
-                              id="flexRadioDefault2"
-                              value="true"
-                              checked={value.isDefault === true}
+                        <div className="form-group">
+                          <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                              Default Selected
+                            </Typography>
+                            <RadioGroup
+                              row
+                              value={value.isDefault.toString()}
                               onChange={handleRadioChange}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="flexRadioDefault2"
+                              sx={{
+                                '& .MuiFormControlLabel-root': {
+                                  marginRight: 3,
+                                }
+                              }}
                             >
-                              Yes
-                            </label>
-                          </div>
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="flexRadioDefault"
-                              id="flexRadioDefault1"
-                              value="false"
-                              checked={value.isDefault === false}
-                              onChange={handleRadioChange}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="flexRadioDefault1"
-                            >
-                              No
-                            </label>
-                          </div>
+                              <FormControlLabel
+                                value="true"
+                                control={
+                                  <Radio
+                                    sx={{
+                                      color: theme.palette.primary.main,
+                                      '&.Mui-checked': {
+                                        color: theme.palette.primary.main,
+                                      },
+                                    }}
+                                  />
+                                }
+                                label="Yes"
+                              />
+                              <FormControlLabel
+                                value="false"
+                                control={
+                                  <Radio
+                                    sx={{
+                                      color: theme.palette.primary.main,
+                                      '&.Mui-checked': {
+                                        color: theme.palette.primary.main,
+                                      },
+                                    }}
+                                  />
+                                }
+                                label="No"
+                              />
+                            </RadioGroup>
+                          </Box>
                         </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="modal-footer">
                   <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
+                    <Button
                       onClick={() => {
                         setValue(defaultState);
                         handleclose();
                         simpleValidator.current.hideMessages();
                         forceUpdate();
                       }}
+                      variant="outlined"
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        borderColor: theme.palette.grey[300],
+                        color: theme.palette.text.secondary,
+                        marginRight: 2,
+                        '&:hover': {
+                          borderColor: theme.palette.grey[400],
+                          backgroundColor: alpha(theme.palette.grey[100], 0.5),
+                        }
+                      }}
                     >
                       Cancel
-                    </Link>
-                    <SubmitButton
+                    </Button>
+                    <Button
                       type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
+                      variant="contained"
                       disabled={loader}
-                    />
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                        boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                        '&:hover': {
+                          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                          boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+                        },
+                        '&:disabled': {
+                          background: theme.palette.grey[300],
+                          color: theme.palette.grey[500],
+                        }
+                      }}
+                    >
+                      {action === "add" ? "Submit" : "Update"}
+                    </Button>
                   </div>
                 </div>
               </form>

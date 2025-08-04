@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import Dialog from "@mui/material/Dialog";
+import { 
+  Dialog,
+  DialogActions,
+  Button,
+  CircularProgress
+} from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -10,9 +15,7 @@ import {
   getHomeUrl,
   SuccessMessage,
 } from "../../../helpers/common";
-import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
 import { Eyeclose, Eyeopen } from "../../../SvgFile/Index";
 import { PostImage } from "../../../utils/apiCall";
 import Selectbox from "../../Form/Selectbox";
@@ -686,29 +689,42 @@ const AddEditTenent = ({
                   </div>
                 </div>
 
-                <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
-                      onClick={() => {
-                        setValue(defaultState);
-                        handleclose();
-                        simpleValidator.current.hideMessages();
-                        forceUpdate();
-                        setImage("");
-                      }}
-                    >
-                      Cancel
-                    </Link>
-                    <SubmitButton
-                      type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
-                      disabled={loader}
-                    />
-                  </div>
-                </div>
+                <DialogActions sx={{ px: 3, pb: 2, pt: 2 }}>
+                  <Button
+                    variant="text"
+                    onClick={() => {
+                      setValue(defaultState);
+                      handleclose();
+                      simpleValidator.current.hideMessages();
+                      forceUpdate();
+                      setImage("");
+                    }}
+                    sx={{ 
+                      textTransform: 'none',
+                      color: 'text.secondary',
+                      '&:hover': {
+                        backgroundColor: 'action.hover'
+                      }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={loader}
+                    startIcon={loader && <CircularProgress size={16} color="inherit" />}
+                    sx={{ 
+                      textTransform: 'none',
+                      minWidth: 100,
+                      '&:disabled': {
+                        opacity: 0.7
+                      }
+                    }}
+                  >
+                    {loader ? 'Processing...' : (action === "add" ? "Submit" : "Update")}
+                  </Button>
+                </DialogActions>
               </form>
             </div>
           </div>

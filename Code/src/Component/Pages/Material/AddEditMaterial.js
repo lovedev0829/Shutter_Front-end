@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dialog from "@mui/material/Dialog";
+import { Button, useTheme, alpha } from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -10,7 +11,6 @@ import {
 } from "../../../helpers/common";
 import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
 import GetAllVendorDropdown from "../../../helpers/GetAllVendorDropdown";
 import UnitofMesaurmentDropdown from "../../../helpers/UnitofMesaurmentDropdown";
 import ProductTypeDropdown from "../../../helpers/ProductTypeDropdown";
@@ -40,6 +40,7 @@ const AddEditMaterial = ({
     width: null,
   };
 
+  const theme = useTheme();
   const [value, setValue] = useState(object ? object : defaultState);
   const [loader, setLoader] = useState(false);
   const [vendor, setvendor] = useState(false);
@@ -482,28 +483,53 @@ const AddEditMaterial = ({
                   </div>
                 </div>
 
-                <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
-                      onClick={() => {
-                        setValue(defaultState);
-                        handleclose();
-                        simpleValidator.current.hideMessages();
-                        forceUpdate();
-                      }}
-                    >
-                      Cancel
-                    </Link>
-                    <SubmitButton
-                      type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
-                      disabled={loader}
-                    />
-                  </div>
-                </div>
+                  <div className="modal-footer">
+                   <div className="form-style form-group d-flex align-items-center justify-content-end">
+                     <Button
+                       onClick={() => {
+                         setValue(defaultState);
+                         handleclose();
+                         simpleValidator.current.hideMessages();
+                         forceUpdate();
+                       }}
+                       variant="outlined"
+                       sx={{
+                         textTransform: 'none',
+                         fontWeight: 600,
+                         borderColor: theme.palette.grey[300],
+                         color: theme.palette.text.secondary,
+                         marginRight: 2,
+                         '&:hover': {
+                           borderColor: theme.palette.grey[400],
+                           backgroundColor: alpha(theme.palette.grey[100], 0.5),
+                         }
+                       }}
+                     >
+                       Cancel
+                     </Button>
+                     <Button
+                       type="submit"
+                       variant="contained"
+                       disabled={loader}
+                       sx={{
+                         textTransform: 'none',
+                         fontWeight: 600,
+                         background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                         boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                         '&:hover': {
+                           background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                           boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+                         },
+                         '&:disabled': {
+                           background: theme.palette.grey[300],
+                           color: theme.palette.grey[500],
+                         }
+                       }}
+                     >
+                       {action === "add" ? "Submit" : "Update"}
+                     </Button>
+                   </div>
+                 </div>
               </form>
             </div>
           </div>
