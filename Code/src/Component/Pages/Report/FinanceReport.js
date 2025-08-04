@@ -1,10 +1,33 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
+import { 
+  Box, 
+  Paper, 
+  Typography, 
+  TextField, 
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  CircularProgress,
+  Stack,
+  Card,
+  CardContent,
+  InputAdornment,
+  useTheme
+} from "@mui/material";
+import {
+  CalendarToday as CalendarIcon,
+  DateRange as DateRangeIcon
+} from "@mui/icons-material";
 import TableTitle from "../../Form/TableTitle";
 import Search from "../../Form/Search";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
 import { ApiLoder } from "../../../helpers/common";
 import { useDebounce } from "use-debounce";
 import ReportFilter from "./ReportFilter";
@@ -13,6 +36,7 @@ import { defaultConfig } from "../../../config";
 import ExportFile from "../../../helpers/ExportFile";
 
 export default function FinanceReport() {
+  const theme = useTheme();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
@@ -20,11 +44,12 @@ export default function FinanceReport() {
   const [search, setsearch] = useState("");
   const [loder, setLoader] = useState(false);
   const [debouncedSearch] = useDebounce(search, 500);
-   const [filter, setFilter] = useState({ toDate: null, formDate: null });
+  const [filter, setFilter] = useState({ toDate: null, formDate: null });
   const [value, setValue] = useState({
     orderStatus: 0,
     orderReport: "Outstanding Invoice",
   });
+  
   const JobStatus = [
     {
       jobStatusId: 0,
@@ -42,31 +67,36 @@ export default function FinanceReport() {
       isActive: true,
     },
   ];
+
   const handleSearch = (value) => {
     setsearch(value);
   };
+
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(newPage + 1, rowsPerPage, search, value.orderStatus,filter.toDate,filter.formDate);
+    TenantlistAPI(newPage + 1, rowsPerPage, search, value.orderStatus, filter.toDate, filter.formDate);
     setPage(newPage + 1);
   };
+
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
     TenantlistAPI(
       pageNo,
       parseInt(event.target.value, 10),
       search,
-      value.orderStatus,filter.toDate
+      value.orderStatus,
+      filter.toDate
     );
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
-  const TenantlistAPI = async (page, perpage, serach, Type,toDate,formDate) => {
+
+  const TenantlistAPI = async (page, perpage, serach, Type, toDate, formDate) => {
     let query = {
       searchValue: serach ? serach : "",
       pageNo: page ? page : 1,
       recordPerPage: perpage ? perpage : 10,
-      toDate: toDate?toDate:null,
-      formDate:formDate?formDate: null,
+      toDate: toDate ? toDate : null,
+      formDate: formDate ? formDate : null,
       status: 2,
     };
     setLoader(true);
@@ -88,8 +118,9 @@ export default function FinanceReport() {
       setLoader(false);
     }
   };
+
   useEffect(() => {
-    TenantlistAPI(1, rowsPerPage, debouncedSearch, value.orderStatus,filter.toDate,filter.formDate);
+    TenantlistAPI(1, rowsPerPage, debouncedSearch, value.orderStatus, filter.toDate, filter.formDate);
     setPage(1);
     // eslint-disable-next-line
   }, [debouncedSearch]);
@@ -98,18 +129,26 @@ export default function FinanceReport() {
     setValue((val) => {
       return { ...val, orderStatus: value, orderReport: name };
     });
-    TenantlistAPI(1, rowsPerPage, search, value,filter.toDate,filter.formDate);
+    TenantlistAPI(1, rowsPerPage, search, value, filter.toDate, filter.formDate);
     setPage(1);
   };
+
   const handleChange = (e) => {
     let pageNo = 1;
-    TenantlistAPI(pageNo, rowsPerPage, search,value.orderStatus, e.target.name === "toDate" ? e.target.value : filter.toDate,e.target.name === "formDate" ? e.target.value : filter.formDate
+    TenantlistAPI(
+      pageNo,
+      rowsPerPage,
+      search,
+      value.orderStatus,
+      e.target.name === "toDate" ? e.target.value : filter.toDate,
+      e.target.name === "formDate" ? e.target.value : filter.formDate
     );
-    setPage(1)
+    setPage(1);
     setFilter((val) => {
-        return { ...val, [e.target.name]: e.target.value };
+      return { ...val, [e.target.name]: e.target.value };
     });
-};
+  };
+
   return (
     <>
       {loder && <ApiLoder />}
@@ -118,167 +157,247 @@ export default function FinanceReport() {
         value={value}
         JobStatus={JobStatus}
       />
-      <div className="contact-profile">
-        <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-          <TableTitle
-            title={`${
-              value.orderReport ? value.orderReport : "All Finance Report"
-            }`}
-          />
-          <div className="heading_width_search d-flex align-items-center gap-3">
-            <div className="greencolor">
-              Total Number Of{" "}
-              {value.orderReport ? value.orderReport : "All Finance Report"}:{" "}
-              {paginatedItems}
-            </div>
-          </div>
-        </div>
-        <div className="d-block d-md-flex align-items-center gap-2  justify-content-between">
-          <div className="d-block d-md-flex gap-2 mb-30 ">
-            <div className="filter-dropdown dropdown ">
+      
+      <Paper sx={{ width: '100%', mb: 3 }}>
+        <Box sx={{ p: 3 }}>
+          {/* Header Section */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography 
+              variant="h5" 
+              component="h2" 
+              sx={{ 
+                fontWeight: 600,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
+              {value.orderReport ? value.orderReport : "All Finance Report"}
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'success.main', 
+                fontWeight: 500,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+              }}
+            >
+              Total Number Of {value.orderReport ? value.orderReport : "All Finance Report"}: {paginatedItems}
+            </Typography>
+          </Box>
+
+          {/* Filters Section */}
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
+            <Box sx={{ flexGrow: 1 }}>
               <Search handleSearch={handleSearch} />
-            </div>
-             <div className="filter-dropdown dropdown ">
-              <div className="position-relative calender-input">
-                <input
-                  style={{ color: "white" }}
-                  type="date"
-                  onChange={handleChange}
-                  className="form-control selectboxdropdown"
-                  name="formDate"
-                  value={moment(filter.formDate).format("YYYY-MM-DD") || ""}
-                />
-                <span
-                  style={{
-                    position: "absolute",
-                    left: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "#212529",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {filter.formDate ? moment(filter.formDate).format("MM-DD-YYYY") : "From Date"}
-                </span>
-                <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-              </div>
-            </div>
-            <div className="filter-dropdown dropdown ">
-              <div className="position-relative calender-input">
-                <input
-                  style={{ color: "white" }}
-                  type="date"
-                  onChange={handleChange}
-                  className="form-control selectboxdropdown"
-                  name="toDate"
-                  value={moment(filter.toDate).format("YYYY-MM-DD") || ""}
-                />
-                <span
-                  style={{
-                    position: "absolute",
-                    left: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "#212529",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {filter.toDate ? moment(filter.toDate).format("MM-DD-YYYY") : "To Date"}
-                </span>
-                <img src="/image/calendar-alt.svg" alt="" loading="lazy" style={{top:"4px"}}/>
-              </div>
-            </div>
-           
-          </div>
-          <div className="d-flex gap-2 mb-30 justify-content-between">
-            {/* <div className="btn blue-btn small_btn">
-              <PrintSvg />
-              <Link to="#">Print</Link>
-            </div> */}
-            <div className="btn blue-btn small_btn">
-               <ExportFile type="invoice"  serach={search} page={page} perpage={rowsPerPage}  status={"2"} Url={apiUrls.ExportContacts} toDate={filter.toDate} formDate={filter.formDate} filterType={value.orderStatus}/>
-            </div>
-          </div>
-        </div>
-        <div className="estimate-table task_table mb-30">
-          <div className="table-responsive">
-            <table className="table jobscheduletable">
-              <thead>
-                <tr>
-                  <th scope="col">Invoice Number</th>
-                  <th scope="col">Contact Name</th>
-                  <th scope="col">Invoice Date</th>
-                  <th scope="col">Due Date</th>
-                  <th scope="col" style={{ whiteSpace: "nowrap" }}>
+            </Box>
+            
+            <TextField
+              size="small"
+              type="date"
+              name="formDate"
+              label="From Date"
+              value={filter.formDate ? moment(filter.formDate).format("YYYY-MM-DD") : ""}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                },
+                '& input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                }
+              }}
+            />
+            
+            <TextField
+              size="small"
+              type="date"
+              name="toDate"
+              label="To Date"
+              value={filter.toDate ? moment(filter.toDate).format("YYYY-MM-DD") : ""}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <DateRangeIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                minWidth: 180,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                },
+                '& input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontWeight: 500,
+                }
+              }}
+            />
+
+            <ExportFile 
+              type="invoice"  
+              serach={search} 
+              page={page} 
+              perpage={rowsPerPage}  
+              status={"2"} 
+              Url={apiUrls.ExportContacts} 
+              toDate={filter.toDate} 
+              formDate={filter.formDate}
+            />
+          </Stack>
+
+          {/* Table Section */}
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Invoice Number
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Contact Name
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Invoice Date
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
+                    Due Date
+                  </TableCell>
+                  <TableCell sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
                     Due Amount
-                  </th>
-                  <th scope="col" className="text-end actionheading">
+                  </TableCell>
+                  <TableCell align="right" sx={{ 
+                    fontWeight: 600,
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                  }}>
                     Total Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {tenantList?.map((val, i) => (
-                  <tr key={i}>
-                    <td>{val?.invoiceNumber}</td>
-                    <td>{val?.contactFirstName + " " + val?.contactLastName+ " " + (val?.suffix ?? "") }</td>
-                    <td>{moment(val?.issueDate).format("MM-DD-YYYY")}</td>
-                    <td
-                      style={{
-                        color: moment(val?.dueDate).isSame(moment(), "day")
-                          ? "red"
-                          : "inherit",
+                  <TableRow key={i} hover>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.invoiceNumber}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {val?.contactFirstName + " " + val?.contactLastName + " " + (val?.suffix ?? "")}
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {moment(val?.issueDate).format("MM-DD-YYYY")}
+                    </TableCell>
+                    <TableCell 
+                      sx={{
+                        color: moment(val?.dueDate).isSame(moment(), "day") ? "error.main" : "inherit",
+                        fontWeight: moment(val?.dueDate).isSame(moment(), "day") ? 600 : 400,
+                        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
                       }}
                     >
                       {moment(val?.dueDate).format("MM-DD-YYYY")}
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
                       {defaultConfig.currencySign} {val?.balanceDue}
-                    </td>
-                    <td>
-                      {" "}
-                      <span className="d-flex align-items-center justify-content-end gap-3">
-                        {defaultConfig.currencySign} {val?.totalAmount}
-                      </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                      {defaultConfig.currencySign} {val?.totalAmount}
+                    </TableCell>
+                  </TableRow>
                 ))}
-
+                
                 {(!tenantList || tenantList?.length === 0) && (
-                  <tr>
-                    <td className="text-center border-0 no-records" colSpan={7}>
-                      <img
-                        src="/image/no-records.svg"
-                        alt=" "
-                        loading="lazy"
-                        className="img-fluid"
-                      />
-                      <p className="font-14">No Finance Report</p>
-                    </td>
-                  </tr>
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <img
+                          src="/image/no-records.svg"
+                          alt="No records"
+                          loading="lazy"
+                          style={{ width: 120, marginBottom: 16 }}
+                        />
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}
+                        >
+                          No Finance Report
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
-            {tenantList && tenantList?.length > 0 && (
-              <div className="d-flex align-items-center justify-content-end bottom_nav">
-                <nav aria-label="Page navigation example">
-                  <ul className="pagination">
-                    <TablePagination
-                      rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                      component="div"
-                      count={paginatedItems}
-                      rowsPerPage={rowsPerPage}
-                      page={page - 1}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                  </ul>
-                </nav>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Pagination */}
+          {tenantList && tenantList?.length > 0 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 25, 100]}
+              component="div"
+              count={paginatedItems}
+              rowsPerPage={rowsPerPage}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                }
+              }}
+            />
+          )}
+        </Box>
+      </Paper>
     </>
   );
 }

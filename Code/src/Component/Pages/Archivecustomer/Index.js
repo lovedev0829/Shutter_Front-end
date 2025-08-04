@@ -2,7 +2,24 @@ import { Link } from "react-router-dom";
 import Header from "../../../Layout/header";
 import TableTitle from "../../Form/TableTitle";
 import Search from "../../Form/Search";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Box,
+  Chip,
+  Button,
+  TextField,
+  IconButton,
+  Link as MuiLink
+} from "@mui/material";
+import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { callAPI } from "../../../utils/apiUtils";
@@ -254,176 +271,383 @@ export default function Index() {
                   <StatusDropdown value={filter.status} fn={handleChange} />
                 </div>
               </div>
-              <Link
-                to="#"
-                className="btn blue-btn small_btn"
+              <Button
+                variant="contained"
                 onClick={() => {
                   setApproved(true);
                   setObject("");
                 }}
+                sx={{
+                  backgroundColor: '#1976d2',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  padding: '8px 16px',
+                  boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
+                  '&:hover': {
+                    backgroundColor: '#1565c0',
+                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)',
+                  },
+                }}
               >
                 Archive All Inactive
-              </Link>
+              </Button>
             </div>
 
-            <div className="table-responsive">
-              <table className="table">
-                <thead>
-                  <tr>
-                    {columns.map((val, i) => (
-                      <th
-                        scope="col"
-                        key={i}
-                        style={{ verticalAlign: "top", whiteSpace: "nowrap" }}
-                      >
-                        {val.label}
-                        {val.sort && filter.sortColumn === val.key && (
-                          <span
-                            className="ascen-descending"
-                            onClick={() =>
-                              val.sort ? handleFilterSortChange(val.key) : null
-                            }
-                          >
-                            {filter.sortDirection === "asc" ? (
-                              <img src="/image/ascending.png" alt=""></img>
-                            ) : (
-                              <img src="/image/descending.png" alt=""></img>
-                            )}
-                          </span>
-                        )}
-
-                        {val.sort && filter.sortColumn !== val.key && (
-                          <span
-                            className="ascen-descending"
-                            onClick={() =>
-                              val.sort ? handleFilterSortChange(val.key) : null
-                            }
-                          >
-                            <img src="/image/ascending.png" alt=""></img>
-                          </span>
-                        )}
-
-                        {val.sort && (
-                          <input
-                            type="text"
-                            className="form-control new-search-input"
-                            name="suffix"
-                            placeholder="Search here"
-                            value={
-                              filter.columnFilters.find(
-                                (f) => f.field === val.key
-                              )?.value || ""
-                            }
-                            onChange={(e) =>
-                              handlesearchChange(val.key, e.target.value)
-                            }
-                          ></input>
-                        )}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tenantList?.map((val, i) => (
-                    <tr key={i}>
-                      {val.isArchive ? (
-                        <td>{val?.contactUniqueId}</td>
-                      ) : (
-                        <td>
-                          <Link
-                            onClick={() => {
-                              localStorage.setItem(
-                                "activeTab2",
-                                "#pills-overview"
-                              );
-                            }}
-                            className="color-blue"
-                            to={`/contacts/detail/${val.contactId}`}
-                           
-                          >
-                            {val?.contactUniqueId}
-                          </Link>{" "}
-                        </td>
-                      )}
-
-                      <td style={{ color: val.isArchive ? "red" : "" }}>
-                        {val?.firstName +
-                          " " +
-                          val?.lastName +
-                          " " +
-                          (val?.suffix ?? "")}
-                      </td>
-
-                      <td>{val?.contactType}</td>
-
-                      <td>{val?.billingAddressVm?.streetAddress}</td>
-                      <td>{val?.billingAddressVm?.city}</td>
-                      <td>{val?.billingAddressVm?.state}</td>
-                      <td>{val?.billingAddressVm?.zipCode}</td>
-                      <td>
-                        {moment(val?.createdAt).format("MM-DD-YYYY") || ""}
-                      </td>
-                      <td>
-                        <span
-                          className={`tags ${
-                            val?.isActive ? "active" : "inactive"
-                          }-tag`}
+            <Box sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+              <TableContainer 
+                component={Paper} 
+                sx={{
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  border: '1px solid #e3f2fd',
+                  maxHeight: '70vh',
+                  width: '100%',
+                  maxWidth: 'calc(100vw - 300px)',
+                  display: 'block',
+                  '&::-webkit-scrollbar': {
+                    height: '8px',
+                    width: '8px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    backgroundColor: '#f1f5f9',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: '#cbd5e1',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      backgroundColor: '#94a3b8',
+                    },
+                  },
+                }}
+              >
+                <Table sx={{ minWidth: '100%', width: 'max-content', tableLayout: 'auto' }}>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                      {columns.map((val, i) => (
+                        <TableCell
+                          key={i}
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '0.875rem',
+                            color: '#374151',
+                            borderBottom: '2px solid #e5e7eb',
+                            backgroundColor: '#f8fafc',
+                            padding: '16px 12px',
+                            whiteSpace: 'nowrap',
+                            minWidth: val.key === 'contactUniqueId' ? 120 : 
+                                    val.key === 'firstName' ? 150 : 
+                                    val.key === 'streetAddress' ? 180 : 
+                                    val.key === 'contactType' ? 100 : 120,
+                          }}
                         >
-                          {val?.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td>
-                        {!val.isArchive && !val?.isActive && (
-                          <Link
-                            to="#"
-                            className="btn blue-btn small_btn"
-                            onClick={() => {
-                              setApproved(true);
-                              setObject(val);
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#374151' }}>
+                                {val.label}
+                              </Typography>
+                              {val.sort && (
+                                <IconButton
+                                  size="small"
+                                  onClick={() => val.sort ? handleFilterSortChange(val.key) : null}
+                                  sx={{
+                                    padding: '2px',
+                                    '&:hover': {
+                                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    },
+                                  }}
+                                >
+                                  {filter.sortColumn === val.key ? (
+                                    filter.sortDirection === "asc" ? (
+                                      <ArrowUpward sx={{ fontSize: 16, color: '#3b82f6' }} />
+                                    ) : (
+                                      <ArrowDownward sx={{ fontSize: 16, color: '#3b82f6' }} />
+                                    )
+                                  ) : (
+                                    <ArrowUpward sx={{ fontSize: 16, color: '#9ca3af' }} />
+                                  )}
+                                </IconButton>
+                              )}
+                            </Box>
+                            {val.sort && (
+                              <TextField
+                                size="small"
+                                placeholder="Search here"
+                                value={
+                                  filter.columnFilters.find(
+                                    (f) => f.field === val.key
+                                  )?.value || ""
+                                }
+                                onChange={(e) =>
+                                  handlesearchChange(val.key, e.target.value)
+                                }
+                                sx={{
+                                  '& .MuiOutlinedInput-root': {
+                                    height: '32px',
+                                    fontSize: '0.75rem',
+                                    backgroundColor: 'white',
+                                    '& fieldset': {
+                                      borderColor: '#d1d5db',
+                                    },
+                                    '&:hover fieldset': {
+                                      borderColor: '#3b82f6',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                      borderColor: '#3b82f6',
+                                    },
+                                  },
+                                  '& .MuiOutlinedInput-input': {
+                                    padding: '6px 8px',
+                                  },
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {tenantList?.map((val, i) => (
+                      <TableRow 
+                        key={i}
+                        sx={{
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: '#fafbfc',
+                          },
+                          '&:hover': {
+                            backgroundColor: '#f0f9ff',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                          },
+                          transition: 'all 0.2s ease-in-out',
+                        }}
+                      >
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          {val.isArchive ? (
+                            <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 500 }}>
+                              {val?.contactUniqueId}
+                            </Typography>
+                          ) : (
+                            <MuiLink
+                              component={Link}
+                              onClick={() => {
+                                localStorage.setItem(
+                                  "activeTab2",
+                                  "#pills-overview"
+                                );
+                              }}
+                              to={`/contacts/detail/${val.contactId}`}
+                              sx={{
+                                color: '#3b82f6',
+                                textDecoration: 'none',
+                                fontWeight: 600,
+                                '&:hover': {
+                                  color: '#1d4ed8',
+                                  textDecoration: 'underline',
+                                },
+                              }}
+                            >
+                              {val?.contactUniqueId}
+                            </MuiLink>
+                          )}
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: val.isArchive ? '#ef4444' : '#374151',
+                              fontWeight: 500 
                             }}
                           >
-                            Archive
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {(!tenantList || tenantList?.length === 0) && (
-                    <tr>
-                      <td
-                        className="text-center border-0 no-records"
-                        colSpan={12}
-                      >
-                        <img
-                          src="/image/no-records.svg"
-                          alt=" "
-                          loading="lazy"
-                          className="img-fluid"
-                        />
-                        <p className="font-14">No Archive Customer Found</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                            {val?.firstName +
+                              " " +
+                              val?.lastName +
+                              " " +
+                              (val?.suffix ?? "")}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                            {val?.contactType}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                            {val?.billingAddressVm?.streetAddress}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                            {val?.billingAddressVm?.city}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                            {val?.billingAddressVm?.state}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                            {val?.billingAddressVm?.zipCode}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 500 }}>
+                            {moment(val?.createdAt).format("MM-DD-YYYY") || ""}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          <Chip
+                            label={val?.isActive ? "Active" : "Inactive"}
+                            size="small"
+                            sx={{
+                              backgroundColor: val?.isActive ? '#dcfce7' : '#fee2e2',
+                              color: val?.isActive ? '#166534' : '#991b1b',
+                              fontWeight: 600,
+                              fontSize: '0.75rem',
+                              height: '24px',
+                              '& .MuiChip-label': {
+                                padding: '0 8px',
+                              },
+                            }}
+                          />
+                        </TableCell>
+
+                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                          {!val.isArchive && !val?.isActive && (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => {
+                                setApproved(true);
+                                setObject(val);
+                              }}
+                              sx={{
+                                backgroundColor: '#3b82f6',
+                                color: 'white',
+                                borderRadius: '6px',
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                fontSize: '0.75rem',
+                                padding: '4px 12px',
+                                minWidth: 'auto',
+                                boxShadow: '0 1px 3px rgba(59, 130, 246, 0.3)',
+                                '&:hover': {
+                                  backgroundColor: '#2563eb',
+                                  boxShadow: '0 2px 6px rgba(59, 130, 246, 0.4)',
+                                },
+                              }}
+                            >
+                              Archive
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!tenantList || tenantList?.length === 0) && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          sx={{
+                            textAlign: 'center',
+                            padding: '40px 20px',
+                            borderBottom: 'none',
+                          }}
+                        >
+                          <Paper
+                            elevation={0}
+                            sx={{
+                              padding: '24px',
+                              backgroundColor: '#f9fafb',
+                              border: '2px dashed #d1d5db',
+                              borderRadius: '12px',
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                              <img
+                                src="/image/no-records.svg"
+                                alt="No records"
+                                loading="lazy"
+                                style={{ width: '64px', height: '64px', opacity: 0.5 }}
+                              />
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  color: '#6b7280',
+                                  fontWeight: 500,
+                                  fontSize: '0.875rem',
+                                }}
+                              >
+                                No Archive Customer Found
+                              </Typography>
+                            </Box>
+                          </Paper>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              
               {tenantList && tenantList?.length > 0 && (
-                <div className="d-flex align-items-center justify-content-end bottom_nav">
-                  <nav aria-label="Page navigation example">
-                    <ul className="pagination">
-                      <TablePagination
-                        rowsPerPageOptions={[10, 25, 50, 100]}
-                        component="div"
-                        count={paginatedItems}
-                        rowsPerPage={rowsPerPage}
-                        page={page - 1}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </ul>
-                  </nav>
-                </div>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'flex-end', 
+                  mt: 2,
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  p: 1
+                }}>
+                  <TablePagination
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    component="div"
+                    count={paginatedItems}
+                    rowsPerPage={rowsPerPage}
+                    page={page - 1}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    sx={{
+                      '& .MuiTablePagination-toolbar': {
+                        minHeight: '52px',
+                      },
+                      '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                        fontSize: '0.875rem',
+                        color: '#374151',
+                        fontWeight: 500,
+                      },
+                      '& .MuiTablePagination-select': {
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                      },
+                      '& .MuiIconButton-root': {
+                        color: '#6b7280',
+                        '&:hover': {
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151',
+                        },
+                        '&.Mui-disabled': {
+                          color: '#d1d5db',
+                        },
+                      },
+                    }}
+                  />
+                </Box>
               )}
-            </div>
+            </Box>
           </div>
         </div>
       </div>

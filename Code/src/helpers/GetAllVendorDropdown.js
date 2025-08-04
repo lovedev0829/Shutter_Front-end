@@ -1,7 +1,30 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { FormControl, Select, MenuItem, InputLabel, CircularProgress, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
-import { SelectBoxLoader } from "./common";
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  minWidth: 180,
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: '#fff',
+    borderRadius: theme.spacing(1),
+    '&:hover': {
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+    '&.Mui-focused': {
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+  },
+  '& .MuiInputBase-input': {
+    padding: '10px 12px',
+    fontSize: '14px',
+  },
+}));
 
 export default function GetAllVendorDropdown({ value = "", fn, load, className = null, name = "vendorId" }) {
   const [countryList, setCountryList] = useState([]);
@@ -28,25 +51,48 @@ export default function GetAllVendorDropdown({ value = "", fn, load, className =
 
 
   return (
-    <div className="position-relative">
-      {show && <SelectBoxLoader />}
-      <select value={value}
-        className={`form-select ${className}`}
-        name={name}
-        onChange={(e) => {
-          if (fn) fn(e);
-        }}
+    <Box sx={{ position: 'relative' }}>
+      {show && (
+        <Box 
+          sx={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)', 
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <CircularProgress size={20} />
+        </Box>
+      )}
+      <StyledFormControl 
+        size="small" 
+        variant="outlined" 
+        disabled={show}
+        className={className}
       >
-        <option value="">Select Vendor</option>
-        {countryList?.map((item, i) => {
-          return (
-
-            <option key={i} value={item?.vendorId} selected={item?.vendorId === value ? true : false}>{item?.companyName}</option>
-
-          );
-        })}
-      </select>
-    </div>
+        <InputLabel id="vendor-select-label">Select Vendor</InputLabel>
+        <Select
+          labelId="vendor-select-label"
+          name={name}
+          value={value}
+          label="Select Vendor"
+          onChange={(e) => {
+            if (fn) fn(e);
+          }}
+        >
+          <MenuItem value="">Select Vendor</MenuItem>
+          {countryList?.map((item, i) => (
+            <MenuItem key={i} value={item?.vendorId}>
+              {item?.companyName}
+            </MenuItem>
+          ))}
+        </Select>
+      </StyledFormControl>
+    </Box>
   );
 }
 

@@ -12,18 +12,47 @@ import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
 import WindowTable from "../Window/WindowTable";
 import EstimateList from "../Estimate/EstimateList";
-import Tablist2 from "../../Form/Tablist2";
 import OrderList from "../Orders/OrderList";
 import JobTab from "../../Form/JobTab";
 import InvoiceList from "../Invoice/InvoiceList";
 import Jobschedulelist from "../Jobschedule/Jobschedulelist";
 import JobContactList from "../JobContact/JobContactList";
 import AllDocumentlist from "../Documentupload/AllDocumentlist";
+// Material UI Imports
+import {
+  Box,
+  Container,
+  Paper,
+  Tabs,
+  Tab,
+  Typography,
+  Grid,
+  IconButton,
+  useTheme,
+  Card,
+  CardContent,
+  Divider,
+  Chip,
+  Avatar,
+  Fade,
+  Slide
+} from "@mui/material";
+import {
+  ArrowBack as ArrowBackIcon,
+  ViewModule as WindowIcon,
+  Receipt as EstimateIcon,
+  ShoppingCart as OrderIcon,
+  Payment as InvoiceIcon,
+  Schedule as ScheduleIcon,
+  People as ContactsIcon,
+  Description as DocumentsIcon
+} from "@mui/icons-material";
 
 export default function JobDetiels() {
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [tabdata, setTabdata] = useState("#window-measurement");
+  const theme = useTheme();
 
   const navigate = useNavigate();
   const param = useParams();
@@ -66,41 +95,61 @@ export default function JobDetiels() {
     // eslint-disable-next-line
   }, []);
 
+  const getTabIcon = (id) => {
+    switch (id) {
+      case "#window-measurement": return <WindowIcon />;
+      case "#estimate": return <EstimateIcon />;
+      case "#orders": return <OrderIcon />;
+      case "#invoice": return <InvoiceIcon />;
+      case "#jobscheduletab": return <ScheduleIcon />;
+      case "#contacttab": return <ContactsIcon />;
+      case "#documenttab": return <DocumentsIcon />;
+      default: return null;
+    }
+  };
+
   const Tablist = [
     HasPermission("WindowView") && {
       status: true,
       id: "#window-measurement",
       title: "Window Measurements",
+      icon: getTabIcon("#window-measurement"),
     },
     HasPermission("EstimateView") && {
       status: false,
       id: "#estimate",
       title: "Estimate",
+      icon: getTabIcon("#estimate"),
     },
     HasPermission("OrderView") && {
       status: false,
       id: "#orders",
       title: "Orders",
+      icon: getTabIcon("#orders"),
     },
     HasPermission("InvoiceView") && {
       status: false,
       id: "#invoice",
       title: "Invoice",
+      icon: getTabIcon("#invoice"),
     },
     HasPermission("JobScheduleView") && {
       status: false,
       id: "#jobscheduletab",
       title: "Job Schedule",
+      icon: getTabIcon("#jobscheduletab"),
     },
     HasPermission("JobContactView") && {
       status: false,
       id: "#contacttab",
       title: "Contacts",
+      icon: getTabIcon("#contacttab"),
     },
     HasPermission("JobContactView") && {
       status: false,
       id: "#documenttab",
       title: "Documents",
+      icon: getTabIcon("#documenttab"),
     },
   ].filter(Boolean);
 
@@ -108,6 +157,21 @@ export default function JobDetiels() {
 
   const handleGettab = (value) => {
     setTabdata(value || Tablist[0].id);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    const selectedTab = Tablist[newValue];
+    setTabdata(selectedTab.id);
+    localStorage.setItem("activeTab", selectedTab.id);
+  };
+
+  const getCurrentTabIndex = () => {
+    return Tablist.findIndex(tab => tab.id === tabdata);
+  };
+
+  const getCurrentTabTitle = () => {
+    const currentTab = Tablist.find(tab => tab.id === tabdata);
+    return currentTab?.title || 'Details';
   };
 
   return (
@@ -124,140 +188,258 @@ export default function JobDetiels() {
           }`}
         />
 
-        <div className="body_content">
-          <div className="contact-profile">
-            <div className="engage-tabs">
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <JobTab contactId={tenantList[0]?.contactId} />
-              </ul>
+        <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
+          {/* Modern Header Card */}
+          <Card 
+            elevation={0}
+            sx={{ 
+              mb: 3,
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 3,
+              background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
+            }}
+          >
+            <CardContent sx={{ p: 4 }}>
+                             {/* Job Tab Navigation */}
+               <Box sx={{ mb: 4 }}>
+                 <JobTab contactId={tenantList[0]?.contactId} />
+               </Box>
 
-              <div className="row">
-                <BackButton
-                  link={`/contacts/detail/${tenantList[0]?.contactId}`}
+              {/* Modern Back Button */}
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                <IconButton
+                  onClick={() => navigate(`/contacts/detail/${tenantList[0]?.contactId}`)}
+                  sx={{
+                    mr: 2,
+                    backgroundColor: theme.palette.primary.main,
+                    color: 'white',
+                    width: 48,
+                    height: 48,
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.dark,
+                      transform: 'translateX(-2px)',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                    boxShadow: `0 4px 12px ${theme.palette.primary.main}30`,
+                  }}
+                >
+                  <ArrowBackIcon />
+                </IconButton>
+                <Box>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 600,
+                      color: theme.palette.text.primary,
+                      mb: 0.5
+                    }}
+                  >
+                    Back to Contact Details
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Return to main contact information
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Enhanced Job Info Card */}
+              <Card 
+                elevation={0}
+                sx={{ 
+                  backgroundColor: 'white',
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: 2,
+                  overflow: 'hidden'
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <JobUi tenantList={tenantList[0]} />
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+
+          {/* Main Content Card */}
+          <Card 
+            elevation={0}
+            sx={{ 
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 3,
+              overflow: 'hidden',
+              background: 'white'
+            }}
+          >
+            {/* Modern Tab Header */}
+            <Box 
+              sx={{ 
+                background: `linear-gradient(90deg, ${theme.palette.primary.main}08 0%, ${theme.palette.primary.main}04 100%)`,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                px: 3,
+                pt: 2
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Avatar 
+                    sx={{ 
+                      backgroundColor: theme.palette.primary.main,
+                      mr: 2,
+                      width: 32,
+                      height: 32
+                    }}
+                  >
+                    {getTabIcon(tabdata)}
+                  </Avatar>
+                  <Typography 
+                    variant="h5" 
+                    sx={{ 
+                      fontWeight: 600,
+                      color: theme.palette.text.primary
+                    }}
+                  >
+                    {getCurrentTabTitle()}
+                  </Typography>
+                </Box>
+                <Chip 
+                  label={`${Tablist.length} Sections`}
+                  size="small"
+                  sx={{ 
+                    backgroundColor: theme.palette.primary.main,
+                    color: 'white',
+                    fontWeight: 500
+                  }}
                 />
-                <div className="col-lg-12">
-                  <div className="new-job_list">
-                    <JobUi tenantList={tenantList[0]} />
-                  </div>
-                </div>
-              </div>
-              {/* 2nd tab */}
-              <div className="window-measurement-tabs mt-4">
-                <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                  <Tablist2 Tablist={Tablist} handleGettab={handleGettab} />
-                </ul>
-                <div className="tab-content" id="pills-tabContent">
+              </Box>
+
+              {/* Enhanced Material UI Tabs */}
+              <Tabs
+                value={getCurrentTabIndex()}
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                  '& .MuiTab-root': {
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    minHeight: 64,
+                    px: 3,
+                    borderRadius: '12px 12px 0 0',
+                    mx: 0.5,
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      backgroundColor: `${theme.palette.primary.main}08`,
+                      color: theme.palette.primary.main,
+                    },
+                    '&.Mui-selected': {
+                      fontWeight: 600,
+                      color: theme.palette.primary.main,
+                      backgroundColor: 'white',
+                      boxShadow: `0 -2px 8px ${theme.palette.primary.main}15`,
+                    },
+                  },
+                  '& .MuiTabs-indicator': {
+                    height: 3,
+                    borderRadius: '3px 3px 0 0',
+                    backgroundColor: theme.palette.primary.main,
+                  },
+                  '& .MuiTabs-scrollButtons': {
+                    color: theme.palette.primary.main,
+                  }
+                }}
+              >
+                {Tablist.map((tab, index) => (
+                  <Tab
+                    key={index}
+                    icon={tab.icon}
+                    label={tab.title}
+                    iconPosition="start"
+                    sx={{
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '20px',
+                        mr: 1
+                      }
+                    }}
+                  />
+                ))}
+              </Tabs>
+            </Box>
+
+            {/* Enhanced Tab Content */}
+            <CardContent sx={{ p: 4 }}>
+              <Fade in={true} timeout={300}>
+                <Box>
                   {/* Window Measurements tab content */}
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#window-measurement"
-                        ? "show active"
-                        : ""
-                    }`}
-                    id="window-measurement"
-                    role="tabpanel"
-                    aria-labelledby="pills-overview-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("WindowView") &&
-                      tabdata === "#window-measurement" && (
-                        <WindowTable listdata={tenantList[0]} />
-                      )}
-                  </div>
-                  {/* estimate tab */}
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#estimate" ? "show active" : ""
-                    }`}
-                    id="estimate"
-                    role="tabpanel"
-                    aria-labelledby="pills-playbook-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("EstimateView") &&
-                      tabdata === "#estimate" && (
-                        <EstimateList listdata={tenantList[0]} />
-                      )}
-                  </div>
-                  {/* order tab */}
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#orders" || tabdata === "#orders"
-                        ? "show active"
-                        : ""
-                    }`}
-                    id="orders"
-                    role="tabpanel"
-                    aria-labelledby="pills-playbook-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("OrderView") && tabdata === "#orders" && (
-                      <OrderList JobId={param.JobId} listdata={tenantList[0]}/>
-                    )}
-                  </div>
-                  {/* invoice tab */}
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#invoice" ? "show active" : ""
-                    }`}
-                    id="invoice"
-                    role="tabpanel"
-                    aria-labelledby="pills-playbook-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("InvoiceView") && tabdata === "#invoice" && (
+                  {HasPermission("WindowView") && tabdata === "#window-measurement" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                      <WindowTable listdata={tenantList[0]} />
+                    </Box>
+                  )}
+
+                  {/* Estimate tab */}
+                  {HasPermission("EstimateView") && tabdata === "#estimate" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                      <EstimateList listdata={tenantList[0]} />
+                    </Box>
+                  )}
+
+                  {/* Order tab */}
+                  {HasPermission("OrderView") && tabdata === "#orders" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                      <OrderList JobId={param.JobId} />
+                    </Box>
+                  )}
+
+                  {/* Invoice tab */}
+                  {HasPermission("InvoiceView") && tabdata === "#invoice" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
                       <InvoiceList
                         JobId={param.JobId}
                         contactId={tenantList[0]?.contactId}
                         listdata={tenantList[0]}
                       />
-                    )}
-                  </div>
-                  {/* job schedule tab */}
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#jobscheduletab"
-                        ? "show active"
-                        : ""
-                    }`}
-                    id="jobscheduletab"
-                    role="tabpanel"
-                    aria-labelledby="pills-playbook-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("JobScheduleView") &&
-                      tabdata === "#jobscheduletab" && <Jobschedulelist listdata={tenantList[0]}/>}
-                  </div>
-                  {/*  contact tab */}
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#contacttab" ? "show active" : ""
-                    }`}
-                    id="contacttab"
-                    role="tabpanel"
-                    aria-labelledby="pills-playbook-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("JobContactView") &&
-                      tabdata === "#contacttab" && <JobContactList listdata={tenantList[0]}/>}
-                  </div>
-                  <div
-                    className={`tab-pane fade ${
-                      initialActiveTab === "#documenttab" ? "show active" : ""
-                    }`}
-                    id="documenttab"
-                    role="tabpanel"
-                    aria-labelledby="pills-playbook-tab"
-                    tabIndex={0}
-                  >
-                    {HasPermission("JobContactView") &&
-                      tabdata === "#documenttab" && <AllDocumentlist listdata={tenantList[0]}/>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                    </Box>
+                  )}
+
+                  {/* Job Schedule tab */}
+                  {HasPermission("JobScheduleView") && tabdata === "#jobscheduletab" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                      <Jobschedulelist />
+                    </Box>
+                  )}
+
+                  {/* Contact tab */}
+                  {HasPermission("JobContactView") && tabdata === "#contacttab" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                      <JobContactList />
+                    </Box>
+                  )}
+
+                  {/* Document tab */}
+                  {HasPermission("JobContactView") && tabdata === "#documenttab" && (
+                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                      <AllDocumentlist />
+                    </Box>
+                  )}
+                </Box>
+              </Fade>
+            </CardContent>
+          </Card>
+        </Container>
+
+        {/* Custom CSS for animations */}
+        <style jsx>{`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </div>
     </>
   );

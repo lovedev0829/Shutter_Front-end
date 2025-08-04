@@ -9,9 +9,28 @@ import {
   SuccessMessage,
 } from "../../../helpers/common";
 
-import SubmitButton from "../../Form/SubmitButton";
 import { Link } from "react-router-dom";
-import { Dialog } from "@mui/material";
+// Material UI imports
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  Box,
+  IconButton,
+  Backdrop,
+  CircularProgress
+} from "@mui/material";
+import {
+  Close as CloseIcon
+} from "@mui/icons-material";
 
 export default function Stages({ open, handleclose, action }) {
   const [loder, setLoader] = useState(false);
@@ -132,166 +151,135 @@ export default function Stages({ open, handleclose, action }) {
     <>
       <Dialog
         open={open}
-        sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",
-            },
-          },
-        }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        maxWidth="md"
+        fullWidth
+        onClose={handleclose}
+        aria-labelledby="stages-dialog-title"
       >
-        <div
-          className="modal fade show"
-          id="contactModal"
-          tabIndex={-1}
-          aria-labelledby="exampleModalLabel"
-          aria-modal="true"
-          role="dialog"
-          style={{ display: "block", backgroundColor: "#00000080" }}
-        >
-          <div className="modal-dialog modal-dialog-centered filter_modal">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title" id="exampleModalLabel">
-                  GHL Stages Mapping
-                </h1>
+        <DialogTitle sx={{ m: 0, p: 2 }} id="stages-dialog-title">
+          <Typography variant="h6" component="div">
+            GHL Stages Mapping
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={handleclose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <Box component="form" onSubmit={handleSubmit}>
+          <DialogContent>
+            <Backdrop
+              sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, position: 'absolute' }}
+              open={loder > 0}
+            >
+              <CircularProgress color="inherit" />
+            </Backdrop>
+            <Grid container spacing={2}>
+              {value.mappings !== undefined &&
+                value.mappings.length > 0 &&
+                value?.mappings?.map((val, i) => {
+                  return (
+                    <React.Fragment key={i}>
+                      <Grid item xs={12} md={6}>
+                        {i === 0 && (
+                          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            Job Status
+                          </Typography>
+                        )}
+                        <FormControl fullWidth size="small" disabled>
+                          <InputLabel>Job Status</InputLabel>
+                          <Select
+                            value={val?.statusId || ''}
+                            label="Job Status"
+                            name="statusId"
+                          >
+                            {JobStatus?.map((vals, idx) => (
+                              <MenuItem
+                                value={vals.jobStatusId}
+                                key={idx}
+                              >
+                                {vals.jobStatusName}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
 
-                <i
-                  className="icofont-close btn-close"
-                  onClick={() => {
-                    handleclose();
-                  }}
-                ></i>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body modale-scroll">
-                {loder > 0 && <ApiLoder/>}
-                  <div className="form-design">
-                    <div className="row">
-                      {value.mappings !== undefined &&
-                        value.mappings.length > 0 &&
-                        value?.mappings?.map((val, i) => {
-                          return (
-                            <React.Fragment key={i}>
-                              <div className="col-lg-6 col-md-6">
-                                <div className="form-group">
-                                  {i === 0 && (
-                                    <label className="font-14 d-flex align-items-center justify-content-between">
-                                      <span>Job Status</span>
-                                    </label>
-                                  )}
+                      <Grid item xs={12} md={6}>
+                        {i === 0 && (
+                          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                            GHL Stage
+                          </Typography>
+                        )}
+                        <FormControl fullWidth size="small">
+                          <InputLabel>GHL Stage</InputLabel>
+                          <Select
+                            value={val?.stageId || ''}
+                            label="GHL Stage"
+                            name="stageId"
+                            onChange={(e) =>
+                              handleInputChange(i, e.target.value)
+                            }
+                          >
+                            <MenuItem value="">
+                              <em>No Action</em>
+                            </MenuItem>
+                            {Stages?.map((vals, idx) => {
+                              const isDisabled =
+                                value?.mappings?.some(
+                                  (material) =>
+                                    material?.stageId ===
+                                    vals?.ghlStageId
+                                );
 
-                                  <div className="position-relative">
-                                    <select
-                                      className="form-select"
-                                      aria-label="Default select example"
-                                      name="statusId"
-                                      value={val?.statusId}
-                                      disabled
-                                    >
-                                      {JobStatus?.map((vals, idx) => {
-                                        return (
-                                          <option
-                                            value={vals.jobStatusId}
-                                            key={idx}
-                                            selected={
-                                              vals.jobStatusId === val?.statusId
-                                                ? true
-                                                : false
-                                            }
-                                          >
-                                            {vals.jobStatusName}
-                                          </option>
-                                        );
-                                      })}
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="col-lg-6 col-md-6">
-                                <div className="form-group">
-                                  {i === 0 && (
-                                    <label className="font-14 d-flex align-items-center justify-content-between">
-                                      <span>GHL Stage</span>
-                                    </label>
-                                  )}
-                                  <div className="position-relative">
-                                    <select
-                                      className="form-select"
-                                      aria-label="Default select example"
-                                      name="stageId"
-                                      value={val?.stageId}
-                                      onChange={(e) =>
-                                        handleInputChange(i, e.target.value)
-                                      }
-                                    >
-                                      <option value="">No Action</option>
-                                      {Stages?.map((vals, idx) => {
-                                        const isDisabled =
-                                          value?.mappings?.some(
-                                            (material) =>
-                                              material?.stageId ===
-                                              vals?.ghlStageId
-                                          );
-
-                                        return (
-                                          <option
-                                            value={vals.ghlStageId}
-                                            key={idx}
-                                            disabled={
-                                              isDisabled &&
-                                              vals.ghlStageId !== val?.stageId
-                                            }
-                                            selected={
-                                              vals.ghlStageId === val?.stageId
-                                                ? true
-                                                : false
-                                            }
-                                          >
-                                            {vals.ghlStageName}
-                                          </option>
-                                        );
-                                      })}
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                            </React.Fragment>
-                          );
-                        })}
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
-                      onClick={() => {
-                        handleclose();
-                      }}
-                    >
-                      Cancel
-                    </Link>
-
-                    {HasPermission("GHLEdit") && (
-                      <SubmitButton
-                        type="submit"
-                        className="btn blue-btn me-3"
-                        name={"Submit"}
-                        disabled={loder > 0 ? true : false}
-                      />
-                    )}
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+                              return (
+                                <MenuItem
+                                  value={vals.ghlStageId}
+                                  key={idx}
+                                  disabled={
+                                    isDisabled &&
+                                    vals.ghlStageId !== val?.stageId
+                                  }
+                                >
+                                  {vals.ghlStageName}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    </React.Fragment>
+                  );
+                })}
+            </Grid>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button
+              onClick={handleclose}
+              variant="text"
+              sx={{ textTransform: 'none' }}
+            >
+              Cancel
+            </Button>
+            {HasPermission("GHLEdit") && (
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loder > 0}
+                sx={{ textTransform: 'none' }}
+              >
+                Submit
+              </Button>
+            )}
+          </DialogActions>
+        </Box>
       </Dialog>
     </>
   );
