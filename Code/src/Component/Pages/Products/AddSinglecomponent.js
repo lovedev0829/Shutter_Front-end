@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dialog from "@mui/material/Dialog";
-import { Button, useTheme, alpha } from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -9,7 +8,8 @@ import {
   HasPermission,
   SuccessMessage,
 } from "../../../helpers/common";
-
+import SubmitButton from "../../Form/SubmitButton";
+import { Link } from "react-router-dom";
 import AddEditComponent from "../Component/AddEditComponent";
 import AddEditExpression from "../Expression/AddEditExpression";
 import Select from "react-select";
@@ -55,7 +55,6 @@ const AddSinglecomponent = ({
   const [formula, setFormula] = useState([]);
   const [vendor, setvendor] = useState(false);
   const [expression, setexpression] = useState(false);
-  const theme = useTheme();
   const languageAdd = async (e) => {
     e.preventDefault();
     const formValid = simpleValidator.current.allValid();
@@ -541,7 +540,9 @@ const AddSinglecomponent = ({
 
                 <div className="modal-footer">
                   <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Button
+                    <Link
+                      to={"#"}
+                      className="cancel text-decoration-underline"
                       onClick={() => {
                         setValue(defaultState);
                         handleclose();
@@ -553,42 +554,15 @@ const AddSinglecomponent = ({
                         simpleValidator.current.hideMessages();
                         forceUpdate();
                       }}
-                      variant="outlined"
-                      sx={{
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        borderColor: theme.palette.grey[300],
-                        color: theme.palette.text.secondary,
-                        marginRight: 2,
-                        '&:hover': {
-                          borderColor: theme.palette.grey[400],
-                          backgroundColor: alpha(theme.palette.grey[100], 0.5),
-                        }
-                      }}
                     >
                       Cancel
-                    </Button>
-                    <Button
+                    </Link>
+                    <SubmitButton
                       type="submit"
-                      variant="contained"
+                      className="btn blue-btn"
+                      name={"Submit"}
                       disabled={loader}
-                      sx={{
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                        boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
-                        '&:hover': {
-                          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
-                          boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
-                        },
-                        '&:disabled': {
-                          background: theme.palette.grey[300],
-                          color: theme.palette.grey[500],
-                        }
-                      }}
-                    >
-                      Submit
-                    </Button>
+                    />
                   </div>
                 </div>
               </form>

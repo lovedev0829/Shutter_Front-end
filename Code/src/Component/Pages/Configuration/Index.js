@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Header from "../../../Layout/header";
 import { useState } from "react";
+import TableTitle from "../../Form/TableTitle";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
 import {
@@ -10,44 +11,22 @@ import {
   HasPermission,
   SuccessMessage,
 } from "../../../helpers/common";
+import Tab from "../../Form/Tab";
 import { EmailSvg, GhlSvg, StripeSvg } from "../../../SvgFile/Index";
+import InputField from "../../Form/InputField";
 import SimpleReactValidator from "simple-react-validator";
+import SubmitButton from "../../Form/SubmitButton";
 import Stripe from "./Stripe";
 import moment from "moment";
 import { useLocation, useNavigate } from "react-router-dom";
 import Stages from "./Stages";
 import Email from "./Email";
-// Material UI imports
-import {
-  Box,
-  Container,
-  Card,
-  CardContent,
-  Tabs,
-  Tab,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Paper,
-  Backdrop,
-  CircularProgress,
-  IconButton,
-  Chip,
-  Alert
-} from "@mui/material";
-import {
-  ContentCopy as CopyIcon,
-  Sync as SyncIcon,
-  Link as LinkIcon,
-  Delete as DeleteIcon
-} from "@mui/icons-material";
 
 export default function Index() {
   const [loder, setLoader] = useState(false);
   const [open, setopen] = useState(false);
   const [ghl, setGhl] = useState(false);
-  const [tabValue, setTabValue] = useState(0);
+  const [tabdata, setTabdata] = useState("#pills-overview-tab");
   const [value, setValue] = useState({
     pipelineId: "",
     locationId: "",
@@ -121,34 +100,29 @@ export default function Index() {
  const Tablist = [
   HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant && {
     status: true,
-    id: 0,
+    id: "#ghl",
     svg: <GhlSvg />,
     title: "GHL Configuration",
   },
   HasPermission("StripeView") && {
     status: false,
-    id: 1,
+    id: "#Stripe",
     svg: <StripeSvg />,
     title: "Stripe Configuration",
   },
   HasPermission("EmailConfigurationView") && {
     status: false,
-    id: 2,
+    id: "#Email",
     svg: <EmailSvg />,
     title: "Email Configuration",
   },
 ].filter(Boolean);
 
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-    localStorage.setItem("activeTab2", newValue.toString());
+  const handleTabchnage = (value) => {
+    setTabdata(value || Tablist[0]?.id);
   };
-  const initialActiveTab = parseInt(localStorage.getItem("activeTab2") || "0");
-
-  useEffect(() => {
-    setTabValue(initialActiveTab < Tablist.length ? initialActiveTab : 0);
-  }, [Tablist.length]);
+  const initialActiveTab = localStorage.getItem("activeTab2") || Tablist[0]?.id;
 
   const handleChange = (e) => {
     const value = e.target?.value;
@@ -378,46 +352,37 @@ export default function Index() {
  
 
   return (
-    <div className="intersight_content">  
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loder}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      <Box sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}>
+    <>
+      {loder && <ApiLoder />}
+      <div className="intersight_content">
         <Header title="Configuration" />
-        <Container maxWidth="xl" sx={{ mt: 3, mb: 3 }}>
-          <Card elevation={2}>
-            <CardContent>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                <Tabs value={tabValue} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
-                  {Tablist.map((tab, index) => (
-                    <Tab
-                      key={index}
-                      icon={tab.svg}
-                      label={tab.title}
-                      iconPosition="start"
-                      sx={{
-                        textTransform: 'none',
-                        minHeight: 'auto',
-                        '& .MuiTab-iconWrapper': {
-                          marginRight: 2,
-                          marginBottom: 0
-                        }
-                      }}
-                    />
-                  ))}
-                </Tabs>
-              </Box>
-              {HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant && tabValue === 0 && (
-                <Box>
-                  <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'primary.main' }}>
-                    Manage GHL Configuration
-                  </Typography>
-                  <Paper elevation={1} sx={{ p: 3, bgcolor: 'grey.50' }}>
-                    <Box component="form" onSubmit={handleSubmit}>
-                      <Grid container spacing={3}>
+        <div className="body_content">
+          <div className="contact-profile">
+            <div className="engage-tabs">
+              <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                <Tab Tablist={Tablist} handleTabchnage={handleTabchnage} />
+              </ul>
+              <div className="tab-content" id="ghl">
+                 { HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant && (
+                <div
+                  className={`tab-pane fade ${
+                    initialActiveTab === "#ghl" && !loginuser.isGHLConfigSameAsTenant ? "show active" : ""
+                  }`}
+                  id="ghl"
+                  role="tabpanel"
+                  aria-labelledby="pills-overview-tab"
+                  tabIndex={0}
+                >
+                  <div className="contact-profile">
+                    <div className="d-flex align-items-center justify-content-between mb-30">
+                      <TableTitle title="Manage GHL Configuration" />
+                    </div>
+                    <div
+                      className="form-design"
+                      style={{ background: "#f5f5f5", padding: "10px" }}
+                    >
+                      <form onSubmit={handleSubmit}>
+                        <div className="row">
                           {/* <div className="col-lg-4 col-md-4">
                             <div className="form-group">
                               <InputField
@@ -439,94 +404,84 @@ export default function Index() {
                               </div>
                             </div>
                           </div> */}
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="Location Id"
-                            placeholder="Enter LocationId"
-                            type="text"
-                            onChange={handleChange}
-                            id="locationId"
-                            name="locationId"
-                            value={value.locationId || ''}
-                            required
-                            size="small"
-                            error={!!simpleValidator.current.message(
-                              "Location Id",
-                              value?.locationId,
-                              `required`
-                            )}
-                            helperText={simpleValidator.current.message(
-                              "Location Id",
-                              value?.locationId,
-                              `required`
-                            )}
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="Pipe line Info"
-                            placeholder="Enter Pipe line Info"
-                            type="text"
-                            onChange={handleChange}
-                            id="pipelineId"
-                            name="pipelineId"
-                            value={value.pipelineId || ''}
-                            required
-                            size="small"
-                            error={!!simpleValidator.current.message(
-                              "pipelineInfo",
-                              value?.pipelineId,
-                              `required`
-                            )}
-                            helperText={simpleValidator.current.message(
-                              "pipelineInfo",
-                              value?.pipelineId,
-                              `required`
-                            )}
-                          />
-                        </Grid>
+                          <div className="col-lg-4 col-md-4">
+                            <div className="form-group">
+                              <InputField
+                                labelName={"Location Id"}
+                                placeholderName={"Enter LocationId"}
+                                type={"text"}
+                                handleChange={handleChange}
+                                id={"locationId"}
+                                name={"locationId"}
+                                value={value.locationId}
+                                required={true}
+                              />
+                              <div className="error">
+                                {simpleValidator.current.message(
+                                  "Location Id",
+                                  value?.locationId,
+                                  `required`
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-4">
+                            <div className="form-group">
+                              <InputField
+                                labelName={"Pipe line Info"}
+                                placeholderName={"Enter Pipe line Info"}
+                                type={"text"}
+                                handleChange={handleChange}
+                                id={"pipelineId"}
+                                name={"pipelineId"}
+                                value={value.pipelineId}
+                                required={true}
+                              />
+                              <div className="error">
+                                {simpleValidator.current.message(
+                                  "pipelineInfo",
+                                  value?.pipelineId,
+                                  `required`
+                                )}
+                              </div>
+                            </div>
+                          </div>
 
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="Calendar Name"
-                            placeholder="Enter Calendar Name"
-                            type="text"
-                            onChange={handleChange}
-                            id="calendarName"
-                            name="calendarName"
-                            value={value.calendarName || ''}
-                            required
-                            size="small"
-                            error={!!simpleValidator.current.message(
-                              "Calendar Name",
-                              value?.calendarName,
-                              `required`
-                            )}
-                            helperText={simpleValidator.current.message(
-                              "Calendar Name",
-                              value?.calendarName,
-                              `required`
-                            )}
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="Generated Token"
-                            placeholder="Enter Generated Token"
-                            type="text"
-                            onChange={handleChange}
-                            id="generatedToken"
-                            name="generatedToken"
-                            value={value.generatedToken || ''}
-                            size="small"
-                            InputProps={{
-                              endAdornment: value.generatedToken && (
-                                <IconButton
-                                  size="small"
+                          <div className="col-lg-4 col-md-4">
+                            <div className="form-group">
+                              <InputField
+                                labelName={"Calendar Name"}
+                                placeholderName={"Enter Calendar Name"}
+                                type={"text"}
+                                handleChange={handleChange}
+                                id={"calendarName"}
+                                name={"calendarName"}
+                                value={value.calendarName}
+                                required={true}
+                              />
+                              <div className="error">
+                                {simpleValidator.current.message(
+                                  "Calendar Name",
+                                  value?.calendarName,
+                                  `required`
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-4">
+                            <div className="form-group position-relative copy-input-new">
+                              <InputField
+                                labelName={"Generated Token"}
+                                placeholderName={"Enter Generated Token"}
+                                type={"text"}
+                                handleChange={handleChange}
+                                id={"generatedToken"}
+                                name={"generatedToken"}
+                                value={value.generatedToken}
+                              />
+                              {value.generatedToken && (
+                                <span
+                                  className="copy-span"
                                   onClick={() => {
                                     navigator.clipboard
                                       .writeText(value?.generatedToken)
@@ -539,152 +494,172 @@ export default function Index() {
                                         console.error("Failed to copy: ", err);
                                       });
                                   }}
-                                  sx={{ color: 'grey.500' }}
                                 >
-                                  <CopyIcon fontSize="small" />
-                                </IconButton>
-                              )
-                            }}
-                          />
-                        </Grid>
-                        {!ghl && (
-                          <Grid item xs={12} md={4}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', mt: 1 }}>
-                              <Button
-                                variant="contained"
-                                onClick={handleChnages}
-                                sx={{ textTransform: 'none' }}
-                              >
-                                Generate Webhook Token
-                              </Button>
-                            </Box>
-                          </Grid>
-                        )}
-                        <Grid item xs={12}>
-                          <Box sx={{ mt: 2 }}>
-                            <Typography variant="body2" color="text.secondary">
-                              Last Sync: {" "}
-                              <Typography component="span" sx={{ fontWeight: 600 }}>
-                                {value?.lastSync
-                                  ? `${moment(value?.lastSync).format(
-                                      "MM-DD-YYYY"
-                                    )} | ${moment(value?.lastSync).format(
-                                      "hh:mm A"
-                                    )}`
-                                  : "N/A"}
-                              </Typography>
-                            </Typography>
-                            {value.isConnected && timeLeft && (
-                              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                Expiration Date/time: {" "}
-                                <Typography component="span" sx={{ fontWeight: 600 }}>
-                                  {timeLeft}
-                                </Typography>
-                              </Typography>
-                            )}
-                          </Box>
-                        </Grid>
-                        {HasPermission("GHLEdit") && (
-                          <Grid item xs={12}>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
-                              <Button
-                                type="submit"
-                                variant="contained"
-                                disabled={loder}
-                                sx={{ textTransform: 'none' }}
-                              >
-                                Submit
-                              </Button>
-                              {!ghl && (
-                                <>
-                                  {value.access_Token && value.refresh_Token && (
-                                    <Button
-                                      variant="contained"
-                                      onClick={handleChnage}
-                                      startIcon={<SyncIcon />}
-                                      sx={{ textTransform: 'none' }}
-                                    >
-                                      Sync GHL
-                                    </Button>
-                                  )}
-                                  {value.access_Token && value.refresh_Token && (
-                                    <Button
-                                      variant="contained"
-                                      onClick={handleghluser}
-                                      startIcon={<SyncIcon />}
-                                      sx={{ textTransform: 'none' }}
-                                    >
-                                      Sync GHL Users
-                                    </Button>
-                                  )}
-                                  {!value?.isConnected && (
-                                    <Button
-                                      variant="contained"
-                                      onClick={handleChnagess}
-                                      startIcon={<LinkIcon />}
-                                      sx={{ textTransform: 'none' }}
-                                    >
-                                      Link to Ghl
-                                    </Button>
-                                  )}
-                                  {value.access_Token && value.refresh_Token && (
-                                    <Button
-                                      variant="contained"
-                                      onClick={() => setopen(true)}
-                                      sx={{ textTransform: 'none' }}
-                                    >
-                                      GHL Stages Mapping
-                                    </Button>
-                                  )}
-                                  {value.access_Token && value.refresh_Token && (
-                                    <Button
-                                      variant="contained"
-                                      onClick={handlesyccustom}
-                                      startIcon={<SyncIcon />}
-                                      sx={{ textTransform: 'none' }}
-                                    >
-                                      Sync Custom Field
-                                    </Button>
-                                  )}
-                                  {value?.isConnected && (
-                                    <Button
-                                      variant="contained"
-                                      color="error"
-                                      onClick={handleDelte}
-                                      startIcon={<DeleteIcon />}
-                                      sx={{ textTransform: 'none' }}
-                                    >
-                                      Unlink GHL
-                                    </Button>
-                                  )}
-                                </>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width={24}
+                                    height={24}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                  >
+                                    <path
+                                      d="M21 8.94C20.9896 8.84813 20.9695 8.75763 20.94 8.67V8.58C20.8919 8.47718 20.8278 8.38267 20.75 8.3L14.75 2.3C14.6673 2.22222 14.5728 2.15808 14.47 2.11C14.4402 2.10576 14.4099 2.10576 14.38 2.11C14.2784 2.05174 14.1662 2.01434 14.05 2H10C9.20435 2 8.44129 2.31607 7.87868 2.87868C7.31607 3.44129 7 4.20435 7 5V6H6C5.20435 6 4.44129 6.31607 3.87868 6.87868C3.31607 7.44129 3 8.20435 3 9V19C3 19.7956 3.31607 20.5587 3.87868 21.1213C4.44129 21.6839 5.20435 22 6 22H14C14.7956 22 15.5587 21.6839 16.1213 21.1213C16.6839 20.5587 17 19.7956 17 19V18H18C18.7956 18 19.5587 17.6839 20.1213 17.1213C20.6839 16.5587 21 15.7956 21 15V9C21 9 21 9 21 8.94ZM15 5.41L17.59 8H16C15.7348 8 15.4804 7.89464 15.2929 7.70711C15.1054 7.51957 15 7.26522 15 7V5.41ZM15 19C15 19.2652 14.8946 19.5196 14.7071 19.7071C14.5196 19.8946 14.2652 20 14 20H6C5.73478 20 5.48043 19.8946 5.29289 19.7071C5.10536 19.5196 5 19.2652 5 19V9C5 8.73478 5.10536 8.48043 5.29289 8.29289C5.48043 8.10536 5.73478 8 6 8H7V15C7 15.7956 7.31607 16.5587 7.87868 17.1213C8.44129 17.6839 9.20435 18 10 18H15V19ZM19 15C19 15.2652 18.8946 15.5196 18.7071 15.7071C18.5196 15.8946 18.2652 16 18 16H10C9.73478 16 9.48043 15.8946 9.29289 15.7071C9.10536 15.5196 9 15.2652 9 15V5C9 4.73478 9.10536 4.48043 9.29289 4.29289C9.48043 4.10536 9.73478 4 10 4H13V7C13 7.79565 13.3161 8.55871 13.8787 9.12132C14.4413 9.68393 15.2044 10 16 10H19V15Z"
+                                      fill="#9A9A9A"
+                                    />
+                                  </svg>
+                                </span>
                               )}
-                            </Box>
-                          </Grid>
-                        )}
-                      </Grid>
-                    </Box>
-                  </Paper>
-                </Box>
-              )}
-              {/* Tab content rendered based on current tab value */}
+                            </div>
+                          </div>
+                          {!ghl && (
+                            <div className="col-lg-4 col-md-4">
+                              <div className="generate-btn-mt">
+                                <button
+                                  type="button"
+                                  onClick={handleChnages}
+                                  className="btn blue-btn me-2"
+                                >
+                                  Generate Webhook Token
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          <p>
+                            Last Sync :{" "}
+                            <strong>
+                              {value?.lastSync
+                                ? `${moment(value?.lastSync).format(
+                                    "MM-DD-YYYY"
+                                  )} | ${moment(value?.lastSync).format(
+                                    "hh:mm A"
+                                  )}`
+                                : "N/A"}
+                            </strong>
+                          </p>
+                          {value.isConnected && (
+                            <p>
+                              {timeLeft && "Expiration Date/time:"}{" "}
+                              <strong>{timeLeft && `${timeLeft}`}</strong>
+                            </p>
+                          )}
+                          {HasPermission("GHLEdit") && (
+                            <>
+                              <div className="form-group d-flex align-items-center justify-content-end">
+                                <SubmitButton
+                                  type="submit"
+                                  className="btn blue-btn me-2"
+                                  name={"Submit"}
+                                  disabled={loder}
+                                />
+                                {!ghl && (
+                                  <>
+                                    {value.access_Token &&
+                                      value.refresh_Token && (
+                                        <button
+                                          type="button"
+                                          onClick={handleChnage}
+                                          className="btn blue-btn me-2"
+                                        >
+                                          Sync GHL
+                                        </button>
+                                      )}
 
-              {HasPermission("StripeView") && tabValue === (HasPermission("GHLView") && !loginuser.isGHLConfigSameAsTenant ? 1 : 0) && (
-                <Box>
-                  <Stripe />
-                </Box>
-              )}
+                                    {value.access_Token &&
+                                      value.refresh_Token && (
+                                        <button
+                                          type="button"
+                                          onClick={handleghluser}
+                                          className="btn blue-btn me-2"
+                                        >
+                                          Sync GHL Users
+                                        </button>
+                                      )}
+                                    {!value?.isConnected && (
+                                      <button
+                                        type="button"
+                                        onClick={handleChnagess}
+                                        className="btn blue-btn me-2"
+                                      >
+                                        Link to Ghl
+                                      </button>
+                                    )}
 
-              {HasPermission("EmailConfigurationView") && tabValue === (Tablist.length - 1) && (
-                <Box>
-                  <Email />
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Container>
-      </Box>
+                                    {value.access_Token &&
+                                      value.refresh_Token && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setopen(true)}
+                                          className="btn blue-btn me-2"
+                                        >
+                                          GHL Stages Mapping
+                                        </button>
+                                      )}
+
+                                      {value.access_Token &&
+                                      value.refresh_Token && (
+                                        <button
+                                          type="button"
+                                          onClick={handlesyccustom}
+                                          className="btn blue-btn me-2"
+                                        >
+                                          Sync Custom Field
+                                        </button>
+                                      )}
+                                    {value?.isConnected && (
+                                      <button
+                                        type="button"
+                                        onClick={handleDelte}
+                                        className="btn btn-danger"
+                                      >
+                                        Unlink GHL
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                 )}
+                {/* vendorlisttab */}
+
+                {HasPermission("StripeView") && (
+                  <div
+                    className={`tab-pane fade ${
+                      initialActiveTab === "#Stripe" ? "show active" : ""
+                    }`}
+                    id="Stripe"
+                    role="tabpanel"
+                    aria-labelledby="pills-payment-tab"
+                    tabIndex={0}
+                  >
+                    {tabdata === "#Stripe" && <Stripe />}
+                  </div>
+                )}
+
+                {HasPermission("EmailConfigurationView") && (
+                  <div
+                    className={`tab-pane fade ${
+                      initialActiveTab === "#Email" ? "show active" : ""
+                    }`}
+                    id="Email"
+                    role="tabpanel"
+                    aria-labelledby="pills-payment-tab"
+                    tabIndex={0}
+                  >
+                    {tabdata === "#Email" && <Email />}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <Stages open={open} handleclose={() => setopen(false)} action={open} />
-    </div>
+    </>
   );
 }

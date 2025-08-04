@@ -10,51 +10,12 @@ import {
   SuccessMessage,
 } from "../../../helpers/common";
 import PartnerDropdown from "../../../helpers/PartnerDropdown";
-import {
-  Box,
-  Container,
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Paper,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Checkbox,
-  FormControlLabel,
-  IconButton,
-  Collapse,
-  Typography,
-  Stack,
-  Chip,
-  Button,
-  Tooltip,
-  useTheme,
-  alpha,
-  Backdrop,
-  CircularProgress
-} from "@mui/material";
-import {
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  Save as SaveIcon,
-  Clear as ClearIcon,
-  Visibility as VisibilityIcon
-} from "@mui/icons-material";
+import { TablePagination } from "@mui/material";
 import ProductTypeDropdown from "../../../helpers/ProductTypeDropdown";
 import { defaultConfig } from "../../../config";
 import { useParams } from "react-router-dom";
 
 export default function ProductEdit() {
-  const theme = useTheme();
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [page, setPage] = useState(1);
@@ -519,94 +480,77 @@ export default function ProductEdit() {
 
   return (
     <>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loder}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      
+      {loder && <ApiLoder />}
       <div className="intersight_content">
         <Header title="Manage Product" />
         <div className="body_content">
           <div className="contact-profile">
-            <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', p: 0 }}>
-              <Container maxWidth="xl" sx={{ py: 3 }}>
-                <Card elevation={2} sx={{ borderRadius: 2 }}>
-                  <CardContent sx={{ p: 3 }}>
-              {/* Header Section */}
-              <div className="d-flex align-items-center justify-content-between mb-30">
-                <TableTitle title="Manage Product" />
-              </div>
+            <div className="d-flex align-items-center justify-content-between mb-30">
+              <TableTitle title="Manage Product" />
+            </div>
 
-              {/* Filters Section */}
-              <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-                <div className="filter-dropdown dropdown">
-                  <ProductTypeDropdown
-                    value={filter.productType}
-                    fn={handleChange}
-                    load={true}
-                    className="selectboxdropdown"
-                    Getproduct={Getproduct}
-                  />
-                </div>
-                <div className="filter-dropdown dropdown">
-                  {HasPermission("SubTenantView") && (
-                    <PartnerDropdown value={filter.tenantId} fn={handleChange} />
-                  )}
-                </div>
+            <div className="d-block d-md-flex align-items-center gap-2 mb-30">
+              <div className="filter-dropdown dropdown">
+                <ProductTypeDropdown
+                  value={filter.productType}
+                  fn={handleChange}
+                  load={true}
+                  className="selectboxdropdown"
+                  Getproduct={Getproduct}
+                />
               </div>
-              {/* Table Section */}
-              <div className="task_table mb-30">
-                <div className="table-responsive">
-                  <Paper elevation={1} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                <TableContainer>
-                  <Table>
-                    <TableHead sx={{ backgroundColor: '#f8fafc' }}>
-                      <TableRow>
-                        <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>SN</TableCell>
-                        <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>Product Name</TableCell>
-                        {HasPermission("SubTenantView") && (
-                          <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>IsVisible</TableCell>
-                        )}
-                        <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>Price Type</TableCell>
-                        {HasPermission("SubTenantView") && (
-                          <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>
-                            Wholesale Price{" "}
-                            {HasPermission("SubTenantView") ? "Markup" : ""}
-                          </TableCell>
-                        )}
-                        <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>
-                          {HasPermission("SubTenantView")
-                            ? "Max Partner Price Markup"
-                            : "Selling price Markup"}
-                        </TableCell>
-                        {!HasPermission("SubTenantView") && (
-                          <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>Tax</TableCell>
-                        )}
-                        <TableCell sx={{ fontWeight: 600, fontSize: '14px' }}>Options</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 600, fontSize: '14px' }}>
-                          Action
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {tenantList?.map((val, i) => (
-                        <React.Fragment key={i}>
-                          <TableRow 
-                            sx={{
-                              '&:hover': {
-                                backgroundColor: alpha(theme.palette.primary.main, 0.04),
-                              },
-                              backgroundColor: editedRows.has(i) ? alpha(theme.palette.warning.main, 0.1) : 'inherit',
-                            }}
-                          >
-                            <TableCell>{(page - 1) * rowsPerPage + i + 1}</TableCell>
-                            <TableCell>
-                              <Typography variant="body2" fontWeight={500}>
-                                {val?.productName}
-                              </Typography>
-                            </TableCell>
+              <div className="filter-dropdown dropdown">
+                {HasPermission("SubTenantView") && (
+                  <PartnerDropdown value={filter.tenantId} fn={handleChange} />
+                )}
+              </div>
+            </div>
+            <div className="task_table mb-30">
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">SN</th>
+                      <th scope="col">Product Name</th>
+                      {/* <th scope="col">
+                        {HasPermission("SubTenantView")
+                          ? "MSRP / Wholesale Price"
+                          : "MSRP"}
+                      </th> */}
+                      {HasPermission("SubTenantView") && (
+                        <th scope="col">IsVisible</th>
+                      )}
+
+                      <th scope="col">Price Type</th>
+
+                      {HasPermission("SubTenantView") && (
+                        <th scope="col">
+                          Wholesale Price{" "}
+                          {HasPermission("SubTenantView") ? "Markup" : ""}
+                        </th>
+                      )}
+                      <th scope="col">
+                        {" "}
+                        {HasPermission("SubTenantView")
+                          ? "Max Partner Price Markup"
+                          : "Selling price Markup"}
+                      </th>
+                      {!HasPermission("SubTenantView") && (
+                        <th scope="col">Tax</th>
+                      )}
+                      <th scope="col"></th>
+
+                      <th scope="col" className="text-end">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tenantList?.map((val, i) => (
+                      <React.Fragment key={i}>
+                        <tr>
+                          <td>{(page - 1) * rowsPerPage + i + 1}</td>
+                          <td>{val?.productName}</td>
                           {/* <td>
                             {val.isComponentAvailable ? (
                               <span
@@ -665,274 +609,280 @@ export default function ProductEdit() {
                               </span>
                             )}
                           </td> */}
-                            {HasPermission("SubTenantView") && (
-                              <TableCell>
-                                <Checkbox
-                                  checked={val.isAvailable}
-                                  onChange={(e) => handleChanges(e, i, "isAvailable")}
-                                  color="primary"
-                                  sx={{
-                                    '&.Mui-checked': {
-                                      color: theme.palette.primary.main,
-                                    },
-                                  }}
+                          {HasPermission("SubTenantView") && (
+                            <td>
+                              <input
+                                type="checkbox"
+                                style={{ border: "1px solid #8f8b8b" }}
+                                className="form-check-input"
+                                checked={val.isAvailable}
+                                onChange={(e) =>
+                                  handleChanges(e, i, "isAvailable")
+                                }
+                              />
+                            </td>
+                          )}
+
+                          {!HasPermission("SubTenantView") ? (
+                            <td>
+                              <select
+                                className="form-select"
+                                name="productType"
+                                style={{ width: "137px" }}
+                                value={val?.markupType}
+                                onChange={(e) =>
+                                  handleChanges(e, i, "markupType")
+                                }
+                                disabled
+                              >
+                                <option value="Fixed">Fixed</option>
+                                <option value="Percentage">Percentage</option>
+                              </select>
+                            </td>
+                          ) : (
+                            <td>
+                              {val.isComponentAvailable ? (
+                                <select
+                                  className="form-select"
+                                  name="productType"
+                                  style={{ width: "137px" }}
+                                  value={val?.priceType}
+                                  onChange={(e) =>
+                                    handleChanges(e, i, "priceType")
+                                  }
+                                  disabled={!val.isComponentAvailable}
+                                >
+                                  <option value="Fixed">Fixed</option>
+                                  <option value="Percentage">Percentage</option>
+                                </select>
+                              ) : (
+                                "Pricing at Estimation Screen"
+                              )}
+                            </td>
+                          )}
+
+                          {HasPermission("SubTenantView") && (
+                            <td>
+                              {val.isComponentAvailable ? (
+                                <input
+                                  type="number"
+                                  style={{ width: "120px" }}
+                                  className="form-control"
+                                  value={val?.wholeSalePrice}
+                                  onChange={(e) =>
+                                    handleChanges(e, i, "wholeSalePrice")
+                                  }
+                                  disabled={!val.isAvailable}
                                 />
-                              </TableCell>
-                            )}
+                              ) : (
+                                "Pricing at Estimation Screen"
+                              )}
+                            </td>
+                            // ) : (
+                            //   <p>
+                            //     {" "}
+                            //     {defaultConfig?.currencySign}{" "}
+                            //     {val?.wholeSalePrice}
+                            //   </p>
+                          )}
 
-                            {!HasPermission("SubTenantView") ? (
-                              <TableCell>
-                                <FormControl size="small" sx={{ minWidth: 137 }}>
-                                  <Select
-                                    value={val?.markupType}
-                                    onChange={(e) => handleChanges(e, i, "markupType")}
-                                    disabled
-                                    name="markupType"
-                                  >
-                                    <MenuItem value="Fixed">Fixed</MenuItem>
-                                    <MenuItem value="Percentage">Percentage</MenuItem>
-                                  </Select>
-                                </FormControl>
-                              </TableCell>
-                            ) : (
-                              <TableCell>
+                          <td>
+                            {HasPermission("SubTenantView") ? (
+                              <>
                                 {val.isComponentAvailable ? (
-                                  <FormControl size="small" sx={{ minWidth: 137 }}>
-                                    <Select
-                                      value={val?.priceType}
-                                      onChange={(e) => handleChanges(e, i, "priceType")}
-                                      disabled={!val.isComponentAvailable}
-                                      name="priceType"
-                                    >
-                                      <MenuItem value="Fixed">Fixed</MenuItem>
-                                      <MenuItem value="Percentage">Percentage</MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                ) : (
-                                  <Typography variant="body2" color="primary">
-                                    Pricing at Estimation Screen
-                                  </Typography>
-                                )}
-                              </TableCell>
-                            )}
-
-                            {HasPermission("SubTenantView") && (
-                              <TableCell>
-                                {val.isComponentAvailable ? (
-                                  <TextField
+                                  <input
                                     type="number"
-                                    size="small"
-                                    value={val?.wholeSalePrice}
-                                    onChange={(e) => handleChanges(e, i, "wholeSalePrice")}
+                                    className="form-control"
+                                    style={{ width: "120px" }}
+                                    value={val?.maxPartnerPrice}
                                     disabled={!val.isAvailable}
-                                    sx={{ width: 120 }}
-                                    variant="outlined"
+                                    onChange={(e) =>
+                                      handleChanges(e, i, "maxPartnerPrice")
+                                    }
                                   />
                                 ) : (
-                                  <Typography variant="body2" color="primary">
-                                    Pricing at Estimation Screen
-                                  </Typography>
+                                  "Pricing at Estimation Screen"
                                 )}
-                              </TableCell>
+                              </>
+                            ) : (
+                              <input
+                                type="number"
+                                className="form-control"
+                                style={{ width: "120px" }}
+                                value={val?.partnerSellingPrice}
+                                onChange={(e) =>
+                                  handleChanges(e, i, "partnerSellingPrice")
+                                }
+                                disabled={
+                                  val.isComponentAvailable ? false : true
+                                }
+                              />
                             )}
-
-                            <TableCell>
-                              {HasPermission("SubTenantView") ? (
-                                <>
-                                  {val.isComponentAvailable ? (
-                                    <TextField
-                                      type="number"
-                                      size="small"
-                                      value={val?.maxPartnerPrice}
-                                      disabled={!val.isAvailable}
-                                      onChange={(e) => handleChanges(e, i, "maxPartnerPrice")}
-                                      sx={{ width: 120 }}
-                                      variant="outlined"
-                                    />
-                                  ) : (
-                                    <Typography variant="body2" color="primary">
-                                      Pricing at Estimation Screen
-                                    </Typography>
-                                  )}
-                                </>
-                              ) : (
-                                <TextField
-                                  type="number"
-                                  size="small"
-                                  value={val?.partnerSellingPrice}
-                                  onChange={(e) => handleChanges(e, i, "partnerSellingPrice")}
-                                  disabled={val.isComponentAvailable ? false : true}
-                                  sx={{ width: 120 }}
-                                  variant="outlined"
-                                />
-                              )}
-                            </TableCell>
-                            {!HasPermission("SubTenantView") && (
-                              <TableCell>
-                                <FormControl size="small" sx={{ minWidth: 137 }}>
-                                  <Select
-                                    value={val?.taxRateId || ""}
-                                    onChange={(e) => handleChanges(e, i, "taxRateId")}
-                                    name="taxRateId"
-                                    displayEmpty
-                                  >
-                                    <MenuItem value="">Select Tax</MenuItem>
-                                    {countryList?.map((item, index) => (
-                                      <MenuItem
-                                        key={index}
-                                        value={item?.taxRateId}
-                                      >
-                                        {item?.taxName}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              </TableCell>
-                            )}
-
-                            <TableCell>
-                              {val?.options?.length > 0 ? (
-                                <Button
-                                  variant="outlined"
-                                  size="small"
-                                  onClick={() => toggleMilestone(i)}
-                                  startIcon={expandedMilestone === i ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                                  sx={{
-                                    textTransform: 'none',
-                                    color: theme.palette.primary.main,
-                                    borderColor: theme.palette.primary.main,
-                                    '&:hover': {
-                                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                    }
-                                  }}
-                                >
-                                  {expandedMilestone === i ? 'Hide Options' : 'Show Options'}
-                                </Button>
-                              ) : (
-                                <Typography variant="body2" color="textSecondary">
-                                  No Options
-                                </Typography>
-                              )}
-                            </TableCell>
-                            <TableCell align="center">
-                              {HasPermission("ManageProductEdit") && editedRows.has(i) && (
-                                <Stack direction="row" spacing={1} justifyContent="center">
-                                  <Tooltip title="Save Changes">
-                                    <IconButton
-                                      color="success"
-                                      onClick={() => handleSubmit(i)}
-                                      size="small"
-                                      sx={{
-                                        backgroundColor: alpha(theme.palette.success.main, 0.1),
-                                        '&:hover': {
-                                          backgroundColor: alpha(theme.palette.success.main, 0.2),
-                                        }
-                                      }}
-                                    >
-                                      <SaveIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
-                                  <Tooltip title="Clear Changes">
-                                    <IconButton
-                                      color="error"
-                                      onClick={() => handleClear(i)}
-                                      size="small"
-                                      sx={{
-                                        backgroundColor: alpha(theme.palette.error.main, 0.1),
-                                        '&:hover': {
-                                          backgroundColor: alpha(theme.palette.error.main, 0.2),
-                                        }
-                                      }}
-                                    >
-                                      <ClearIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
-                                </Stack>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                          {expandedMilestone === i && (
-                            <TableRow>
-                              <TableCell
-                                colSpan={HasPermission("SubTenantView") ? 9 : 9}
-                                sx={{ p: 0, border: 'none' }}
+                          </td>
+                          {!HasPermission("SubTenantView") && (
+                            <td>
+                              <select
+                                className="form-select"
+                                name="taxRateId"
+                                style={{ width: "137px" }}
+                                value={val?.taxRateId}
+                                onChange={(e) =>
+                                  handleChanges(e, i, "taxRateId")
+                                }
+                                disabled={
+                                  val.isTenantProductTaxAvailable ? false : true
+                                }
                               >
-                                <Collapse in={expandedMilestone === i} timeout="auto" unmountOnExit>
-                                  <Box sx={{ p: 3, backgroundColor: alpha(theme.palette.grey[50], 0.3) }}>
-                                    {val?.options?.map((vals, ind) =>
-                                      vals?.optionTypes?.length > 0 ? (
-                                        <Card key={ind} sx={{ mb: 2, boxShadow: 1 }}>
-                                          <CardContent sx={{ p: 3 }}>
-                                            <Box sx={{ mb: 3 }}>
-                                              <Stack 
-                                                direction={{ xs: 'column', sm: 'row' }}
-                                                justifyContent="space-between"
-                                                alignItems={{ xs: 'flex-start', sm: 'center' }}
-                                                spacing={2}
-                                              >
-                                                <Typography 
-                                                  variant="h6" 
-                                                  sx={{ 
-                                                    fontWeight: 600,
-                                                    color: theme.palette.primary.main,
-                                                    borderLeft: `4px solid ${theme.palette.primary.main}`,
-                                                    pl: 2
-                                                  }}
-                                                >
-                                                  Option Name: 
-                                                  <Typography component="span" sx={{ color: 'text.primary', ml: 1 }}>
-                                                    {vals?.optionName}
-                                                  </Typography>
-                                                </Typography>
-                                                {!HasPermission("SubTenantView") && (
-                                                  <FormControl size="small" sx={{ minWidth: 200 }}>
-                                                    <InputLabel>Select Tax</InputLabel>
-                                                    <Select
-                                                      value={vals?.taxRateId || ""}
-                                                      onChange={(e) => handleParentTaxRateChange(e, i, ind)}
-                                                      label="Select Tax"
-                                                    >
-                                                      <MenuItem value="">Select Tax</MenuItem>
-                                                      {countryList?.map((item, index) => (
-                                                        <MenuItem key={index} value={item?.taxRateId}>
-                                                          {item?.taxName}
-                                                        </MenuItem>
-                                                      ))}
-                                                    </Select>
-                                                  </FormControl>
-                                                )}
-                                              </Stack>
-                                            </Box>
-                                            <TableContainer component={Paper} sx={{ mt: 2 }}>
-                                              <Table size="small">
-                                                <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.1) }}>
-                                                  <TableRow>
-                                                    <TableCell sx={{ fontWeight: 600 }}>Option Value</TableCell>
-                                                    {HasPermission("SubTenantView") && (
-                                                      <TableCell sx={{ fontWeight: 600 }}>IsVisible</TableCell>
-                                                    )}
-                                                    <TableCell sx={{ fontWeight: 600 }}>Price Type</TableCell>
-                                                    {HasPermission("SubTenantView") && (
-                                                      <TableCell sx={{ fontWeight: 600 }}>
-                                                        Wholesale Price{" "}
-                                                        {HasPermission("SubTenantView") ? "Markup" : ""}
-                                                      </TableCell>
-                                                    )}
-                                                    <TableCell sx={{ fontWeight: 600 }}>
-                                                      {HasPermission("SubTenantView")
-                                                        ? "Max Price Markup"
-                                                        : "Selling Price Markup"}
-                                                    </TableCell>
-                                                  </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                  {vals?.optionTypes?.map((valss, inds) => (
-                                                    <TableRow key={inds}>
-                                                      <TableCell>
-                                                        <Typography variant="body2" fontWeight={500}>
-                                                          {valss?.optionTypeName}
-                                                        </Typography>
-                                                      </TableCell>
+                                <option value="">Select Tax</option>
+                                {countryList?.map((item, i) => {
+                                  return (
+                                    <option
+                                      key={i}
+                                      value={item?.taxRateId}
+                                      selected={
+                                        item?.taxRateId === val?.taxRateId
+                                          ? true
+                                          : false
+                                      }
+                                    >
+                                      {item?.taxName}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                            </td>
+                          )}
+
+                          {val?.options?.length > 0 ? (
+                            <td
+                              style={{ cursor: "pointer" }}
+                              onClick={() => toggleMilestone(i)}
+                            >
+                              Show Options{" "}
+                              <i
+                                className="fa fa-angle-down me-2"
+                                aria-hidden="true"
+                              ></i>
+                            </td>
+                          ) : (
+                            <td></td>
+                          )}
+                          <td className="text-end">
+                            {HasPermission("ManageProductEdit") &&
+                              editedRows.has(i) && (
+                                <>
+                                  <img
+                                    alt=""
+                                    style={{ cursor: "pointer" }}
+                                    src="/image/submit.png"
+                                    onClick={() => handleSubmit(i)}
+                                  />
+                                  <img
+                                    alt=""
+                                    style={{
+                                      cursor: "pointer",
+                                      marginLeft: "5px",
+                                    }}
+                                    src="/image/cross.png"
+                                    onClick={() => handleClear(i)}
+                                  />
+                                </>
+                              )}
+                          </td>
+                        </tr>
+                        {expandedMilestone === i && (
+                          <React.Fragment>
+                            {val?.options?.map((vals, ind) =>
+                              vals?.optionTypes?.length > 0 ? (
+                                <tr key={ind}>
+                                  <td
+                                    style={{ padding: "0px" }}
+                                    colSpan={
+                                      HasPermission("SubTenantView") ? 9 : 9
+                                    }
+                                  >
+                                    <div className="product-table-new">
+                                      <div className="d-flex align-items-center justify-content-between mb-3">
+                                        <h2 className="body_heading width-left-border mb-0 new-table-heading">
+                                          Option Name{" "}
+                                          <span className="text-black">
+                                            : {vals?.optionName}
+                                          </span>
+                                        </h2>
+                                        {!HasPermission("SubTenantView") && (
+                                          <div style={{ marginTop: "10px" }}>
+                                            <select
+                                              className="form-select"
+                                              style={{ width: "200px" }}
+                                              value={vals?.taxRateId || ""}
+                                              onChange={(e) =>
+                                                handleParentTaxRateChange(
+                                                  e,
+                                                  i,
+                                                  ind
+                                                )
+                                              }
+                                              disabled={
+                                                vals.isTenantOptionTaxAvailable
+                                                  ? false
+                                                  : true
+                                              }
+                                            >
+                                              <option value="">
+                                                Select Tax
+                                              </option>
+                                              {countryList?.map(
+                                                (item, index) => (
+                                                  <option
+                                                    key={index}
+                                                    value={item?.taxRateId}
+                                                  >
+                                                    {item?.taxName}
+                                                  </option>
+                                                )
+                                              )}
+                                            </select>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <table className="table">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Option Value</th>
+                                            {/* <th scope="col">
+                                              {HasPermission("SubTenantView")
+                                                ? "MSRP / Wholesale Price"
+                                                : "MSRP"}
+                                            </th> */}
+
+                                            {HasPermission("SubTenantView") && (
+                                              <th scope="col">IsVisible</th>
+                                            )}
+                                            <th scope="col">Price Type</th>
+                                            {HasPermission("SubTenantView") && (
+                                              <th scope="col">
+                                                Wholesale Price{" "}
+                                                {HasPermission("SubTenantView")
+                                                  ? "Markup"
+                                                  : ""}
+                                              </th>
+                                            )}
+
+                                            <th scope="col">
+                                              {HasPermission("SubTenantView")
+                                                ? "Max Price Markup"
+                                                : "Selling Price Markup"}
+                                            </th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {vals?.optionTypes?.map(
+                                            (valss, inds) => (
+                                              <React.Fragment key={inds}>
+                                                <tr>
+                                                  <td>
+                                                    {valss?.optionTypeName}
+                                                  </td>
                                                   {/* <td>
                                                     {val.isComponentAvailable ? (
                                                       <span
@@ -1043,181 +993,270 @@ export default function ProductEdit() {
                                                       </span>
                                                     )}
                                                   </td> */}
-                                                      {HasPermission("SubTenantView") && (
-                                                        <TableCell>
-                                                          <Checkbox
-                                                            disabled={!val.isAvailable}
-                                                            checked={valss?.isAvailable}
-                                                            onChange={(e) =>
-                                                              handleOptionChange(e, i, ind, inds, "isAvailable")
-                                                            }
-                                                            color="primary"
-                                                            sx={{
-                                                              '&.Mui-checked': {
-                                                                color: theme.palette.primary.main,
-                                                              },
-                                                            }}
-                                                          />
-                                                        </TableCell>
+                                                  {HasPermission(
+                                                    "SubTenantView"
+                                                  ) && (
+                                                    <td>
+                                                      <input
+                                                        type="checkbox"
+                                                        style={{
+                                                          border:
+                                                            "1px solid #8f8b8b",
+                                                        }}
+                                                        disabled={
+                                                          !val.isAvailable
+                                                        }
+                                                        checked={
+                                                          valss?.isAvailable
+                                                        }
+                                                        onChange={(e) =>
+                                                          handleOptionChange(
+                                                            e,
+                                                            i,
+                                                            ind,
+                                                            inds,
+                                                            "isAvailable"
+                                                          )
+                                                        }
+                                                        className="form-check-input"
+                                                      />
+                                                    </td>
+                                                  )}
+
+                                                  <td>
+                                                    {HasPermission(
+                                                      "SubTenantView"
+                                                    ) ? (
+                                                      <select
+                                                        className="form-select"
+                                                        name="productType"
+                                                        style={{
+                                                          width: "137px",
+                                                        }}
+                                                        value={valss?.priceType}
+                                                        onChange={(e) =>
+                                                          handleOptionChange(
+                                                            e,
+                                                            i,
+                                                            ind,
+                                                            inds,
+                                                            "priceType"
+                                                          )
+                                                        }
+                                                        disabled={
+                                                          val.isComponentAvailable
+                                                            ? false
+                                                            : true
+                                                        }
+                                                      >
+                                                        <option value="Fixed">
+                                                          Fixed
+                                                        </option>
+                                                        <option value="Percentage">
+                                                          Percentage
+                                                        </option>
+                                                      </select>
+                                                    ) : (
+                                                      <select
+                                                        className="form-select"
+                                                        name="productType"
+                                                        style={{
+                                                          width: "137px",
+                                                        }}
+                                                        value={
+                                                          valss?.markupOptionType
+                                                        }
+                                                        onChange={(e) =>
+                                                          handleOptionChange(
+                                                            e,
+                                                            i,
+                                                            ind,
+                                                            inds,
+                                                            "markupOptionType"
+                                                          )
+                                                        }
+                                                        disabled
+                                                      >
+                                                        <option value="Fixed">
+                                                          Fixed
+                                                        </option>
+                                                        <option value="Percentage">
+                                                          Percentage
+                                                        </option>
+                                                      </select>
+                                                    )}
+                                                  </td>
+
+                                                  {HasPermission(
+                                                    "SubTenantView"
+                                                  ) && (
+                                                    <td>
+                                                      {val.isComponentAvailable ? (
+                                                        <input
+                                                          type="number"
+                                                          style={{
+                                                            width: "120px",
+                                                          }}
+                                                          className="form-control"
+                                                          value={
+                                                            valss?.wholeSalePrice
+                                                          }
+                                                          disabled={
+                                                            !valss?.isAvailable
+                                                          }
+                                                          onChange={(e) =>
+                                                            handleOptionChange(
+                                                              e,
+                                                              i,
+                                                              ind,
+                                                              inds,
+                                                              "wholeSalePrice"
+                                                            )
+                                                          }
+                                                        />
+                                                      ) : (
+                                                        <input
+                                                          type="number"
+                                                          style={{
+                                                            width: "120px",
+                                                          }}
+                                                          className="form-control"
+                                                          value={
+                                                            valss?.wholeSalePrice
+                                                          }
+                                                          disabled={true}
+                                                          onChange={(e) =>
+                                                            handleOptionChange(
+                                                              e,
+                                                              i,
+                                                              ind,
+                                                              inds,
+                                                              "wholeSalePrice"
+                                                            )
+                                                          }
+                                                        />
                                                       )}
+                                                    </td>
+                                                    // ) : (
+                                                    //   <p>
+                                                    //     {
+                                                    //       defaultConfig?.currencySign
+                                                    //     }{" "}
+                                                    //     {valss?.wholeSalePrice}
+                                                    //   </p>
+                                                  )}
 
-                                                      <TableCell>
-                                                        {HasPermission("SubTenantView") ? (
-                                                          <FormControl size="small" sx={{ minWidth: 137 }}>
-                                                            <Select
-                                                              value={valss?.priceType}
-                                                              onChange={(e) =>
-                                                                handleOptionChange(e, i, ind, inds, "priceType")
-                                                              }
-                                                              disabled={val.isComponentAvailable ? false : true}
-                                                              name="priceType"
-                                                            >
-                                                              <MenuItem value="Fixed">Fixed</MenuItem>
-                                                              <MenuItem value="Percentage">Percentage</MenuItem>
-                                                            </Select>
-                                                          </FormControl>
-                                                        ) : (
-                                                          <FormControl size="small" sx={{ minWidth: 137 }}>
-                                                            <Select
-                                                              value={valss?.markupOptionType}
-                                                              onChange={(e) =>
-                                                                handleOptionChange(e, i, ind, inds, "markupOptionType")
-                                                              }
-                                                              disabled
-                                                              name="markupOptionType"
-                                                            >
-                                                              <MenuItem value="Fixed">Fixed</MenuItem>
-                                                              <MenuItem value="Percentage">Percentage</MenuItem>
-                                                            </Select>
-                                                          </FormControl>
-                                                        )}
-                                                      </TableCell>
-
-                                                      {HasPermission("SubTenantView") && (
-                                                        <TableCell>
-                                                          {val.isComponentAvailable ? (
-                                                            <TextField
-                                                              type="number"
-                                                              size="small"
-                                                              value={valss?.wholeSalePrice}
-                                                              disabled={!valss?.isAvailable}
-                                                              onChange={(e) =>
-                                                                handleOptionChange(e, i, ind, inds, "wholeSalePrice")
-                                                              }
-                                                              sx={{ width: 120 }}
-                                                              variant="outlined"
-                                                            />
-                                                          ) : (
-                                                            <TextField
-                                                              type="number"
-                                                              size="small"
-                                                              value={valss?.wholeSalePrice}
-                                                              disabled={true}
-                                                              onChange={(e) =>
-                                                                handleOptionChange(e, i, ind, inds, "wholeSalePrice")
-                                                              }
-                                                              sx={{ width: 120 }}
-                                                              variant="outlined"
-                                                            />
-                                                          )}
-                                                        </TableCell>
-                                                      )}
-
-                                                      <TableCell>
-                                                        {HasPermission("SubTenantView") ? (
-                                                          <>
-                                                            {val.isComponentAvailable ? (
-                                                              <TextField
-                                                                type="number"
-                                                                size="small"
-                                                                value={valss?.maxPrice}
-                                                                disabled={!valss?.isAvailable}
-                                                                onChange={(e) =>
-                                                                  handleOptionChange(e, i, ind, inds, "maxPrice")
-                                                                }
-                                                                sx={{ width: 120 }}
-                                                                variant="outlined"
-                                                              />
-                                                            ) : (
-                                                              <TextField
-                                                                type="number"
-                                                                size="small"
-                                                                value={valss?.maxPrice}
-                                                                disabled={true}
-                                                                onChange={(e) =>
-                                                                  handleOptionChange(e, i, ind, inds, "maxPrice")
-                                                                }
-                                                                sx={{ width: 120 }}
-                                                                variant="outlined"
-                                                              />
-                                                            )}
-                                                          </>
-                                                        ) : (
-                                                          <TextField
+                                                  <td>
+                                                    {HasPermission(
+                                                      "SubTenantView"
+                                                    ) ? (
+                                                      <>
+                                                        {val.isComponentAvailable ? (
+                                                          <input
                                                             type="number"
-                                                            size="small"
-                                                            value={valss?.partnerSellingPrice}
-                                                            disabled={val.isComponentAvailable ? false : true}
-                                                            onChange={(e) =>
-                                                              handleOptionChange(e, i, ind, inds, "partnerSellingPrice")
+                                                            className="form-control"
+                                                            style={{
+                                                              width: "120px",
+                                                            }}
+                                                            value={
+                                                              valss?.maxPrice
                                                             }
-                                                            sx={{ width: 120 }}
-                                                            variant="outlined"
+                                                            disabled={
+                                                              !valss?.isAvailable
+                                                            }
+                                                            onChange={(e) =>
+                                                              handleOptionChange(
+                                                                e,
+                                                                i,
+                                                                ind,
+                                                                inds,
+                                                                "maxPrice"
+                                                              )
+                                                            }
+                                                          />
+                                                        ) : (
+                                                          <input
+                                                            type="number"
+                                                            className="form-control"
+                                                            style={{
+                                                              width: "120px",
+                                                            }}
+                                                            value={
+                                                              valss?.maxPrice
+                                                            }
+                                                            disabled={true}
+                                                            onChange={(e) =>
+                                                              handleOptionChange(
+                                                                e,
+                                                                i,
+                                                                ind,
+                                                                inds,
+                                                                "maxPrice"
+                                                              )
+                                                            }
                                                           />
                                                         )}
-                                                      </TableCell>
-                                                    </TableRow>
-                                                  ))}
-                                                </TableBody>
-                                              </Table>
-                                            </TableContainer>
-                                          </CardContent>
-                                        </Card>
-                                      ) : null
-                                    )}
-                                  </Box>
-                                </Collapse>
-                              </TableCell>
-                            </TableRow>
-                          )}
+                                                      </>
+                                                    ) : (
+                                                      <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        style={{
+                                                          width: "120px",
+                                                        }}
+                                                        value={
+                                                          valss?.partnerSellingPrice
+                                                        }
+                                                        disabled={
+                                                          val.isComponentAvailable
+                                                            ? false
+                                                            : true
+                                                        }
+                                                        onChange={(e) =>
+                                                          handleOptionChange(
+                                                            e,
+                                                            i,
+                                                            ind,
+                                                            inds,
+                                                            "partnerSellingPrice"
+                                                          )
+                                                        }
+                                                      />
+                                                    )}
+                                                  </td>
+                                                </tr>
+                                              </React.Fragment>
+                                            )
+                                          )}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ) : null
+                            )}
+                          </React.Fragment>
+                        )}
                       </React.Fragment>
                     ))}
-                      {(!tenantList || tenantList?.length === 0) && (
-                        <TableRow>
-                          <TableCell 
-                            colSpan={HasPermission("SubTenantView") ? 9 : 8} 
-                            sx={{ 
-                              border: 'none',
-                              textAlign: 'center', 
-                              padding: 6,
-                              color: 'text.secondary'
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                textAlign: 'center',
-                                padding: 6,
-                                color: 'text.secondary',
-                              }}
-                            >
-                              <img
-                                src="/image/no-records.svg"
-                                alt="No records"
-                                loading="lazy"
-                                style={{ maxWidth: '200px', opacity: 0.6 }}
-                              />
-                              <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>
-                                No Products Found
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                
-                {/* Pagination */}
+                    {(!tenantList || tenantList?.length === 0) && (
+                      <tr>
+                        <td
+                          className="text-center border-0 no-records"
+                          colSpan={7}
+                        >
+                          <img
+                            src="/image/no-records.svg"
+                            alt=" "
+                            loading="lazy"
+                            className="img-fluid"
+                          />
+                          <p className="font-14">No Product Found</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
                 {tenantList && tenantList?.length > 0 && (
                   <div className="d-flex align-items-center justify-content-end bottom_nav">
                     <nav aria-label="Page navigation example">
@@ -1230,24 +1269,13 @@ export default function ProductEdit() {
                           page={page - 1}
                           onPageChange={handleChangePage}
                           onRowsPerPageChange={handleChangeRowsPerPage}
-                          sx={{
-                            '& .MuiTablePagination-toolbar': {
-                              paddingLeft: 0,
-                              paddingRight: 0,
-                            }
-                          }}
                         />
                       </ul>
                     </nav>
                   </div>
                 )}
-                  </Paper>
-                </div>
               </div>
-                  </CardContent>
-                </Card>
-              </Container>
-            </Box>
+            </div>
           </div>
         </div>
       </div>

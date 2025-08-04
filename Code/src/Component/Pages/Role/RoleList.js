@@ -1,33 +1,12 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import TableTitle from "../../Form/TableTitle";
+import DynamicTable from "../../Form/DynamicTable";
 import Search from "../../Form/Search";
+import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { 
-  TablePagination,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  Chip,
-  IconButton,
-  Button,
-} from "@mui/material";
-import { 
-  Edit,
-  Delete as DeleteIcon,
-  ArrowUpward,
-  ArrowDownward,
-  ToggleOn,
-  ToggleOff,
-  Add,
-} from "@mui/icons-material";
+import { TablePagination } from "@mui/material";
 import AddEditRole from "./AddEditRole";
 import {
   ApiLoder,
@@ -55,7 +34,7 @@ export default function RoleList({ handleApihit }) {
   const [filter, setFilter] = useState({ status: "2", tenantId: "" });
 
   const columns = [
-    { key: "roleName", label: "Role Name", sort: true },
+    { key: "roleName", label: "Role Name" },
     { key: "isActive", label: "Status" },
   ];
 
@@ -216,30 +195,13 @@ export default function RoleList({ handleApihit }) {
 
         <div className="heading_width_search d-flex align-items-center gap-3">
           {HasPermission("RolesAdd") && (
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => {
+            <AddEditButton
+              handleClick={() => {
                 setAction("add");
                 setOpen(true);
               }}
-              sx={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                color: 'white',
-                fontWeight: 600,
-                textTransform: 'none',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 6px 16px rgba(59, 130, 246, 0.4)',
-                },
-              }}
-            >
-              Add New Role
-            </Button>
+              title="Add New Role"
+            />
           )}
         </div>
       </div>
@@ -251,213 +213,38 @@ export default function RoleList({ handleApihit }) {
           <StatusDropdown value={filter.status} fn={handleChange} />
         </div>
       </div>
-
-      <Box sx={{ mt: 3 }}>
-        {/* Modern Material UI Table */}
-        <TableContainer 
-          component={Paper} 
-          sx={{ 
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            overflow: 'hidden',
-            border: '1px solid #f1f5f9',
-          }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.key}
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: '0.875rem',
-                      color: '#374151',
-                      borderBottom: '2px solid #e5e7eb',
-                      padding: '16px',
-                      position: 'relative',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography sx={{ fontWeight: 700, fontSize: '0.875rem' }}>
-                        {column.label}
-                      </Typography>
-                      {column.sort && (
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: '#9ca3af',
-                            padding: '2px',
-                            '&:hover': {
-                              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            },
-                          }}
-                        >
-                          <ArrowUpward sx={{ fontSize: 16 }} />
-                        </IconButton>
-                      )}
-                    </Box>
-                  </TableCell>
-                ))}
-                <TableCell
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    color: '#374151',
-                    borderBottom: '2px solid #e5e7eb',
-                    padding: '16px',
-                    textAlign: 'center',
-                  }}
-                >
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {RolesList && RolesList.length > 0 ? (
-                RolesList.map((role, index) => (
-                  <TableRow
-                    key={role.roleId || index}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f9fafb',
-                      },
-                      '&:nth-of-type(even)': {
-                        backgroundColor: '#fafbfc',
-                      },
-                    }}
-                  >
-                    <TableCell sx={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
-                      <Typography sx={{ fontWeight: 600, color: '#1f2937' }}>
-                        {role.roleName}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton
-                          onClick={() => handlestatus(role)}
-                          sx={{
-                            color: role.isActive ? '#10b981' : '#ef4444',
-                            '&:hover': {
-                              backgroundColor: role.isActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                            },
-                          }}
-                        >
-                          {role.isActive ? (
-                            <ToggleOn sx={{ fontSize: 24 }} />
-                          ) : (
-                            <ToggleOff sx={{ fontSize: 24 }} />
-                          )}
-                        </IconButton>
-                        <Chip
-                          label={role.isActive ? 'Active' : 'Inactive'}
-                          size="small"
-                          sx={{
-                            backgroundColor: role.isActive ? '#dcfce7' : '#fee2e2',
-                            color: role.isActive ? '#166534' : '#dc2626',
-                            fontWeight: 500,
-                            fontSize: '0.75rem',
-                          }}
-                        />
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
-                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                        {HasPermission("RolesEdit") && (
-                          <IconButton
-                            onClick={() => handleedit(role)}
-                            sx={{
-                              color: '#3b82f6',
-                              backgroundColor: '#eff6ff',
-                              '&:hover': {
-                                backgroundColor: '#dbeafe',
-                              },
-                            }}
-                          >
-                            <Edit sx={{ fontSize: 18 }} />
-                          </IconButton>
-                        )}
-                        {HasPermission("RolesDelete") && (
-                          <IconButton
-                            onClick={() => handledelete(role)}
-                            sx={{
-                              color: '#ef4444',
-                              backgroundColor: '#fef2f2',
-                              '&:hover': {
-                                backgroundColor: '#fee2e2',
-                              },
-                            }}
-                          >
-                            <DeleteIcon sx={{ fontSize: 18 }} />
-                          </IconButton>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell 
-                    colSpan={columns.length + 1} 
-                    sx={{ 
-                      textAlign: 'center', 
-                      padding: '40px',
-                      borderBottom: 'none',
-                    }}
-                  >
-                    <Paper
-                      sx={{
-                        p: 4,
-                        backgroundColor: '#f9fafb',
-                        border: '2px dashed #d1d5db',
-                        borderRadius: '12px',
-                      }}
-                    >
-                      <Typography 
-                        variant="h6" 
-                        sx={{ 
-                          color: '#6b7280',
-                          fontWeight: 500,
-                        }}
-                      >
-                        No Roles Found
-                      </Typography>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: '#9ca3af',
-                          mt: 1,
-                        }}
-                      >
-                        Try adjusting your search or filter criteria
-                      </Typography>
-                    </Paper>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* Simple Vendor-style Pagination */}
-        {RolesList && RolesList?.length > 0 && (
-          <div className="d-flex align-items-center justify-content-end bottom_nav">
-            <nav aria-label="Page navigation example">
-              <ul className="pagination">
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                  component="div"
-                  count={paginatedItems}
-                  rowsPerPage={rowsPerPage}
-                  page={page - 1}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-              </ul>
-            </nav>
-          </div>
-        )}
-      </Box>
+      <div className="task_table mb-30">
+        <div className="table-responsive">
+          <DynamicTable
+            data={RolesList}
+            columns={columns}
+            title="Role"
+            rowActions={["edit", "delete"]}
+            edituser={handleedit}
+            handledelete={handledelete}
+            handlestatus={handlestatus}
+            deletepermission="RolesDelete"
+            editpermission="RolesEdit"
+          />
+          {RolesList && RolesList?.length > 0 && (
+            <div className="d-flex align-items-center justify-content-end bottom_nav">
+              <nav aria-label="Page navigation example">
+                <ul className="pagination">
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 15, 25, 100]}
+                    component="div"
+                    count={paginatedItems}
+                    rowsPerPage={rowsPerPage}
+                    page={page - 1}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </ul>
+              </nav>
+            </div>
+          )}
+        </div>
+      </div>
       {open && (
         <AddEditRole
           open={open}

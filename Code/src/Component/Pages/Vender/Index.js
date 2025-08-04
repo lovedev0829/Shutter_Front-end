@@ -2,36 +2,12 @@ import React, { useEffect } from "react";
 import Header from "../../../Layout/header";
 import { useState } from "react";
 import TableTitle from "../../Form/TableTitle";
+import DynamicTable from "../../Form/DynamicTable";
 import Search from "../../Form/Search";
+import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { 
-  TablePagination,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  Chip,
-  IconButton,
-  Button,
-  TextField,
-  Tabs,
-  Tab,
-} from "@mui/material";
-import { 
-  Edit,
-  Delete as DeleteIcon,
-  ArrowUpward,
-  ArrowDownward,
-  ToggleOn,
-  ToggleOff,
-  Add,
-} from "@mui/icons-material";
+import { TablePagination } from "@mui/material";
 import AddEditVender from "./AddEditVender";
 import {
   ApiLoder,
@@ -43,6 +19,7 @@ import {
 import { useDebounce } from "use-debounce";
 import StatusDropdown from "../../../helpers/StatusDropdown";
 import VendorOrderList from "../Vendor-Order/VendorOrderList";
+import Tab from "../../Form/Tab";
 import { Manageapplication, Vendororder } from "../../../SvgFile/Index";
 
 export default function Index() {
@@ -64,7 +41,7 @@ export default function Index() {
     sortDirection: "asc",
     columnFilters: [],
   });
-  const [tabdata, setTabdata] = useState("#vendorlisttabd");
+  const [tabdata, setTabdata] = useState("#pills-overview-tab");
   const columns = [
     { key: "companyName", label: "Company Name", sort: true },
     { key: "firstName", label: "Name", sort: true },
@@ -290,19 +267,7 @@ export default function Index() {
   const handleTabchnage = (value) => {
     setTabdata(value || Tablist[0].id);
   };
-
-  const handleTabChange = (event, newValue) => {
-    const filteredTablist = Tablist.filter(Boolean);
-    const selectedTab = filteredTablist[newValue];
-    setTabdata(selectedTab.id);
-  };
-
-  const getCurrentTabIndex = () => {
-    const filteredTablist = Tablist.filter(Boolean);
-    return Math.max(0, filteredTablist.findIndex(tab => tab.id === tabdata));
-  };
-
-  const initialActiveTab = localStorage.getItem("activeTab2") || "#vendorlisttabd";
+  const initialActiveTab = localStorage.getItem("activeTab2") || Tablist[0].id;
 
   const handleFilterSortChange = (columnKey) => {
     setFilter((val) => {
@@ -359,356 +324,67 @@ export default function Index() {
       <div className="intersight_content">
         <Header title="Vendor" />
         <div className="body_content">
-          <Paper sx={{ width: '100%', mb: 3 }}>
-            <Tabs
-              value={getCurrentTabIndex()}
-              onChange={handleTabChange}
-              sx={{
-                borderBottom: 1,
-                borderColor: 'divider',
-                '& .MuiTab-root': {
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  minHeight: 48,
-                  '&.Mui-selected': {
-                    fontWeight: 600,
-                  },
-                },
-              }}
-            >
-              {Tablist.filter(Boolean).map((tab, index) => (
-                <Tab
-                  key={index}
-                  icon={tab.svg}
-                  label={tab.title}
-                  iconPosition="start"
-                  sx={{ gap: 1 }}
-                />
-              ))}
-            </Tabs>
-
-            <Box sx={{ p: 0 }}>
-              {/* Tab Content */}
-              {tabdata === "#vendorlisttabd" && (
-                <Box sx={{ p: 3 }}>
-                    {/* Header Section */}
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'space-between', 
-                      mb: 4 
-                    }}>
+          <div className="contact-profile">
+            <div className="engage-tabs">
+              <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                <Tab Tablist={Tablist} handleTabchnage={handleTabchnage} />
+              </ul>
+              <div className="tab-content" id="pills-tabContent">
+                <div
+                  className={`tab-pane fade ${
+                    initialActiveTab === "#vendorlisttabd" ? "show active" : ""
+                  }`}
+                  id="vendorlisttabd"
+                  role="tabpanel"
+                  aria-labelledby="pills-overview-tab"
+                  tabIndex={0}
+                >
+                  <div className="contact-profile">
+                    <div className="d-flex align-items-center justify-content-between mb-30">
                       <TableTitle title="Manage Vendor" />
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <div className="heading_width_search d-flex align-items-center gap-3">
                         {HasPermission("VendorsAdd") && (
-                          <Button
-                            variant="contained"
-                            startIcon={<Add />}
-                            onClick={() => {
+                          <AddEditButton
+                            handleClick={() => {
                               setAction("add");
                               setOpen(true);
                             }}
-                            sx={{
-                              borderRadius: '8px',
-                              textTransform: 'none',
-                              fontWeight: 600,
-                              px: 3,
-                              py: 1,
-                              boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
-                              '&:hover': {
-                                boxShadow: '0 6px 16px rgba(25, 118, 210, 0.25)',
-                                transform: 'translateY(-1px)',
-                              },
-                            }}
-                          >
-                            Add Vendor
-                          </Button>
+                            title="Add Vendor"
+                          />
                         )}
-                      </Box>
-                    </Box>
+                      </div>
+                    </div>
 
-                    {/* Search and Filter Section */}
-                    <Box sx={{ 
-                      display: 'flex',
-                      flexDirection: { xs: 'column', md: 'row' },
-                      alignItems: 'center',
-                      gap: 2,
-                      mb: 4
-                    }}>
-                      <Box sx={{ flexGrow: 1, maxWidth: { xs: '100%', md: '300px' } }}>
+                    <div className="d-block d-md-flex align-items-center gap-2 mb-30">
+                      <div className="filter-dropdown dropdown">
                         <Search handleSearch={handleSearch} />
-                      </Box>
-                      <Box sx={{ minWidth: { xs: '100%', md: '200px' } }}>
+                      </div>
+                      <div className="filter-dropdown dropdown">
                         <StatusDropdown
                           value={filter.status}
                           fn={handleChange}
                         />
-                      </Box>
-                    </Box>
+                      </div>
+                    </div>
 
-                    {/* Modern Table Section */}
-                    <Box sx={{ width: '100%', overflow: 'hidden' }}>
-                      <TableContainer
-                        component={Paper}
-                        sx={{
-                          borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-                          overflow: 'auto',
-                          border: '1px solid #e3f2fd',
-                          maxHeight: '70vh',
-                          width: '100%',
-                          '&::-webkit-scrollbar': {
-                            height: '8px',
-                            width: '8px',
-                          },
-                          '&::-webkit-scrollbar-track': {
-                            backgroundColor: '#f1f5f9',
-                            borderRadius: '4px',
-                          },
-                          '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#cbd5e1',
-                            borderRadius: '4px',
-                            '&:hover': {
-                              backgroundColor: '#94a3b8',
-                            },
-                          },
-                        }}
-                      >
-                        <Table sx={{ minWidth: 1200 }} stickyHeader>
-                          <TableHead>
-                            <TableRow>
-                              {columns.map((column) => (
-                                <TableCell
-                                  key={column.key}
-                                  sx={{
-                                    backgroundColor: '#f8fafc',
-                                    fontWeight: 700,
-                                    fontSize: '0.875rem',
-                                    color: '#1e293b',
-                                    borderBottom: '2px solid #e2e8f0',
-                                    py: 2,
-                                                            position: 'sticky',
-                        top: 0,
-                        zIndex: 3,
-                                  }}
-                                >
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography variant="inherit" sx={{ fontWeight: 700 }}>
-                                      {column.label}
-                                    </Typography>
-                                    {column.sort && (
-                                      <IconButton
-                                        size="small"
-                                        onClick={() => handleFilterSortChange(column.key)}
-                                        sx={{
-                                          color: filter.sortColumn === column.key ? '#3b82f6' : '#94a3b8',
-                                          '&:hover': { color: '#3b82f6' },
-                                        }}
-                                      >
-                                        {filter.sortColumn === column.key && filter.sortDirection === 'desc' ? (
-                                          <ArrowDownward fontSize="small" />
-                                        ) : (
-                                          <ArrowUpward fontSize="small" />
-                                        )}
-                                      </IconButton>
-                                    )}
-                                  </Box>
-                                  {column.sort && (
-                                    <TextField
-                                      size="small"
-                                      placeholder={`Search ${column.label.toLowerCase()}...`}
-                                      variant="outlined"
-                                      onChange={(e) => handlesearchChange(column.key, e.target.value)}
-                                      value={filter.columnFilters?.find(f => f.field === column.key)?.value || ''}
-                                      sx={{
-                                        mt: 1,
-                                        '& .MuiOutlinedInput-root': {
-                                          height: '32px',
-                                          fontSize: '0.75rem',
-                                          borderRadius: '6px',
-                                          backgroundColor: 'white',
-                                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#3b82f6',
-                                          },
-                                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#3b82f6',
-                                          },
-                                        },
-                                      }}
-                                    />
-                                  )}
-                                </TableCell>
-                              ))}
-                              <TableCell
-                                sx={{
-                                  backgroundColor: '#f8fafc',
-                                  fontWeight: 700,
-                                  fontSize: '0.875rem',
-                                  color: '#1e293b',
-                                  borderBottom: '2px solid #e2e8f0',
-                                  py: 2,
-                                                          position: 'sticky',
-                        top: 0,
-                        zIndex: 3,
-                                  textAlign: 'center',
-                                }}
-                              >
-                                Actions
-                              </TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {VendorList && VendorList.length > 0 ? (
-                              VendorList.map((vendor, index) => (
-                                <TableRow
-                                  key={vendor.vendorId || index}
-                                  sx={{
-                                    '&:nth-of-type(odd)': {
-                                      backgroundColor: '#fafbfc',
-                                    },
-                                    '&:hover': {
-                                      backgroundColor: '#f1f5f9',
-                                      transform: 'scale(1.001)',
-                                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                                    },
-                                    transition: 'all 0.2s ease',
-                                  }}
-                                >
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
-                                      {vendor.companyName}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.firstName}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Chip
-                                      label={vendor.vendorCode}
-                                      size="small"
-                                      sx={{
-                                        backgroundColor: '#e0f2fe',
-                                        color: '#0277bd',
-                                        fontWeight: 600,
-                                        fontSize: '0.75rem',
-                                      }}
-                                    />
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.email}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.phoneNumber}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.streetAddress}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.stateName}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.city}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
-                                      {vendor.zipCode}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                      <IconButton
-                                        size="small"
-                                        onClick={() => handlestatus(vendor)}
-                                        sx={{
-                                          color: vendor.isActive ? '#16a34a' : '#94a3b8',
-                                          '&:hover': {
-                                            backgroundColor: vendor.isActive ? '#f0fdf4' : '#f8fafc',
-                                          },
-                                        }}
-                                      >
-                                        {vendor.isActive ? <ToggleOn /> : <ToggleOff />}
-                                      </IconButton>
-                                      <Chip
-                                        label={vendor.isActive ? 'Active' : 'Inactive'}
-                                        size="small"
-                                        sx={{
-                                          backgroundColor: vendor.isActive ? '#dcfce7' : '#f1f5f9',
-                                          color: vendor.isActive ? '#16a34a' : '#64748b',
-                                          fontWeight: 600,
-                                          fontSize: '0.75rem',
-                                        }}
-                                      />
-                                    </Box>
-                                  </TableCell>
-                                  <TableCell sx={{ py: 2, textAlign: 'center' }}>
-                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                                      {HasPermission("VendorsEdit") && (
-                                        <IconButton
-                                          size="small"
-                                          onClick={() => handleedit(vendor)}
-                                          sx={{
-                                            color: '#3b82f6',
-                                            backgroundColor: '#eff6ff',
-                                            '&:hover': {
-                                              backgroundColor: '#dbeafe',
-                                              transform: 'scale(1.1)',
-                                            },
-                                          }}
-                                        >
-                                          <Edit fontSize="small" />
-                                        </IconButton>
-                                      )}
-                                      {HasPermission("VendorsDelete") && (
-                                        <IconButton
-                                          size="small"
-                                          onClick={() => handledelete(vendor)}
-                                          sx={{
-                                            color: '#ef4444',
-                                            backgroundColor: '#fef2f2',
-                                            '&:hover': {
-                                              backgroundColor: '#fee2e2',
-                                              transform: 'scale(1.1)',
-                                            },
-                                          }}
-                                        >
-                                          <DeleteIcon fontSize="small" />
-                                        </IconButton>
-                                      )}
-                                    </Box>
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            ) : (
-                              <TableRow>
-                                <TableCell colSpan={columns.length + 1} sx={{ textAlign: 'center', py: 6 }}>
-                                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                                    <Typography variant="h6" sx={{ color: '#64748b', fontWeight: 600 }}>
-                                      No vendors found
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                                      Try adjusting your search criteria or add a new vendor
-                                    </Typography>
-                                  </Box>
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-
-                      {/* Simple Vendor-style Pagination */}
+                    <div className="task_table mb-30">
+                      <div className="table-responsive">
+                        <DynamicTable
+                          data={VendorList}
+                          columns={columns}
+                          title="Vendor"
+                          rowActions={["edit", "delete"]}
+                          edituser={handleedit}
+                          handledelete={handledelete}
+                          handlestatus={handlestatus}
+                          deletepermission="VendorsDelete"
+                          editpermission="VendorsEdit"
+                          handleFilterSortChange={handleFilterSortChange}
+                          sortColumn={filter.sortColumn}
+                          sortDirection={filter.sortDirection}
+                          columnFilters={filter.columnFilters}
+                          handlesearchChange={handlesearchChange}
+                        />
                         {VendorList && VendorList?.length > 0 && (
                           <div className="d-flex align-items-center justify-content-end bottom_nav">
                             <nav aria-label="Page navigation example">
@@ -726,41 +402,49 @@ export default function Index() {
                             </nav>
                           </div>
                         )}
-                    </Box>
-                </Box>
-              )}
+                      </div>
+                    </div>
+                    {open && (
+                      <AddEditVender
+                        open={open}
+                        handleclose={handleclose}
+                        action={action}
+                        LanguageListAPI={refreshVendorlistAPI}
+                        object={object}
+                      />
+                    )}
+                    {delOpen && (
+                      <Delete
+                        open={delOpen}
+                        handleClose={handledelclose}
+                        title={object.companyName}
+                        id={object?.vendorId}
+                        handleDelete={handleDelete}
+                        loder={loder}
+                      />
+                    )}
+                  </div>
+                </div>
                 {/* vendorlisttab */}
 
-              {HasPermission("VendorOrderView") && tabdata === "#addvendortab" && (
-                <Box sx={{ p: 3 }}>
-                  <VendorOrderList />
-                </Box>
-              )}
-            </Box>
-          </Paper>
+                {HasPermission("VendorOrderView") && (
+                  <div
+                    className={`tab-pane fade ${
+                      initialActiveTab === "#addvendortab" ? "show active" : ""
+                    }`}
+                    id="addvendortab"
+                    role="tabpanel"
+                    aria-labelledby="pills-payment-tab"
+                    tabIndex={0}
+                  >
+                    {tabdata === "#addvendortab" && <VendorOrderList />}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Modals */}
-      {open && (
-        <AddEditVender
-          open={open}
-          handleclose={handleclose}
-          action={action}
-          LanguageListAPI={refreshVendorlistAPI}
-          object={object}
-        />
-      )}
-      {delOpen && (
-        <Delete
-          open={delOpen}
-          handleClose={handledelclose}
-          title={object.companyName}
-          id={object?.vendorId}
-          handleDelete={handleDelete}
-          loder={loder}
-        />
-      )}
     </>
   );
 }

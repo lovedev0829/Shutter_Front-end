@@ -1,44 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
-  Box,
-  Typography,
-  Grid,
-  Paper,
-  Avatar,
-  Chip,
-  IconButton,
-  FormHelperText,
-  Divider,
-  Card,
-  CardContent,
-  useTheme,
-  alpha,
-  Stack,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
-import {
-  Close as CloseIcon,
-  Work as WorkIcon,
-  Person as PersonIcon,
-  LocationOn as LocationIcon,
-  Schedule as ScheduleIcon,
-  Notes as NotesIcon,
-  Attachment as AttachmentIcon,
-  Add as AddIcon,
-  ExpandMore as ExpandMoreIcon,
-} from "@mui/icons-material";
+import Dialog from "@mui/material/Dialog";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -49,6 +10,8 @@ import {
   SelectBoxLoader,
   SuccessMessage,
 } from "../../../helpers/common";
+import SubmitButton from "../../Form/SubmitButton";
+import InputField from "../../Form/InputField";
 import { Link, useParams } from "react-router-dom";
 import JobTypeDropdown from "../../../helpers/JobTypeDropdown";
 import AssignedPersonnelDropdown from "../../../helpers/AssignedPersonnelDropdown";
@@ -62,14 +25,13 @@ import AddEditContact from "../Contacts/AddEditContact";
 import AddEditJobType from "../JobType/AddEditJobType";
 import GetAllStages from "../../../helpers/GetAllStages";
 
-const AddEditJob = ({ 
-  open,
-  handleclose,
-  LanguageListAPI,
-  action,
-  object,
-}) => {
-  const theme = useTheme();
+const AddEditJob = 
+({ open,
+   handleclose,
+   LanguageListAPI, // Refesh Api
+  action, // Add or Edit
+  object, // selectedData data
+     }) => {
   let param = useParams();
 
   const defaultState = {
@@ -82,9 +44,8 @@ const AddEditJob = ({
     jobStatus: "",
     notes: "",
     attachmentsAny: [],
-    ghL_StageId: null
+    ghL_StageId:null
   };
-
   const [vendor, setvendor] = useState(false);
   const [vendorlist, setvendorlist] = useState(false);
   const [contact, setcontact] = useState(false);
@@ -99,7 +60,6 @@ const AddEditJob = ({
   const [shows, setShows] = useState(false);
   const [producttype, setproducttype] = useState(false);
   const [producttypelist, setproducttypelist] = useState(false);
-
   const handleChange = (e) => {
     setValue((val) => {
       return { ...val, [e.target.name]: e.target.value };
@@ -168,7 +128,6 @@ const AddEditJob = ({
     }
     e.target.value = null;
   };
-
   const handleImageDelelet = (data) => {
     const arr = value?.attachmentsAny?.filter((val, i) => i !== data);
     setValue((val) => {
@@ -200,9 +159,9 @@ const AddEditJob = ({
     if (value.contactId) {
       AddresslistAPI();
     }
+
     // eslint-disable-next-line
   }, [value.contactId, open]);
-
   const handleapi = () => {
     setvendorlist((prev) => !prev);
   };
@@ -212,598 +171,411 @@ const AddEditJob = ({
   const handleapiproduct = () => {
     setproducttypelist((prev) => !prev);
   };
-
-  const handleClose = () => {
-    setValue(defaultState);
-    handleclose();
-    simpleValidator.current.hideMessages();
-    forceUpdate();
-  };
-
   return (
     <>
       <Dialog
         open={open}
-        onClose={handleClose}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: '0 16px 64px rgba(0,0,0,0.15)',
-            background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)',
-          }
+        sx={{
+          "& .MuiDialog-container": {
+            "& .MuiPaper-root": {
+              width: "100%",
+              maxWidth: "800px",
+            },
+          },
         }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
       >
-        {/* Header */}
-        <DialogTitle
-          sx={{
-            p: 0,
-            background: alpha(theme.palette.primary.main, 0.05),
-            borderBottom: '1px solid',
-            borderBottomColor: 'divider',
-          }}
+        <div
+          className="modal fade show"
+          id="contactModal"
+          tabIndex={-1}
+          aria-labelledby="exampleModalLabel"
+          aria-modal="true"
+          role="dialog"
+          style={{ display: "block", backgroundColor: "#00000080" }}
         >
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    backgroundColor: 'primary.main',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+          <div className="modal-dialog modal-dialog-centered filter_modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title" id="exampleModalLabel">
+                  {action === "add" ? "Add Job" : "Update Job"}
+                </h1>
+
+                <i
+                  className="icofont-close btn-close"
+                  onClick={() => {
+                    setValue(defaultState);
+                    handleclose();
+                    simpleValidator.current.hideMessages();
+                    forceUpdate();
                   }}
-                >
-                  <WorkIcon />
-                </Avatar>
-                <Box>
-                  <Typography 
-                    variant="h5" 
-                    sx={{ 
-                      fontWeight: 700,
-                      color: 'primary.main',
-                    }}
-                  >
-                    {action === "add" ? "Create New Job" : "Update Job"}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                    {action === "add" ? "Fill in the details below to create a new job" : "Update the job information"}
-                  </Typography>
-                </Box>
-              </Box>
-              <IconButton
-                onClick={handleClose}
-                sx={{
-                  color: 'text.secondary',
-                  '&:hover': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                    color: 'primary.main',
-                  }
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          </Box>
-        </DialogTitle>
+                ></i>
+              </div>
+              <form onSubmit={JobAddUpdate}>
+                <div className="modal-body modale-scroll">
+                  <div className="form-design">
+                    <div className="row">
+                      {!param.contactId && (
+                        <div className="col-lg-4 col-md-4">
+                          <div className="form-group">
+                            <label className="font-14 d-flex align-items-center justify-content-between">
+                              <span>
+                                Contact Name <sup>*</sup>
+                              </span>
+                              {HasPermission("ContactAdd") && (
+                                <img
+                                  src="/image/plusblue.svg"
+                                  alt=""
+                                  loading="lazy"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => setcontact(true)}
+                                />
+                              )}
+                            </label>
+                            <GetAllContact
+                              value={value.contactId}
+                              fn={handleChange}
+                              load={contactlist}
+                            />
+                            <div className="error">
+                              {simpleValidator.current.message(
+                                "contact Name",
+                                value?.contactId,
+                                `required`
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <label
+                            className="font-14 d-flex align-items-center justify-content-between"
+                            for="addressId"
+                          >
+                            <span>
+                              Select Address <sup>*</sup>
+                            </span>
+                            {param.contactId && HasPermission("AddressAdd") && (
+                              <img
+                                src="/image/plusblue.svg"
+                                alt=""
+                                loading="lazy"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setaddress(true)}
+                              />
+                            )}
+                          </label>
+                          <div className="position-relative">
+                            {show && <SelectBoxLoader />}
+                            <select
+                              id="addressId"
+                              name="addressId"
+                              onChange={handleChange}
+                              value={value?.addressId}
+                              className="form-select"
+                            >
+                              <option value="">Select an address</option>
+                              {addresList?.map((val, i) => (
+                                <option value={val?.addressId} key={i}>
+                                  {" "}
+                                  {val?.streetAddress},
+                                  {val?.stateName} , {val?.city} - {val?.zipCode} ({val?.label})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="error">
+                            {simpleValidator.current.message(
+                              "Address",
+                              value?.addressId,
+                              `required`
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <InputField
+                            labelName={"Job Name"}
+                            placeholderName={"Enter Job Name"}
+                            type={"text"}
+                            handleChange={handleChange}
+                            id={"jobName"}
+                            name={"jobName"}
+                            value={value.jobName}
+                            required={true}
+                          />
+                          <div className="error">
+                            {simpleValidator.current.message(
+                              "Job Name",
+                              value?.jobName,
+                              `required`
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <label className="font-14 d-flex align-items-center justify-content-between">
+                            <span>
+                              {" "}
+                              Select Job Type <sup>*</sup>{" "}
+                            </span>
+                            {HasPermission("JobTypeAdd") && (
+                              <img
+                                src="/image/plusblue.svg"
+                                alt=""
+                                loading="lazy"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setproducttype(true)}
+                              />
+                            )}
+                          </label>
 
-        <form onSubmit={JobAddUpdate}>
-          <DialogContent sx={{ p: 0 }}>
-            <Box sx={{ p: 3 }}>
-              {/* Job Information Section */}
-              <Paper 
-                elevation={0}
-                sx={{ 
-                  p: 3, 
-                  mb: 3,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  backgroundColor: 'background.paper'
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                  <Avatar sx={{ backgroundColor: 'primary.main', width: 32, height: 32 }}>
-                    <PersonIcon sx={{ fontSize: 18 }} />
-                  </Avatar>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Job Information
-                  </Typography>
-                </Box>
-
-                <Grid container spacing={3}>
-                  {!param.contactId && (
-                    <Grid item xs={12} sm={6}>
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                            Contact Name *
-                          </Typography>
-                          {HasPermission("ContactAdd") && (
-                            <IconButton
-                              size="small"
-                              onClick={() => setcontact(true)}
-                              sx={{
-                                color: 'primary.main',
-                                '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.1) }
+                          <JobTypeDropdown
+                            value={value.jobType}
+                            fn={handleChange}
+                            load={producttypelist}
+                          />
+                          <div className="error">
+                            {simpleValidator.current.message(
+                              "Job Type",
+                              value?.jobType,
+                              `required`
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <label className="font-14">
+                            Select Ghl Stage
+                          </label>
+                          <GetAllStages
+                            value={value.ghL_StageId}
+                            fn={handleChange}
+                            load={action}
+                          />
+                          {/* <div className="error">
+                            {simpleValidator.current.message(
+                              "ghL_StageId",
+                              value?.ghL_StageId,
+                              `required`
+                            )}
+                          </div> */}
+                        </div>
+                      </div>
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <label className="font-14 d-flex align-items-center justify-content-between">
+                            <span>
+                              {" "}
+                              Select Assigned Personnel<sup>*</sup>
+                            </span>
+                            {HasPermission("UsersAdd") && (
+                              <img
+                                src="/image/plusblue.svg"
+                                alt=""
+                                loading="lazy"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setvendor(true)}
+                              />
+                            )}
+                          </label>
+                          <AssignedPersonnelDropdown
+                            value={value.assignedPersonnel}
+                            fn={handleChange}
+                            load={vendorlist}
+                          />
+                          <div className="error">
+                            {simpleValidator.current.message(
+                              "Assigned Personnel",
+                              value?.assignedPersonnel,
+                              `required`
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {action === "edit" && (
+                        <div className="col-lg-4 col-md-4">
+                          <div className="form-group">
+                            <label className="font-14">Select Job Status</label>
+                            <JobstatusDropdown
+                              value={value.jobStatus}
+                              fn={handleChange}
+                              load={action}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <label className="font-14">
+                            Schedule Date and Time 
+                          </label>
+                          <div className="position-relative">
+                            <input
+                              type="datetime-local"
+                              style={{ color: "white" }}
+                              value={value.scheduledDate || ""}
+                              onChange={handleChange}
+                              className="form-control"
+                              id="scheduledDate"
+                              name="scheduledDate"
+                             
+                            />
+                            <span
+                              style={{
+                                position: "absolute",
+                                left: "10px",
+                                top: "50%",
+                                transform: "translateY(-50%)",
+                                color: "#212529",
+                                pointerEvents: "none",
                               }}
                             >
-                              <AddIcon fontSize="small" />
-                            </IconButton>
-                          )}
-                        </Box>
-                        <GetAllContact
-                          value={value.contactId}
-                          fn={handleChange}
-                          load={contactlist}
-                        />
-                        {simpleValidator.current.message(
-                          "contact Name",
-                          value?.contactId,
-                          `required`
-                        ) && (
-                          <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
-                            {simpleValidator.current.message("contact Name", value?.contactId, `required`)}
-                          </Typography>
-                        )}
-                      </Box>
-                    </Grid>
-                  )}
-
-                  <Grid item xs={12} sm={6} mt={1}>
-                    <Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                          Select Address *
-                        </Typography>
-                        {param.contactId && HasPermission("AddressAdd") && (
-                          <IconButton
-                            size="small"
-                            onClick={() => setaddress(true)}
-                            sx={{
-                              color: 'primary.main',
-                              '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.1) }
-                            }}
-                          >
-                            <AddIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
-                      <FormControl fullWidth size="small">
-                        <Select
-                          name="addressId"
-                          value={value?.addressId || ""}
-                          onChange={handleChange}
-                          displayEmpty
-                          disabled={show}
-                          sx={{
-                            backgroundColor: 'background.paper',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'divider',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'primary.main',
-                            },
-                          }}
-                        >
-                          <MenuItem value="">
-                            <Typography sx={{ color: 'text.disabled' }}>Select an address</Typography>
-                          </MenuItem>
-                          {addresList?.map((val, i) => (
-                            <MenuItem key={i} value={val?.addressId}>
-                              <Box>
-                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                  {val?.streetAddress}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                  {val?.stateName}, {val?.city} - {val?.zipCode} ({val?.label})
-                                </Typography>
-                              </Box>
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {show && <SelectBoxLoader />}
-                      </FormControl>
-                      {simpleValidator.current.message(
-                        "Address",
-                        value?.addressId,
-                        `required`
-                      ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
-                          {simpleValidator.current.message("Address", value?.addressId, `required`)}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} mt={1}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                        Job Name *
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        placeholder="Enter Job Name"
-                        name="jobName"
-                        value={value.jobName}
-                        onChange={handleChange}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            backgroundColor: 'background.paper',
-                            '& fieldset': { borderColor: 'divider' },
-                            '&:hover fieldset': { borderColor: 'primary.main' },
-                          },
-                        }}
-                      />
-                      {simpleValidator.current.message(
-                        "Job Name",
-                        value?.jobName,
-                        `required`
-                      ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
-                          {simpleValidator.current.message("Job Name", value?.jobName, `required`)}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                          Select Job Type *
-                        </Typography>
-                        {HasPermission("JobTypeAdd") && (
-                          <IconButton
-                            size="small"
-                            onClick={() => setproducttype(true)}
-                            sx={{
-                              color: 'primary.main',
-                              '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.1) }
-                            }}
-                          >
-                            <AddIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
-                      <JobTypeDropdown
-                        value={value.jobType}
-                        fn={handleChange}
-                        load={producttypelist}
-                      />
-                      {simpleValidator.current.message(
-                        "Job Type",
-                        value?.jobType,
-                        `required`
-                      ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
-                          {simpleValidator.current.message("Job Type", value?.jobType, `required`)}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6} mt={1}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                        Select GHL Stage
-                      </Typography>
-                      <GetAllStages
-                        value={value.ghL_StageId}
-                        fn={handleChange}
-                        load={action}
-                      />
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                          Select Assigned Personnel *
-                        </Typography>
-                        {HasPermission("UsersAdd") && (
-                          <IconButton
-                            size="small"
-                            onClick={() => setvendor(true)}
-                            sx={{
-                              color: 'primary.main',
-                              '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.1) }
-                            }}
-                          >
-                            <AddIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
-                      <AssignedPersonnelDropdown
-                        value={value.assignedPersonnel}
-                        fn={handleChange}
-                        load={vendorlist}
-                      />
-                      {simpleValidator.current.message(
-                        "Assigned Personnel",
-                        value?.assignedPersonnel,
-                        `required`
-                      ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
-                          {simpleValidator.current.message("Assigned Personnel", value?.assignedPersonnel, `required`)}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Grid>
-
-                  {action === "edit" && (
-                    <Grid item xs={12} sm={6}>
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                          Select Job Status
-                        </Typography>
-                        <JobstatusDropdown
-                          value={value.jobStatus}
-                          fn={handleChange}
-                          load={action}
-                        />
-                      </Box>
-                    </Grid>
-                  )}
-
-                  <Grid item xs={12} sm={6}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                        Schedule Date and Time
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        type="datetime-local"
-                        name="scheduledDate"
-                        value={value.scheduledDate || ""}
-                        onChange={handleChange}
-                        InputProps={{
-                          sx: {
-                            backgroundColor: 'background.paper',
-                            '& fieldset': { borderColor: 'divider' },
-                            '&:hover fieldset': { borderColor: 'primary.main' },
-                          }
-                        }}
-                      />
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-
-              {/* Notes and Attachments Section */}
-              <Accordion 
-                defaultExpanded
-                sx={{ 
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  '&:before': { display: 'none' },
-                  boxShadow: 'none',
-                }}
-              >
-                                 <AccordionSummary 
-                   expandIcon={<ExpandMoreIcon />}
-                   sx={{ 
-                     backgroundColor: alpha(theme.palette.primary.main, 0.02),
-                     borderRadius: '8px 8px 0 0',
-                   }}
-                 >
-                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                     <Avatar sx={{ backgroundColor: 'primary.main', width: 32, height: 32 }}>
-                       <NotesIcon sx={{ fontSize: 18 }} />
-                     </Avatar>
-                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                       Notes & Attachments
-                     </Typography>
-                   </Box>
-                 </AccordionSummary>
-                <AccordionDetails sx={{ p: 3 }}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                          Job Notes
-                        </Typography>
-                        <TextField
-                          fullWidth
-                          multiline
-                          rows={4}
-                          size="small"
-                          placeholder="Enter any relevant notes..."
-                          name="notes"
-                          value={value.notes}
-                          onChange={handleChange}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              backgroundColor: 'background.paper',
-                              '& fieldset': { borderColor: 'divider' },
-                              '&:hover fieldset': { borderColor: 'primary.main' },
-                            },
-                          }}
-                        />
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
-                          Attachments
-                        </Typography>
-                        <Box
-                          sx={{
-                            border: '2px dashed',
-                            borderColor: 'divider',
-                            borderRadius: 2,
-                            p: 3,
-                            textAlign: 'center',
-                            backgroundColor: alpha(theme.palette.primary.main, 0.02),
-                            position: 'relative',
-                            '&:hover': {
-                              borderColor: 'primary.main',
-                              backgroundColor: alpha(theme.palette.primary.main, 0.04),
-                            }
-                          }}
-                        >
-                          {shows && <SelectBoxLoader />}
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/png,image/jpg,image/jpeg,.doc,.docx,.pdf"
-                            onChange={UploadImage}
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              opacity: 0,
-                              cursor: 'pointer'
-                            }}
+                              {value.scheduledDate
+                                ? moment(value.scheduledDate).format(
+                                    "MM-DD-YYYY hh:mm A"
+                                  )
+                                : "mm-dd-yyyy --:--"}
+                            </span>
+                          </div>
+                          {/* <div className="error">
+                            {simpleValidator.current.message(
+                              "Schedule Date and Time",
+                              value?.scheduledDate,
+                              `required`
+                            )}
+                          </div> */}
+                        </div>
+                      </div>
+                      <div className="col-lg-12 col-md-12">
+                        <h1 className="font-18 mb-30 mt-3  pb-2">
+                          Add Job Notes
+                        </h1>
+                      </div>
+                      <div className="col-lg-6 col-md-6">
+                        <div className="form-group">
+                          <InputField
+                            labelName={"Enter any relavent notes"}
+                            placeholderName={"Enter any relavent notes"}
+                            type={"text"}
+                            handleChange={handleChange}
+                            id={"notes"}
+                            name={"notes"}
+                            value={value.notes}
                           />
-                          <AttachmentIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                            Drop files here or click to browse
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                            Supports: Images, PDF, DOC, DOCX
-                          </Typography>
-                        </Box>
-                        
-                        {value?.attachmentsAny && value.attachmentsAny.length > 0 && (
-                          <Box sx={{ mt: 2 }}>
-                            <PreviewFiles
-                              file={value?.attachmentsAny}
-                              isdelete={true}
-                              handleImageDelelet={handleImageDelelet}
+                        </div>
+                      </div>
+                      <div className="col-lg-4 col-md-4">
+                        <div className="form-group">
+                          <label className="font-14">Attachment Any</label>
+                          <div className="position-relative upload-photo">
+                            {shows && <SelectBoxLoader />}
+                            <input
+                              type="file"
+                              className="form-control"
+                              accept="image/png,image/jpg,image/jpeg,.doc,.docx,.pdf"
+                              name="attachmentsAny"
+                              onChange={(e) => {
+                                UploadImage(e);
+                              }}
+                              multiple
                             />
-                          </Box>
-                        )}
-                      </Box>
-                    </Grid>
+                            <span>
+                              <img
+                                src="/image/upload.svg"
+                                className="me-2"
+                                alt=" "
+                                loading="lazy"
+                              />{" "}
+                              Choose File
+                            </span>
+                          </div>
+                          <PreviewFiles
+                            file={value?.attachmentsAny}
+                            isdelete={true}
+                            handleImageDelelet={handleImageDelelet}
+                          />
+                        </div>
+                      </div>
 
-                    <Grid item xs={12}>
-                      <Box sx={{ 
-                        p: 2, 
-                        backgroundColor: alpha(theme.palette.info.main, 0.05),
-                        borderRadius: 2,
-                        border: '1px solid',
-                        borderColor: alpha(theme.palette.info.main, 0.2)
-                      }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'info.main', mb: 1 }}>
-                          Examples:
-                        </Typography>
-                        <Stack spacing={0.5}>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            • Customer prefers afternoon visits.
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            • Be aware of the dog in the backyard.
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            • Parking available on the street; permit required.
-                          </Typography>
-                        </Stack>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            </Box>
-          </DialogContent>
+                      <div>
+                        <p className="font-14"> Example :</p>
+                        <ul className="newlistcontent">
+                          <li>Customer prefers afternoon visits.</li>
+                          <li>Be aware of the dog in the backyard.</li>
+                          <li>
+                            Parking available on the street; permit required
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-          <Divider />
-
-          <DialogActions sx={{ p: 3, gap: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={handleClose}
-              sx={{
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600,
-                px: 3,
-                py: 1,
-                borderColor: 'divider',
-                color: 'text.secondary',
-                '&:hover': {
-                  borderColor: 'text.secondary',
-                  backgroundColor: alpha(theme.palette.grey[500], 0.1),
-                }
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loader}
-              sx={{
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 700,
-                px: 4,
-                py: 1,
-                backgroundColor: 'primary.main',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-                '&:hover': {
-                  backgroundColor: 'primary.dark',
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
-                },
-                '&:disabled': {
-                  backgroundColor: 'action.disabledBackground',
-                  color: 'action.disabled',
-                },
-                transition: 'all 0.3s ease',
-              }}
-            >
-              {action === "add" ? "Create Job" : "Update Job"}
-            </Button>
-          </DialogActions>
-        </form>
+                <div className="modal-footer">
+                  <div className="form-style form-group d-flex align-items-center justify-content-end">
+                    <Link
+                      to={"#"}
+                      className="cancel text-decoration-underline"
+                      onClick={() => {
+                        setValue(defaultState);
+                        handleclose();
+                        simpleValidator.current.hideMessages();
+                        forceUpdate();
+                      }}
+                    >
+                      Cancel
+                    </Link>
+                    <SubmitButton
+                      type="submit"
+                      className="btn blue-btn"
+                      name={action === "add" ? "Submit" : "Update"}
+                      disabled={loader}
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </Dialog>
-
-      {/* Sub-dialogs */}
-      {vendor && (
-        <AddEditUser
-          open={vendor}
-          handleclose={() => setvendor(false)}
-          action={"add"}
-          LanguageListAPI={handleapi}
-          object={""}
-        />
-      )}
-      {address && (
-        <AddEditAddress
-          open={address}
-          handleclose={() => setaddress(false)}
-          action={"add"}
-          LanguageListAPI={AddresslistAPI}
-          object={""}
-        />
-      )}
-      {contact && (
-        <AddEditContact
-          open={contact}
-          handleclose={() => setcontact(false)}
-          action={"add"}
-          LanguageListAPI={handleapiv}
-          object={""}
-        />
-      )}
-      {producttype && (
-        <AddEditJobType
-          open={producttype}
-          handleclose={() => setproducttype(false)}
-          action={"add"}
-          LanguageListAPI={handleapiproduct}
-          object={""}
-        />
-      )}
+     {vendor && <AddEditUser
+        open={vendor}
+        handleclose={() => setvendor(false)}
+        action={"add"}
+        LanguageListAPI={handleapi}
+        object={""}
+      />
+     }
+     {address && <AddEditAddress
+        open={address}
+        handleclose={() => setaddress(false)}
+        action={"add"}
+        LanguageListAPI={AddresslistAPI}
+        object={""}
+      />
+     }
+     {contact &&<AddEditContact
+        open={contact}
+        handleclose={() => setcontact(false)}
+        action={"add"}
+        LanguageListAPI={handleapiv}
+        object={""}
+      />
+     }
+     {producttype && <AddEditJobType
+        open={producttype}
+        handleclose={() => setproducttype(false)}
+        action={"add"}
+        LanguageListAPI={handleapiproduct}
+        object={""}
+      />
+     }
     </>
   );
 };

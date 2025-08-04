@@ -226,11 +226,6 @@ export default function Index() {
                               page={page - 1}
                               onPageChange={handleChangePage}
                               onRowsPerPageChange={handleChangeRowsPerPage}
-                              sx={{
-                                '& .MuiTablePagination-toolbar': {
-                                  alignItems: 'baseline'
-                                }
-                              }}
                             />
                           </ul>
                         </nav>

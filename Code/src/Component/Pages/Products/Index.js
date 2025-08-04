@@ -1,26 +1,16 @@
 import React, { useEffect } from "react";
-import { useState } from "react";
-import {
-  Container,
-  Box,
-  Paper,
-  Typography,
-  Stack,
-  Card,
-  CardContent,
-  TablePagination,
-  Backdrop,
-  CircularProgress
-} from "@mui/material";
 import Header from "../../../Layout/header";
+import { useState } from "react";
 import TableTitle from "../../Form/TableTitle";
 import DynamicTable from "../../Form/DynamicTable";
 import Search from "../../Form/Search";
 import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
+import { TablePagination } from "@mui/material";
 import AddEditProduct from "./AddEditProduct";
 import {
+  ApiLoder,
   Delete,
   ErrorMessage,
   HasPermission,
@@ -297,62 +287,46 @@ export default function Index() {
 
 
   return (
-    <div className="intersight_content">
-
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loder}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      
-      <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+    <>
+      {loder && <ApiLoder />}
+      <div className="intersight_content">
         <Header title="Products" />
-        
-        <Container maxWidth="xl" sx={{ py: 3 }} >
-          <Card elevation={2} sx={{ borderRadius: 2 }}>
-            <CardContent sx={{ p: 3 }}>
-              {/* Header Section */}
-              <Box sx={{ mb: 4 }}>
-                <Stack 
-                  direction={{ xs: 'column', sm: 'row' }} 
-                  justifyContent="space-between" 
-                  alignItems={{ xs: 'stretch', sm: 'center' }}
-                  spacing={2}
-                >
-                  <TableTitle title="Manage Products" />
-                  <Box>
-                    {HasPermission("ProductsAdd") && (
-                      <AddEditButton
-                        handleClick={() => {
-                          setAction("add");
-                          setOpen(true);
-                        }}
-                        title="Add Product"
-                      />
-                    )}
-                  </Box>
-                </Stack>
-              </Box>
-
-              {/* Filters Section */}
-              <Box sx={{ mb: 4 }}>
-                <Stack 
-                  direction={{ xs: 'column', md: 'row' }} 
-                  spacing={2}
-                  alignItems={{ xs: 'stretch', md: 'flex-start' }}
-                >
-                  <Search handleSearch={handleSearch} />
-                  <StatusDropdown value={filter.status} fn={handleChange} />
-                  <ProductTypeDropdown
-                    value={filter.productType}
-                    fn={handleChange}
-                    load={true}
+        <div className="body_content">
+          <div className="contact-profile">
+            <div className="d-flex align-items-center justify-content-between mb-30">
+              <TableTitle title="Manage Products" />
+              <div className="heading_width_search d-flex align-items-center gap-3">
+                {HasPermission("ProductsAdd") && (
+                  <AddEditButton
+                    handleClick={() => {
+                      setAction("add");
+                      setOpen(true);
+                    }}
+                    title="Add Product"
                   />
-                </Stack>
-              </Box>
+                )}
+              </div>
+            </div>
 
-              {/* Table Section */}
+            <div className="d-block d-md-flex align-items-center gap-2 mb-30">
+              <div className="filter-dropdown dropdown">
+                <Search handleSearch={handleSearch} />
+              </div>
+              <div className="filter-dropdown dropdown">
+                <StatusDropdown value={filter.status} fn={handleChange} />
+              </div>
+              <div className="filter-dropdown dropdown">
+                <ProductTypeDropdown
+                  value={filter.productType}
+                  fn={handleChange}
+                  load={true}
+                  className="selectboxdropdown"
+                />
+              </div>
+            </div>
+
+            <div className="task_table mb-30">
+              <div className="table-responsive">
                 <DynamicTable
                   data={ProductsList}
                   columns={columns}
@@ -364,67 +338,51 @@ export default function Index() {
                   deletepermission="ProductsDelete"
                   editpermission="ProductsEdit"
                   viewUser={handleview}
-                  handleFilterSortChange={handleFilterSortChange}
-                  sortColumn={filter.sortColumn}
-                  sortDirection={filter.sortDirection}
-                  columnFilters={filter.columnFilters}
-                  handlesearchChange={handlesearchChange}
+                    handleFilterSortChange={handleFilterSortChange}
+                sortColumn={filter.sortColumn}
+                sortDirection={filter.sortDirection}
+                columnFilters={filter.columnFilters}
+                handlesearchChange={handlesearchChange}
                 />
-                
-                {/* Pagination */}
                 {ProductsList && ProductsList?.length > 0 && (
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end', 
-                    p: 2,
-                    borderTop: 1,
-                    borderColor: 'divider',
-                    marginTop: 2,
-                    
-                  }}>
-                    <TablePagination
-                      rowsPerPageOptions={[10, 25, 50, 100]}
-                      component="div"
-                      count={paginatedItems}
-                      rowsPerPage={rowsPerPage}
-                      page={page - 1}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                      sx={{
-                        '& .MuiTablePagination-toolbar': {
-                          paddingLeft: 0,
-                          paddingRight: 0,
-                          alignItems: 'baseline',
-                        }
-                      }}
-                    />
-                  </Box>
+                  <div className="d-flex align-items-center justify-content-end bottom_nav">
+                    <nav aria-label="Page navigation example">
+                      <ul className="pagination">
+                        <TablePagination
+                           rowsPerPageOptions={[10,25,50,100]}
+                          component="div"
+                          count={paginatedItems}
+                          rowsPerPage={rowsPerPage}
+                          page={page - 1}
+                          onPageChange={handleChangePage}
+                          onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
+                      </ul>
+                    </nav>
+                  </div>
                 )}
-            </CardContent>
-          </Card>
-        </Container>
-      </Box>
-      
-      {open && (
-        <AddEditProduct
-          open={open}
-          handleclose={handleclose}
-          action={action}
-          LanguageListAPI={handleapi}
-          object={object}
-        />
-      )}
-      
-      {delOpen && (
-        <Delete
-          open={delOpen}
-          handleClose={handledelclose}
-          title={object.productName}
-          id={object?.productId}
-          handleDelete={handleDelete}
-          loder={loder}
-        />
-      )}
-    </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+     {open && <AddEditProduct
+        open={open}
+        handleclose={handleclose}
+        action={action}
+        LanguageListAPI={handleapi}
+        object={object}
+      />
+     }
+      {delOpen &&<Delete
+        open={delOpen}
+        handleClose={handledelclose}
+        title={object.productName}
+        id={object?.productId}
+        handleDelete={handleDelete}
+        loder={loder}
+      />
+}
+    </>
   );
 }

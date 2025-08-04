@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { 
-  Dialog,
-  DialogActions,
-  Button,
-  CircularProgress
-} from "@mui/material";
+import Dialog from "@mui/material/Dialog";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
 import { ErrorMessage, SuccessMessage } from "../../../helpers/common";
+import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
+import { Link } from "react-router-dom";
 import Selectbox from "../../Form/Selectbox";
 import DateInputField from "../../Form/DateInputField";
 
@@ -309,41 +306,28 @@ const AddEditPayment = ({
                     </div>
                   </div>
                 </div>
-                <DialogActions sx={{ px: 3, pb: 2, pt: 2 }}>
-                  <Button
-                    variant="text"
-                    onClick={() => {
-                      setValue(defaultState);
-                      handleclose();
-                      simpleValidator.current.hideMessages();
-                      forceUpdate();
-                    }}
-                    sx={{ 
-                      textTransform: 'none',
-                      color: 'text.secondary',
-                      '&:hover': {
-                        backgroundColor: 'action.hover'
-                      }
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={loader}
-                    startIcon={loader && <CircularProgress size={16} color="inherit" />}
-                    sx={{ 
-                      textTransform: 'none',
-                      minWidth: 100,
-                      '&:disabled': {
-                        opacity: 0.7
-                      }
-                    }}
-                  >
-                    {loader ? 'Processing...' : (action === "add" ? "Submit" : "Update")}
-                  </Button>
-                </DialogActions>
+                <div className="modal-footer">
+                  <div className="form-style form-group d-flex align-items-center justify-content-end">
+                    <Link
+                      to={"#"}
+                      className="cancel text-decoration-underline"
+                      onClick={() => {
+                        setValue(defaultState);
+                        handleclose();
+                        simpleValidator.current.hideMessages();
+                        forceUpdate();
+                      }}
+                    >
+                      Cancel
+                    </Link>
+                    <SubmitButton
+                      type="submit"
+                      className="btn blue-btn"
+                      name={action === "add" ? "Submit" : "Update"}
+                      disabled={loader}
+                    />
+                  </div>
+                </div>
               </form>
             </div>
           </div>

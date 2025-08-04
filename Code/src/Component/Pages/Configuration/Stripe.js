@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
+import TableTitle from "../../Form/TableTitle";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
 import {
@@ -10,23 +11,9 @@ import {
   SuccessMessage,
 } from "../../../helpers/common";
 
+import InputField from "../../Form/InputField";
 import SimpleReactValidator from "simple-react-validator";
-// Material UI imports
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Paper,
-  Backdrop,
-  CircularProgress
-} from "@mui/material";
-import {
-  Delete as DeleteIcon
-} from "@mui/icons-material";
+import SubmitButton from "../../Form/SubmitButton";
 
 
 export default function Stripe() {
@@ -137,120 +124,103 @@ export default function Stripe() {
   };
   return (
     <>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loder}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      <Box>
-        <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'primary.main' }}>
-          Manage Stripe Configuration
-        </Typography>
-        <Paper elevation={1} sx={{ p: 3, bgcolor: 'grey.50' }}>
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Secret Key"
-                  placeholder="Enter Secret Key"
-                  type="text"
-                  onChange={handleChange}
-                  id="secretKey"
-                  name="secretKey"
-                  value={value.secretKey || ''}
-                  required
-                  size="small"
-                  error={!!simpleValidator.current.message(
-                    "secretKey",
-                    value?.secretKey,
-                    `required`
-                  )}
-                  helperText={simpleValidator.current.message(
-                    "secretKey",
-                    value?.secretKey,
-                    `required`
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Publishable Key"
-                  placeholder="Enter Publishable Key"
-                  type="text"
-                  onChange={handleChange}
-                  id="publishableKey"
-                  name="publishableKey"
-                  value={value.publishableKey || ''}
-                  required
-                  size="small"
-                  error={!!simpleValidator.current.message(
-                    "publishableKey",
-                    value?.publishableKey,
-                    `required`
-                  )}
-                  helperText={simpleValidator.current.message(
-                    "publishableKey",
-                    value?.publishableKey,
-                    `required`
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Webhook Secret"
-                  placeholder="Enter Webhook Secret"
-                  type="text"
-                  onChange={handleChange}
-                  id="webhookSecret"
-                  name="webhookSecret"
-                  value={value.webhookSecret || ''}
-                  required
-                  size="small"
-                  error={!!simpleValidator.current.message(
-                    "webhookSecret",
-                    value?.webhookSecret,
-                    `required`
-                  )}
-                  helperText={simpleValidator.current.message(
-                    "webhookSecret",
-                    value?.webhookSecret,
-                    `required`
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
-                  {HasPermission("StripeEdit") && (
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={loder}
-                      sx={{ textTransform: 'none' }}
-                    >
-                      Submit
-                    </Button>
-                  )}
-                  {!ghl && (
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={handleDelte}
-                      startIcon={<DeleteIcon />}
-                      sx={{ textTransform: 'none' }}
-                    >
-                      Unlink Stripe
-                    </Button>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </Paper>
-      </Box>
+      {loder && <ApiLoder />}
+      <div className="contact-profile">
+        <div className="d-flex align-items-center justify-content-between mb-30">
+          <TableTitle title="Manage Stripe Configuration" />
+        </div>
+        <div
+          className="form-design"
+          style={{ background: "#f5f5f5", padding: "10px" }}
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="row">
+              <div className="col-lg-4 col-md-4">
+                <div className="form-group">
+                  <InputField
+                    labelName={"Secret Key"}
+                    placeholderName={"Enter Secret Key"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"secretKey"}
+                    name={"secretKey"}
+                    value={value.secretKey}
+                    required={true}
+                  />
+                  <div className="error">
+                    {simpleValidator.current.message(
+                      "secretKey",
+                      value?.secretKey,
+                      `required`
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-4 col-md-4">
+                <div className="form-group">
+                  <InputField
+                    labelName={"Publishable Key"}
+                    placeholderName={"Enter Publishable Key"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"publishableKey"}
+                    name={"publishableKey"}
+                    value={value.publishableKey}
+                    required={true}
+                  />
+                  <div className="error">
+                    {simpleValidator.current.message(
+                      "publishableKey",
+                      value?.publishableKey,
+                      `required`
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-4 col-md-4">
+                <div className="form-group">
+                  <InputField
+                    labelName={"Webhook Secret"}
+                    placeholderName={"Enter Webhook Secret"}
+                    type={"text"}
+                    handleChange={handleChange}
+                    id={"webhookSecret"}
+                    name={"webhookSecret"}
+                    value={value.webhookSecret}
+                    required={true}
+                  />
+                  <div className="error">
+                    {simpleValidator.current.message(
+                      "webhookSecret",
+                      value?.webhookSecret,
+                      `required`
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="form-style form-group d-flex align-items-center justify-content-end">
+                {HasPermission("StripeEdit") && (
+                  <SubmitButton
+                    type="submit"
+                    className="btn blue-btn me-3"
+                    name={"Submit"}
+                    disabled={loder}
+                  />
+                )}
+                 {!ghl && 
+                <button
+                  type="button"
+                  onClick={handleDelte}
+                  className="btn btn-danger me-3"
+                >
+                  Unlink Stripe
+                </button>}
+               
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </>
   );
 }

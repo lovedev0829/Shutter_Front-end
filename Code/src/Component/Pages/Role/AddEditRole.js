@@ -6,7 +6,7 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { ErrorMessage, SuccessMessage } from "../../../helpers/common";
 import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Button, Stack } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const AddEditRole = ({
   open,
@@ -375,41 +375,26 @@ const AddEditRole = ({
                 </div>
 
                 <div className="modal-footer">
-                  <Stack 
-                    direction="row" 
-                    spacing={2} 
-                    justifyContent="flex-end" 
-                    alignItems="center"
-                    sx={{ padding: '16px 24px' }}
-                  >
-                    <Button
-                      variant="text"
-                      color="primary"
+                  <div className="form-style form-group d-flex align-items-center justify-content-end">
+                    <Link
+                      to={"#"}
+                      className="cancel text-decoration-underline"
                       onClick={() => {
                         setValue({ roleName: "", rolePermissionId: [] });
                         handleclose();
                         simpleValidator.current.hideMessages();
                         forceUpdate();
                       }}
-                      sx={{
-                        textTransform: 'none',
-                        textDecoration: 'underline',
-                        fontWeight: 500,
-                        '&:hover': {
-                          textDecoration: 'underline',
-                          backgroundColor: 'transparent'
-                        }
-                      }}
                     >
                       Cancel
-                    </Button>
+                    </Link>
                     <SubmitButton
                       type="submit"
-                      buttonName={action === "add" ? "Submit" : "Update"}
+                      className="btn blue-btn"
+                      name={action === "add" ? "Submit" : "Update"}
                       disabled={loader}
-                      loading={loader}
                     />
-                  </Stack>
+                  </div>
                 </div>
               </form>
             </div>
