@@ -4,7 +4,7 @@
 	#inner-styletwo .mb-30{margin-bottom:25px;}
 	.intersight_content{padding: 0px 0px 16px;}
 	.body_content{
-		padding: 30px 30px 16px;
+		padding: 0px 30px 16px;
 	}
 	.top_header{
 		padding: 12px 30px 12px;
@@ -45,7 +45,7 @@
 @media (max-width: 1024px) {
 	.heading_41 {font-size: 28px;}
 	.body_content {
-        padding: 30px 10px 10px;
+        padding: 0px 10px 10px;
     }
 
 
@@ -79,7 +79,7 @@
 	.inner_content_one h2 {font-size: 25px;}
 	.inner_content_one h1 {font-size: 18px; margin-bottom: 0px; margin-top: 20px;}
 	.dasboardh{font-size: 22px;}
-	.body_content {padding: 4px 0px 16px;}
+	.body_content {padding: 0px 0px 16px;}
 	.table thead{white-space: nowrap;}
 	.no-records img{width: 60px;}
 	.upload-container {width: 80px;height: 80px;}
