@@ -325,7 +325,7 @@ const AddEditTenent = ({
                             {simpleValidator.current.message(
                               "Code",
                               value?.code,
-                              `required|alpha_num`
+                              `required|alpha_num|max:50`
                             )}
                           </div>
                         </div>
@@ -678,7 +678,7 @@ const AddEditTenent = ({
                               simpleValidator.current.message(
                                 "password",
                                 value?.password,
-                                "required|min:8"
+                                "required|min:8|max:200"
                               )}
                           </div>
                         </div>

@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
-import { HasPermission, SelectBoxLoader } from "./common";
+import {  SelectBoxLoader } from "./common";
 export default function Alloption({ value = "", fn, load, name = "optionId", disabled = false, className = null, producttypeId = "" }) {
     const [productList, setproductList] = useState([]);
     const [show, setShow] = useState(false);
+     const Loginuser = JSON.parse(localStorage.getItem("userData"));
     const productlist = async () => {
         try {
             setShow(true)
-            let query = { ProductTypeId: producttypeId,isManageProductOption:HasPermission("SubTenantView")?false:true }
+            let query = { ProductTypeId: producttypeId,isManageProductOption:!Loginuser?.isTenant }
             const apiResponse = await callAPI(apiUrls.GetAllOption, query, "GET", {});
             setShow(false)
             if (apiResponse?.data?.isSuccess) {

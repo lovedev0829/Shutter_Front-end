@@ -55,6 +55,16 @@ export default function Header(props) {
         localStorage.setItem("activeTab2", "#pills-content");
         navigate(`/contacts/estimate/preview/${notification?.typeId}`);
         break;
+        case "Order":
+        localStorage.setItem("activeTab", "#orders");
+        localStorage.setItem("activeTab2", "#pills-content");
+        navigate(`/contacts/order/preview/${notification?.typeId}`);
+        break;
+         case "Payment":
+        localStorage.setItem("activeTab", "#invoice");
+        localStorage.setItem("activeTab2", "#pills-content");
+        navigate(`/contacts/payment/${notification?.typeId}`);
+        break;
       case "Tenant":
         navigate(`/tenant`);
         break;
