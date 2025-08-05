@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
-import { HasPermission, SelectBoxLoader } from "../../../helpers/common";
+import {  SelectBoxLoader } from "../../../helpers/common";
 
 function GetAllForedit({
   values = [],
@@ -25,6 +25,7 @@ function GetAllForedit({
   // Local state for tracking changes
   const [localOptionName, setLocalOptionName] = useState({});
   const [localAdditionalCosts, setLocalAdditionalCosts] = useState({});
+  const Loginuser = JSON.parse(localStorage.getItem("userData"));
 
   const fetchOptions = async () => {
     if (!producttypeId) return;
@@ -33,7 +34,7 @@ function GetAllForedit({
       setShow(true);
       const query = {
         productId: producttypeId,
-        isManageProductOption: !HasPermission("SubTenantView"),
+        isManageProductOption: !Loginuser?.isTenant,
       };
 
       const apiResponse = await callAPI(apiUrls.GetAllOption, query, "GET", {});
