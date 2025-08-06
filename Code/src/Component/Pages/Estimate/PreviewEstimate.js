@@ -36,10 +36,10 @@ export default function PreviewEstimate() {
       );
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
-        console.log(apiResponse?.data?.data)
+        console.log(apiResponse?.data?.data);
         setTenantList(apiResponse?.data?.data);
       } else {
-         ErrorMessage(apiResponse.data.message);
+        ErrorMessage(apiResponse.data.message);
         setTenantList([]);
       }
     } catch (error) {
@@ -77,7 +77,7 @@ export default function PreviewEstimate() {
   const handlestatus = async () => {
     setLoader(true);
     try {
-      const response = await callAPIWithoutAuth(
+      const response = await callAPI(
         apiUrls.EstimateApproved,
         { EstimationId: param.estimateId, Status: reject ? 3 : 2 },
         "POST",
@@ -120,18 +120,17 @@ export default function PreviewEstimate() {
                       </Link>
                     )}
 
-                    {!token && tenantList[0]?.status === "Approved" && (
+                    {tenantList[0]?.status === "Approved" && (
                       <span className="badge badge-success">Approved</span>
                     )}
 
-                    {!token && tenantList[0]?.status === "Rejected" && (
-                      <span className="badge badge-danger">Rejected</span>
+                    {tenantList[0]?.status === "Rejected" && (
+                      <Link className="badge badge-danger">Rejected</Link>
                     )}
-                    {!token && tenantList[0]?.status === "GenerateOrder" && (
+                    {tenantList[0]?.status === "GenerateOrder" && (
                       <span className="badge badge-info">Order Generated</span>
                     )}
-                    {!token &&
-                      tenantList[0]?.status !== "Approved" &&
+                    {tenantList[0]?.status !== "Approved" &&
                       tenantList[0]?.status !== "Rejected" &&
                       tenantList[0]?.status !== "GenerateOrder" && (
                         <>
@@ -166,7 +165,7 @@ export default function PreviewEstimate() {
             <div className="body_content">
               <div className="row mt-5 new-estimate">
                 <div className="col-lg-12">
-                  <div className="mb-30" style={{ paddingBottom:"50px" }}>
+                  <div className="mb-30" style={{ paddingBottom: "50px" }}>
                     <div className="row">
                       <div className="col-lg-3">
                         <div className="additional_direction mt-0">
@@ -209,13 +208,13 @@ export default function PreviewEstimate() {
                         <div className="additional_direction">
                           <h6 className="mb-1">Schedule Date &amp; Time</h6>
                           <span>
-                             {tenantList[0]?.jobDetails?.scheduleTime
-                                          ? `${moment(tenantList[0]?.jobDetails?.scheduleTime).format(
-                                              "MM-DD-YYYY"
-                                            )} | ${moment(tenantList[0]?.jobDetails?.scheduleTime).format("hh:mm A")}`
-                                          : "N/A"}
-
-                           
+                            {tenantList[0]?.jobDetails?.scheduleTime
+                              ? `${moment(
+                                  tenantList[0]?.jobDetails?.scheduleTime
+                                ).format("MM-DD-YYYY")} | ${moment(
+                                  tenantList[0]?.jobDetails?.scheduleTime
+                                ).format("hh:mm A")}`
+                              : "N/A"}
                           </span>
                         </div>
                       </div>
@@ -253,13 +252,13 @@ export default function PreviewEstimate() {
                   <div className="estimate-table task_table mb-30">
                     <div className="table-responsive">
                       <table className="table">
-                          <tr>
-                            <th scope="col">Window label</th>
-                            <th scope="col">Window Qty</th>
-                            <th scope="col">Product Type</th>
-                            <th scope="col">Product</th>
-                            <th scope="col">Retail Price</th>
-                          </tr>
+                        <tr>
+                          <th scope="col">Window label</th>
+                          <th scope="col">Window Qty</th>
+                          <th scope="col">Product Type</th>
+                          <th scope="col">Product</th>
+                          <th scope="col">Retail Price</th>
+                        </tr>
                         <tbody>
                           {tenantList[0]?.estimateProductList?.map((val, i) => (
                             <tr key={i}>
@@ -267,84 +266,94 @@ export default function PreviewEstimate() {
                               <td>{val?.windowQty}</td>
                               <td>{val?.productName}</td>
                               <td>
-                              {" "}
+                                {" "}
                                 W: {val?.estimateWindowDetails?.width}”, H:{" "}
                                 {val?.estimateWindowDetails?.height}”, A:{" "}
                                 {val?.estimateWindowDetails?.archHeight}”
                                 <span>
                                   <ul className="colors">
-                                    {val?.options?.map((vals, ind) => (
-                                      !val?.hidePreviews?.[ind] && (
-                                        <li key={ind}>
-                                           {`-> ${vals}`}
-                                        </li>
-                                      )
-                                    ))}
+                                    {val?.options?.map(
+                                      (vals, ind) =>
+                                        !val?.hidePreviews?.[ind] && (
+                                          <li key={ind}>{`-> ${vals}`}</li>
+                                        )
+                                    )}
                                   </ul>
                                 </span>
                               </td>
                               <td style={{ whiteSpace: "nowrap" }}>
                                 {" "}
-                                {defaultConfig.currencySign} 
-                                {parseFloat(((val?.totalPrice ?? val?.productPrice ?? 0) + (val?.additionalCost ?? 0) + (val?.componentMarkup ?? 0) + (val?.productMarkup ?? 0) + (val?.optionMarkup ?? 0)).toFixed(2))}
+                                {defaultConfig.currencySign}
+                                {parseFloat(
+                                  (
+                                    (val?.totalPrice ??
+                                      val?.productPrice ??
+                                      0) +
+                                    (val?.additionalCost ?? 0) +
+                                    (val?.componentMarkup ?? 0) +
+                                    (val?.productMarkup ?? 0) +
+                                    (val?.optionMarkup ?? 0)
+                                  ).toFixed(2)
+                                )}
                               </td>
                             </tr>
                           ))}
-                            <tr >
-                                <td colSpan="2" ></td>
-                                <td style={{verticalAlign:"top"}}>
-                                    <h2 className="font-14">Order Notes</h2>
-                                    <h2 className="font-14">Terms and Conditions</h2>
-                                    <div className="terms-content">
-                                        <p>{tenantList[0]?.termsCondition}</p>
-                                    </div>
-                                </td>
-                                <td style={{verticalAlign:"top"}}>
-                                    <div className="col-md-6  mb-2">
-                                        <h2 className="font-14">Additional Notes</h2>
-                                        <div className="terms-content">
-                                            <p>{tenantList[0]?.notes}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style={{verticalAlign:"top"}}>
-                                    <div className="w-100">
-                                        <div className="d-flex justify-content-between">
-                                            <h2 className="font-14 mb-0">Subtotal:</h2>
-                                            <span className="mb-0">
-                                            {defaultConfig.currencySign}{" "}
-                                                {tenantList[0]?.subTotal}
-                                            </span>
-                                        </div>
-                                        {Number(tenantList[0]?.discount)>0 && (
-                                        <div className="d-flex justify-content-between">
-                                            <h2 className="font-14 mb-0">Discount:</h2>
-                                            <span className="mb-0">
-                                            {defaultConfig.currencySign}{" "}
-                                            {tenantList[0]?.discount}
-                                            </span>
-                                        </div>)}
-                                        {tenantList[0]?.isTaxApplicable && (
-                                            <div className="d-flex justify-content-between">
-                                                <h2 className="font-14 mb-0">Taxes:</h2>
-                                                <span className="mb-0">
-                                                {defaultConfig.currencySign}{" "}
-                                                {tenantList[0]?.tax}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <div className="d-flex justify-content-between">
-                                            <h2 className="font-14 mb-0">Grand Total:</h2>
-                                            <span className="mb-0">
-                                            {defaultConfig.currencySign}{" "}
-                                            {tenantList[0]?.grandTotal}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                          <tr>
+                            <td colSpan="2"></td>
+                            <td style={{ verticalAlign: "top" }}>
+                              <h2 className="font-14">Order Notes</h2>
+                              <h2 className="font-14">Terms and Conditions</h2>
+                              <div className="terms-content">
+                                <p>{tenantList[0]?.termsCondition}</p>
+                              </div>
+                            </td>
+                            <td style={{ verticalAlign: "top" }}>
+                              <div className="col-md-6  mb-2">
+                                <h2 className="font-14">Additional Notes</h2>
+                                <div className="terms-content">
+                                  <p>{tenantList[0]?.notes}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ verticalAlign: "top" }}>
+                              <div className="w-100">
+                                <div className="d-flex justify-content-between">
+                                  <h2 className="font-14 mb-0">Subtotal:</h2>
+                                  <span className="mb-0">
+                                    {defaultConfig.currencySign}{" "}
+                                    {tenantList[0]?.subTotal}
+                                  </span>
+                                </div>
+                                {Number(tenantList[0]?.discount) > 0 && (
+                                  <div className="d-flex justify-content-between">
+                                    <h2 className="font-14 mb-0">Discount:</h2>
+                                    <span className="mb-0">
+                                      {defaultConfig.currencySign}{" "}
+                                      {tenantList[0]?.discount}
+                                    </span>
+                                  </div>
+                                )}
+                                {tenantList[0]?.isTaxApplicable && (
+                                  <div className="d-flex justify-content-between">
+                                    <h2 className="font-14 mb-0">Taxes:</h2>
+                                    <span className="mb-0">
+                                      {defaultConfig.currencySign}{" "}
+                                      {tenantList[0]?.tax}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="d-flex justify-content-between">
+                                  <h2 className="font-14 mb-0">Grand Total:</h2>
+                                  <span className="mb-0">
+                                    {defaultConfig.currencySign}{" "}
+                                    {tenantList[0]?.grandTotal}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
                         </tbody>
-                    </table>
+                      </table>
                     </div>
                   </div>
                   <div className="row">
@@ -459,27 +468,31 @@ export default function PreviewEstimate() {
         handleClose={() => setApproved(false)}
         handlestatus={handlestatus}
         estimateId={tenantList[0]?.estimateId}
-                        isApproved={true}
-                        loder={loder}
-                        title={
-                        reject
-                            ? "You want to reject this estimate?"
-                            : "You want to approve this estimate?"
-                        }
-                        subtitle={
-                        reject
-                            ? "Please click the Confirm button to reject this estimate."
-                            : "Please click the Confirm button to approve this estimate."
-                        }
-                    />
-                    {history &&<Breakdown
-                        open={history}
-                        handleClose={() => setHistory(false)}
-                        data={{ windowProdcutId: object.windowProductId, label: object.label }}
-                        EstimateId={tenantList[0]?.estimateId}
-                        IsView={true}
-                    />
-                }
+        isApproved={true}
+        loder={loder}
+        title={
+          reject
+            ? "You want to reject this estimate?"
+            : "You want to approve this estimate?"
+        }
+        subtitle={
+          reject
+            ? "Please click the Confirm button to reject this estimate."
+            : "Please click the Confirm button to approve this estimate."
+        }
+      />
+      {history && (
+        <Breakdown
+          open={history}
+          handleClose={() => setHistory(false)}
+          data={{
+            windowProdcutId: object.windowProductId,
+            label: object.label,
+          }}
+          EstimateId={tenantList[0]?.estimateId}
+          IsView={true}
+        />
+      )}
     </>
   );
 }
