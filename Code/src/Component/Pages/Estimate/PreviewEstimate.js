@@ -36,7 +36,7 @@ export default function PreviewEstimate() {
       );
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
-        console.log(apiResponse?.data?.data);
+       
         setTenantList(apiResponse?.data?.data);
       } else {
         ErrorMessage(apiResponse.data.message);
