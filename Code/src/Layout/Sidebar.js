@@ -169,7 +169,11 @@ export default function Sidebar() {
       .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
   };
 
-  const handleDrawerToggle = () => {
+  const handleDrawerToggle = (event) => {
+    // Prevent event bubbling which might interfere with ClickAwayListener
+    if (event) {
+      event.stopPropagation();
+    }
     setMobileOpen(!mobileOpen);
   };
 
@@ -199,6 +203,28 @@ export default function Sidebar() {
       setMobileOpen(false);
     }
   };
+
+  // Handle body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobile) {
+      if (mobileOpen) {
+        document.body.classList.add('mobile-menu-open');
+        document.body.style.top = `-${window.scrollY}px`;
+      } else {
+        const scrollY = document.body.style.top;
+        document.body.classList.remove('mobile-menu-open');
+        document.body.style.top = '';
+        if (scrollY) {
+          window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
+      }
+    }
+    
+    return () => {
+      document.body.classList.remove('mobile-menu-open');
+      document.body.style.top = '';
+    };
+  }, [mobileOpen, isMobile]);
 
   const parentCategories = {
     Contact: "Order management",
@@ -297,7 +323,16 @@ export default function Sidebar() {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       {/* Logo Section */}
       <LogoContainer>
-        <MenuToggle onClick={handleDrawerToggle}>
+        <MenuToggle 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDrawerToggle(e);
+          }}
+          data-toggle-button="true"
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+          }}
+        >
           <MenuIcon />
         </MenuToggle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
@@ -476,15 +511,21 @@ export default function Sidebar() {
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
+        ModalProps={{ 
+          keepMounted: true,
+        }}
+        BackdropProps={{
+          onClick: () => setMobileOpen(false)
+        }}
         sx={{
           display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+          },
         }}
         primarycolor={primaryColor}
       >
-        <ClickAwayListener onClickAway={() => setMobileOpen(false)}>
-          <Box>{drawerContent}</Box>
-        </ClickAwayListener>
+        <Box>{drawerContent}</Box>
       </StyledDrawer>
 
       {/* Desktop Drawer */}
@@ -503,17 +544,31 @@ export default function Sidebar() {
       {isMobile && !mobileOpen && (
         <IconButton
           onClick={handleDrawerToggle}
+          data-toggle-button="true"
+          aria-label="Open navigation menu"
           sx={{
             position: 'fixed',
-            top: 16,
-            left: 16,
-            zIndex: 1300,
+            top: { xs: 12, sm: 16 },
+            left: { xs: 12, sm: 16 },
+            zIndex: 1400, // Higher than Material UI's modal z-index
             bgcolor: primaryColor,
             color: '#fff',
-            '&:hover': { bgcolor: darkenColor(primaryColor, 20) },
+            width: { xs: 48, sm: 56 },
+            height: { xs: 48, sm: 56 },
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            border: '2px solid rgba(255,255,255,0.1)',
+            '&:hover': { 
+              bgcolor: darkenColor(primaryColor, 15),
+              transform: 'scale(1.05)',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
+            },
+            '&:active': {
+              transform: 'scale(0.95)',
+            },
+            transition: 'all 0.2s ease-in-out',
           }}
         >
-          <MenuIcon />
+          <MenuIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
         </IconButton>
       )}
 

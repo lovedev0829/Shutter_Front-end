@@ -2,6 +2,21 @@ import { useEffect, useState } from "react";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 import { HasPermission, SelectBoxLoader } from "./common";
+import {
+  Box,
+  Radio,
+  FormControlLabel,
+  RadioGroup,
+  TextField,
+  Typography,
+  CircularProgress,
+  Paper,
+  Chip,
+  Grid,
+  Card,
+  CardContent,
+  Divider
+} from "@mui/material";
 
 export default function GetAllOptions({
   value = [],
@@ -67,7 +82,8 @@ export default function GetAllOptions({
 
         setoptionList(fetchedOptions);
 
-        const preSelectedOptions = [];
+        // Process options for current tab first
+        const currentTabSelections = [];
         const selectedOptionDetails = [];
         const optionLabelToIdMapping = {};
 
@@ -81,7 +97,7 @@ export default function GetAllOptions({
             : item.options.find((opt) => opt.isDefault);
 
           if (finalOption) {
-            preSelectedOptions.push({
+            currentTabSelections.push({
               optionName: `${item.optionId}-${indexId}`,
               value: finalOption.optionTypeId,
             });
@@ -96,19 +112,33 @@ export default function GetAllOptions({
           }
         });
 
-        setAllOption(preSelectedOptions);
-
-        // Set local option names
-        const flatSelectedOptions = {};
-        selectedOptionDetails.forEach((opt) => {
-          const optionLabel = `${opt.optionGroupName}-${indexId}`;
-          flatSelectedOptions[optionLabel] = opt.optionType;
+        // Update local option names for current tab
+        setLocalOptionName((prev) => {
+          const newLocalOptionNames = { ...prev };
+          selectedOptionDetails.forEach((opt) => {
+            const optionLabel = `${opt.optionGroupName}-${indexId}`;
+            newLocalOptionNames[optionLabel] = opt.optionType;
+          });
+          return newLocalOptionNames;
         });
 
-        setLocalOptionName(flatSelectedOptions);
+        // Update option mapping
+        updateOptionMapping(optionLabelToIdMapping, true);
 
-        // Update option mapping in parent component
-        updateOptionMapping(optionLabelToIdMapping);
+        // Preserve selections across tabs by only updating current tab's options
+        setAllOption((prevAllOptions) => {
+          const currentTabOptionIds = new Set(
+            fetchedOptions.map(item => `${item.optionId}-${indexId}`)
+          );
+          
+          // Keep selections from other tabs (different buildRequirement)
+          const otherTabSelections = prevAllOptions.filter(
+            opt => !currentTabOptionIds.has(opt.optionName)
+          );
+
+          // Combine other tab selections with current tab selections
+          return [...otherTabSelections, ...currentTabSelections];
+        });
       } else {
         resetState();
       }
@@ -206,13 +236,28 @@ export default function GetAllOptions({
     const labelElement = e.target.closest(".form-check")?.querySelector("label");
     const labelText = labelElement?.innerText || "";
 
-    setAllOption((prevOptions) =>
-      prevOptions.map((opt) =>
-        opt.optionName === `${optionId}-${indexId}`
-          ? { ...opt, value: newVal }
-          : opt
-      )
-    );
+    setAllOption((prevOptions) => {
+      const optionName = `${optionId}-${indexId}`;
+      const existingIndex = prevOptions.findIndex(
+        (opt) => opt.optionName === optionName
+      );
+
+      if (existingIndex !== -1) {
+        // Update existing option
+        return prevOptions.map((opt, index) =>
+          index === existingIndex ? { ...opt, value: newVal } : opt
+        );
+      } else {
+        // Add new option if it doesn't exist
+        return [
+          ...prevOptions,
+          {
+            optionName: optionName,
+            value: newVal,
+          }
+        ];
+      }
+    });
 
     setLocalOptionName((prev) => ({
       ...prev,
@@ -273,65 +318,173 @@ export default function GetAllOptions({
   };
 
   return (
-    <div className="position-relative">
-      {show && <SelectBoxLoader />}
-      {isRender && (
-        <div className="exp-modal-inner">
-          {optionList?.map((item, i) => (
-            <div key={i} className="d-flex gap-4 mb-2">
-              <label
-                className="form-check-label font-14 exp-inner-label"
-                htmlFor={`flexCheck-${item?.optionId}`}
-              >
-                {item?.optionName}
-              </label>
-              <div className="d-flex gap-4 flex-wrap flex-column">
-                {item?.options.map((option, index) => (
-                  <div className="form-check" key={index}>
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      id={`flexCheck-${option?.optionTypeId}-${indexId}`}
-                      name={`${item?.optionId}-${indexId}`}
-                      value={option?.optionTypeId}
-                      checked={allOption.some(
-                        (opt) =>
-                          opt.optionName === `${item?.optionId}-${indexId}` &&
-                          opt.value === option?.optionTypeId
-                      )}
-                      onChange={(e) =>
-                        handleChangeOption(e, item?.optionId, item?.optionName)
-                      }
-                      onDoubleClick={() =>
-                        handleDoubleClickOption(item?.optionId, item?.optionName)
-                      }
-                      disabled={disabled}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor={`additionalCost-${option?.optionTypeId}-${indexId}`}
-                    >
-                      {option?.optionType}
-                    </label>
-                    { !option?.additionalCost && (
-                          <input 
-                              type="text" 
-                              className="form-control" 
-                              id={`additionalCost-${option?.optionTypeId}-${indexId}`} 
-                              name={`additionalCost-${option?.optionTypeId}-${indexId}`} 
-                              placeholder="Enter cost"
-                              value={localAdditionalCosts[`${option?.optionTypeId}-${indexId}`]?.additionalCost || ""}
-                              onChange={(e) => handleAdditionalCostChange(e, option?.optionTypeId, item?.optionName, option?.optionType)}
-                              style={{ height: "30px", width: "100px", marginTop: "5px" }}
-                        />)
-                    }
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+    <Box sx={{ position: 'relative' }}>
+      {show && (
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          zIndex: 1
+        }}>
+          <CircularProgress size={24} />
+        </Box>
       )}
-    </div>
+      
+      {isRender && (
+        <Box sx={{ mt: 2 }}>
+          {optionList.length > 0 ? (
+            <Grid container spacing={2}>
+              {optionList.map((item, i) => (
+                <Grid item xs={12} key={i}>
+                  <Card 
+                    variant="outlined" 
+                    sx={{ 
+                      borderRadius: 2,
+                      border: '1px solid #e0e0e0',
+                      '&:hover': {
+                        borderColor: '#1976d2',
+                        boxShadow: '0 2px 8px rgba(25, 118, 210, 0.1)'
+                      }
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Typography 
+                        variant="subtitle1" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          color: '#1976d2',
+                          mb: 2,
+                          borderLeft: '3px solid #1976d2',
+                          paddingLeft: 2
+                        }}
+                      >
+                        {item?.optionName}
+                      </Typography>
+                      
+                      <RadioGroup
+                        name={`${item?.optionId}-${indexId}`}
+                        value={
+                          allOption.find(
+                            (opt) => opt.optionName === `${item?.optionId}-${indexId}`
+                          )?.value || ""
+                        }
+                        onChange={(e) => {
+                          handleChangeOption(e, item?.optionId, item?.optionName);
+                        }}
+                        sx={{ gap: 1 }}
+                      >
+                        {item?.options.map((option, index) => (
+                          <Box key={index} sx={{ 
+                            display: 'flex', 
+                            alignItems: 'flex-start',
+                            gap: 2,
+                            p: 2,
+                            borderRadius: 1,
+                            backgroundColor: allOption.some(
+                              (opt) =>
+                                opt.optionName === `${item?.optionId}-${indexId}` &&
+                                opt.value === option?.optionTypeId
+                            ) ? '#f3f8ff' : 'transparent',
+                            border: allOption.some(
+                              (opt) =>
+                                opt.optionName === `${item?.optionId}-${indexId}` &&
+                                opt.value === option?.optionTypeId
+                            ) ? '1px solid #1976d2' : '1px solid transparent',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              backgroundColor: '#f8f9fa'
+                            }
+                          }}>
+                            <FormControlLabel
+                              value={option?.optionTypeId}
+                              control={
+                                <Radio 
+                                  size="small"
+                                  disabled={disabled}
+                                  onDoubleClick={() =>
+                                    handleDoubleClickOption(item?.optionId, item?.optionName)
+                                  }
+                                  sx={{
+                                    color: '#1976d2',
+                                    '&.Mui-checked': {
+                                      color: '#1976d2',
+                                    }
+                                  }}
+                                />
+                              }
+                              label={
+                                <Typography variant="body2" sx={{ fontWeight: 500, color: '#333' }}>
+                                  {option?.optionType}
+                                  {option?.additionalCost && (
+                                    <Chip 
+                                      label={`$${option.additionalCost}`}
+                                      size="small"
+                                      sx={{ 
+                                        ml: 1,
+                                        backgroundColor: '#e8f5e8',
+                                        color: '#2e7d32',
+                                        fontSize: '0.75rem'
+                                      }}
+                                    />
+                                  )}
+                                </Typography>
+                              }
+                              sx={{ flexGrow: 1, mr: 2 }}
+                            />
+                            
+                            {!option?.additionalCost && (
+                              <TextField
+                                size="small"
+                                placeholder="Cost"
+                                type="number"
+                                value={localAdditionalCosts[`${option?.optionTypeId}-${indexId}`]?.additionalCost || ""}
+                                onChange={(e) => handleAdditionalCostChange(e, option?.optionTypeId, item?.optionName, option?.optionType)}
+                                sx={{
+                                  width: 100,
+                                  '& .MuiOutlinedInput-root': {
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: '#1976d2',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: '#1976d2',
+                                    }
+                                  }
+                                }}
+                                InputProps={{
+                                  startAdornment: <Typography variant="body2" sx={{ color: '#666', mr: 0.5 }}>$</Typography>
+                                }}
+                              />
+                            )}
+                          </Box>
+                        ))}
+                      </RadioGroup>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Paper 
+              sx={{ 
+                p: 4, 
+                textAlign: 'center',
+                backgroundColor: '#f8f9fa',
+                border: '1px dashed #ddd'
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                No options available for this product
+              </Typography>
+            </Paper>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 }

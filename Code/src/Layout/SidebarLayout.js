@@ -1,35 +1,30 @@
 
+import React from 'react';
 import Sidebar from './Sidebar';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { ResponsiveProvider } from '../Component/Layout/ResponsiveLayout';
 
-const MainContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  minHeight: '100vh',
-  backgroundColor: '#f5f5f5',
-}));
-
-const ContentArea = styled(Box)(({ theme }) => ({
-  flexGrow: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  marginLeft: 0,
-  transition: theme.transitions.create(['margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-}));
-
-export default function SidebarLayout(props) {
+export default function SidebarLayout({ children }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
-    <MainContainer>
-      <Sidebar />
-      <ContentArea>
-        {props.children}
-      </ContentArea>
-    </MainContainer>
+    <ResponsiveProvider>
+     
+        {/* Sidebar */}
+        <Sidebar />
+          {/* Content Container */}
+          <Box
+            sx={{
+              flex: 1,
+              width: '100%',
+              minHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {children}
+          </Box>
+    </ResponsiveProvider>
   );
 }

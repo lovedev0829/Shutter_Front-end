@@ -75,7 +75,7 @@ export default function ProductTypeDropdown({ value = "", fn, load, name = "prod
         <Select
           labelId="product-type-select-label"
           name={name}
-          value={value}
+          value={value || ""}
           label="Product Type"
           onChange={(e) => {
             if (fn) fn(e);

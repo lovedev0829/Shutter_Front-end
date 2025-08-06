@@ -371,55 +371,69 @@ export default function JobDetiels() {
                 <Box>
                   {/* Window Measurements tab content */}
                   {HasPermission("WindowView") && tabdata === "#window-measurement" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <WindowTable listdata={tenantList[0]} />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <WindowTable listdata={tenantList[0]} />
+                      </Box>
+                    </Slide>
                   )}
 
                   {/* Estimate tab */}
                   {HasPermission("EstimateView") && tabdata === "#estimate" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <EstimateList listdata={tenantList[0]} />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <EstimateList listdata={tenantList[0]} />
+                      </Box>
+                    </Slide>
                   )}
 
                   {/* Order tab */}
                   {HasPermission("OrderView") && tabdata === "#orders" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <OrderList JobId={param.JobId} />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <OrderList JobId={param.JobId} />
+                      </Box>
+                    </Slide>
                   )}
 
                   {/* Invoice tab */}
                   {HasPermission("InvoiceView") && tabdata === "#invoice" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <InvoiceList
-                        JobId={param.JobId}
-                        contactId={tenantList[0]?.contactId}
-                        listdata={tenantList[0]}
-                      />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <InvoiceList
+                          JobId={param.JobId}
+                          contactId={tenantList[0]?.contactId}
+                          listdata={tenantList[0]}
+                        />
+                      </Box>
+                    </Slide>
                   )}
 
                   {/* Job Schedule tab */}
                   {HasPermission("JobScheduleView") && tabdata === "#jobscheduletab" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <Jobschedulelist />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <Jobschedulelist />
+                      </Box>
+                    </Slide>
                   )}
 
                   {/* Contact tab */}
                   {HasPermission("JobContactView") && tabdata === "#contacttab" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <JobContactList />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <JobContactList />
+                      </Box>
+                    </Slide>
                   )}
 
                   {/* Document tab */}
                   {HasPermission("JobContactView") && tabdata === "#documenttab" && (
-                    <Box sx={{ animation: 'fadeIn 0.3s ease-in-out' }}>
-                      <AllDocumentlist />
-                    </Box>
+                    <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+                      <Box>
+                        <AllDocumentlist />
+                      </Box>
+                    </Slide>
                   )}
                 </Box>
               </Fade>
@@ -427,19 +441,7 @@ export default function JobDetiels() {
           </Card>
         </Container>
 
-        {/* Custom CSS for animations */}
-        <style jsx>{`
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}</style>
+
       </div>
     </>
   );

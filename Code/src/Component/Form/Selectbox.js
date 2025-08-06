@@ -11,20 +11,24 @@ import {
 
 export default function Selectbox(props) {
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ 
+      mb: { xs: 1.5, sm: 2 },
+      width: '100%'
+    }}>
       <FormControl 
         fullWidth 
         variant="outlined"
         disabled={props.disabled || false}
         error={props.error || false}
+        size={props.size || 'medium'}
       >
         {props.labelName && (
           <Typography 
             component="label"
             sx={{ 
-              fontSize: '14px',
+              fontSize: { xs: '13px', sm: '14px' },
               fontWeight: 500,
-              mb: 1,
+              mb: { xs: 0.5, sm: 1 },
               display: 'block',
               color: props.error ? 'error.main' : 'text.primary'
             }}

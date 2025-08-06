@@ -7,98 +7,12 @@ import {
   Box,
   Grid,
   useTheme,
-  alpha,
-  IconButton
+  alpha
 } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { styled } from '@mui/material/styles';
 
-const StatsCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
-  border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  cursor: 'pointer',
-  position: 'relative',
-  overflow: 'hidden',
-  height: '100%',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-    '& .stats-icon': {
-      transform: 'scale(1.1)',
-    },
-    '& .arrow-icon': {
-      opacity: 1,
-      transform: 'translateX(0)',
-    },
-  },
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-  },
-}));
 
-const StatsIconContainer = styled(Box)(({ theme }) => ({
-  width: 64,
-  height: 64,
-  borderRadius: 16,
-  backgroundColor: alpha(theme.palette.primary.main, 0.1),
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginBottom: theme.spacing(2),
-  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  '& img': {
-    width: 32,
-    height: 32,
-    filter: `drop-shadow(0 2px 4px ${alpha(theme.palette.primary.main, 0.3)})`,
-  },
-}));
-
-const StatsValue = styled(Typography)(({ theme }) => ({
-  fontSize: '2rem',
-  fontWeight: 700,
-  color: theme.palette.text.primary,
-  lineHeight: 1.2,
-  marginBottom: theme.spacing(0.5),
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '1.75rem',
-  },
-}));
-
-const StatsLabel = styled(Typography)(({ theme }) => ({
-  fontSize: '0.875rem',
-  fontWeight: 500,
-  color: theme.palette.text.secondary,
-  lineHeight: 1.4,
-  display: 'flex',
-  alignItems: 'center',
-  gap: theme.spacing(1),
-}));
-
-const ArrowIcon = styled(ArrowForwardIcon)(({ theme }) => ({
-  fontSize: 16,
-  opacity: 0,
-  transform: 'translateX(-8px)',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  color: theme.palette.primary.main,
-}));
-
-const TrendIcon = styled(TrendingUpIcon)(({ theme }) => ({
-  fontSize: 20,
-  color: alpha(theme.palette.success.main, 0.8),
-  position: 'absolute',
-  top: 16,
-  right: 16,
-  opacity: 0.6,
-}));
 
 export default function DasboardPart({ data }) {
   const theme = useTheme();
@@ -112,24 +26,119 @@ export default function DasboardPart({ data }) {
   return (
     <>
       {data?.map((val, i) => (
-        <Grid item xs={6} sm={6} md={4} lg={3} key={i}>
-          <StatsCard onClick={() => redirect(val?.url)}>
-            <TrendIcon />
+        <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+          <Card
+            onClick={() => redirect(val?.url)}
+            sx={{
+              borderRadius: 2,
+              border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              cursor: 'pointer',
+              position: 'relative',
+              overflow: 'hidden',
+              height: '100%',
+              minHeight: { xs: 140, sm: 160 },
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                '& .stats-icon': {
+                  transform: 'scale(1.1)',
+                },
+                '& .arrow-icon': {
+                  opacity: 1,
+                  transform: 'translateX(0)',
+                },
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 4,
+                background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              },
+            }}
+          >
+            {/* Trend Icon */}
+            <TrendingUpIcon
+              sx={{
+                fontSize: 20,
+                color: (theme) => alpha(theme.palette.success.main, 0.8),
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                opacity: 0.6,
+              }}
+            />
+            
             <CardContent sx={{ p: 3, position: 'relative' }}>
-              <StatsIconContainer className="stats-icon">
+              {/* Icon Container */}
+              <Box
+                className="stats-icon"
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 2,
+                  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mb: 2,
+                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '& img': {
+                    width: 32,
+                    height: 32,
+                    filter: (theme) => `drop-shadow(0 2px 4px ${alpha(theme.palette.primary.main, 0.3)})`,
+                  },
+                }}
+              >
                 <img src={val?.image} alt={val?.label} loading="lazy" />
-              </StatsIconContainer>
+              </Box>
               
-              <StatsValue variant="h3" component="div">
+              {/* Stats Value */}
+              <Typography
+                variant="h3"
+                component="div"
+                sx={{
+                  fontSize: { xs: '1.75rem', sm: '2rem' },
+                  fontWeight: 700,
+                  color: 'text.primary',
+                  lineHeight: 1.2,
+                  mb: 0.5,
+                }}
+              >
                 {val?.count}
-              </StatsValue>
+              </Typography>
               
-              <StatsLabel variant="body2">
+              {/* Stats Label */}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  color: 'text.secondary',
+                  lineHeight: 1.4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
                 {val?.label}
-                <ArrowIcon className="arrow-icon" />
-              </StatsLabel>
+                <ArrowForwardIcon
+                  className="arrow-icon"
+                  sx={{
+                    fontSize: 16,
+                    opacity: 0,
+                    transform: 'translateX(-8px)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    color: 'primary.main',
+                  }}
+                />
+              </Typography>
             </CardContent>
-          </StatsCard>
+          </Card>
         </Grid>
       ))}
     </>

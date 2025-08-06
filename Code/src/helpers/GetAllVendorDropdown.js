@@ -78,7 +78,7 @@ export default function GetAllVendorDropdown({ value = "", fn, load, className =
         <Select
           labelId="vendor-select-label"
           name={name}
-          value={value}
+          value={value || ""}
           label="Select Vendor"
           onChange={(e) => {
             if (fn) fn(e);

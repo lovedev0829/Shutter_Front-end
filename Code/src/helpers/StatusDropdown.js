@@ -31,7 +31,7 @@ export default function StatusDropdown({ value = "", fn }) {
       <Select
         labelId="status-select-label"
         name="status"
-        value={value}
+        value={value || ""}
         label="Status"
         onChange={(e) => {
           if (fn) fn(e);

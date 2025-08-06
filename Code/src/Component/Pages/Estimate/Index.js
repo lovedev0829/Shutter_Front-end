@@ -19,6 +19,47 @@ import JobTab from "../../Form/JobTab";
 import Breakdown from "./Breakdown";
 import { defaultConfig } from "../../../config";
 import AddEditDiscount from "../Discount/AddEditDiscount";
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Card,
+  CardContent,
+  Grid,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormLabel,
+  Chip,
+  IconButton,
+  Divider,
+  Alert,
+  Stack,
+  Fade,
+  Tooltip
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Refresh as RefreshIcon,
+  Analytics as BreakdownIcon,
+  Send as SendIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon
+} from "@mui/icons-material";
 
 export default function Index() {
   const [tenantList, setTenantList] = useState([]);
@@ -652,9 +693,9 @@ export default function Index() {
   };
 
   return (
-    <>
+    <div className="intersight_content">
       {loder > 0 && <ApiLoder />}
-      <div className="intersight_content">
+      <Container maxWidth="xl" sx={{ py: 3 }}>
         <Header
           title={`Contacts / ${
             tenantList[0]?.contactFirstName +
@@ -662,473 +703,655 @@ export default function Index() {
             tenantList[0]?.contactLasttName
           }`}
         />
-        <div className="body_content">
-          <div className="contact-profile">
-            <div className="engage-tabs">
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <JobTab contactId={tenantList[0]?.contactId} />
-              </ul>
-              <div className="tab-content" id="pills-tabContent">
-                <div className="row mb-30">
-                  <BackButton link={`/contacts/job/${tenantList[0]?.jobId}`} />
-                  <div className="col-lg-12">
-                    <div className="new-job_list">
-                      <JobUi tenantList={tenantList[0]} />
-                    </div>
-                  </div>
-                </div>
-                <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-                  <div className="heading_width_search d-flex align-items-center gap-3 margin-for-mobile">
-                    <h2 className="body_heading width-left-border mb-0">
-                      {param.estimateId ? "Update" : "Create"} Estimate{" "}
-                      <sup className="boldsup">*</sup>
-                    </h2>
-                    <div className="estimate-input">
-                      <input
-                        type="text"
-                        placeholder="Enter Estimate Title"
-                        name="estimateName"
-                        onChange={handleChange}
-                        value={value?.estimateName}
-                      />
-
-                      <div className="error">
-                        {simpleValidator.current.message(
-                          "Estimate Title",
-                          value?.estimateName,
-                          `required`
+        
+        <Card elevation={2} sx={{ mb: 3 }}>
+          <CardContent>
+            <Box sx={{ mb: 3 }}>
+              <JobTab contactId={tenantList[0]?.contactId} />
+            </Box>
+            
+            <Box sx={{ mb: 3 }}>
+              <BackButton link={`/contacts/job/${tenantList[0]?.jobId}`} />
+              <Box sx={{ mt: 2 }}>
+                <JobUi tenantList={tenantList[0]} />
+              </Box>
+            </Box>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: { xs: 'stretch', md: 'center' },
+              justifyContent: 'space-between',
+              gap: 3,
+              mb: 4 
+            }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: { xs: 'column', lg: 'row' },
+                alignItems: { xs: 'stretch', lg: 'center' },
+                gap: 3,
+                flex: 1
+              }}>
+                <Typography 
+                  variant="h4" 
+                  component="h1"
+                  sx={{ 
+                    fontWeight: 600,
+                    color: 'primary.main',
+                    borderLeft: '4px solid',
+                    borderColor: 'primary.main',
+                    pl: 2,
+                    mb: { xs: 0, lg: 0 }
+                  }}
+                >
+                  {param.estimateId ? "Update" : "Create"} Estimate
+                  <Typography component="span" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
+                </Typography>
+                
+                <TextField
+                  label="Estimate Title"
+                  placeholder="Enter Estimate Title"
+                  name="estimateName"
+                  value={value?.estimateName || ""}
+                  onChange={handleChange}
+                  size="small"
+                  sx={{ minWidth: 250 }}
+                  error={!!simpleValidator.current.message("Estimate Title", value?.estimateName, "required")}
+                  helperText={simpleValidator.current.message("Estimate Title", value?.estimateName, "required")}
+                />
+                
+                <FormControl size="small" sx={{ minWidth: 250 }}>
+                  <InputLabel>Prepared by</InputLabel>
+                  <Select
+                    name="preparedBy"
+                    value={value?.preparedBy || ""}
+                    onChange={handleChange}
+                    label="Prepared by"
+                  >
+                    <MenuItem value="">
+                      <em>Select User</em>
+                    </MenuItem>
+                    {users?.map((val, i) => (
+                      <MenuItem value={val.userId} key={i}>
+                        {`${val?.firstName} ${val?.lastName} ${val?.suffix || ""}`.trim()}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {simpleValidator.current.message("Prepared by", value?.preparedBy, "required") && (
+                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                      {simpleValidator.current.message("Prepared by", value?.preparedBy, "required")}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Box>
+              
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setOpen(true)}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    borderWidth: 2,
+                    '&:hover': {
+                      borderWidth: 2,
+                    }
+                  }}
+                >
+                  Add Window
+                </Button>
+                {param.estimateId && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<RefreshIcon />}
+                    onClick={() => Refresh()}
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      borderWidth: 2,
+                      '&:hover': {
+                        borderWidth: 2,
+                      }
+                    }}
+                  >
+                    Refresh
+                  </Button>
+                )}
+              </Stack>
+            </Box>
+            <Card elevation={1} sx={{ mb: 4 }}>
+              <CardContent sx={{ p: 0 }}>
+                <TableContainer>
+                  <Table stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          Window Label
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          Window Qty
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          Product Type
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          Product
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          Dimension
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          Options
+                        </TableCell>
+                        {!user?.isTenant && (
+                          <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                            Wholesale Price
+                          </TableCell>
                         )}
-                      </div>
-                    </div>
-                    <div className="estimate-input">
-                      <select
-                        className="form-select"
-                        onChange={handleChange}
-                        style={{
-                          height: "30px",
-                          fontSize: "12px",
-                          minWidth: "244px",
-                        }}
-                        name="preparedBy"
-                        value={value?.preparedBy}
-                      >
-                        <option value="">Prepared by</option>
-                        {users?.map((val, i) => (
-                          <option value={val.userId} key={i}>
-                            {val?.firstName +
-                              " " +
-                              val?.lastName +
-                              " " +
-                              val?.suffix}
-                          </option>
-                        ))}
-                      </select>
-
-                      <div className="error">
-                        {simpleValidator.current.message(
-                          "Prepared by",
-                          value?.preparedBy,
-                          `required`
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50', textAlign: 'center' }}>
+                          Retail Price
+                        </TableCell>
+                        {user?.isTenant && (
+                          <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50', textAlign: 'center' }}>
+                            Breakdown
+                          </TableCell>
                         )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="heading_width_search d-flex align-items-center gap-3">
-                    <Link
-                      to="#"
-                      className="btn blue-outline-btn small_btn"
-                      onClick={() => setOpen(true)}
-                    >
-                      Add Window
-                    </Link>
-                    {param.estimateId && (
-                      <Link
-                        to="#"
-                        className="btn blue-outline-btn small_btn"
-                        onClick={() => Refresh()}
-                      >
-                        Refresh
-                      </Link>
-                    )}
-                  </div>
-                </div>
-                <div className="estimate-table task_table mb-30">
-                  <div className="table-responsive">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Window label</th>
-                          <th scope="col">Window Qty</th>
-                          <th scope="col">Product Type</th>
-                          <th scope="col">Product</th>
-                          <th scope="col">Dimension</th>
-                          <th scope="col">Options</th>
+                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50', textAlign: 'center' }}>
+                          Delete
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {list?.WindowProductId?.map((val, i) => (
+                        <TableRow 
+                          key={i}
+                          sx={{ 
+                            '&:nth-of-type(odd)': { bgcolor: 'grey.25' },
+                            '&:hover': { bgcolor: 'action.hover' }
+                          }}
+                        >
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              {val?.label}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={val?.quantity} 
+                              size="small" 
+                              color="primary" 
+                              variant="outlined" 
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2">
+                              {val?.productTypeName}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2">
+                              {val?.productName}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                              W: {val?.width}", H: {val?.height}", A: {val?.archHeight}"
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {val?.options?.map((vals, ind) => (
+                                <Chip
+                                  key={ind}
+                                  label={vals}
+                                  size="small"
+                                  variant="outlined"
+                                  sx={{ 
+                                    fontSize: '0.75rem',
+                                    height: 'auto',
+                                    py: 0.5
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </TableCell>
                           {!user?.isTenant && (
-                            <th scope="col">Wholesale Price</th>
+                            <TableCell>
+                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                {defaultConfig.currencySign} {val?.wholesalePrice}
+                              </Typography>
+                            </TableCell>
                           )}
-                          <th scope="col" className=" text-center">
-                            Retail Price
-                          </th>
-                          {user?.isTenant && (
-                            <th scope="col" className=" text-center">
-                              Breakdown
-                            </th>
-                          )}
-
-                          <th scope="col" className=" text-center">
-                            Delete
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {list?.WindowProductId?.map((val, i) => (
-                          <tr key={i}>
-                            <td>{val?.label}</td>
-                            <td>{val?.quantity}</td>
-                            <td>{val?.productTypeName}</td>
-                            <td>{val?.productName}</td>
-                            <td>
-                              W: {val?.width}”, H: {val?.height}”, A:{" "}
-                              {val?.archHeight}”
-                            </td>
-                            <td>
-                              <span>
-                                <ul className="colors">
-                                  {val?.options?.map((vals, ind) => (
-                                    <li className="color-item" key={ind}>
-                                      {vals}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </span>
-                            </td>
-                            {!user?.isTenant && (
-                              <td>
-                                {defaultConfig.currencySign}{" "}
-                                {val?.wholesalePrice}
-                              </td>
-                            )}
-                            <td className=" text-center">
-                              {val?.isComponentAvailable ? (
-                                <>
-                                  {defaultConfig.currencySign}
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            {val?.isComponentAvailable ? (
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 600,
+                                  color: 'success.main',
+                                  fontFamily: 'monospace'
+                                }}
+                              >
+                                {defaultConfig.currencySign}
+                                {(
+                                  Number(val?.totalPrice ?? 0) +
+                                  Number(val?.additionalCost ?? 0) +
+                                  Number(val?.componentMarkup ?? 0) +
+                                  Number(val?.productMarkup ?? 0) +
+                                  Number(val?.optionMarkup ?? 0)
+                                )?.toFixed(2)}
+                              </Typography>
+                            ) : (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                                <TextField
+                                  type="number"
+                                  size="small"
+                                  value={val?.totalPrice || ""}
+                                  onChange={(e) => handleChanges(e, i, "totalPrice")}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "+" || e.key === "-") {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  onPaste={(e) => {
+                                    const pasted = e.clipboardData.getData("text");
+                                    if (/[+-]/.test(pasted)) {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  onWheel={(e) => e.target.blur()}
+                                  sx={{ 
+                                    width: 120,
+                                    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                                      display: 'none',
+                                    },
+                                    '& input[type=number]': {
+                                      MozAppearance: 'textfield',
+                                    },
+                                  }}
+                                />
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                  + {defaultConfig.currencySign}{" "}
                                   {(
-                                    Number(val?.totalPrice ?? 0) +
                                     Number(val?.additionalCost ?? 0) +
                                     Number(val?.componentMarkup ?? 0) +
                                     Number(val?.productMarkup ?? 0) +
                                     Number(val?.optionMarkup ?? 0)
                                   )?.toFixed(2)}
-                                </>
-                              ) : (
-                                <div className="d-flex taxwidth">
-                                  <input
-                                    type="number"
-                                    style={{
-                                      width: "120px",
-                                      MozAppearance: "textfield",
-                                    }}
-                                    className="form-control no-spinner"
-                                    value={val?.totalPrice || ""}
-                                    onChange={(e) =>
-                                      handleChanges(e, i, "totalPrice")
-                                    }
-                                    onKeyDown={(e) => {
-                                      if (e.key === "+" || e.key === "-") {
-                                        e.preventDefault();
-                                      }
-                                    }}
-                                    onPaste={(e) => {
-                                      const pasted =
-                                        e.clipboardData.getData("text");
-                                      if (/[+-]/.test(pasted)) {
-                                        e.preventDefault();
-                                      }
-                                    }}
-                                    onWheel={(e) => e.target.blur()}
-                                  />
-                                  <span>
-                                    {" "}
-                                    + {defaultConfig.currencySign}{" "}
-                                    {(
-                                      Number(val?.additionalCost ?? 0) +
-                                      Number(val?.componentMarkup ?? 0) +
-                                      Number(val?.productMarkup ?? 0) +
-                                      Number(val?.optionMarkup ?? 0)
-                                    )?.toFixed(2)}
-                                  </span>
-                                </div>
-                              )}
-                            </td>
-                            {user?.isTenant && (
-                              <>
-                                {!val?.isComponentAvailable ? (
-                                  <td></td>
-                                ) : (
-                                  <td
-                                    className="text-center"
+                                </Typography>
+                              </Box>
+                            )}
+                          </TableCell>
+                          {user?.isTenant && (
+                            <TableCell sx={{ textAlign: 'center' }}>
+                              {val?.isComponentAvailable ? (
+                                <Tooltip title="View Breakdown">
+                                  <IconButton
+                                    color="primary"
                                     onClick={() => {
                                       setisview(val?.isviewedit ? true : false);
                                       setHistory(true);
                                       setObject(val);
                                     }}
+                                    sx={{
+                                      '&:hover': {
+                                        bgcolor: 'primary.light',
+                                        color: 'white'
+                                      }
+                                    }}
                                   >
-                                    <Link to="#">
-                                      {" "}
-                                      <img
-                                        src="/image/breakdown.svg"
-                                        alt=""
-                                        loading="lazy"
-                                      />
-                                    </Link>
-                                  </td>
-                                )}
-                              </>
-                            )}
-                            <td
-                              className="text-center"
-                              onClick={() => handledeletedata(val)}
-                            >
-                              <span style={{ cursor: "pointer" }}>
-                                <img
-                                  src="/image/deleteblue.svg"
-                                  alt=""
-                                  loading="lazy"
-                                />
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                                    <BreakdownIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              ) : null}
+                            </TableCell>
+                          )}
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Tooltip title="Delete Window">
+                              <IconButton
+                                color="error"
+                                onClick={() => handledeletedata(val)}
+                                sx={{
+                                  '&:hover': {
+                                    bgcolor: 'error.light',
+                                    color: 'white'
+                                  }
+                                }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      ))}
 
-                        {list?.WindowProductId?.length === 0 && (
-                          <tr>
-                            <td
-                              className="text-center border-0 no-records"
-                              colSpan={9}
-                            >
+                      {list?.WindowProductId?.length === 0 && (
+                        <TableRow>
+                          <TableCell 
+                            colSpan={user?.isTenant ? 9 : 8}
+                            sx={{ 
+                              textAlign: 'center', 
+                              py: 8,
+                              border: 'none'
+                            }}
+                          >
+                            <Box sx={{ 
+                              display: 'flex', 
+                              flexDirection: 'column', 
+                              alignItems: 'center',
+                              gap: 2
+                            }}>
                               <img
                                 src="/image/no-records.svg"
-                                alt=" "
+                                alt="No records"
                                 loading="lazy"
-                                className="img-fluid"
+                                style={{ maxWidth: '200px', opacity: 0.6 }}
                               />
-                              <p className="font-14">
-                                Please add a window to create a Estimate
-                              </p>
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                    <div className="error">
-                      {simpleValidator.current.message(
-                        "Windows",
-                        value?.windowProductId,
-                        `required`
+                              <Typography 
+                                variant="body1" 
+                                color="text.secondary"
+                                sx={{ fontWeight: 500 }}
+                              >
+                                Please add a window to create an Estimate
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-6" />
-                  <div className="col-md-6">
-                    <div className="adjust-pricing">
-                      <div className="middle-heading">
-                        <h4>Summary</h4>
-                      </div>
-                      <div className="couponinput mb-2">
-                        <div className="d-flex align-items-center justify-content-between w-100">
-                          {HasPermission("DiscountAdd") && (
-                            <img
-                              src="/image/plusblue.svg"
-                              alt=""
-                              loading="lazy"
-                              style={{ cursor: "pointer" }}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {simpleValidator.current.message("Windows", value?.windowProductId, "required") && (
+                  <Alert severity="error" sx={{ mt: 2, mx: 2, mb: 2 }}>
+                    {simpleValidator.current.message("Windows", value?.windowProductId, "required")}
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                {/* Empty column for spacing */}
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card elevation={2}>
+                  <CardContent>
+                    <Typography 
+                      variant="h5" 
+                      component="h2" 
+                      sx={{ 
+                        mb: 3, 
+                        fontWeight: 600,
+                        color: 'primary.main',
+                        borderBottom: 2,
+                        borderColor: 'primary.main',
+                        pb: 1
+                      }}
+                    >
+                      Summary
+                    </Typography>
+                    
+                    <Box sx={{ mb: 3 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 2, 
+                        mb: 2
+                      }}>
+                        {HasPermission("DiscountAdd") && (
+                          <Tooltip title="Add New Discount">
+                            <IconButton
+                              color="primary"
                               onClick={() => setDiscountopen(true)}
-                            />
-                          )}
-                          <select
-                            className="form-select null"
+                              sx={{
+                                bgcolor: 'primary.light',
+                                '&:hover': {
+                                  bgcolor: 'primary.main',
+                                  color: 'white'
+                                }
+                              }}
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Discount Coupon</InputLabel>
+                          <Select
                             onChange={handleChangecupan}
+                            label="Discount Coupon"
+                            value={value.discountCoupon ? 
+                              JSON.stringify(coupan.find(c => c.couponCode === value.discountCoupon) || {}) : ""
+                            }
                           >
-                            <option value="">
-                              Discount coupon  (e.g., promotional discounts,
-                              bulk order...
-                            </option>
+                            <MenuItem value="">
+                              <em>Select promotional discount, bulk order...</em>
+                            </MenuItem>
                             {coupan?.map((val, i) => (
-                              <option
+                              <MenuItem
                                 value={JSON.stringify(val)}
                                 key={i}
-                                selected={
-                                  value.discountCoupon === val?.couponCode
-                                    ? true
-                                    : false
-                                }
                               >
                                 {val?.couponCode} ({val?.discountTypeName} -{" "}
                                 {val?.discountTypeName === "Percentage"
-                                  ? val?.percentageDiscount
-                                  : val?.fixedAmount}
+                                  ? `${val?.percentageDiscount}%`
+                                  : `${defaultConfig.currencySign}${val?.fixedAmount}`}
                                 )
-                              </option>
+                              </MenuItem>
                             ))}
-                          </select>
+                          </Select>
+                        </FormControl>
 
-                          <button
-                            type="button"
-                            className="btn blue-btn small_btn"
-                            onClick={() => Applycopan(value.productsList, true)}
-                          >
-                            Apply
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="price-content w-100 price-content-new">
-                        <div className="form-group apply-tax-new">
-                          <label className="font-14">Apply Tax</label>
-                          <div className="d-flex align-items-center gap-3">
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="isTaxAvailable"
-                                id="flexRadioDefault3"
-                                value="true"
-                                checked={value.isTaxApplicable === true}
-                                onChange={handleTaxChange}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="flexRadioDefault3"
-                              >
-                                Yes
-                              </label>
-                            </div>
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="isTaxAvailable"
-                                id="flexRadioDefault4"
-                                value="false"
-                                checked={value.isTaxApplicable === false}
-                                onChange={handleTaxChange}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="flexRadioDefault4"
-                              >
-                                No
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="price-content-inner">
-                          <div className="d-flex justify-content-between">
-                            <h2 className="font-14 mb-0">Subtotal:</h2>
-                            <span className="mb-0">
-                              {defaultConfig.currencySign}{" "}
-                              {Number(value?.subTotal)?.toFixed(2)}
-                            </span>
-                          </div>
-                          {/* <div className="d-flex justify-content-between">
-                            <h2 className="font-14 mb-0">Additional Cost:</h2>
-                            <span className="mb-0">
-                              {defaultConfig.currencySign}{" "}
-                              {Number(value?.additionalCost)?.toFixed(2)}
-                            </span>
-                          </div> */}
-                          {Number(value?.discount) > 0 && (
-                            <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Discount:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {Number(value?.discount)?.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          {value.isTaxApplicable && (
-                            <div className="d-flex justify-content-between">
-                              <h2 className="font-14 mb-0">Taxes:</h2>
-                              <span className="mb-0">
-                                {defaultConfig.currencySign}{" "}
-                                {Number(value?.tax)?.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          <div className="d-flex justify-content-between">
-                            <h2 className="font-14 mb-0">Grand Total:</h2>
-                            <span className="mb-0">
-                              {defaultConfig.currencySign}{" "}
-                              {Number(value?.grandTotal)?.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="middle-heading">
-                        <h4>Estimate Notes</h4>
-                      </div>
-                      <div className="row ">
-                        <div className="col-md-6 mb-3">
-                          <h2 className="font-14">Terms and Conditions</h2>
-                          <div className="terms-content">
-                            <textarea
-                              className="form-control"
-                              placeholder="payment terms, warranty information, and any disclaimers"
-                              name="termsCondition"
-                              onChange={handleChange}
-                              value={value?.termsCondition}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <h2 className="font-14">Additional Notes</h2>
-                          <div className="terms-content">
-                            <textarea
-                              className="form-control"
-                              placeholder="Add any other relevant information for the customer"
-                              name="notes"
-                              onChange={handleChange}
-                              value={value?.notes}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="form-style form-group d-flex align-items-center justify-content-end w-100">
-                        <Link
-                          to={`/contacts/job/${tenantList[0]?.jobId}`}
-                          className="cancel text-decoration-underline"
+                        <Button
+                          variant="contained"
+                          onClick={() => Applycopan(value.productsList, true)}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            minWidth: 100
+                          }}
                         >
-                          Cancel
-                        </Link>
-                        {HasPermission("EstimateAdd") && (
-                          <Link
-                            to="#"
-                            className="btn blue-btn me-2"
-                            onClick={() => languageAdd(false)}
-                          >
-                            {param.estimateId ? "Update" : "Save"}
-                          </Link>
-                        )}
-                        {HasPermission("EstimateAdd") && (
-                          <Link
-                            to="#"
-                            className="btn blue-btn"
-                            onClick={() => languageAdd(true)}
-                          >
-                            {param.estimateId ? "Update" : "Save"} & Send
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                          Apply
+                        </Button>
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ mb: 3 }}>
+                      <FormControl component="fieldset">
+                        <FormLabel 
+                          component="legend" 
+                          sx={{ 
+                            fontSize: '1rem', 
+                            fontWeight: 600,
+                            color: 'text.primary',
+                            mb: 1
+                          }}
+                        >
+                          Apply Tax
+                        </FormLabel>
+                        <RadioGroup
+                          row
+                          name="isTaxAvailable"
+                          value={value.isTaxApplicable.toString()}
+                          onChange={handleTaxChange}
+                          sx={{ gap: 3 }}
+                        >
+                          <FormControlLabel
+                            value="true"
+                            control={<Radio color="primary" />}
+                            label="Yes"
+                            sx={{
+                              '& .MuiFormControlLabel-label': {
+                                fontWeight: 500
+                              }
+                            }}
+                          />
+                          <FormControlLabel
+                            value="false"
+                            control={<Radio color="primary" />}
+                            label="No"
+                            sx={{
+                              '& .MuiFormControlLabel-label': {
+                                fontWeight: 500
+                              }
+                            }}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                    <Card variant="outlined" sx={{ bgcolor: 'grey.50', mb: 3 }}>
+                      <CardContent sx={{ py: 2 }}>
+                        <Stack spacing={2}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                              Subtotal:
+                            </Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                              {defaultConfig.currencySign} {Number(value?.subTotal)?.toFixed(2)}
+                            </Typography>
+                          </Box>
+                          
+                          {Number(value?.discount) > 0 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography variant="body1" sx={{ fontWeight: 500, color: 'error.main' }}>
+                                Discount:
+                              </Typography>
+                              <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace', color: 'error.main' }}>
+                                -{defaultConfig.currencySign} {Number(value?.discount)?.toFixed(2)}
+                              </Typography>
+                            </Box>
+                          )}
+                          
+                          {value.isTaxApplicable && (
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                                Taxes:
+                              </Typography>
+                              <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                                {defaultConfig.currencySign} {Number(value?.tax)?.toFixed(2)}
+                              </Typography>
+                            </Box>
+                          )}
+                          
+                          <Divider />
+                          
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                              Grand Total:
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: 'monospace', color: 'primary.main' }}>
+                              {defaultConfig.currencySign} {Number(value?.grandTotal)?.toFixed(2)}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                    
+                    <Typography 
+                      variant="h5" 
+                      component="h2" 
+                      sx={{ 
+                        mb: 3, 
+                        fontWeight: 600,
+                        color: 'primary.main',
+                        borderBottom: 2,
+                        borderColor: 'primary.main',
+                        pb: 1
+                      }}
+                    >
+                      Estimate Notes
+                    </Typography>
+                    
+                    <Grid container spacing={3} sx={{ mb: 4 }}>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          label="Terms and Conditions"
+                          multiline
+                          rows={4}
+                          fullWidth
+                          name="termsCondition"
+                          value={value?.termsCondition || ""}
+                          onChange={handleChange}
+                          placeholder="Payment terms, warranty information, and any disclaimers"
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          label="Additional Notes"
+                          multiline
+                          rows={4}
+                          fullWidth
+                          name="notes"
+                          value={value?.notes || ""}
+                          onChange={handleChange}
+                          placeholder="Add any other relevant information for the customer"
+                          variant="outlined"
+                        />
+                      </Grid>
+                    </Grid>
+                    
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'flex-end', 
+                      alignItems: 'center',
+                      gap: 2,
+                      pt: 3,
+                      borderTop: 1,
+                      borderColor: 'divider'
+                    }}>
+                      <Button
+                        component={Link}
+                        to={`/contacts/job/${tenantList[0]?.jobId}`}
+                        variant="text"
+                        startIcon={<CancelIcon />}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 500,
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      
+                      {HasPermission("EstimateAdd") && (
+                        <Button
+                          variant="contained"
+                          startIcon={<SaveIcon />}
+                          onClick={() => languageAdd(false)}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            px: 3
+                          }}
+                        >
+                          {param.estimateId ? "Update" : "Save"}
+                        </Button>
+                      )}
+                      
+                      {HasPermission("EstimateAdd") && (
+                        <Button
+                          variant="contained"
+                          color="success"
+                          startIcon={<SendIcon />}
+                          onClick={() => languageAdd(true)}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            px: 3
+                          }}
+                        >
+                          {param.estimateId ? "Update" : "Save"} & Send
+                        </Button>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Container>
       {open && (
         <AddnewWindow
           open={open}
@@ -1158,6 +1381,6 @@ export default function Index() {
           object={{}}
         />
       )}
-    </>
+    </div>
   );
 }

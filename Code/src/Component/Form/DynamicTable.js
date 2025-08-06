@@ -22,7 +22,13 @@ import {
   Typography,
   Avatar,
   Stack,
-  InputAdornment
+  InputAdornment,
+  useTheme,
+  useMediaQuery,
+  Card,
+  CardContent,
+  Divider,
+  Button
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -34,6 +40,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { ResponsiveTableContainer } from '../Layout/ResponsiveLayout';
 // All styled components removed - using sx prop instead
 
 const DynamicTable = ({
@@ -55,6 +62,9 @@ const DynamicTable = ({
   columnFilters,
   handlesearchChange,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
@@ -289,17 +299,141 @@ const DynamicTable = ({
     );
   };
 
+  // Mobile Card View Component
+  const MobileCardView = () => (
+    <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+      {data && data.length > 0 ? (
+        <Stack spacing={2}>
+          {data.map((row, rowIndex) => (
+            <Card
+              key={rowIndex}
+              sx={{
+                borderRadius: 2,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                border: '1px solid #e5e7eb',
+                overflow: 'hidden'
+              }}
+            >
+              <CardContent sx={{ p: 2 }}>
+                {columns.map((col, colIndex) => {
+                  const cellContent = renderCellContent(row, col, rowIndex, colIndex);
+                  // Skip empty cells
+                  if (!cellContent || cellContent === '' || cellContent === '-') return null;
+                  
+                  return (
+                    <Box key={colIndex} sx={{ mb: colIndex === columns.length - 1 ? 0 : 1.5 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontWeight: 600,
+                          color: 'text.secondary',
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.5,
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        {col.label || col.key}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          mt: 0.5,
+                          fontSize: '0.875rem',
+                          lineHeight: 1.4
+                        }}
+                      >
+                        {cellContent}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+                
+                {/* Mobile Actions */}
+                {(HasPermission(editpermission) || HasPermission(deletepermission)) && (
+                  <>
+                    <Divider sx={{ my: 2 }} />
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {rowActions.includes("view") && (
+                        <Button
+                          size="small"
+                          startIcon={<VisibilityIcon />}
+                          onClick={() => viewUser(row)}
+                          sx={{ fontSize: '0.75rem' }}
+                        >
+                          View
+                        </Button>
+                      )}
+                      {rowActions.includes("edit") && HasPermission(editpermission) && (
+                        <Button
+                          size="small"
+                          startIcon={<EditIcon />}
+                          onClick={() => edituser(row)}
+                          sx={{ fontSize: '0.75rem' }}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {rowActions.includes("version") && (
+                        <Button
+                          size="small"
+                          startIcon={<HistoryIcon />}
+                          onClick={() => handleVersion(row)}
+                          sx={{ fontSize: '0.75rem' }}
+                        >
+                          History
+                        </Button>
+                      )}
+                      {rowActions.includes("delete") && HasPermission(deletepermission) && (
+                        <Button
+                          size="small"
+                          startIcon={<DeleteIcon />}
+                          onClick={() => handledelete(row)}
+                          color="error"
+                          sx={{ fontSize: '0.75rem' }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </Box>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
+      ) : (
+        <Card sx={{ textAlign: 'center', p: 4 }}>
+          <img
+            src="/image/no-records.svg"
+            alt="No records"
+            loading="lazy"
+            style={{ maxWidth: '150px', opacity: 0.6 }}
+          />
+          <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>
+            No Records Found. Please Add New {title}
+          </Typography>
+        </Card>
+      )}
+    </Box>
+  );
+
   return (
     <Box sx={{ width: '100%' }}>
-      <TableContainer 
-        component={Paper}
-        sx={{
-          borderRadius: 2,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: '1px solid #e5e7eb',
-          overflow: 'hidden'
-        }}
-      >
+      {/* Mobile Card View */}
+      <MobileCardView />
+      
+      {/* Desktop Table View */}
+      <ResponsiveTableContainer>
+        <TableContainer 
+          component={Paper}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            borderRadius: 2,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '1px solid #e5e7eb',
+            overflow: 'hidden'
+          }}
+        >
         <Table>
           <TableHead
             sx={{
@@ -474,6 +608,7 @@ const DynamicTable = ({
           </TableBody>
         </Table>
       </TableContainer>
+      </ResponsiveTableContainer>
 
       {/* Action Menu */}
       <Menu

@@ -61,7 +61,7 @@ export default function RoleDropdown({ value = "", fn, load }) {
       >
         <InputLabel>Select Role</InputLabel>
         <Select
-          value={value}
+          value={value || ""}
           name="roleId"
           label="Select Role"
           onChange={(e) => {

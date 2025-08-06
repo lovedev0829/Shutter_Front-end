@@ -84,7 +84,7 @@ export default function PartnerDropdown({ value = "", fn }) {
       <Select
         labelId="partner-select-label"
         name="tenantId"
-        value={value}
+        value={value || ""}
         label="Partner"
         onChange={(e) => {
           if (fn) fn(e);

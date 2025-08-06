@@ -3,15 +3,18 @@ import { TextField, Typography, Box } from '@mui/material';
 
 export default function InputField(props) {
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ 
+      mb: { xs: 1.5, sm: 2 },
+      width: '100%'
+    }}>
       {props.displayLabel !== 'none' && (
         <Typography 
           component="label" 
           htmlFor={props.id}
           sx={{ 
-            fontSize: '14px',
+            fontSize: { xs: '13px', sm: '14px' },
             fontWeight: 500,
-            mb: 1,
+            mb: { xs: 0.5, sm: 1 },
             display: 'block',
             color: 'text.primary'
           }}
@@ -34,6 +37,7 @@ export default function InputField(props) {
         disabled={props.disabled || false}
         fullWidth
         variant="outlined"
+        size={props.size || 'medium'}
         sx={{
           '& .MuiOutlinedInput-root': {
             borderRadius: 1,
@@ -50,8 +54,8 @@ export default function InputField(props) {
             }
           },
           '& .MuiInputBase-input': {
-            fontSize: '14px',
-            padding: '10px 12px',
+            fontSize: { xs: '14px', sm: '14px' },
+            padding: { xs: '8px 10px', sm: '10px 12px' },
           }
         }}
       />

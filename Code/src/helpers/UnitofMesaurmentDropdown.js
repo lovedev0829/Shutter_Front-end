@@ -61,7 +61,7 @@ export default function UnitofMesaurmentDropdown({ value = "", fn, load }) {
       >
         <InputLabel>Select Unit</InputLabel>
         <Select
-          value={value}
+          value={value || ""}
           name="unitOfMeasurement"
           label="Select Unit"
           onChange={(e) => {

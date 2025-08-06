@@ -37,7 +37,7 @@ export default function AssignedPersonnelDropdown({ value = "", fn, load, name =
     <Box sx={{ position: 'relative', minWidth: 120 }}>
       <FormControl fullWidth size="small" variant="outlined">
         <Select
-          value={value}
+          value={value || ""}
           name={name}
           onChange={(e) => {
             if (fn) fn(e);

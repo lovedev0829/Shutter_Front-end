@@ -63,7 +63,7 @@ export default function TaxListDropdown({ value = "", fn, load }) {
       >
         <InputLabel>Select Tax</InputLabel>
         <Select
-          value={value}
+          value={value || ""}
           name="taxId"
           label="Select Tax"
           onChange={(e) => {
