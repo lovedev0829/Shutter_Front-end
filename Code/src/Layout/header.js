@@ -8,77 +8,31 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Select,
-  MenuItem,
   FormControl,
   InputLabel,
-  Badge,
+  Select,
+  MenuItem,
   IconButton,
-  Menu,
-  MenuList,
-  MenuItem as MuiMenuItem,
-  Box,
-  Divider,
-  ListItemText,
-  Chip,
-  Paper,
-  ClickAwayListener,
+  Badge,
   Popper,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  Divider,
+  Box,
+  ClickAwayListener,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { styled } from '@mui/material/styles';
-import ResponsiveHeader from '../Component/Layout/ResponsiveHeader';
-
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: '#fff',
-  color: '#333',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  borderBottom: '1px solid #e0e0e0',
-}));
-
-const StyledSelect = styled(Select)(({ theme }) => ({
-  minWidth: 120,
-  '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#e0e0e0',
-  },
-  '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#1976d2',
-  },
-  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#1976d2',
-  },
-}));
-
-const NotificationPaper = styled(Paper)(({ theme }) => ({
-  maxWidth: 400,
-  maxHeight: 400,
-  overflow: 'auto',
-  marginTop: 8,
-  boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-  border: '1px solid #e0e0e0',
-}));
-
-const NotificationItem = styled(Box)(({ theme, isread }) => ({
-  padding: theme.spacing(2),
-  borderBottom: '1px solid #f5f5f5',
-  cursor: 'pointer',
-  backgroundColor: isread === 'true' ? '#f9f9f9' : '#fff',
-  '&:hover': {
-    backgroundColor: '#f5f5f5',
-  },
-  '&:last-child': {
-    borderBottom: 'none',
-  },
-}));
-
 export default function Header(props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const users = useSelector((state) => state.UserProfile.profile);
   const user = JSON.parse(localStorage.getItem("userData"));
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
   const [notifications, setnotifications] = useState([]);
   const [tenantList, setTenantList] = useState([]);
   const [tenantsLoading, setTenantsLoading] = useState(true);
@@ -135,6 +89,16 @@ export default function Header(props) {
         localStorage.setItem("activeTab2", "#pills-content");
         navigate(`/contacts/estimate/preview/${notification?.typeId}`);
         break;
+        case "Order":
+        localStorage.setItem("activeTab", "#orders");
+        localStorage.setItem("activeTab2", "#pills-content");
+        navigate(`/contacts/order/preview/${notification?.typeId}`);
+        break;
+         case "Payment":
+        localStorage.setItem("activeTab", "#invoice");
+        localStorage.setItem("activeTab2", "#pills-content");
+        navigate(`/contacts/payment/${notification?.typeId}`);
+        break;
       case "Tenant":
         navigate(`/tenant`);
         break;
@@ -156,7 +120,6 @@ export default function Header(props) {
 
   const handlestatus = async (data) => {
     NotificationType(data);
-    setAnchorEl(null);
     try {
       const response = await callAPI(
         apiUrls.UpdateNotification,
@@ -194,211 +157,239 @@ export default function Header(props) {
     }
   }
 
-  const handleNotificationClick = (event) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget);
-  };
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const anchorRef = useRef(null);
 
   const handleNotificationClose = () => {
-    setAnchorEl(null);
-  };
-
-  const unreadCount = notifications?.filter((notif) => !notif?.isReaded)?.length || 0;
-
-  // Render tenant selector
-  const renderTenantSelector = () => (
-    <Box sx={{ minWidth: { xs: 120, md: 150 }, maxWidth: { xs: 200, md: 280 } }}>
-      <FormControl size="small" fullWidth>
-        <InputLabel 
-          id="tenant-select-label"
-          sx={{ 
-            fontSize: '13px',
-            display: { xs: 'none', sm: 'block' }
-          }}
-        >
-          Tenant
-        </InputLabel>
-        <StyledSelect
-          labelId="tenant-select-label"
-          value={
-            tenantsLoading 
-              ? '' 
-              : tenantList?.some(tenant => tenant?.tenantId === currentTenantId) 
-                ? currentTenantId 
-                : ''
-          }
-          onChange={handleTenantChange}
-          label={isMobile ? '' : 'Tenant'}
-          size="small"
-          disabled={tenantsLoading}
-          sx={{ 
-            fontSize: '13px',
-            '& .MuiSelect-select': {
-              py: 1
-            }
-          }}
-        >
-          {tenantList?.map((tenant) => (
-            <MenuItem key={tenant?.tenantId} value={tenant?.tenantId}>
-              {tenant?.code}
-            </MenuItem>
-          ))}
-        </StyledSelect>
-      </FormControl>
-    </Box>
-  );
-
-  // Render notifications
-  const renderNotifications = () => (
-    <>
-      <IconButton
-        onClick={handleNotificationClick}
-        sx={{
-          p: 1,
-          color: '#666',
-          '&:hover': {
-            backgroundColor: 'rgba(0,0,0,0.04)',
-          }
-        }}
-      >
-        <Badge 
-          badgeContent={unreadCount} 
-          color="error"
-          sx={{
-            '& .MuiBadge-badge': {
-              fontSize: '11px',
-              height: 18,
-              minWidth: 18,
-              fontWeight: 'bold'
-            }
-          }}
-        >
-          <NotificationsIcon sx={{ fontSize: 24 }} />
-        </Badge>
-      </IconButton>
-
-      <Popper
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        placement="bottom-end"
-        sx={{ zIndex: 1300 }}
-      >
-        <ClickAwayListener onClickAway={handleNotificationClose}>
-          <NotificationPaper>
-            <Box 
-              sx={{ 
-                p: 2, 
-                borderBottom: '1px solid #e0e0e0',
-                backgroundColor: '#f8f9fa'
-              }}
-            >
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  fontWeight: 600, 
-                  fontSize: '14px',
-                  letterSpacing: '0.5px',
-                  color: '#333'
-                }}
-              >
-                NOTIFICATIONS
-              </Typography>
-            </Box>
-            
-            <Box sx={{ maxHeight: 350, overflow: 'auto' }}>
-              {notifications?.length > 0 ? (
-                notifications.map((notif, i) => (
-                  <NotificationItem
-                    key={i}
-                    isread={notif?.isReaded?.toString()}
-                    onClick={() => handlestatus(notif)}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                      {!notif?.isReaded && (
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            backgroundColor: '#1976d2',
-                            mt: 0.5,
-                            flexShrink: 0
-                          }}
-                        />
-                      )}
-                      <Box sx={{ flex: 1 }}>
-                        <Typography 
-                          variant="subtitle2"
-                          sx={{ 
-                            fontWeight: notif?.isReaded ? 400 : 600,
-                            fontSize: '14px',
-                            color: '#333',
-                            mb: 0.5
-                          }}
-                        >
-                          {notif?.subject}
-                        </Typography>
-                        <Typography 
-                          variant="body2"
-                          sx={{ 
-                            color: '#666',
-                            fontSize: '13px',
-                            mb: 1,
-                            lineHeight: 1.4
-                          }}
-                        >
-                          {notif?.body}
-                        </Typography>
-                        <Typography 
-                          variant="caption"
-                          sx={{ 
-                            color: '#999',
-                            fontSize: '12px'
-                          }}
-                        >
-                          {moment(notif?.createdDate).format("MM-DD-YYYY || hh:mm A")}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </NotificationItem>
-                ))
-              ) : (
-                <Box sx={{ p: 3, textAlign: 'center' }}>
-                  <Typography variant="body2" color="textSecondary">
-                    No notifications
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-          </NotificationPaper>
-        </ClickAwayListener>
-      </Popper>
-    </>
-  );
-
-  // Responsive title
-  const getTitle = () => {
-    const companyName = users?.companyName || user?.companyName;
-    if (isMobile) {
-      return props.title;
-    }
-    return `${companyName} - ${props.title}`;
+    setOpen(false);
   };
 
   return (
-    <ResponsiveHeader
-      title={getTitle()}
-      subtitle={isMobile ? (users?.companyName || user?.companyName) : null}
-      position="static"
-      elevation={0}
-      leftActions={renderTenantSelector()}
-      rightActions={renderNotifications()}
-      showMenuButton={false}
-      sx={{
-        backgroundColor: '#fff',
-        color: '#333',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        borderBottom: '1px solid #e0e0e0',
+    <AppBar 
+      position="static" 
+      elevation={1}
+      sx={{ 
+        backgroundColor: 'background.paper',
+        color: 'text.primary',
+        borderBottom: '1px solid',
+        borderColor: 'divider'
       }}
-    />
+    >
+      <Toolbar 
+        sx={{ 
+          justifyContent: 'space-between',
+          gap: 2,
+          minHeight: '60px !important',
+          px: { xs: 1, sm: 2 }
+        }}
+      >
+        {/* Tenant Selector */}
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1,
+            minWidth: { xs: 120, sm: 150 },
+            maxWidth: { xs: 200, sm: 280 },
+            flexShrink: 0
+          }}
+        >
+          <FormControl 
+            size="small" 
+            fullWidth
+            variant="outlined"
+          >
+            <InputLabel 
+              id="tenant-select-label"
+              sx={{ 
+                fontSize: '0.875rem',
+                display: { xs: 'none', md: 'block' }
+              }}
+            >
+              Tenant
+            </InputLabel>
+            <Select
+              labelId="tenant-select-label"
+              value={currentTenantId || ''}
+              onChange={handleTenantChange}
+              label={isSmallScreen ? '' : 'Tenant'}
+              sx={{
+                fontSize: '0.875rem',
+                '& .MuiSelect-select': {
+                  py: 0.75
+                }
+              }}
+            >
+              {tenantList?.map((tenant) => (
+                <MenuItem 
+                  key={tenant?.tenantId} 
+                  value={tenant?.tenantId}
+                  sx={{ fontSize: '0.875rem' }}
+                >
+                  {tenant?.code}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        {/* Header Title */}
+        <Typography
+          variant="h6"
+          component="h1"
+          sx={{
+            flexGrow: 1,
+            textAlign: 'center',
+            fontWeight: 600,
+            mx: 2,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            fontSize: { xs: '1rem', sm: '1.25rem', lg: '1.5rem' }
+          }}
+        >
+          <Box 
+            component="span" 
+            sx={{ display: { xs: 'none', lg: 'inline' } }}
+          >
+            {users?.companyName ? users?.companyName : user?.companyName} -{" "}
+          </Box>
+          {props.title}
+        </Typography>
+
+        {/* Notifications */}
+        <Box sx={{ flexShrink: 0 }}>
+          <IconButton
+            ref={anchorRef}
+            onClick={() => setOpen(!open)}
+            sx={{
+              width: 40,
+              height: 40,
+              color: 'text.primary',
+              '&:hover': {
+                backgroundColor: 'action.hover'
+              }
+            }}
+            aria-label="notifications"
+          >
+            <Badge 
+              badgeContent={notifications?.filter((notif) => !notif?.isReaded)?.length}
+              color="error"
+              sx={{
+                '& .MuiBadge-badge': {
+                  fontSize: '0.75rem',
+                  height: 18,
+                  minWidth: 18
+                }
+              }}
+            >
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+
+          {/* Notifications Dropdown */}
+          <Popper
+            open={open}
+            anchorEl={anchorRef.current}
+            placement="bottom-end"
+            style={{ zIndex: 1300 }}
+          >
+            <ClickAwayListener onClickAway={handleNotificationClose}>
+              <Paper
+                elevation={8}
+                sx={{
+                  width: { xs: 300, sm: 400 },
+                  maxHeight: 400,
+                  overflow: 'hidden',
+                  mt: 1,
+                  border: '1px solid',
+                  borderColor: 'divider'
+                }}
+              >
+                <Box
+                  sx={{
+                    p: 2,
+                    backgroundColor: 'primary.main',
+                    color: 'primary.contrastText'
+                  }}
+                >
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    NOTIFICATIONS
+                  </Typography>
+                </Box>
+                
+                <List 
+                  sx={{ 
+                    p: 0, 
+                    maxHeight: 320, 
+                    overflow: 'auto' 
+                  }}
+                >
+                  {notifications?.length > 0 ? (
+                    notifications.map((notif, i) => (
+                      <Box key={i}>
+                        <ListItemButton
+                          onClick={() => handlestatus(notif)}
+                          sx={{
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            py: 1.5,
+                            px: 2,
+                            backgroundColor: notif?.isReaded 
+                              ? 'transparent' 
+                              : 'action.hover',
+                            '&:hover': {
+                              backgroundColor: 'action.selected'
+                            }
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: notif?.isReaded ? 400 : 600,
+                              color: 'text.primary',
+                              mb: 0.5
+                            }}
+                          >
+                            {notif?.subject}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: 'text.secondary',
+                              mb: 0.5,
+                              wordBreak: 'break-word'
+                            }}
+                          >
+                            {notif?.body}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: 'text.disabled',
+                              fontSize: '0.75rem'
+                            }}
+                          >
+                            {moment(notif?.createdDate).format("MM-DD-YYYY || hh:mm A")}
+                          </Typography>
+                        </ListItemButton>
+                        {i < notifications.length - 1 && <Divider />}
+                      </Box>
+                    ))
+                  ) : (
+                    <ListItem>
+                      <ListItemText
+                        primary="No notifications"
+                        sx={{ textAlign: 'center', color: 'text.secondary' }}
+                      />
+                    </ListItem>
+                  )}
+                </List>
+              </Paper>
+            </ClickAwayListener>
+          </Popper>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }

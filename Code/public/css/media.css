@@ -4,7 +4,7 @@
 	#inner-styletwo .mb-30{margin-bottom:25px;}
 	.intersight_content{padding: 0px 0px 16px;}
 	.body_content{
-		padding: 20px 20px 16px;
+		padding: 0px 30px 16px;
 	}
 	.top_header{
 		padding: 12px 20px 12px;
@@ -56,7 +56,7 @@
 @media (max-width: 1024px) {
 	.heading_41 {font-size: 28px;}
 	.body_content {
-        padding: 30px 10px 10px;
+        padding: 0px 10px 10px;
     }
 
 
@@ -91,9 +91,7 @@
 	.inner_content_one h2 {font-size: 22px;}
 	.inner_content_one h1 {font-size: 18px; margin-bottom: 0px; margin-top: 20px;}
 	.dasboardh{font-size: 22px;}
-	.body_content {padding: 16px 16px;}
-	
-	/* Enhanced Table Responsiveness */
+	.body_content {padding: 0px 0px 16px;}
 	.table thead{white-space: nowrap;}
 	.table tbody tr td {padding: 8px 4px !important; font-size: 12px;}
 	.table thead tr th {padding: 8px 4px !important; font-size: 12px;}
