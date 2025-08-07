@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dialog from "@mui/material/Dialog";
+import { useTheme, useMediaQuery } from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
