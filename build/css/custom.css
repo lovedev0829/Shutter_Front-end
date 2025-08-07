@@ -676,6 +676,9 @@ h2.body_heading {
   .modal-dialog {
     max-width: 1000px;
   }
+  .intersight_content{
+    font-size: 10px !important;
+  }
 }
 .modal-title {
   font-size: var(--font-18);
