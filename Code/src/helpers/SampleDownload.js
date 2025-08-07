@@ -4,20 +4,6 @@ import { ApiLoder, ErrorMessage } from "./common";
 import { apiUrls } from "../utils/apiUrls";
 import { Button, CircularProgress } from '@mui/material';
 import GetAppIcon from '@mui/icons-material/GetApp';
-import { styled } from '@mui/material/styles';
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  borderRadius: theme.spacing(1),
-  textTransform: 'none',
-  fontWeight: 600,
-  fontSize: '14px',
-  boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
-  '&:hover': {
-    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
-    transform: 'translateY(-1px)',
-  },
-  transition: 'all 0.2s ease-in-out',
-}));
 
 export default function SampleDownload({ type }) {
   const [loder, setLoader] = useState(false);
@@ -56,15 +42,27 @@ export default function SampleDownload({ type }) {
   return (
     <>
       <ApiLoder open={loder} />
-      <StyledButton
+      <Button
         variant="outlined"
         onClick={postImage}
         size="small"
         startIcon={loder ? <CircularProgress size={16} color="inherit" /> : <GetAppIcon />}
         disabled={loder}
+        sx={{
+          borderRadius: 1,
+          textTransform: 'none',
+          fontWeight: 600,
+          fontSize: '14px',
+          boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+            transform: 'translateY(-1px)',
+          },
+          transition: 'all 0.2s ease-in-out',
+        }}
       >
         {loder ? 'Downloading...' : 'Download Sample'}
-      </StyledButton>
+      </Button>
     </>
   );
 }

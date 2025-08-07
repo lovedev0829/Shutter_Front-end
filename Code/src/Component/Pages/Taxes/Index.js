@@ -7,7 +7,19 @@ import Search from "../../Form/Search";
 import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Box,
+  Container,
+  Card,
+  CardContent,
+  Paper,
+  Stack,
+  Backdrop,
+  CircularProgress,
+  useTheme,
+  useMediaQuery
+} from "@mui/material";
 import AddEditTaxes from "./AddEditTaxes";
 import {
   ApiLoder,
@@ -21,6 +33,9 @@ import StatusDropdown from "../../../helpers/StatusDropdown";
 
 
 function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
   const [object, setObject] = useState("");
@@ -257,89 +272,175 @@ function Index() {
 
   return (
     <>
-      <ApiLoder open={loder} />
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loder}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      
       <div className="intersight_content">
         <Header title="Tax" />
         <div className="body_content">
           <div className="contact-profile">
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <TableTitle title="Manage Tax" />
-              <div className="heading_width_search d-flex align-items-center gap-3">
-                {HasPermission("TaxAdd") && (
-                  <AddEditButton
-                    handleClick={() => {
-                      setAction("add");
-                      setOpen(true);
-                    }}
-                    title="Add Tax"
-                  />
-                )}
-              </div>
-            </div>
-            <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-              <div className="filter-dropdown dropdown">
-                <Search handleSearch={handleSearch} />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <StatusDropdown value={filter.status} fn={handleChange} />
-              </div>
-              
-            </div>
-            <div className="task_table mb-30">
-              <div className="table-responsive">
-                <DynamicTable
-                  data={TaxList}
-                  columns={columns}
-                  title="Taxes"
-                  rowActions={["edit", "delete"]}
-                  edituser={handleedit}
-                  handledelete={handledelete}
-                  deletepermission="TaxDelete"
-                  editpermission="TaxEdit"
-                  handlestatus={handlestatus}
-                  handleFilterSortChange={handleFilterSortChange}
-                  sortColumn={filter.sortColumn}
-                  sortDirection={filter.sortDirection}
-                  columnFilters={filter.columnFilters}
-                  handlesearchChange={handlesearchChange}
-                />
-                {TaxList && TaxList?.length > 0 && (
-                  <div className="d-flex align-items-center justify-content-end bottom_nav">
-                    <nav aria-label="Page navigation example">
-                      <ul className="pagination">
-                        <TablePagination
-                          rowsPerPageOptions={[10, 25, 50, 100]}
-                          component="div"
-                          count={paginatedItems}
-                          rowsPerPage={rowsPerPage}
-                          page={page - 1}
-                          onPageChange={handleChangePage}
-                          onRowsPerPageChange={handleChangeRowsPerPage}
+            <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', p: 0 }}>
+              <Container 
+                maxWidth="xl" 
+                sx={{ 
+                  py: isMobile ? 1 : 3,
+                  px: isMobile ? 1 : 3
+                }}
+              >
+                <Card elevation={2} sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: isMobile ? 1.5 : 3 }}>
+                    {/* Header Section */}
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      justifyContent="space-between"
+                      alignItems={{ xs: 'flex-start', sm: 'center' }}
+                      spacing={2}
+                      sx={{ mb: isMobile ? 2 : 3 }}
+                    >
+                      <TableTitle title="Manage Tax" />
+                      {HasPermission("TaxAdd") && (
+                        <AddEditButton
+                          handleClick={() => {
+                            setAction("add");
+                            setOpen(true);
+                          }}
+                          title={isMobile ? "Add Tax" : "Add Tax"}
                         />
-                      </ul>
-                    </nav>
-                  </div>
-                )}
-              </div>
-            </div>
+                      )}
+                    </Stack>
+                    {/* Filters Section */}
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={2}
+                      sx={{ mb: isMobile ? 2 : 3 }}
+                    >
+                      <Box sx={{ minWidth: { xs: '100%', sm: 200 } }}>
+                        <Search handleSearch={handleSearch} />
+                      </Box>
+                      <Box sx={{ minWidth: { xs: '100%', sm: 150 } }}>
+                        <StatusDropdown value={filter.status} fn={handleChange} />
+                      </Box>
+                    </Stack>
+                    {/* Table Section */}
+                    <Box sx={{ mb: isMobile ? 2 : 3 }}>
+                      <Paper 
+                        elevation={1} 
+                        sx={{ 
+                          borderRadius: 2, 
+                          overflow: 'hidden',
+                          '& .table-responsive': {
+                            overflowX: 'auto',
+                            '&::-webkit-scrollbar': {
+                              height: 8,
+                            },
+                            '&::-webkit-scrollbar-track': {
+                              backgroundColor: '#f1f1f1',
+                              borderRadius: 4,
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: '#c1c1c1',
+                              borderRadius: 4,
+                              '&:hover': {
+                                backgroundColor: '#a8a8a8',
+                              },
+                            },
+                          }
+                        }}
+                      >
+                        <DynamicTable
+                          data={TaxList}
+                          columns={columns}
+                          title="Taxes"
+                          rowActions={["edit", "delete"]}
+                          edituser={handleedit}
+                          handledelete={handledelete}
+                          deletepermission="TaxDelete"
+                          editpermission="TaxEdit"
+                          handlestatus={handlestatus}
+                          handleFilterSortChange={handleFilterSortChange}
+                          sortColumn={filter.sortColumn}
+                          sortDirection={filter.sortDirection}
+                          columnFilters={filter.columnFilters}
+                          handlesearchChange={handlesearchChange}
+                        />
+                        
+                        {/* Pagination */}
+                        {TaxList && TaxList?.length > 0 && (
+                          <Box sx={{
+                            display: 'flex', 
+                            justifyContent: 'flex-end', 
+                            p: isMobile ? 1 : 2,
+                            borderTop: 1,
+                            borderColor: 'divider',
+                          }}>
+                            <TablePagination
+                              rowsPerPageOptions={isMobile ? [10, 25, 50] : [10, 25, 50, 100]}
+                              component="div"
+                              count={paginatedItems}
+                              rowsPerPage={rowsPerPage}
+                              page={page - 1}
+                              onPageChange={handleChangePage}
+                              onRowsPerPageChange={handleChangeRowsPerPage}
+                              sx={{
+                                '& .MuiTablePagination-toolbar': {
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                  fontSize: isMobile ? '12px' : '14px',
+                                  flexWrap: isMobile ? 'wrap' : 'nowrap',
+                                },
+                                '& .MuiTablePagination-selectLabel': {
+                                  fontSize: isMobile ? '12px' : '14px',
+                                  marginBottom: isMobile ? '4px' : 0,
+                                },
+                                '& .MuiTablePagination-displayedRows': {
+                                  fontSize: isMobile ? '12px' : '14px',
+                                  marginBottom: isMobile ? '4px' : 0,
+                                },
+                                '& .MuiTablePagination-select': {
+                                  fontSize: isMobile ? '12px' : '14px',
+                                },
+                                '& .MuiTablePagination-actions': {
+                                  marginLeft: isMobile ? '8px' : '20px',
+                                },
+                                '& .MuiIconButton-root': {
+                                  padding: isMobile ? '4px' : '12px',
+                                }
+                              }}
+                            />
+                          </Box>
+                        )}
+                      </Paper>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Container>
+            </Box>
           </div>
         </div>
       </div>
-      <AddEditTaxes
-        open={open}
-        handleclose={handleclose}
-        action={action}
-        LanguageListAPI={handleapi}
-        object={object}
-      />
-      <Delete
-        open={delOpen}
-        handleClose={handledelclose}
-        title={object.taxName}
-        id={object?.taxRateId}
-        handleDelete={handleDelete}
-        loder={loder}
-      />
+      {open && (
+        <AddEditTaxes
+          open={open}
+          handleclose={handleclose}
+          action={action}
+          LanguageListAPI={handleapi}
+          object={object}
+        />
+      )}
+      {delOpen && (
+        <Delete
+          open={delOpen}
+          handleClose={handledelclose}
+          title={object.taxName}
+          id={object?.taxRateId}
+          handleDelete={handleDelete}
+          loder={loder}
+        />
+      )}
     </>
   );
 }

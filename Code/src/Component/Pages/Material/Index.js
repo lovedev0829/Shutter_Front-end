@@ -15,7 +15,10 @@ import {
   TablePagination,
   Paper,
   Backdrop,
-  CircularProgress
+  CircularProgress,
+  Stack,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import AddEditMaterial from "./AddEditMaterial";
 import {
@@ -33,6 +36,9 @@ import ExportFile from "../../../helpers/ExportFile";
 import SampleDownload from "../../../helpers/SampleDownload";
 
 export default function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
   const [object, setObject] = useState("");
@@ -327,116 +333,187 @@ export default function Index() {
         <div className="body_content">
           <div className="contact-profile">
             <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', p: 0 }}>
-              <Container maxWidth="xl" sx={{ py: 3 }}>
+              <Container 
+                maxWidth="xl" 
+                sx={{ 
+                  py: isMobile ? 1 : 3,
+                  px: isMobile ? 1 : 3
+                }}
+              >
                 <Card elevation={2} sx={{ borderRadius: 2 }}>
-                  <CardContent sx={{ p: 3 }}>
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <TableTitle title="Manage Raw Material" />
-              <div className="heading_width_search d-flex align-items-center gap-3">
-                {HasPermission("MaterialAdd") && (
-                  <AddEditButton
-                    handleClick={() => {
-                      setAction("add");
-                      setOpen(true);
-                    }}
-                    title="Add Material"
-                  />
-                )}
-              </div>
-            </div>
-            <div className="d-block d-lg-flex gap-2">
-              <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-                <div className="filter-dropdown dropdown">
-                  <Search handleSearch={handleSearch} />
-                </div>
-                <div className="filter-dropdown dropdown">
-                  <ProductTypeDropdown
-                    value={filter.productType}
-                    fn={handleChange}
-                    load={true}
-                    className="selectboxdropdown"
-                  />
-                </div>
-                <div className="filter-dropdown dropdown">
-                  {HasPermission("SubTenantView") && (
-                    <GetAllVendorDropdown
-                      value={filter.vendor}
-                      fn={handleChange}
-                      load={true}
-                      name="vendor"
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="d-flex invoice-new gap-2">
-                {HasPermission("MaterialAdd") && (
-                  <ImortFile LanguageListAPI={handleapi} type="material" />
-                )}
-                <ExportFile
-                  type="material"
-                  serach={search}
-                  page={page}
-                  perpage={rowsPerPage}
-                  tenantId={""}
-                  status={"2"}
-                  Url={apiUrls.ExportContacts}
-                  jobStatus={""}
-                  vendor={filter.vendor}
-                  productType={filter.productType}
-                />
-                <SampleDownload type="material" />
-              </div>
-            </div>
+                  <CardContent sx={{ p: isMobile ? 1.5 : 3 }}>
+                    {/* Header Section */}
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      justifyContent="space-between"
+                      alignItems={{ xs: 'flex-start', sm: 'center' }}
+                      spacing={2}
+                      sx={{ mb: isMobile ? 2 : 3 }}
+                    >
+                      <TableTitle title="Manage Raw Material" />
+                      {HasPermission("MaterialAdd") && (
+                        <AddEditButton
+                          handleClick={() => {
+                            setAction("add");
+                            setOpen(true);
+                          }}
+                          title={isMobile ? "Add" : "Add Material"}
+                        />
+                      )}
+                    </Stack>
+                    {/* Filters and Actions Section */}
+                    <Stack
+                      direction={{ xs: 'column', lg: 'row' }}
+                      spacing={2}
+                      sx={{ mb: isMobile ? 2 : 3 }}
+                    >
+                      {/* Search and Filter Controls */}
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={2}
+                        sx={{ flex: 1 }}
+                      >
+                        <Box sx={{ minWidth: { xs: '100%', sm: 200 } }}>
+                          <Search handleSearch={handleSearch} />
+                        </Box>
+                        <Box sx={{ minWidth: { xs: '100%', sm: 150 } }}>
+                          <ProductTypeDropdown
+                            value={filter.productType}
+                            fn={handleChange}
+                            load={true}
+                            className="selectboxdropdown"
+                          />
+                        </Box>
+                        {HasPermission("SubTenantView") && (
+                          <Box sx={{ minWidth: { xs: '100%', sm: 150 } }}>
+                            <GetAllVendorDropdown
+                              value={filter.vendor}
+                              fn={handleChange}
+                              load={true}
+                              name="vendor"
+                            />
+                          </Box>
+                        )}
+                      </Stack>
 
-            <div className="task_table mb-30">
-              <div className="table-responsive">
-                <Box sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                  <DynamicTable
-                    data={MaterialList}
-                    columns={columns}
-                    title="Material"
-                    rowActions={["edit", "delete"]}
-                    edituser={handleedit}
-                    handledelete={handledelete}
-                    handlestatus={handlestatus}
-                    deletepermission="MaterialDelete"
-                    editpermission="MaterialEdit"
-                    handleFilterSortChange={handleFilterSortChange}
-                    sortColumn={filter.sortColumn}
-                    sortDirection={filter.sortDirection}
-                    columnFilters={filter.columnFilters}
-                    handlesearchChange={handlesearchChange}
-                  />
-                  
-                  {/* Pagination */}
-                  {MaterialList && MaterialList?.length > 0 && (
-                    <Box sx={{
-                      display: 'flex', 
-                      justifyContent: 'flex-end', 
-                      p: 2,
-                      borderTop: 1,
-                      borderColor: 'divider',
-                      marginTop: 2,
-                    }}>
-                      <TablePagination
-                        rowsPerPageOptions={[10, 25, 50, 100]}
-                        component="div"
-                        count={paginatedItems}
-                        rowsPerPage={rowsPerPage}
-                        page={page - 1}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        sx={{
-                          '& .MuiTablePagination-toolbar': {
-                            alignItems: 'baseline',
+                      {/* Action Buttons */}
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={1}
+                        sx={{ 
+                          minWidth: 'fit-content',
+                          width: { xs: '100%', sm: 'auto' }
+                        }}
+                      >
+                        {HasPermission("MaterialAdd") && (
+                          <ImortFile LanguageListAPI={handleapi} type="material" />
+                        )}
+                        <ExportFile
+                          type="material"
+                          serach={search}
+                          page={page}
+                          perpage={rowsPerPage}
+                          tenantId={""}
+                          status={"2"}
+                          Url={apiUrls.ExportContacts}
+                          jobStatus={""}
+                          vendor={filter.vendor}
+                          productType={filter.productType}
+                        />
+                        <SampleDownload type="material" />
+                      </Stack>
+                    </Stack>
+
+                    {/* Table Section */}
+                    <Box sx={{ mb: isMobile ? 2 : 3 }}>
+                      <Paper 
+                        elevation={1} 
+                        sx={{ 
+                          borderRadius: 2, 
+                          overflow: 'hidden',
+                          '& .table-responsive': {
+                            overflowX: 'auto',
+                            '&::-webkit-scrollbar': {
+                              height: 8,
+                            },
+                            '&::-webkit-scrollbar-track': {
+                              backgroundColor: '#f1f1f1',
+                              borderRadius: 4,
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: '#c1c1c1',
+                              borderRadius: 4,
+                              '&:hover': {
+                                backgroundColor: '#a8a8a8',
+                              },
+                            },
                           }
                         }}
-                      />
+                      >
+                        <DynamicTable
+                          data={MaterialList}
+                          columns={columns}
+                          title="Material"
+                          rowActions={["edit", "delete"]}
+                          edituser={handleedit}
+                          handledelete={handledelete}
+                          handlestatus={handlestatus}
+                          deletepermission="MaterialDelete"
+                          editpermission="MaterialEdit"
+                          handleFilterSortChange={handleFilterSortChange}
+                          sortColumn={filter.sortColumn}
+                          sortDirection={filter.sortDirection}
+                          columnFilters={filter.columnFilters}
+                          handlesearchChange={handlesearchChange}
+                        />
+                        
+                        {/* Pagination */}
+                        {MaterialList && MaterialList?.length > 0 && (
+                          <Box sx={{
+                            display: 'flex', 
+                            justifyContent: 'flex-end', 
+                            p: isMobile ? 1 : 2,
+                            borderTop: 1,
+                            borderColor: 'divider',
+                          }}>
+                            <TablePagination
+                              rowsPerPageOptions={isMobile ? [10, 25, 50] : [10, 25, 50, 100]}
+                              component="div"
+                              count={paginatedItems}
+                              rowsPerPage={rowsPerPage}
+                              page={page - 1}
+                              onPageChange={handleChangePage}
+                              onRowsPerPageChange={handleChangeRowsPerPage}
+                              sx={{
+                                '& .MuiTablePagination-toolbar': {
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                  fontSize: isMobile ? '12px' : '14px',
+                                  flexWrap: isMobile ? 'wrap' : 'nowrap',
+                                },
+                                '& .MuiTablePagination-selectLabel': {
+                                  fontSize: isMobile ? '12px' : '14px',
+                                  marginBottom: isMobile ? '4px' : 0,
+                                },
+                                '& .MuiTablePagination-displayedRows': {
+                                  fontSize: isMobile ? '12px' : '14px',
+                                  marginBottom: isMobile ? '4px' : 0,
+                                },
+                                '& .MuiTablePagination-select': {
+                                  fontSize: isMobile ? '12px' : '14px',
+                                },
+                                '& .MuiTablePagination-actions': {
+                                  marginLeft: isMobile ? '8px' : '20px',
+                                },
+                                '& .MuiIconButton-root': {
+                                  padding: isMobile ? '4px' : '12px',
+                                }
+                              }}
+                            />
+                          </Box>
+                        )}
+                      </Paper>
                     </Box>
-                  )}
-                </Box>
-              </div>
-            </div>
                   </CardContent>
                 </Card>
               </Container>

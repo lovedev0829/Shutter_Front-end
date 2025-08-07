@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { callAPI } from "../utils/apiUtils";
 import { ApiLoder, ErrorMessage } from "./common";
-import { Button, CircularProgress } from '@mui/material';
+import { Button, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export default function ExportFile({
@@ -20,6 +20,8 @@ export default function ExportFile({
   toDate = null,
   formDate = null
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [loder, setLoader] = useState(false);
 
   const postImage = async () => {
@@ -74,15 +76,16 @@ export default function ExportFile({
       <Button
         variant="contained"
         onClick={postImage}
-        size="medium"
-        startIcon={loder ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon />}
+        size={isMobile ? "medium" : "small"}
+        startIcon={loder ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon fontSize={isMobile ? "small" : "medium"} />}
         disabled={loder}
         sx={{
           borderRadius: 1,
           textTransform: 'none',
           fontWeight: 600,
-          maxHeight: "42px",
-          fontSize: '14px',
+          fontSize: isMobile ? '13px' : '14px',
+          padding: isMobile ? theme.spacing(1.2, 2) : theme.spacing(1, 2),
+          minHeight: isMobile ? '44px' : '36px', // Touch-friendly height
           boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
           transition: 'all 0.2s ease-in-out',
           '&:hover': {

@@ -1,32 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FormControl, Select, MenuItem, InputLabel, CircularProgress, Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { FormControl, Select, MenuItem, InputLabel, CircularProgress, Box, useTheme, useMediaQuery } from '@mui/material';
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 
-const StyledFormControl = styled(FormControl)(({ theme }) => ({
-  minWidth: 180,
-  '& .MuiOutlinedInput-root': {
-    backgroundColor: '#fff',
-    borderRadius: theme.spacing(1),
-    '&:hover': {
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: theme.palette.primary.main,
-      },
-    },
-    '&.Mui-focused': {
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: theme.palette.primary.main,
-      },
-    },
-  },
-  '& .MuiInputBase-input': {
-    padding: '10px 12px',
-    fontSize: '14px',
-  },
-}));
-
 export default function ProductTypeDropdown({ value = "", fn, load, name = "productType", disabled = false, className = null, Getproduct = () => {} }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [countryList, setCountryList] = useState([]);
   const [show, setShow] = useState(false);
   
@@ -70,7 +49,37 @@ export default function ProductTypeDropdown({ value = "", fn, load, name = "prod
           <CircularProgress size={20} />
         </Box>
       )}
-      <StyledFormControl size="small" variant="outlined" disabled={disabled || show}>
+      <FormControl 
+        size={isMobile ? "medium" : "small"} 
+        variant="outlined" 
+        disabled={disabled || show}
+        sx={{
+          minWidth: isMobile ? 120 : 180,
+          width: '100%',
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#fff',
+            borderRadius: 1,
+            minHeight: isMobile ? '44px' : '40px', // Touch-friendly height
+            '&:hover': {
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'primary.main',
+              },
+            },
+            '&.Mui-focused': {
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'primary.main',
+              },
+            },
+          },
+          '& .MuiInputBase-input': {
+            padding: isMobile ? '12px 14px' : '10px 12px',
+            fontSize: isMobile ? '16px' : '14px', // Prevent zoom on iOS
+          },
+          '& .MuiInputLabel-root': {
+            fontSize: isMobile ? '16px' : '14px',
+          },
+        }}
+      >
         <InputLabel id="product-type-select-label">Product Type</InputLabel>
         <Select
           labelId="product-type-select-label"
@@ -80,6 +89,18 @@ export default function ProductTypeDropdown({ value = "", fn, load, name = "prod
           onChange={(e) => {
             if (fn) fn(e);
           }}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                maxHeight: isMobile ? 250 : 300,
+                '& .MuiMenuItem-root': {
+                  fontSize: isMobile ? '16px' : '14px',
+                  minHeight: isMobile ? '44px' : '36px', // Touch-friendly menu items
+                  padding: isMobile ? '12px 16px' : '8px 16px',
+                },
+              },
+            },
+          }}
         >
           <MenuItem value="">Choose Type</MenuItem>
           {countryList?.map((item, i) => (
@@ -88,7 +109,7 @@ export default function ProductTypeDropdown({ value = "", fn, load, name = "prod
             </MenuItem>
           ))}
         </Select>
-      </StyledFormControl>
+      </FormControl>
     </Box>
   );
 }

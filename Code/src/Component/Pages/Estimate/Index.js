@@ -49,7 +49,9 @@ import {
   Alert,
   Stack,
   Fade,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -62,6 +64,10 @@ import {
 } from "@mui/icons-material";
 
 export default function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [tenantList, setTenantList] = useState([]);
 
   const [coupan, setCoupan] = useState([]);
@@ -695,7 +701,13 @@ export default function Index() {
   return (
     <div className="intersight_content">
       <ApiLoder open={loder > 0} />
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          py: isMobile ? 1 : 3,
+          px: isMobile ? 1 : 3
+        }}
+      >
         <Header
           title={`Contacts / ${
             tenantList[0]?.contactFirstName +
@@ -704,13 +716,13 @@ export default function Index() {
           }`}
         />
         
-        <Card elevation={2} sx={{ mb: 3 }}>
-          <CardContent>
-            <Box sx={{ mb: 3 }}>
+        <Card elevation={2} sx={{ mb: isMobile ? 2 : 3 }}>
+          <CardContent sx={{ p: isMobile ? 2 : 3 }}>
+            <Box sx={{ mb: isMobile ? 2 : 3 }}>
               <JobTab contactId={tenantList[0]?.contactId} />
             </Box>
             
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: isMobile ? 2 : 3 }}>
               <BackButton link={`/contacts/job/${tenantList[0]?.jobId}`} />
               <Box sx={{ mt: 2 }}>
                 <JobUi tenantList={tenantList[0]} />
@@ -721,18 +733,18 @@ export default function Index() {
               flexDirection: { xs: 'column', md: 'row' },
               alignItems: { xs: 'stretch', md: 'center' },
               justifyContent: 'space-between',
-              gap: 3,
-              mb: 4 
+              gap: isMobile ? 2 : 3,
+              mb: isMobile ? 3 : 4 
             }}>
               <Box sx={{ 
                 display: 'flex', 
                 flexDirection: { xs: 'column', lg: 'row' },
                 alignItems: { xs: 'stretch', lg: 'center' },
-                gap: 3,
+                gap: isMobile ? 2 : 3,
                 flex: 1
               }}>
                 <Typography 
-                  variant="h4" 
+                  variant={isMobile ? "h5" : "h4"}
                   component="h1"
                   sx={{ 
                     fontWeight: 600,
@@ -740,7 +752,8 @@ export default function Index() {
                     borderLeft: '4px solid',
                     borderColor: 'primary.main',
                     pl: 2,
-                    mb: { xs: 0, lg: 0 }
+                    mb: { xs: 0, lg: 0 },
+                    fontSize: isMobile ? '20px' : '24px'
                   }}
                 >
                   {param.estimateId ? "Update" : "Create"} Estimate
@@ -753,19 +766,50 @@ export default function Index() {
                   name="estimateName"
                   value={value?.estimateName || ""}
                   onChange={handleChange}
-                  size="small"
-                  sx={{ minWidth: 250 }}
+                  size={isMobile ? "medium" : "small"}
+                  sx={{ 
+                    minWidth: isMobile ? '100%' : 250,
+                    '& .MuiInputBase-input': {
+                      fontSize: isMobile ? '16px' : '14px',
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: isMobile ? '16px' : '14px',
+                    }
+                  }}
                   error={!!simpleValidator.current.message("Estimate Title", value?.estimateName, "required")}
                   helperText={simpleValidator.current.message("Estimate Title", value?.estimateName, "required")}
                 />
                 
-                <FormControl size="small" sx={{ minWidth: 250 }}>
+                <FormControl 
+                  size={isMobile ? "medium" : "small"} 
+                  sx={{ 
+                    minWidth: isMobile ? '100%' : 250,
+                    '& .MuiInputBase-input': {
+                      fontSize: isMobile ? '16px' : '14px',
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: isMobile ? '16px' : '14px',
+                    }
+                  }}
+                >
                   <InputLabel>Prepared by</InputLabel>
                   <Select
                     name="preparedBy"
                     value={value?.preparedBy || ""}
                     onChange={handleChange}
                     label="Prepared by"
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: isMobile ? 250 : 300,
+                          '& .MuiMenuItem-root': {
+                            fontSize: isMobile ? '16px' : '14px',
+                            minHeight: isMobile ? '44px' : '36px',
+                            padding: isMobile ? '12px 16px' : '8px 16px',
+                          },
+                        },
+                      },
+                    }}
                   >
                     <MenuItem value="">
                       <em>Select User</em>
@@ -777,17 +821,35 @@ export default function Index() {
                     ))}
                   </Select>
                   {simpleValidator.current.message("Prepared by", value?.preparedBy, "required") && (
-                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                    <Typography 
+                      variant="caption" 
+                      color="error" 
+                      sx={{ 
+                        mt: 0.5, 
+                        ml: 1.5,
+                        fontSize: isMobile ? '12px' : '11px'
+                      }}
+                    >
                       {simpleValidator.current.message("Prepared by", value?.preparedBy, "required")}
                     </Typography>
                   )}
                 </FormControl>
               </Box>
               
-              <Stack direction="row" spacing={2}>
+              <Stack 
+                direction={isMobile ? "column" : "row"} 
+                spacing={2}
+                sx={{ 
+                  width: isMobile ? '100%' : 'auto',
+                  '& .MuiButton-root': {
+                    minHeight: isMobile ? '44px' : '36px',
+                    fontSize: isMobile ? '14px' : '13px',
+                  }
+                }}
+              >
                 <Button
                   variant="outlined"
-                  startIcon={<AddIcon />}
+                  startIcon={<AddIcon fontSize={isMobile ? "small" : "medium"} />}
                   onClick={() => setOpen(true)}
                   sx={{
                     textTransform: 'none',
@@ -798,12 +860,12 @@ export default function Index() {
                     }
                   }}
                 >
-                  Add Window
+                  {isMobile ? "Add Window" : "Add Window"}
                 </Button>
                 {param.estimateId && (
                   <Button
                     variant="outlined"
-                    startIcon={<RefreshIcon />}
+                    startIcon={<RefreshIcon fontSize={isMobile ? "small" : "medium"} />}
                     onClick={() => Refresh()}
                     sx={{
                       textTransform: 'none',
@@ -814,49 +876,135 @@ export default function Index() {
                       }
                     }}
                   >
-                    Refresh
+                    {isMobile ? "Refresh" : "Refresh"}
                   </Button>
                 )}
               </Stack>
             </Box>
-            <Card elevation={1} sx={{ mb: 4 }}>
+            <Card elevation={1} sx={{ mb: isMobile ? 3 : 4 }}>
               <CardContent sx={{ p: 0 }}>
-                <TableContainer>
-                  <Table stickyHeader>
+                <TableContainer 
+                  sx={{
+                    overflowX: 'auto',
+                    '&::-webkit-scrollbar': {
+                      height: 8,
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      backgroundColor: '#f1f1f1',
+                      borderRadius: 4,
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      backgroundColor: '#c1c1c1',
+                      borderRadius: 4,
+                      '&:hover': {
+                        backgroundColor: '#a8a8a8',
+                      },
+                    },
+                  }}
+                >
+                  <Table 
+                    stickyHeader 
+                    sx={{ 
+                      minWidth: isMobile ? 1200 : 650 
+                    }}
+                  >
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Window Label
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Window Qty
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Product Type
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Product
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Dimension
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Options
                         </TableCell>
                         {!user?.isTenant && (
-                          <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50' }}>
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            bgcolor: 'grey.50',
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1.5 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
                             Wholesale Price
                           </TableCell>
                         )}
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50', textAlign: 'center' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50', 
+                          textAlign: 'center',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Retail Price
                         </TableCell>
                         {user?.isTenant && (
-                          <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50', textAlign: 'center' }}>
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            bgcolor: 'grey.50', 
+                            textAlign: 'center',
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1.5 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
                             Breakdown
                           </TableCell>
                         )}
-                        <TableCell sx={{ fontWeight: 600, bgcolor: 'grey.50', textAlign: 'center' }}>
+                        <TableCell sx={{ 
+                          fontWeight: 600, 
+                          bgcolor: 'grey.50', 
+                          textAlign: 'center',
+                          fontSize: isMobile ? '12px' : '14px',
+                          py: isMobile ? 1.5 : 2,
+                          px: isMobile ? 1 : 2
+                        }}>
                           Delete
                         </TableCell>
                       </TableRow>
@@ -870,35 +1018,75 @@ export default function Index() {
                             '&:hover': { bgcolor: 'action.hover' }
                           }}
                         >
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          <TableCell sx={{ 
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                fontWeight: 500,
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}
+                            >
                               {val?.label}
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ 
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
                             <Chip 
                               label={val?.quantity} 
-                              size="small" 
+                              size={isMobile ? "small" : "small"}
                               color="primary" 
-                              variant="outlined" 
+                              variant="outlined"
+                              sx={{
+                                fontSize: isMobile ? '11px' : '12px',
+                                height: isMobile ? '24px' : '32px'
+                              }}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
+                          <TableCell sx={{ 
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
+                            <Typography 
+                              variant="body2"
+                              sx={{ fontSize: isMobile ? '12px' : '14px' }}
+                            >
                               {val?.productTypeName}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
+                          <TableCell sx={{ 
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
+                            <Typography 
+                              variant="body2"
+                              sx={{ fontSize: isMobile ? '12px' : '14px' }}
+                            >
                               {val?.productName}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                          <TableCell sx={{ 
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                fontFamily: 'monospace',
+                                fontSize: isMobile ? '11px' : '13px'
+                              }}
+                            >
                               W: {val?.width}", H: {val?.height}", A: {val?.archHeight}"
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ 
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                               {val?.options?.map((vals, ind) => (
                                 <Chip
@@ -907,8 +1095,8 @@ export default function Index() {
                                   size="small"
                                   variant="outlined"
                                   sx={{ 
-                                    fontSize: '0.75rem',
-                                    height: 'auto',
+                                    fontSize: isMobile ? '10px' : '12px',
+                                    height: isMobile ? '20px' : 'auto',
                                     py: 0.5
                                   }}
                                 />
@@ -916,20 +1104,34 @@ export default function Index() {
                             </Box>
                           </TableCell>
                           {!user?.isTenant && (
-                            <TableCell>
-                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            <TableCell sx={{ 
+                              py: isMobile ? 1 : 2,
+                              px: isMobile ? 1 : 2
+                            }}>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 500,
+                                  fontSize: isMobile ? '12px' : '14px'
+                                }}
+                              >
                                 {defaultConfig.currencySign} {val?.wholesalePrice}
                               </Typography>
                             </TableCell>
                           )}
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ 
+                            textAlign: 'center',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
                             {val?.isComponentAvailable ? (
                               <Typography 
                                 variant="body2" 
                                 sx={{ 
                                   fontWeight: 600,
                                   color: 'success.main',
-                                  fontFamily: 'monospace'
+                                  fontFamily: 'monospace',
+                                  fontSize: isMobile ? '12px' : '14px'
                                 }}
                               >
                                 {defaultConfig.currencySign}
@@ -942,10 +1144,16 @@ export default function Index() {
                                 )?.toFixed(2)}
                               </Typography>
                             ) : (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                              <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1, 
+                                justifyContent: 'center',
+                                flexDirection: isMobile ? 'column' : 'row'
+                              }}>
                                 <TextField
                                   type="number"
-                                  size="small"
+                                  size={isMobile ? "small" : "small"}
                                   value={val?.totalPrice || ""}
                                   onChange={(e) => handleChanges(e, i, "totalPrice")}
                                   onKeyDown={(e) => {
@@ -961,16 +1169,25 @@ export default function Index() {
                                   }}
                                   onWheel={(e) => e.target.blur()}
                                   sx={{ 
-                                    width: 120,
+                                    width: isMobile ? 100 : 120,
                                     '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
                                       display: 'none',
                                     },
                                     '& input[type=number]': {
                                       MozAppearance: 'textfield',
                                     },
+                                    '& .MuiInputBase-input': {
+                                      fontSize: isMobile ? '12px' : '14px',
+                                    }
                                   }}
                                 />
-                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    color: 'text.secondary',
+                                    fontSize: isMobile ? '10px' : '12px'
+                                  }}
+                                >
                                   + {defaultConfig.currencySign}{" "}
                                   {(
                                     Number(val?.additionalCost ?? 0) +
@@ -983,11 +1200,16 @@ export default function Index() {
                             )}
                           </TableCell>
                           {user?.isTenant && (
-                            <TableCell sx={{ textAlign: 'center' }}>
+                            <TableCell sx={{ 
+                              textAlign: 'center',
+                              py: isMobile ? 1 : 2,
+                              px: isMobile ? 1 : 2
+                            }}>
                               {val?.isComponentAvailable ? (
                                 <Tooltip title="View Breakdown">
                                   <IconButton
                                     color="primary"
+                                    size={isMobile ? "small" : "medium"}
                                     onClick={() => {
                                       setisview(val?.isviewedit ? true : false);
                                       setHistory(true);
@@ -1000,16 +1222,21 @@ export default function Index() {
                                       }
                                     }}
                                   >
-                                    <BreakdownIcon />
+                                    <BreakdownIcon fontSize={isMobile ? "small" : "medium"} />
                                   </IconButton>
                                 </Tooltip>
                               ) : null}
                             </TableCell>
                           )}
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ 
+                            textAlign: 'center',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
                             <Tooltip title="Delete Window">
                               <IconButton
                                 color="error"
+                                size={isMobile ? "small" : "medium"}
                                 onClick={() => handledeletedata(val)}
                                 sx={{
                                   '&:hover': {
@@ -1018,7 +1245,7 @@ export default function Index() {
                                   }
                                 }}
                               >
-                                <DeleteIcon />
+                                <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
                               </IconButton>
                             </Tooltip>
                           </TableCell>
@@ -1031,7 +1258,7 @@ export default function Index() {
                             colSpan={user?.isTenant ? 9 : 8}
                             sx={{ 
                               textAlign: 'center', 
-                              py: 8,
+                              py: isMobile ? 4 : 8,
                               border: 'none'
                             }}
                           >
@@ -1039,18 +1266,24 @@ export default function Index() {
                               display: 'flex', 
                               flexDirection: 'column', 
                               alignItems: 'center',
-                              gap: 2
+                              gap: isMobile ? 1 : 2
                             }}>
                               <img
                                 src="/image/no-records.svg"
                                 alt="No records"
                                 loading="lazy"
-                                style={{ maxWidth: '200px', opacity: 0.6 }}
+                                style={{ 
+                                  maxWidth: isMobile ? '150px' : '200px', 
+                                  opacity: 0.6 
+                                }}
                               />
                               <Typography 
                                 variant="body1" 
                                 color="text.secondary"
-                                sx={{ fontWeight: 500 }}
+                                sx={{ 
+                                  fontWeight: 500,
+                                  fontSize: isMobile ? '14px' : '16px'
+                                }}
                               >
                                 Please add a window to create an Estimate
                               </Typography>
@@ -1062,45 +1295,56 @@ export default function Index() {
                   </Table>
                 </TableContainer>
                 {simpleValidator.current.message("Windows", value?.windowProductId, "required") && (
-                  <Alert severity="error" sx={{ mt: 2, mx: 2, mb: 2 }}>
+                  <Alert 
+                    severity="error" 
+                    sx={{ 
+                      mt: 2, 
+                      mx: isMobile ? 1 : 2, 
+                      mb: 2,
+                      fontSize: isMobile ? '14px' : '16px'
+                    }}
+                  >
                     {simpleValidator.current.message("Windows", value?.windowProductId, "required")}
                   </Alert>
                 )}
               </CardContent>
             </Card>
-            <Grid container spacing={4}>
+            <Grid container spacing={isMobile ? 2 : 4}>
               <Grid item xs={12} md={6}>
-                {/* Empty column for spacing */}
+                {/* Empty column for spacing on desktop */}
               </Grid>
               <Grid item xs={12} md={6}>
                 <Card elevation={2}>
-                  <CardContent>
+                  <CardContent sx={{ p: isMobile ? 2 : 3 }}>
                     <Typography 
-                      variant="h5" 
+                      variant={isMobile ? "h6" : "h5"}
                       component="h2" 
                       sx={{ 
-                        mb: 3, 
+                        mb: isMobile ? 2 : 3, 
                         fontWeight: 600,
                         color: 'primary.main',
                         borderBottom: 2,
                         borderColor: 'primary.main',
-                        pb: 1
+                        pb: 1,
+                        fontSize: isMobile ? '18px' : '20px'
                       }}
                     >
                       Summary
                     </Typography>
                     
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: isMobile ? 2 : 3 }}>
                       <Box sx={{ 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: 2, 
-                        mb: 2
+                        gap: isMobile ? 1 : 2, 
+                        mb: 2,
+                        flexWrap: isMobile ? 'wrap' : 'nowrap'
                       }}>
                         {HasPermission("DiscountAdd") && (
                           <Tooltip title="Add New Discount">
                             <IconButton
                               color="primary"
+                              size={isMobile ? "small" : "medium"}
                               onClick={() => setDiscountopen(true)}
                               sx={{
                                 bgcolor: 'primary.light',
@@ -1110,12 +1354,23 @@ export default function Index() {
                                 }
                               }}
                             >
-                              <AddIcon />
+                              <AddIcon fontSize={isMobile ? "small" : "medium"} />
                             </IconButton>
                           </Tooltip>
                         )}
                         
-                        <FormControl fullWidth size="small">
+                        <FormControl 
+                          fullWidth 
+                          size={isMobile ? "medium" : "small"}
+                          sx={{
+                            '& .MuiInputBase-input': {
+                              fontSize: isMobile ? '16px' : '14px',
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: isMobile ? '16px' : '14px',
+                            }
+                          }}
+                        >
                           <InputLabel>Discount Coupon</InputLabel>
                           <Select
                             onChange={handleChangecupan}
@@ -1123,6 +1378,18 @@ export default function Index() {
                             value={value.discountCoupon ? 
                               JSON.stringify(coupan.find(c => c.couponCode === value.discountCoupon) || {}) : ""
                             }
+                            MenuProps={{
+                              PaperProps: {
+                                sx: {
+                                  maxHeight: isMobile ? 250 : 300,
+                                  '& .MuiMenuItem-root': {
+                                    fontSize: isMobile ? '16px' : '14px',
+                                    minHeight: isMobile ? '44px' : '36px',
+                                    padding: isMobile ? '12px 16px' : '8px 16px',
+                                  },
+                                },
+                              },
+                            }}
                           >
                             <MenuItem value="">
                               <em>Select promotional discount, bulk order...</em>
@@ -1148,7 +1415,9 @@ export default function Index() {
                           sx={{
                             textTransform: 'none',
                             fontWeight: 600,
-                            minWidth: 100
+                            minWidth: isMobile ? 80 : 100,
+                            minHeight: isMobile ? '44px' : '36px',
+                            fontSize: isMobile ? '14px' : '15px'
                           }}
                         >
                           Apply
@@ -1156,12 +1425,12 @@ export default function Index() {
                       </Box>
                     </Box>
 
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: isMobile ? 2 : 3 }}>
                       <FormControl component="fieldset">
                         <FormLabel 
                           component="legend" 
                           sx={{ 
-                            fontSize: '1rem', 
+                            fontSize: isMobile ? '15px' : '16px', 
                             fontWeight: 600,
                             color: 'text.primary',
                             mb: 1
@@ -1174,49 +1443,79 @@ export default function Index() {
                           name="isTaxAvailable"
                           value={value.isTaxApplicable.toString()}
                           onChange={handleTaxChange}
-                          sx={{ gap: 3 }}
+                          sx={{ gap: isMobile ? 2 : 3 }}
                         >
                           <FormControlLabel
                             value="true"
-                            control={<Radio color="primary" />}
+                            control={<Radio color="primary" size={isMobile ? "small" : "medium"} />}
                             label="Yes"
                             sx={{
                               '& .MuiFormControlLabel-label': {
-                                fontWeight: 500
+                                fontWeight: 500,
+                                fontSize: isMobile ? '14px' : '15px'
                               }
                             }}
                           />
                           <FormControlLabel
                             value="false"
-                            control={<Radio color="primary" />}
+                            control={<Radio color="primary" size={isMobile ? "small" : "medium"} />}
                             label="No"
                             sx={{
                               '& .MuiFormControlLabel-label': {
-                                fontWeight: 500
+                                fontWeight: 500,
+                                fontSize: isMobile ? '14px' : '15px'
                               }
                             }}
                           />
                         </RadioGroup>
                       </FormControl>
                     </Box>
-                    <Card variant="outlined" sx={{ bgcolor: 'grey.50', mb: 3 }}>
-                      <CardContent sx={{ py: 2 }}>
-                        <Stack spacing={2}>
+                    <Card variant="outlined" sx={{ bgcolor: 'grey.50', mb: isMobile ? 2 : 3 }}>
+                      <CardContent sx={{ py: isMobile ? 1.5 : 2 }}>
+                        <Stack spacing={isMobile ? 1.5 : 2}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            <Typography 
+                              variant="body1" 
+                              sx={{ 
+                                fontWeight: 500,
+                                fontSize: isMobile ? '14px' : '16px'
+                              }}
+                            >
                               Subtotal:
                             </Typography>
-                            <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                            <Typography 
+                              variant="body1" 
+                              sx={{ 
+                                fontWeight: 600, 
+                                fontFamily: 'monospace',
+                                fontSize: isMobile ? '14px' : '16px'
+                              }}
+                            >
                               {defaultConfig.currencySign} {Number(value?.subTotal)?.toFixed(2)}
                             </Typography>
                           </Box>
                           
                           {Number(value?.discount) > 0 && (
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <Typography variant="body1" sx={{ fontWeight: 500, color: 'error.main' }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  fontWeight: 500, 
+                                  color: 'error.main',
+                                  fontSize: isMobile ? '14px' : '16px'
+                                }}
+                              >
                                 Discount:
                               </Typography>
-                              <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace', color: 'error.main' }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  fontWeight: 600, 
+                                  fontFamily: 'monospace', 
+                                  color: 'error.main',
+                                  fontSize: isMobile ? '14px' : '16px'
+                                }}
+                              >
                                 -{defaultConfig.currencySign} {Number(value?.discount)?.toFixed(2)}
                               </Typography>
                             </Box>
@@ -1224,10 +1523,23 @@ export default function Index() {
                           
                           {value.isTaxApplicable && (
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  fontWeight: 500,
+                                  fontSize: isMobile ? '14px' : '16px'
+                                }}
+                              >
                                 Taxes:
                               </Typography>
-                              <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  fontWeight: 600, 
+                                  fontFamily: 'monospace',
+                                  fontSize: isMobile ? '14px' : '16px'
+                                }}
+                              >
                                 {defaultConfig.currencySign} {Number(value?.tax)?.toFixed(2)}
                               </Typography>
                             </Box>
@@ -1236,10 +1548,25 @@ export default function Index() {
                           <Divider />
                           
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                            <Typography 
+                              variant={isMobile ? "subtitle1" : "h6"}
+                              sx={{ 
+                                fontWeight: 600, 
+                                color: 'primary.main',
+                                fontSize: isMobile ? '16px' : '18px'
+                              }}
+                            >
                               Grand Total:
                             </Typography>
-                            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: 'monospace', color: 'primary.main' }}>
+                            <Typography 
+                              variant={isMobile ? "subtitle1" : "h6"}
+                              sx={{ 
+                                fontWeight: 700, 
+                                fontFamily: 'monospace', 
+                                color: 'primary.main',
+                                fontSize: isMobile ? '16px' : '18px'
+                              }}
+                            >
                               {defaultConfig.currencySign} {Number(value?.grandTotal)?.toFixed(2)}
                             </Typography>
                           </Box>
@@ -1248,63 +1575,86 @@ export default function Index() {
                     </Card>
                     
                     <Typography 
-                      variant="h5" 
+                      variant={isMobile ? "h6" : "h5"}
                       component="h2" 
                       sx={{ 
-                        mb: 3, 
+                        mb: isMobile ? 2 : 3, 
                         fontWeight: 600,
                         color: 'primary.main',
                         borderBottom: 2,
                         borderColor: 'primary.main',
-                        pb: 1
+                        pb: 1,
+                        fontSize: isMobile ? '18px' : '20px'
                       }}
                     >
                       Estimate Notes
                     </Typography>
                     
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
+                    <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: isMobile ? 3 : 4 }}>
                       <Grid item xs={12} md={6}>
                         <TextField
                           label="Terms and Conditions"
                           multiline
-                          rows={4}
+                          rows={isMobile ? 3 : 4}
                           fullWidth
                           name="termsCondition"
                           value={value?.termsCondition || ""}
                           onChange={handleChange}
                           placeholder="Payment terms, warranty information, and any disclaimers"
                           variant="outlined"
+                          sx={{
+                            '& .MuiInputBase-input': {
+                              fontSize: isMobile ? '16px' : '14px',
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: isMobile ? '16px' : '14px',
+                            }
+                          }}
                         />
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <TextField
                           label="Additional Notes"
                           multiline
-                          rows={4}
+                          rows={isMobile ? 3 : 4}
                           fullWidth
                           name="notes"
                           value={value?.notes || ""}
                           onChange={handleChange}
                           placeholder="Add any other relevant information for the customer"
                           variant="outlined"
+                          sx={{
+                            '& .MuiInputBase-input': {
+                              fontSize: isMobile ? '16px' : '14px',
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: isMobile ? '16px' : '14px',
+                            }
+                          }}
                         />
                       </Grid>
                     </Grid>
                     
                     <Box sx={{ 
                       display: 'flex', 
-                      justifyContent: 'flex-end', 
+                      justifyContent: isMobile ? 'center' : 'flex-end', 
                       alignItems: 'center',
-                      gap: 2,
-                      pt: 3,
+                      gap: isMobile ? 1 : 2,
+                      pt: isMobile ? 2 : 3,
                       borderTop: 1,
-                      borderColor: 'divider'
+                      borderColor: 'divider',
+                      flexDirection: isMobile ? 'column' : 'row',
+                      '& .MuiButton-root': {
+                        minHeight: isMobile ? '44px' : '36px',
+                        fontSize: isMobile ? '14px' : '15px',
+                        width: isMobile ? '100%' : 'auto'
+                      }
                     }}>
                       <Button
                         component={Link}
                         to={`/contacts/job/${tenantList[0]?.jobId}`}
                         variant="text"
-                        startIcon={<CancelIcon />}
+                        startIcon={<CancelIcon fontSize={isMobile ? "small" : "medium"} />}
                         sx={{
                           textTransform: 'none',
                           fontWeight: 500,
@@ -1317,12 +1667,12 @@ export default function Index() {
                       {HasPermission("EstimateAdd") && (
                         <Button
                           variant="contained"
-                          startIcon={<SaveIcon />}
+                          startIcon={<SaveIcon fontSize={isMobile ? "small" : "medium"} />}
                           onClick={() => languageAdd(false)}
                           sx={{
                             textTransform: 'none',
                             fontWeight: 600,
-                            px: 3
+                            px: isMobile ? 2 : 3
                           }}
                         >
                           {param.estimateId ? "Update" : "Save"}
@@ -1333,12 +1683,12 @@ export default function Index() {
                         <Button
                           variant="contained"
                           color="success"
-                          startIcon={<SendIcon />}
+                          startIcon={<SendIcon fontSize={isMobile ? "small" : "medium"} />}
                           onClick={() => languageAdd(true)}
                           sx={{
                             textTransform: 'none',
                             fontWeight: 600,
-                            px: 3
+                            px: isMobile ? 2 : 3
                           }}
                         >
                           {param.estimateId ? "Update" : "Save"} & Send

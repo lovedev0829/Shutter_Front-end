@@ -1,16 +1,20 @@
 import React from 'react';
-import { FormControl, Select, MenuItem, InputLabel } from '@mui/material';
+import { FormControl, Select, MenuItem, InputLabel, useTheme, useMediaQuery } from '@mui/material';
 
 export default function StatusDropdown({ value = "", fn }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   return (
     <FormControl 
       fullWidth 
-      size="small" 
+      size={isMobile ? "medium" : "small"} 
       variant="outlined"
       sx={{
         '& .MuiOutlinedInput-root': {
           backgroundColor: '#fff',
           borderRadius: 1,
+          minHeight: isMobile ? '44px' : '40px', // Touch-friendly height
           '&:hover': {
             '& .MuiOutlinedInput-notchedOutline': {
               borderColor: 'primary.main',
@@ -23,8 +27,11 @@ export default function StatusDropdown({ value = "", fn }) {
           },
         },
         '& .MuiInputBase-input': {
-          padding: '10px 12px',
-          fontSize: '14px',
+          padding: isMobile ? '12px 14px' : '10px 12px',
+          fontSize: isMobile ? '16px' : '14px', // Prevent zoom on iOS
+        },
+        '& .MuiInputLabel-root': {
+          fontSize: isMobile ? '16px' : '14px',
         },
       }}
     >
@@ -36,6 +43,18 @@ export default function StatusDropdown({ value = "", fn }) {
         label="Status"
         onChange={(e) => {
           if (fn) fn(e);
+        }}
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              maxHeight: isMobile ? 250 : 300,
+              '& .MuiMenuItem-root': {
+                fontSize: isMobile ? '16px' : '14px',
+                minHeight: isMobile ? '44px' : '36px', // Touch-friendly menu items
+                padding: isMobile ? '12px 16px' : '8px 16px',
+              },
+            },
+          },
         }}
       >
         <MenuItem value="2">Select Status</MenuItem>
