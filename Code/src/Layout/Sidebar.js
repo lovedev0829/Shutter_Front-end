@@ -276,11 +276,19 @@ export default function Sidebar() {
     links?.forEach((item) => {
       if (excludedRoles.includes(item.roleName)) return;
       const category = parentCategories[item.roleName] || "Other";
+      
+      if (category === "Other") {
+        console.log(`Menu item "${item.roleDisplayName}" (${item.roleName}) is being placed in "Other" category`);
+      }
+      
       if (!grouped[category]) grouped[category] = [];
       grouped[category].push(item);
     });
 
-    // Add virtual Configuration link if permission exists
+    if (grouped["Other"]) {
+      delete grouped["Other"];
+    }
+
     if (
       HasPermission("GHLView") ||
       HasPermission("StripeView") ||
@@ -308,8 +316,12 @@ export default function Sidebar() {
       });
       delete grouped["Order management"];
     }
-    // Push remaining categories in any order
+    
+    // Push remaining categories in any order, but exclude empty "Other" category
     Object.entries(grouped).forEach(([category, items]) => {
+      if (category === "Other" && items.length === 0) {
+        return; // Skip empty "Other" category
+      }
       ordered.push({ category, items });
     });
 

@@ -187,6 +187,7 @@ export default function Header(props) {
         <Box 
           sx={{ 
             display: 'flex', 
+            ml: 1,
             alignItems: 'center', 
             gap: 1,
             minWidth: { xs: 120, sm: 150 },
