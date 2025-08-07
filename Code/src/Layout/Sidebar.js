@@ -5,37 +5,226 @@ import { useEffect, useRef, useState } from "react";
 import Logout from "../Component/Pages/Auth/Logout";
 import { useSelector } from "react-redux";
 import { HasPermission } from "../helpers/common";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Box,
+  Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Divider,
+  Collapse,
+  useTheme,
+  useMediaQuery,
+  ClickAwayListener,
+  Paper
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LockIcon from '@mui/icons-material/Lock';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { styled } from '@mui/material/styles';
+
+const StyledDrawer = styled(Drawer)(({ theme, primarycolor }) => ({
+  '& .MuiDrawer-paper': {
+    width: 280,
+    backgroundColor: primarycolor || '#1e1e2d',
+    color: '#fff',
+    borderRight: 'none',
+    boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+  },
+}));
+
+const StyledAccordion = styled(Accordion)(({ theme, primarycolor }) => ({
+  backgroundColor: 'transparent',
+  color: '#fff',
+  boxShadow: 'none',
+  border: 'none',
+  '&:before': {
+    display: 'none',
+  },
+  '& .MuiAccordionSummary-root': {
+    backgroundColor: 'transparent',
+    padding: '8px 16px',
+    minHeight: 'auto',
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.05)',
+    },
+    '& .MuiAccordionSummary-content': {
+      margin: '8px 0',
+    },
+  },
+  '& .MuiAccordionDetails-root': {
+    padding: '0 0 8px 0',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+}));
+
+const LogoContainer = styled(Box)(({ theme }) => ({
+  padding: '16px',
+  backgroundColor: 'rgba(0,0,0,0.1)',
+  borderBottom: '1px solid rgba(255,255,255,0.1)',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+}));
+
+const UserSection = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  backgroundColor: 'rgba(0,0,0,0.2)',
+  borderTop: '1px solid rgba(255,255,255,0.1)',
+}));
+
+const MenuToggle = styled(IconButton)(({ theme }) => ({
+  color: '#fff',
+  backgroundColor: 'rgba(255,255,255,0.1)',
+  '&:hover': {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  [theme.breakpoints.up('md')]: {
+    display: 'none',
+  },
+}));
+
+const WorkspaceLabel = styled(Typography)(({ theme }) => ({
+  padding: '16px 16px 8px 16px',
+  fontSize: '12px',
+  fontWeight: 600,
+  color: '#94a3b8',
+  textTransform: 'uppercase',
+  letterSpacing: '1px',
+}));
+
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  padding: '12px 16px',
+  fontSize: '14px',
+  fontWeight: 500,
+  '&:hover': {
+    backgroundColor: 'rgba(0,0,0,0.04)',
+  },
+  '& .MuiSvgIcon-root': {
+    marginRight: '12px',
+    fontSize: '20px',
+    color: theme.palette.text.secondary,
+  },
+}));
+
+const LogoutMenuItem = styled(MenuItem)(({ theme }) => ({
+  padding: '12px 16px',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: theme.palette.error.main,
+  '&:hover': {
+    backgroundColor: 'rgba(244, 67, 54, 0.04)',
+  },
+  '& .MuiSvgIcon-root': {
+    marginRight: '12px',
+    fontSize: '20px',
+    color: theme.palette.error.main,
+  },
+}));
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(false);
-  const [show, setShow] = useState("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [expandedAccordion, setExpandedAccordion] = useState('panel0'); // First panel expanded by default
+  
   const admin_links = JSON.parse(localStorage.getItem("userData"))?.menu;
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const users = useSelector((state) => state.UserProfile.profile);
   const user = JSON.parse(localStorage.getItem("userData"));
 
-  const handleClosemenu = () => {
-    setShow("");
+  // Get dynamic primary color from user data
+  const primaryColor = users?.primaryColor || user?.primaryColor || "#0e0d32";
+
+  // Helper function to darken color
+  const darkenColor = (color, percentage) => {
+    color = color.replace("#", "");
+    let r = parseInt(color.substring(0, 2), 16);
+    let g = parseInt(color.substring(2, 4), 16);
+    let b = parseInt(color.substring(4, 6), 16);
+    r = Math.max(0, Math.min(255, Math.floor(r * (1 - percentage / 100))));
+    g = Math.max(0, Math.min(255, Math.floor(g * (1 - percentage / 100))));
+    b = Math.max(0, Math.min(255, Math.floor(b * (1 - percentage / 100))));
+    return `#${r.toString(16).padStart(2, "0")}${g
+      .toString(16)
+      .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
   };
 
-  const menuRef = useRef(null);
+  const handleDrawerToggle = (event) => {
+    // Prevent event bubbling which might interfere with ClickAwayListener
+    if (event) {
+      event.stopPropagation();
+    }
+    setMobileOpen(!mobileOpen);
+  };
 
+  const handleUserMenuClick = (event) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const handleLogoutClick = () => {
+    setUserMenuAnchor(null);
+    setLogoutOpen(true);
+  };
+
+  const handleLogoutClose = () => {
+    setLogoutOpen(false);
+  };
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedAccordion(isExpanded ? panel : false);
+  };
+
+  const handleMobileNavigation = () => {
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  };
+
+  // Handle body scroll when mobile menu is open
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShow(""); // Hide the menu
+    if (isMobile) {
+      if (mobileOpen) {
+        document.body.classList.add('mobile-menu-open');
+        document.body.style.top = `-${window.scrollY}px`;
+      } else {
+        const scrollY = document.body.style.top;
+        document.body.classList.remove('mobile-menu-open');
+        document.body.style.top = '';
+        if (scrollY) {
+          window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
       }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
+    }
+    
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.classList.remove('mobile-menu-open');
+      document.body.style.top = '';
     };
-  }, []);
+  }, [mobileOpen, isMobile]);
 
   const parentCategories = {
     Contact: "Order management",
@@ -63,6 +252,7 @@ export default function Sidebar() {
     Discount: "Settings",
     Setting: "Settings",
   };
+
   const excludedRoles = [
     "Roles",
     "Address",
@@ -129,161 +319,260 @@ export default function Sidebar() {
   // Usage:
   const groupedLinks = groupLinksByCategory(admin_links);
 
-  return (
-    <>
-      <div className="intersight_menu" ref={menuRef}>
-        <div className="top_menu">
-          {/*Start Logo Dropdown*/}
-          <div className="brand">
-            <button
-              className="navbar-toggler navbar-toggle"
-              type="button"
-              onClick={() => setShow((prev) => (prev === "show" ? "" : "show"))}
+  const drawerContent = (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {/* Logo Section */}
+      <LogoContainer>
+        <MenuToggle 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDrawerToggle(e);
+          }}
+          data-toggle-button="true"
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+          }}
+        >
+          <MenuIcon />
+        </MenuToggle>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+          <Box sx={{ 
+            width: 40, 
+            height: 40, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            overflow: 'hidden',
+            borderRadius: 1
+          }}>
+            <img
+              src={users?.logo ? users?.logo : user?.logo}
+              alt="Company Logo"
+              loading="lazy"
+              style={{ maxHeight: '32px', maxWidth: '100%' }}
+            />
+          </Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: '14px', color: '#fff' }}>
+            {users?.companyName ? users?.companyName : user?.companyName}
+          </Typography>
+        </Box>
+      </LogoContainer>
+
+      {/* Navigation Menu */}
+      <Box sx={{ flex: 1, overflowY: 'auto', pb: '80px' }}>
+        {/* Dashboard */}
+        <List sx={{ pt: 0 }}>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={NavLink}
+              to="/dashboard"
+              onClick={handleMobileNavigation}
+              sx={{
+                color: '#fff',
+                '&.active': {
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  borderRight: '3px solid #1976d2',
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                },
+              }}
             >
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-            </button>
-            <div className="dropdown">
-              <button
-                className="border-0 w-100 d-flex align-items-center"
-                type="button"
+              <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Dashboard" 
+                primaryTypographyProps={{ fontSize: '14px', fontWeight: 500 }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+
+        {/* Workspace Label */}
+        <WorkspaceLabel variant="overline">
+          Workspace
+        </WorkspaceLabel>
+
+        {/* Menu Sections */}
+        <Box sx={{ px: 1 }}>
+          {groupedLinks.map(({ category, items }, index) => {
+            const isFirst = index === 0; // check if first item
+
+            return (
+              <StyledAccordion
+                key={index}
+                expanded={expandedAccordion === `panel${index}`}
+                onChange={handleAccordionChange(`panel${index}`)}
+                primarycolor={primaryColor}
               >
-                <span
-                  className="d-flex align-items-center justify-content-center"
-                  style={{ overflow: "hidden" }}
-                >
-                  <img
-                    src={users?.logo ? users?.logo : user?.logo}
-                    alt=""
-                    loading="lazy"
-                    style={{ maxHeight: "30px", maxWidth: "100%" }}
-                  />
-                </span>{" "}
-                {users?.companyName ? users?.companyName : user?.companyName}{" "}
-              </button>
-            </div>
-          </div>
+                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}>
+                  <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
+                    {category}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List sx={{ py: 0 }}>
+                    {items.map((item, i) => (
+                      <SideBarLink
+                        key={i}
+                        href={item?.url}
+                        name={item.roleDisplayName}
+                        icon={item.icon}
+                        handleClosemenu={handleMobileNavigation}
+                      />
+                    ))}
+                  </List>
+                </AccordionDetails>
+              </StyledAccordion>
+            );
+          })}
+        </Box>
+      </Box>
 
-          {/*End Logo Dropdown*/}
-          {/*Start Menu*/}
-          <div className={`intersight_home ${show}`}>
-            <div className="menu_div">
-              <ul>
-                <li onClick={() => setShow("")}>
-                  <NavLink
-                    to="/dashboard"
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                  >
-                    <span>
-                      <Dashboardsvg />
-                    </span>
-                    Dashboard
-                  </NavLink>
-                </li>
-                <li className="without_label">Workspace</li>
-              </ul>
+      {/* User Section */}
+      <UserSection>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleUserMenuClick} sx={{ color: '#fff' }}>
+            <ListItemIcon sx={{ color: '#fff', minWidth: 40 }}>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: '#1976d2' }}>
+                <PersonIcon sx={{ fontSize: 18 }} />
+              </Avatar>
+            </ListItemIcon>
+            <ListItemText
+              primary={`${users?.firstName || user?.firstName} ${users?.lastName || user?.lastName} ${users?.suffix || user?.suffix || ''}`}
+              secondary={users?.email || user?.email}
+              primaryTypographyProps={{ 
+                fontSize: '14px', 
+                fontWeight: 500,
+                color: '#fff',
+                noWrap: true 
+              }}
+              secondaryTypographyProps={{ 
+                fontSize: '12px',
+                color: 'rgba(255,255,255,0.7)',
+                noWrap: true 
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
 
-              <div
-                className="accordion sidebar-accordian"
-                id="accordionExample"
-              >
-                {groupedLinks.map(({ category, items }, index) => {
-                  const isFirst = index === 0; // check if first item
+        <Menu
+          anchorEl={userMenuAnchor}
+          open={Boolean(userMenuAnchor)}
+          onClose={handleUserMenuClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          PaperProps={{
+            sx: { 
+              mt: -1,
+              minWidth: 220,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+              borderRadius: 2,
+            }
+          }}
+        >
+          <StyledMenuItem 
+            component={Link} 
+            to="/update-profile" 
+            onClick={() => {
+              handleUserMenuClose();
+              handleMobileNavigation();
+            }}
+          >
+            <AccountCircleIcon />
+            Profile Info
+          </StyledMenuItem>
+          <StyledMenuItem 
+            component={Link} 
+            to="/chnage-password" 
+            onClick={() => {
+              handleUserMenuClose();
+              handleMobileNavigation();
+            }}
+          >
+            <LockIcon />
+            Change Password
+          </StyledMenuItem>
+          <Divider sx={{ my: 1 }} />
+          <LogoutMenuItem onClick={handleLogoutClick}>
+            <ExitToAppIcon />
+            Logout
+          </LogoutMenuItem>
+        </Menu>
+      </UserSection>
+    </Box>
+  );
 
-                  return (
-                    <div className="accordion-item" key={index}>
-                      <h2 className="accordion-header" id={`heading${index}`}>
-                        <button
-                          className={`accordion-button ${
-                            isFirst ? "" : "collapsed"
-                          }`}
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target={`#collapse${index}`}
-                          aria-expanded={isFirst ? "true" : "false"}
-                          aria-controls={`collapse${index}`}
-                        >
-                          {category}
-                        </button>
-                      </h2>
-                      <div
-                        id={`collapse${index}`}
-                        className={`accordion-collapse collapse ${
-                          isFirst ? "show" : ""
-                        }`}
-                        aria-labelledby={`heading${index}`}
-                        data-bs-parent="#accordionExample"
-                      >
-                        <div className="accordion-body">
-                          <ul className="menu_scrollbar">
-                            {items.map((item, i) => (
-                              <SideBarLink
-                                key={i}
-                                href={item?.url}
-                                name={item.roleDisplayName}
-                                icon={item.icon}
-                                handleClosemenu={handleClosemenu}
-                              />
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="bottom_menu">
-                <div className="user_person">
-                  <div className="dropdown">
-                    <button
-                      className="dropdown-toggle border-0 w-100 d-flex align-items-center p-0"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <span className="d-flex align-items-center justify-content-center person_icon">
-                        <img src="/image/person.svg" alt="" loading="lazy" />
-                      </span>
-                      <label className="person_name">
-                        {users?.firstName ? users?.firstName : user?.firstName}{" "}
-                        {users?.lastName ? users?.lastName : user?.lastName}{" "}
-                        {users?.suffix ? users?.suffix : user?.suffix}
-                        <span className="d-block">
-                          {users?.email ? users?.email : user?.email}
-                        </span>
-                      </label>
-                    </button>
-                    <ul className="dropdown-menu w-100">
-                      <li onClick={() => setShow("")}>
-                        <Link className="dropdown-item" to="/update-profile">
-                          Profile Info
-                        </Link>
-                      </li>
-                      <li onClick={() => setShow("")}>
-                        <Link className="dropdown-item" to="/chnage-password">
-                          Change Password
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to="#"
-                          onClick={() => setOpen(true)}
-                        >
-                          Logout
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/*End Start Menu*/}
-        </div>
-      </div>
-      <Logout open={open} handleClose={handleClose} />
-    </>
+  return (
+    <Box sx={{ display: 'flex' }}>
+      {/* Mobile Drawer */}
+      <StyledDrawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ 
+          keepMounted: true,
+        }}
+        BackdropProps={{
+          onClick: () => setMobileOpen(false)
+        }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+          },
+        }}
+        primarycolor={primaryColor}
+      >
+        <Box>{drawerContent}</Box>
+      </StyledDrawer>
+
+      {/* Desktop Drawer */}
+      <StyledDrawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+        }}
+        open
+        primarycolor={primaryColor}
+      >
+        {drawerContent}
+      </StyledDrawer>
+
+      {/* Mobile Menu Button - only show when drawer is closed */}
+      {isMobile && !mobileOpen && (
+        <IconButton
+          onClick={handleDrawerToggle}
+          data-toggle-button="true"
+          aria-label="Open navigation menu"
+          sx={{
+            position: 'fixed',
+            top: { xs: 12, sm: 16 },
+            left: { xs: 12, sm: 16 },
+            zIndex: 1400, // Higher than Material UI's modal z-index
+            bgcolor: primaryColor,
+            color: '#fff',
+            width: { xs: 48, sm: 56 },
+            height: { xs: 48, sm: 56 },
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            border: '2px solid rgba(255,255,255,0.1)',
+            '&:hover': { 
+              bgcolor: darkenColor(primaryColor, 15),
+              transform: 'scale(1.05)',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
+            },
+            '&:active': {
+              transform: 'scale(0.95)',
+            },
+            transition: 'all 0.2s ease-in-out',
+          }}
+        >
+          <MenuIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+        </IconButton>
+      )}
+
+      <Logout open={logoutOpen} handleClose={handleLogoutClose} />
+    </Box>
   );
 }

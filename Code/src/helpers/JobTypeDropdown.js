@@ -1,52 +1,87 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { 
+  FormControl, 
+  Select, 
+  MenuItem, 
+  CircularProgress, 
+  Box,
+  InputLabel 
+} from "@mui/material";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
-import { SelectBoxLoader } from "./common";
 
-export default function JobTypeDropdown({ value = "", fn,load }) {
-  const [countryList, setCountryList] = useState([]);
+export default function JobTypeDropdown({ value = "", fn, load }) {
+  const [jobTypeList, setJobTypeList] = useState([]);
   const [show, setShow] = useState(false);
-  const CountryList = async () => {
+  
+  const fetchJobTypes = useCallback(async () => {
     try {
-      setShow(true)
-        const apiResponse = await callAPI(apiUrls.GetAllJobType,{}, "GET");
-        setShow(false)
-        if (apiResponse?.data?.isSuccess) {
-            setCountryList(apiResponse?.data?.data)
+      setShow(true);
+      const apiResponse = await callAPI(apiUrls.GetAllJobType, {}, "GET");
+      setShow(false);
+      if (apiResponse?.data?.isSuccess) {
+        setJobTypeList(apiResponse?.data?.data);
       } else {
+        // Keep original behavior - no error handling
       }
     } catch (error) {
-      setShow(false)
-      setCountryList([]);
+      setShow(false);
+      setJobTypeList([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    CountryList();
-  }, [load]);
-
-  
+    fetchJobTypes();
+  }, [fetchJobTypes, load]);
 
   return (
-    <div className="position-relative">
-        {show &&<SelectBoxLoader/>}
-      <select value={value}
-        className="form-select"
-        name="jobType"
-        onChange={(e) => {
-          if (fn) fn(e);
-        }}
-      >
-        <option value="">Select Job Type</option>
-        {countryList?.map((item, i) => {
-          return (
-           
-              <option key={i} value={item?.jobTypeId} selected={item?.jobTypeId===value?true:false}>{item?.jobTypeName}</option>
-           
-          );
-        })}
-      </select>
-      </div>
+    <Box sx={{ position: 'relative', minWidth: 120 }}>
+      <FormControl fullWidth size="small" variant="outlined">
+        <Select
+          value={value}
+          name="jobType"
+          onChange={(e) => {
+            if (fn) fn(e);
+          }}
+          disabled={show}
+          sx={{
+            '& .MuiSelect-select': {
+              display: 'flex',
+              alignItems: 'center',
+            }
+          }}
+        >
+          <MenuItem value="0">
+            Select Job Type
+          </MenuItem>
+          {jobTypeList?.map((item, i) => {
+            return (
+              <MenuItem 
+                key={i} 
+                value={item?.jobTypeId}
+                selected={item?.jobTypeId === value ? true : false}
+              >
+                {item?.jobTypeName}
+              </MenuItem>
+            );
+          })}
+        </Select>
+        {show && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              right: 8,
+              transform: 'translateY(-50%)',
+              zIndex: 1,
+              pointerEvents: 'none',
+            }}
+          >
+            <CircularProgress size={20} />
+          </Box>
+        )}
+      </FormControl>
+    </Box>
   );
 }
 

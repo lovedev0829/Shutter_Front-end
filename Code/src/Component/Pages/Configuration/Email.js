@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
-import TableTitle from "../../Form/TableTitle";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
 import {
@@ -11,12 +10,27 @@ import {
   SuccessMessage,
 } from "../../../helpers/common";
 
-import InputField from "../../Form/InputField";
 import SimpleReactValidator from "simple-react-validator";
-import SubmitButton from "../../Form/SubmitButton";
-import Selectbox from "../../Form/Selectbox";
 import GetEmailTypeConfiguration from "../../../helpers/GetEmailTypeConfiguration";
 import moment from "moment";
+// Material UI imports
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Paper,
+  Backdrop,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText
+} from "@mui/material";
 
 export default function Email() {
   const [loder, setLoader] = useState(false);
@@ -204,205 +218,212 @@ export default function Email() {
 
   return (
     <>
-      {loder && <ApiLoder />}
-      <div className="contact-profile">
-        <div className="d-flex align-items-center justify-content-between mb-30">
-          <TableTitle title="Manage Email Configuration" />
-        </div>
-        <div
-          className="form-design"
-          style={{ background: "#f5f5f5", padding: "10px" }}
-        >
-          <form onSubmit={handleSubmit}>
-            <div className="row">
-              <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <label className="font-14">
-                    Method Type <sup>*</sup>
-                  </label>
-                  <GetEmailTypeConfiguration
-                    value={value.emailType}
-                    fn={handleChange}
-                  />
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "Method Type",
-                      value?.emailType,
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loder}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <Box>
+        <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: 'primary.main' }}>
+          Manage Email Configuration
+        </Typography>
+        <Paper elevation={1} sx={{ p: 3, bgcolor: 'grey.50' }}>
+          <Box component="form" onSubmit={handleSubmit}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={4}>
+                <GetEmailTypeConfiguration
+                  value={value.emailType}
+                  fn={handleChange}
+                  error={!!simpleValidator.current.message(
+                    "Method Type",
+                    value?.emailType,
+                    `required`
+                  )}
+                  helperText={simpleValidator.current.message(
+                    "Method Type",
+                    value?.emailType,
+                    `required`
+                  )}
+                />
+              </Grid>
+              {value.emailType === "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="SMTP Server"
+                    placeholder="Enter SMTP Server"
+                    type="text"
+                    onChange={handleChange}
+                    id="smtpServer"
+                    name="smtpServer"
+                    value={value.smtpServer || ''}
+                    required
+                    size="small"
+                    error={!!simpleValidator.current.message(
+                      "SMTP Server",
+                      value?.smtpServer,
                       `required`
                     )}
-                  </div>
-                </div>
-              </div>
-              {value.emailType === "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
-                <div className="col-lg-4 col-md-4">
-                  <div className="form-group">
-                    <InputField
-                      labelName={"SMTP Server"}
-                      placeholderName={"Enter SMTP Server"}
-                      type={"text"}
-                      handleChange={handleChange}
-                      id={"smtpServer"}
-                      name={"smtpServer"}
-                      value={value.smtpServer}
-                      required={true}
-                    />
-                    <div className="error">
-                      {simpleValidator.current.message(
-                        "SMTP Server",
-                        value?.smtpServer,
-                        `required`
-                      )}
-                    </div>
-                  </div>
-                </div>
+                    helperText={simpleValidator.current.message(
+                      "SMTP Server",
+                      value?.smtpServer,
+                      `required`
+                    )}
+                  />
+                </Grid>
               )}
               {value.emailType === "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
-                <div className="col-lg-4 col-md-4">
-                  <div className="form-group">
-                    <InputField
-                      labelName={"Port"}
-                      placeholderName={"Enter Port"}
-                      type={"text"}
-                      handleChange={handleChange}
-                      id={"port"}
-                      name={"port"}
-                      value={value.port}
-                      required={true}
-                    />
-                    <div className="error">
-                      {simpleValidator.current.message(
-                        "Port",
-                        value?.port,
-                        `required|integer`
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"User Name"}
-                    placeholderName={"Enter User Name"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"username"}
-                    name={"username"}
-                    value={value.username}
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Port"
+                    placeholder="Enter Port"
+                    type="text"
+                    onChange={handleChange}
+                    id="port"
+                    name="port"
+                    value={value.port || ''}
+                    required
+                    size="small"
+                    error={!!simpleValidator.current.message(
+                      "Port",
+                      value?.port,
+                      `required|integer`
+                    )}
+                    helperText={simpleValidator.current.message(
+                      "Port",
+                      value?.port,
+                      `required|integer`
+                    )}
                   />
-                </div>
-              </div>
+                </Grid>
+              )}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="User Name"
+                  placeholder="Enter User Name"
+                  type="text"
+                  onChange={handleChange}
+                  id="username"
+                  name="username"
+                  value={value.username || ''}
+                  size="small"
+                />
+              </Grid>
               {value.emailType === "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
-                <div className="col-lg-4 col-md-4">
-                  <div className="form-group">
-                    <InputField
-                      labelName={"Password"}
-                      placeholderName={"Enter Password"}
-                      type={"text"}
-                      handleChange={handleChange}
-                      id={"password"}
-                      name={"password"}
-                      value={value.password}
-                    />
-                  </div>
-                </div>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    placeholder="Enter Password"
+                    type="password"
+                    onChange={handleChange}
+                    id="password"
+                    name="password"
+                    value={value.password || ''}
+                    size="small"
+                  />
+                </Grid>
               )}
               {value.emailType === "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
-                <div className="col-lg-4 col-md-4">
-                  <div className="form-group">
-                    <Selectbox
-                      labelName={"SSL/TLS"}
-                      options={[
-                        { value: true, label: "Yes" },
-                        { value: false, label: "No" },
-                      ]}
-                      handleChange={handleChange}
-                      id={"useSsl"}
-                      name={"useSsl"}
-                      value={value.useSsl}
-                      required={true}
-                    />
-                    <div className="error">
-                      {simpleValidator.current.message(
-                        "SSL/TLS",
-                        value?.useSsl,
-                        `required`
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"From"}
-                    placeholderName={"Enter From"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"from"}
-                    name={"from"}
-                    value={value.from}
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"Reply To"}
-                    placeholderName={"Enter Reply To"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"replyTo"}
-                    name={"replyTo"}
-                    value={value.replyTo}
-                  />
-                </div>
-              </div>{" "}
-              {value.isConnected && isdata && (
-                <p>
-                  {timeLeft && "Expiration Date/time:"}{" "}
-                  <strong>
-                    {timeLeft && `${timeLeft}`} (Connected with {emailTypeName})
-                  </strong>
-                </p>
-              )}
-              <div className="form-style form-group d-flex align-items-center justify-content-end">
-                {HasPermission("EmailConfigurationEdit") && (
-                  <SubmitButton
-                    type="submit"
-                    className="btn blue-btn me-3"
-                    name={"Submit"}
-                    disabled={loder}
-                  />
-                )}
-
-                {!ghl &&
-                  value?.emailType !==
-                    "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
-                    <button
-                      type="button"
-                      className="btn btn-success me-3"
-                      onClick={() =>
-                        handleDelte(
-                          value?.emailType ===
-                            "16b6b079-5e5b-44d8-8cb4-1b7aa6143d87"
-                            ? "Google"
-                            : "Microsoft365"
-                        )
-                      }
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth size="small" required error={!!simpleValidator.current.message("SSL/TLS", value?.useSsl, `required`)}>
+                    <InputLabel>SSL/TLS</InputLabel>
+                    <Select
+                      value={value.useSsl || ''}
+                      label="SSL/TLS"
+                      onChange={handleChange}
+                      name="useSsl"
                     >
-                      Connect to{" "}
-                      {value?.emailType ===
-                      "16b6b079-5e5b-44d8-8cb4-1b7aa6143d87"
-                        ? "Google"
-                        : "Microsoft365"}
-                    </button>
+                      <MenuItem value={true}>Yes</MenuItem>
+                      <MenuItem value={false}>No</MenuItem>
+                    </Select>
+                    {simpleValidator.current.message("SSL/TLS", value?.useSsl, `required`) && (
+                      <FormHelperText>{simpleValidator.current.message("SSL/TLS", value?.useSsl, `required`)}</FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
+              )}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="From"
+                  placeholder="Enter From"
+                  type="text"
+                  onChange={handleChange}
+                  id="from"
+                  name="from"
+                  value={value.from || ''}
+                  size="small"
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Reply To"
+                  placeholder="Enter Reply To"
+                  type="text"
+                  onChange={handleChange}
+                  id="replyTo"
+                  name="replyTo"
+                  value={value.replyTo || ''}
+                  size="small"
+                />
+              </Grid>
+              {value.isConnected && isdata && (
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    {timeLeft && "Expiration Date/time: "}
+                    <Typography component="span" sx={{ fontWeight: 600 }}>
+                      {timeLeft && `${timeLeft}`} (Connected with {emailTypeName})
+                    </Typography>
+                  </Typography>
+                </Grid>
+              )}
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+                  {HasPermission("EmailConfigurationEdit") && (
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={loder}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Submit
+                    </Button>
                   )}
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
+
+                  {!ghl &&
+                    value?.emailType !==
+                      "d4efb2c6-a9cb-4433-9698-29ad10cc87a1" && (
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() =>
+                          handleDelte(
+                            value?.emailType ===
+                              "16b6b079-5e5b-44d8-8cb4-1b7aa6143d87"
+                              ? "Google"
+                              : "Microsoft365"
+                          )
+                        }
+                        sx={{ textTransform: 'none' }}
+                      >
+                        Connect to{" "}
+                        {value?.emailType ===
+                        "16b6b079-5e5b-44d8-8cb4-1b7aa6143d87"
+                          ? "Google"
+                          : "Microsoft365"}
+                      </Button>
+                    )}
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Box>
     </>
   );
 }

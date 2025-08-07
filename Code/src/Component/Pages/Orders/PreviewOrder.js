@@ -75,7 +75,7 @@ export default function PreviewOrder() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="main_container">
         <div className="limani_body">
           <div

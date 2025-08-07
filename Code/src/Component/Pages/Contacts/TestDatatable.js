@@ -1,9 +1,31 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTable, useSortBy, useFilters } from 'react-table';
 import Header from '../../../Layout/header';
+import {
+  Box,
+  Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  TableSortLabel,
+  TextField,
+  LinearProgress,
+  Typography,
+  Chip,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
+import { ResponsiveContainer } from '../../Layout/ResponsiveLayout';
 
 export default function TestDatatable() {
- const data = useMemo(() => [
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [filters, setFilters] = useState({});
+
+  const data = useMemo(() => [
   {
     name: 'Martin Peacock',
     designation: 'Designer',
@@ -107,14 +129,21 @@ export default function TestDatatable() {
 ], []);
 
 
-  // 👇 Define the filter component INSIDE useMemo
+  // Define the filter component with Material UI
   const defaultColumn = useMemo(() => ({
     Filter: ({ column }) => (
-      <input
+      <TextField
         value={column.filterValue || ''}
         onChange={e => column.setFilter(e.target.value)}
         placeholder={`Search ${column.id}`}
-        style={{ width: '100%' }}
+        variant="outlined"
+        size="small"
+        fullWidth
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            fontSize: '0.875rem'
+          }
+        }}
       />
     )
   }), []);
@@ -139,6 +168,14 @@ export default function TestDatatable() {
     {
       Header: 'Status',
       accessor: 'status',
+      Cell: ({ value }) => (
+        <Chip
+          label={value}
+          color={value === 'Active' ? 'success' : 'default'}
+          variant={value === 'Active' ? 'filled' : 'outlined'}
+          size="small"
+        />
+      ),
     },
     {
       Header: 'Trustworthiness',
@@ -152,16 +189,24 @@ export default function TestDatatable() {
       Header: 'Software Proficiency',
       accessor: 'proficiency',
       Cell: ({ value }) => (
-        <div style={{ background: '#eee', width: '100%' }}>
-          <div style={{
-            width: `${value}%`,
-            background: 'green',
-            color: 'white',
-            textAlign: 'center',
-          }}>
+        <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LinearProgress
+            variant="determinate"
+            value={value}
+            sx={{
+              flex: 1,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: '#e0e0e0',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: value >= 80 ? '#4caf50' : value >= 60 ? '#ff9800' : '#f44336',
+              }
+            }}
+          />
+          <Typography variant="caption" sx={{ minWidth: 35, textAlign: 'right' }}>
             {value}%
-          </div>
-        </div>
+          </Typography>
+        </Box>
       ),
     },
   ], []);
@@ -181,51 +226,135 @@ export default function TestDatatable() {
   
 
   return (
-    <div className="intersight_content">
-      <Header title="Contacts" />
-       <div className="body_content">
-        <div className="awarded-jobs task_table">
-             <div className="table-responsive">
-      <table {...getTableProps()} className="table">
-        <thead>
-          {headerGroups.map((headerGroup, i) => (
-            <tr {...headerGroup.getHeaderGroupProps()} key={i}>
-              {headerGroup.headers.map((column, j) => (
-                <th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  key={j}
-                  style={{ border: '1px solid black' }}
-                >
-                  {column.render('Header')}
-                  <div>{column.canFilter ? column.render('Filter') : null}</div>
-                  {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()} key={i}>
-                {row.cells.map((cell, j) => (
-                  <td
-                    {...cell.getCellProps()}
-                    key={j}
-                    style={{ border: '1px solid gray', padding: '5px' }}
-                  >
-                    {cell.render('Cell')}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      </div>
-    </div>
-    </div>
-    </div>
+    <Box
+      sx={{
+        backgroundColor: 'background.default',
+        minHeight: '100vh',
+      }}
+    >
+      <Box className="intersight_content">
+        <Header title="Contacts" />
+        <Box className="body_content">
+          <ResponsiveContainer 
+            maxWidth="xl"
+            disableGutters={false}
+            sx={{ 
+              py: { xs: 1, sm: 2, md: 3 },
+              px: { xs: 1, sm: 2, md: 3 }
+            }}
+          >
+            <Paper
+              sx={{
+                p: { xs: 2, sm: 3, md: 4 },
+                borderRadius: 2,
+                boxShadow: 1,
+                backgroundColor: 'background.paper',
+                width: '100%',
+                overflow: 'hidden'
+              }}
+            >
+              <Typography 
+                variant="h5" 
+                component="h1" 
+                gutterBottom
+                sx={{ 
+                  mb: { xs: 2, sm: 3 },
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                }}
+              >
+                Employee Data Table
+              </Typography>
+
+              <TableContainer
+                sx={{
+                  '& .MuiTable-root': {
+                    borderCollapse: 'separate',
+                    borderSpacing: 0,
+                  },
+                  overflowX: 'auto',
+                  maxHeight: { xs: 400, sm: 600, md: 'none' }
+                }}
+              >
+                <Table {...getTableProps()} stickyHeader={isMobile}>
+                  <TableHead>
+                    {headerGroups.map((headerGroup, i) => (
+                      <TableRow {...headerGroup.getHeaderGroupProps()} key={i}>
+                        {headerGroup.headers.map((column, j) => (
+                          <TableCell
+                            {...column.getHeaderProps(column.getSortByToggleProps())}
+                            key={j}
+                            sx={{
+                              fontWeight: 600,
+                              backgroundColor: 'grey.50',
+                              borderBottom: '2px solid',
+                              borderBottomColor: 'divider',
+                              position: 'relative',
+                              minWidth: { xs: 120, sm: 150 },
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              padding: { xs: '8px 4px', sm: '12px 8px', md: '16px' },
+                              '&:hover': {
+                                backgroundColor: 'grey.100'
+                              }
+                            }}
+                          >
+                            <TableSortLabel
+                              active={column.isSorted}
+                              direction={column.isSortedDesc ? 'desc' : 'asc'}
+                              sx={{ fontSize: 'inherit' }}
+                            >
+                              {column.render('Header')}
+                            </TableSortLabel>
+                            <Box sx={{ mt: 1, minHeight: 40 }}>
+                              {column.canFilter ? column.render('Filter') : null}
+                            </Box>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHead>
+                  <TableBody {...getTableBodyProps()}>
+                    {rows.map((row, i) => {
+                      prepareRow(row);
+                      return (
+                        <TableRow 
+                          {...row.getRowProps()} 
+                          key={i}
+                          sx={{
+                            '&:hover': {
+                              backgroundColor: 'action.hover'
+                            },
+                            '&:nth-of-type(odd)': {
+                              backgroundColor: 'action.selected'
+                            }
+                          }}
+                        >
+                          {row.cells.map((cell, j) => (
+                            <TableCell
+                              {...cell.getCellProps()}
+                              key={j}
+                              sx={{
+                                borderBottom: '1px solid',
+                                borderBottomColor: 'divider',
+                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                padding: { xs: '8px 4px', sm: '12px 8px', md: '16px' },
+                                whiteSpace: { xs: 'nowrap', md: 'normal' }
+                              }}
+                            >
+                              {cell.render('Cell')}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          </ResponsiveContainer>
+        </Box>
+      </Box>
+    </Box>
   );
 }

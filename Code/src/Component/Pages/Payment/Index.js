@@ -215,7 +215,7 @@ function Index() {
 
   return (
     <>
-      {loder > 0 && <ApiLoder />}
+      <ApiLoder open={loder > 0} />
       <div className="intersight_content">
         <Header
           title={`Contacts / ${

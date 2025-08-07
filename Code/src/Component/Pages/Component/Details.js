@@ -14,6 +14,25 @@ import {
 } from "../../../helpers/common";
 import AddSinglematerial from "./AddSinglematerial";
 import AddEditButton from "../../Form/AddEditButton";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Chip,
+  Divider,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Details() {
   const [tenantList, setTenantList] = useState([]);
@@ -93,167 +112,242 @@ export default function Details() {
   };
 
   return (
-    <>
-      {loder && <ApiLoder />}
-      <div className="intersight_content">
+    <div className="intersight_content">
+
+      <ApiLoder open={loder} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header title="Component" />
 
-        <div className="body_content">
-          <div className="contact-profile">
+        <Box  className="body_content">
+          <Box sx={{ mb: 3 }}>
             <BackButton link="/component" />
+          </Box>
 
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <TableTitle title="Component Details" />
-            </div>
-            <div className="new-job_list mb-30">
-              <div className="row">
-                <div className="col-lg-2 col-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Component Name</h6>
-                    <span>{tenantList[0]?.componentName}</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Product Type</h6>
-                    <span>{tenantList[0]?.productTypeName}</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Markup %</h6>
-                    <span>{tenantList[0]?.markupPercentage}%</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Status</h6>
-                    <span
-                      style={{
-                        color: tenantList[0]?.isActive ? "green" : "red",
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <TableTitle title="Component Details" />
+          </Box>
+
+          <Card sx={{ mb: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Component Name
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.componentName || '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Product Type
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.productTypeName || '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Markup %
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.markupPercentage ? `${tenantList[0]?.markupPercentage}%` : '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Status
+                    </Typography>
+                    <Chip
+                      label={tenantList[0]?.isActive ? "Active" : "Inactive"}
+                      color={tenantList[0]?.isActive ? "success" : "error"}
+                      variant="outlined"
+                      size="small"
+                      sx={{ fontWeight: 500 }}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Notes
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.notes || '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 600, 
+                color: 'text.primary',
+                borderLeft: '4px solid',
+                borderColor: 'primary.main',
+                pl: 2
+              }}
+            >
+              Material Details
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {HasPermission("ComponentAdd") && (
+                <AddEditButton
+                  handleClick={() => {
+                    setOpen(true);
+                  }}
+                  title="Add Material"
+                />
+              )}
+            </Box>
+          </Box>
+
+          <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+              <Table sx={{ minWidth: 650 }}>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: 'background.default' }}>
+                    <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Raw Material</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Expression Name</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Pricing Expression</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Qty</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Waste %</TableCell>
+                    {(HasPermission("ComponentEdit") ||
+                      HasPermission("ComponentDelete")) && (
+                      <TableCell 
+                        align="right" 
+                        sx={{ fontWeight: 600, color: 'text.primary' }}
+                      >
+                        Action
+                      </TableCell>
+                    )}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {tenantList[0]?.componentMaterials?.map((val, i) => (
+                    <TableRow 
+                      key={i}
+                      sx={{ 
+                        '&:hover': { backgroundColor: 'action.hover' },
+                        '&:last-child td, &:last-child th': { border: 0 } 
                       }}
                     >
-                      {tenantList[0]?.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-                </div>
-                {/* <div className="col-lg-4 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Pricing Expression</h6>
-                    <span>{tenantList[0]?.expressionName}</span><br></br>
-                    <span>{tenantList[0]?.expressionFormulae}</span>
-                  </div>
-                </div> */}
-                <div className="col-lg-2 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Notes</h6>
-                    <span>{tenantList[0]?.notes}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <h2 className="body_heading width-left-border mb-0">
-                Material Details
-              </h2>
-              <div className="heading_width_search d-flex align-items-center gap-3">
-                {HasPermission("ComponentAdd") && (
-                  <AddEditButton
-                    handleClick={() => {
-                      setOpen(true);
-                    }}
-                    title="Add Material"
-                  />
-                )}
-              </div>
-            </div>
-            <div className="estimate-table task_table mb-30">
-              <div className="table-responsive">
-                <table className="table jobscheduletable">
-                  <thead>
-                    <tr>
-                      <th scope="col">Raw Material</th>
-                       <th scope="col">Expression Name</th>
-                      <th scope="col"> Pricing Expression</th>
-                      <th scope="col">Qty</th>
-                      <th scope="col">Waste %</th>
+                      <TableCell>
+                        <Typography
+                          component={Link}
+                          to={`/material`}
+                          variant="body2"
+                          sx={{
+                            color: 'primary.main',
+                            textDecoration: 'none',
+                            fontWeight: 500,
+                            '&:hover': {
+                              textDecoration: 'underline',
+                              color: 'primary.dark'
+                            }
+                          }}
+                        >
+                          {val?.materialName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                          {val?.expressionName || '-'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                          {val?.displayArray?.join("") || '-'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                          {val?.quantity || '-'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                          {val?.wasteFactor ? `${val?.wasteFactor}%` : '-'}
+                        </Typography>
+                      </TableCell>
                       {(HasPermission("ComponentEdit") ||
                         HasPermission("ComponentDelete")) && (
-                        <th scope="col" className="text-end actionheading">
-                          Action
-                        </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tenantList[0]?.componentMaterials.map((val, i) => (
-                      <tr key={i}>
-                        <td>
-                          <Link
-                            className="color-blue"
-                            to={`/material`}
-                            
-                          >
-                            {val?.materialName}
-                          </Link>{" "}
-                        </td>
-                         <td>{val?.expressionName}</td>
-                        <td>{val?.displayArray?.join("")}</td>
-                        <td>{val?.quantity?val?.quantity:"-"}</td>
-                        <td>{val?.wasteFactor?`${val?.wasteFactor}%`:"-"}</td>
-                        {(HasPermission("ComponentEdit") ||
-                          HasPermission("ComponentDelete")) && (
-                          <td className="text-end actiondescription">
-                            <span className="d-flex align-items-center justify-content-end gap-3">
-                            {HasPermission("ComponentEdit") && <img
-                                src="/image/editblue.svg"
-                                alt=""
-                                loading="lazy"
-                                style={{ cursor: "pointer" }}
+                        <TableCell align="right">
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                            {HasPermission("ComponentEdit") && (
+                              <IconButton
+                                size="small"
                                 onClick={() => handleedit(val)}
-                              />
-                            }
-                              {HasPermission("ComponentDelete") &&
-                              <img
-                                src="/image/deleteblue.svg"
-                                alt=""
-                                loading="lazy"
+                                sx={{
+                                  color: 'primary.main',
+                                  '&:hover': {
+                                    backgroundColor: 'primary.light',
+                                    color: 'primary.dark'
+                                  }
+                                }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                            {HasPermission("ComponentDelete") && (
+                              <IconButton
+                                size="small"
                                 onClick={() => handledelete(val)}
-                                style={{ cursor: "pointer" }}
-                              />
-}
-                            </span>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                                sx={{
+                                  color: 'error.main',
+                                  '&:hover': {
+                                    backgroundColor: 'error.light',
+                                    color: 'error.dark'
+                                  }
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        </Box>
+      </Box>
 
-     {open &&<AddSinglematerial
-        open={open}
-        handleclose={handleclose}
-        LanguageListAPI={TenantlistAPI}
-        componentId={param.componentId}
-        object={object}
-        Listmaterial={tenantList[0]?.componentMaterials}
-        produttype={tenantList[0]?.productType}
-      />
-     }
-      {delOpen &&<Delete
-        open={delOpen}
-        handleClose={handledelclose}
-        title={object.materialName}
-        id={object?.componentMaterialId}
-        handleDelete={handleDelete}
-        loder={loder}
-      />
-}
-    </>
+      {open && (
+        <AddSinglematerial
+          open={open}
+          handleclose={handleclose}
+          LanguageListAPI={TenantlistAPI}
+          componentId={param.componentId}
+          object={object}
+          Listmaterial={tenantList[0]?.componentMaterials}
+          produttype={tenantList[0]?.productType}
+        />
+      )}
+      
+      {delOpen && (
+        <Delete
+          open={delOpen}
+          handleClose={handledelclose}
+          title={object.materialName}
+          id={object?.componentMaterialId}
+          handleDelete={handleDelete}
+          loder={loder}
+        />
+      )}
+    </div>
   );
 }

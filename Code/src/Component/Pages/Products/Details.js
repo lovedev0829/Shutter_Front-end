@@ -7,6 +7,25 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { ApiLoder, BackButton, Delete, ErrorMessage, HasPermission, SuccessMessage } from "../../../helpers/common";
 import AddSinglecomponent from "./AddSinglecomponent";
 import AddEditButton from "../../Form/AddEditButton";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Chip,
+  Divider,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Details() {
   const [tenantList, setTenantList] = useState([]);
@@ -90,127 +109,211 @@ export default function Details() {
 
 
   return (
-    <>
-      {loder && <ApiLoder />}
-      <div className="intersight_content">
+    <div className="intersight_content">
+      <ApiLoder open={loder} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header title="Products" />
 
-        <div className="body_content">
-          <div className="contact-profile">
-          <BackButton link="/products"/>
+        <Box className="body_content">
+          <Box sx={{ mb: 3 }}>
+            <BackButton link="/products"/>
+          </Box>
          
-            <div className="d-flex align-items-center justify-content-between mb-30">
-                
-              <TableTitle title="Products Details" />
-            </div>
-            <div className="new-job_list mb-30">
-              <div className="row">
-                <div className="col-lg-2 col-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Product Name</h6>
-                    <span>{tenantList[0]?.productName}</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Product Type</h6>
-                    <span>{tenantList[0]?.productTypeName}</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Markup %</h6>
-                    <span>{tenantList[0]?.markup}%</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Status</h6>
-                    <span style={{color:tenantList[0]?.isActive?"green":"red"}}>{tenantList[0]?.isActive?"Active":"Inactive"}</span>
-                  </div>
-                </div>
-                <div className="col-lg-2 col-md-6">
-                  <div className="additional_direction mb-2">
-                    <h6 className="mb-1">Notes</h6>
-                    <span>{tenantList[0]?.notes}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {tenantList[0]?.isComponentAvailable &&
-            <>
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <h2 className="body_heading width-left-border mb-0">
-                Component Details
-              </h2>
-              <div className="heading_width_search d-flex align-items-center gap-3">
-                {HasPermission("ProductsAdd") && (
-                  <AddEditButton
-                    handleClick={() => {
-                      setOpen(true);
-                    }}
-                    title="Add Component"
-                  />
-                )}
-              </div>
-            </div>
-            <div className="estimate-table task_table mb-30">
-              <div className="table-responsive">
-                <table className="table jobscheduletable">
-                  <thead>
-                    <tr>
-                      <th scope="col">Component Name</th>
-                      {/* <th scope="col">Qty</th> */}
-                      <th scope="col">Expression Name</th>
-                      <th scope="col"> Pricing Expression</th>
-                        {(HasPermission("ProductsEdit") ||
-                                              HasPermission("ProductsDelete")) && (
-                      <th scope="col" className="text-end actionheading">
-                        Action
-                      </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tenantList[0]?.productComponents.map((val,i) => (
-                      <tr key={i}>
-                        <td><Link className="color-blue" to={`/component/detail/${val.componentId}`} >{val?.componentName}</Link></td>
-                        {/* <td>{val?.quantity}</td> */}
-                          <td>{val?.pricingExpressionName || "---"}</td>
-                        <td>{val?.pricingExpressionFormula?.join("") || "--"}</td>
-                        {(HasPermission("ProductsEdit") ||
-                                              HasPermission("ProductsDelete")) && (
-                        <td className="text-end actiondescription">
-                          <span className="d-flex align-items-center justify-content-end gap-3">
-                            {HasPermission("ProductsEdit") &&<img src="/image/editblue.svg" alt="" loading="lazy" style={{cursor:"pointer"}}   onClick={() => handleedit(val)}/>}
-                           {HasPermission("ProductsDelete") && <img src="/image/deleteblue.svg" alt="" loading="lazy" onClick={() => handledelete(val)} style={{cursor:"pointer"}} />}
-                          </span>
-                        </td>
-                         )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            </>
-}
-            
-          </div>
-        </div>
-      </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <TableTitle title="Products Details" />
+          </Box>
 
-     {open && <AddSinglecomponent
-        open={open}
-        handleclose={handleclose}
-        LanguageListAPI={TenantlistAPI}
-        ProductId={param.productId}
-        object={object}
-        produttype={tenantList[0]?.productType}
-        Listmaterial={tenantList[0]?.productComponents}
+          <Card sx={{ mb: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Product Name
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.productName || '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Product Type
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.productTypeName || '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Markup %
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.markup ? `${tenantList[0]?.markup}%` : '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Status
+                    </Typography>
+                    <Chip 
+                      label={tenantList[0]?.isActive ? "Active" : "Inactive"}
+                      size="small"
+                      sx={{ 
+                        backgroundColor: tenantList[0]?.isActive ? 'success.main' : 'error.main',
+                        color: 'white',
+                        fontWeight: 500
+                      }}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                      Notes
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                      {tenantList[0]?.notes || '-'}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+          {tenantList[0]?.isComponentAvailable && (
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Component Details
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {HasPermission("ProductsAdd") && (
+                    <AddEditButton
+                      handleClick={() => {
+                        setOpen(true);
+                      }}
+                      title="Add Component"
+                    />
+                  )}
+                </Box>
+              </Box>
+
+              <Card sx={{ borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                  <Table sx={{ minWidth: 650 }}>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: 'background.default' }}>
+                        <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
+                          Component Name
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
+                          Expression Name
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
+                          Pricing Expression
+                        </TableCell>
+                        {(HasPermission("ProductsEdit") || HasPermission("ProductsDelete")) && (
+                          <TableCell 
+                            align="right" 
+                            sx={{ fontWeight: 600, color: 'text.primary' }}
+                          >
+                            Action
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {tenantList[0]?.productComponents?.map((val, i) => (
+                        <TableRow 
+                          key={i}
+                          sx={{ 
+                            '&:hover': { backgroundColor: 'action.hover' },
+                            '&:last-child td, &:last-child th': { border: 0 }
+                          }}
+                        >
+                          <TableCell>
+                            <Link 
+                              to={`/component/detail/${val.componentId}`}
+                              style={{ 
+                                color: '#1976d2', 
+                                textDecoration: 'none',
+                                fontWeight: 500
+                              }}
+                            >
+                              {val?.componentName}
+                            </Link>
+                          </TableCell>
+                          <TableCell sx={{ color: 'text.primary' }}>
+                            {val?.pricingExpressionName || '---'}
+                          </TableCell>
+                          <TableCell sx={{ color: 'text.primary' }}>
+                            {val?.pricingExpressionFormula?.join("") || '--'}
+                          </TableCell>
+                          {(HasPermission("ProductsEdit") || HasPermission("ProductsDelete")) && (
+                            <TableCell align="right">
+                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                                {HasPermission("ProductsEdit") && (
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleedit(val)}
+                                    sx={{ 
+                                      color: 'primary.main',
+                                      '&:hover': { backgroundColor: 'primary.light', color: 'white' }
+                                    }}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                )}
+                                {HasPermission("ProductsDelete") && (
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handledelete(val)}
+                                    sx={{ 
+                                      color: 'error.main',
+                                      '&:hover': { backgroundColor: 'error.light', color: 'white' }
+                                    }}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                )}
+                              </Box>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      {open && (
+        <AddSinglecomponent
+          open={open}
+          handleclose={handleclose}
+          LanguageListAPI={TenantlistAPI}
+          ProductId={param.productId}
+          object={object}
+          produttype={tenantList[0]?.productType}
+          Listmaterial={tenantList[0]?.productComponents}
+        />
+      )}
+      <Delete 
+        open={delOpen} 
+        handleClose={handledelclose} 
+        title={object.componentName} 
+        id={object?.productComponentId} 
+        handleDelete={handleDelete} 
+        loder={loder}
       />
-     }
-       <Delete open={delOpen} handleClose={handledelclose} title={object.componentName} id={object?.productComponentId} handleDelete={handleDelete} loder={loder}/>
-    </>
+    </div>
   );
 }

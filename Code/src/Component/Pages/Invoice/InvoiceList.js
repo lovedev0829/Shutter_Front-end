@@ -178,7 +178,7 @@ export default function InvoiceList({ JobId,contactId,listdata }) {
    const Loginuser = JSON.parse(localStorage.getItem("userData"));
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
         <div className="d-flex gap-3 invoice-new">
           <h2 className="body_heading width-left-border mb-0">Invoice</h2>

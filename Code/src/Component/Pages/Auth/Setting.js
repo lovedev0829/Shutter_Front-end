@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import SimpleReactValidator from "simple-react-validator";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ApiLoder,
   ColorList,
@@ -11,12 +11,29 @@ import {
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
 import Header from "../../../Layout/header";
-import SubmitButton from "../../Form/SubmitButton";
 import { useDispatch } from "react-redux";
 import { Profile } from "../../../Redux/Redux/Action/Action";
-import Selectbox from "../../Form/Selectbox";
 import { PostImage } from "../../../utils/apiCall";
-import InputField from "../../Form/InputField";
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Grid,
+  Avatar,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  useTheme,
+  alpha,
+} from '@mui/material';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Setting = () => {
   const [loader, setLoader] = useState(false);
@@ -37,6 +54,10 @@ const Setting = () => {
   );
   const [, forceUpdate] = useState();
   const [image, setImage] = useState("");
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleChange = (e) => {
     const value = e.target?.value;
     const name = e.target?.name;
@@ -44,7 +65,6 @@ const Setting = () => {
       return { ...val, [name]: value };
     });
   };
-  const dispatch = useDispatch();
 
   const handleProfileUpdate = (updatedFields) => {
     const user = JSON.parse(localStorage.getItem("userData")) || {};
@@ -141,236 +161,334 @@ const Setting = () => {
 
   return (
     <div className="intersight_content">
-      {loader && <ApiLoder />}
-      <Header title="Setting" />
-      <div className="body_content">
-        <div className="contact-profile">
-          <div className="form-design"  style={{ background: "#f5f5f5", padding: "10px" }}>
-            <form onSubmit={handleSubmit}>
-            
-                <div className="imagesec text-center mb-30">
-                  <div className="imageuploadsec d-inline-block mb-3 position-relative">
-                    <div className="upload-container">
-                      <input
-                        id="fileInput"
-                        type="file"
-                        name="logo"
-                        accept="image/png,image/jpg,image/jpeg"
-                        onChange={(e) => {
-                          UploadImage(e, [
-                            "image/png",
-                            "image/jpg",
-                            "image/jpeg",
-                          ]);
-                        }}
-                      />
-                      <label htmlFor="fileInput">
-                        <span className="gallery-icon">
-                          <img
-                            src={
-                              image
-                                ? image
-                                : value.logo
-                                ? value.logo
-                                : "/image/camera (1) 1.png"
-                            }
-                            alt="Gallery Icon"
-                            loading="lazy"
-                          />
-                        </span>
-                      </label>
-                    </div>
+      <ApiLoder open={loader} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+        <Header title="Setting" />
+        
+        <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
+          <Card 
+            elevation={0}
+            sx={{ 
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 3,
+              background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
+            }}
+          >
+            <CardContent sx={{ p: 4 }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                  mb: 4,
+                  textAlign: 'center'
+                }}
+              >
+                Company Settings
+              </Typography>
+
+              <form onSubmit={handleSubmit}>
+                {/* Logo Upload Section */}
+                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                  <Box sx={{ position: 'relative', display: 'inline-block', mb: 2 }}>
+                    <Avatar
+                      src={image || value.logo || "/image/camera (1) 1.png"}
+                      sx={{ 
+                        width: 200, 
+                        height: 200, 
+                        mx: 'auto',
+                        border: `3px solid ${theme.palette.primary.main}`,
+                        boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`
+                      }}
+                    />
+                    
+                    <input
+                      id="fileInput"
+                      type="file"
+                      name="logo"
+                      accept="image/png,image/jpg,image/jpeg"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        UploadImage(e, [
+                          "image/png",
+                          "image/jpg",
+                          "image/jpeg",
+                        ]);
+                      }}
+                    />
+                    
+                    <IconButton
+                      component="label"
+                      htmlFor="fileInput"
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        backgroundColor: theme.palette.primary.main,
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: theme.palette.primary.dark,
+                        },
+                        width: 36,
+                        height: 36
+                      }}
+                    >
+                      <PhotoCameraIcon fontSize="small" />
+                    </IconButton>
+
                     {(image || value.logo) && (
-                      <span
-                        className="delete-image"
+                      <IconButton
                         onClick={() => {
                           setValue((val) => ({ ...val, logo: "" }));
                           setImage("");
                         }}
+                        sx={{
+                          position: 'absolute',
+                          top: -8,
+                          right: -8,
+                          backgroundColor: theme.palette.error.main,
+                          color: 'white',
+                          '&:hover': {
+                            backgroundColor: theme.palette.error.dark,
+                          },
+                          width: 32,
+                          height: 32
+                        }}
                       >
-                        X
-                      </span>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     )}
-                  </div>
-                  <div>
-                    <h2 className="font-16">Upload Logo</h2>
-                    <p className="font-14">
-                      Please upload right to use image and format like: png,
-                      jpg, jpeg
-                    </p>
-                  </div>
-                </div>
-                <div className="row">
-                <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"Company Name"}
-                    placeholderName={"Enter Company Name"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"companyName"}
-                    name={"companyName"}
-                    value={value.companyName}
-                    required={true}
-                  />
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "companyName",
-                      value?.companyName,
-                      `required|string`
-                    )}
-                  </div>
-                </div>
-                </div>
-                {value.isSubtenant && (
-                  <div className="col-lg-4 col-md-4">
-                  <div className="form-group">
-                    <InputField
-                      labelName={"Markup"}
-                      placeholderName={"Enter Markup"}
-                      type={"text"}
-                      handleChange={handleChange}
-                      id={"markup"}
-                      name={"markup"}
-                      value={value.markup}
-                     
-                    />
-                    <div className="error">
-                      {simpleValidator.current.message(
-                        "markup",
-                        value?.markup,
-                        `numeric`
-                      )}
-                    </div>
-                  </div>
-                  </div>
-                )}
-                <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"Street Address"}
-                    placeholderName={"Enter Street Address"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"streetAddress"}
-                    name={"streetAddress"}
-                    value={value.streetAddress}
-                    required={true}
-                  />
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "streetAddress",
-                      value?.streetAddress,
-                      `required`
-                    )}
-                  </div>
-                </div>
-                </div>
-                   <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"State"}
-                    placeholderName={"Enter State"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"country"}
-                    name={"country"}
-                    value={value.country}
-                    required={true}
-                  />
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "State",
-                      value?.country,
-                      `required`
-                    )}
-                  </div>
-                </div>
-                </div>
-                <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"City"}
-                    placeholderName={"Enter City"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"city"}
-                    name={"city"}
-                    value={value.city}
-                    required={true}
-                  />
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "city",
-                      value?.city,
-                      `required`
-                    )}
-                  </div>
-                </div>
-                </div>
-             
-                <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <InputField
-                    labelName={"Zip Code"}
-                    placeholderName={"Enter zipCode"}
-                    type={"text"}
-                    handleChange={handleChange}
-                    id={"zipCode"}
-                    name={"zipCode"}
-                    value={value.zipCode}
-                    required={true}
-                  />
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "zipCode",
-                      value?.zipCode,
-                      `required`
-                    )}
-                  </div>
-                </div>
-                </div>
-                <div className="col-lg-4 col-md-4">
-                <div className="form-group">
-                  <Selectbox
-                    labelName={"Site Color"}
-                    options={ColorList}
-                    handleChange={handleChange}
-                    id={"primaryColor"}
-                    name={"primaryColor"}
-                    value={value.primaryColor}
-                    required={true}
-                    iscolor={true}
-                  />
+                  </Box>
+                  
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                    Upload Logo
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Please upload right to use image and format like: png, jpg, jpeg
+                  </Typography>
+                </Box>
 
-                  <div className="error">
-                    {simpleValidator.current.message(
-                      "Site Color",
-                      value?.primaryColor,
-                      `required`
-                    )}
-                  </div>
-                </div>
-                </div>
-                <div className="form-group d-flex align-items-center justify-content-end">
-                  <SubmitButton
+                {/* Form Fields */}
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Company Name *"
+                      placeholder="Enter Company Name"
+                      name="companyName"
+                      value={value.companyName}
+                      onChange={handleChange}
+                      error={!!simpleValidator.current.message("companyName", value?.companyName, "required|string")}
+                      helperText={simpleValidator.current.message("companyName", value?.companyName, "required|string")}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: theme.palette.primary.main,
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  {value.isSubtenant && (
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        label="Markup"
+                        placeholder="Enter Markup"
+                        name="markup"
+                        value={value.markup || ''}
+                        onChange={handleChange}
+                        error={!!simpleValidator.current.message("markup", value?.markup, "numeric")}
+                        helperText={simpleValidator.current.message("markup", value?.markup, "numeric")}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: theme.palette.primary.main,
+                            }
+                          }
+                        }}
+                      />
+                    </Grid>
+                  )}
+
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Street Address *"
+                      placeholder="Enter Street Address"
+                      name="streetAddress"
+                      value={value.streetAddress}
+                      onChange={handleChange}
+                      error={!!simpleValidator.current.message("streetAddress", value?.streetAddress, "required")}
+                      helperText={simpleValidator.current.message("streetAddress", value?.streetAddress, "required")}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: theme.palette.primary.main,
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="City *"
+                      placeholder="Enter City"
+                      name="city"
+                      value={value.city}
+                      onChange={handleChange}
+                      error={!!simpleValidator.current.message("city", value?.city, "required")}
+                      helperText={simpleValidator.current.message("city", value?.city, "required")}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: theme.palette.primary.main,
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Country *"
+                      placeholder="Enter Country"
+                      name="country"
+                      value={value.country}
+                      onChange={handleChange}
+                      error={!!simpleValidator.current.message("country", value?.country, "required")}
+                      helperText={simpleValidator.current.message("country", value?.country, "required")}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: theme.palette.primary.main,
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Zip Code *"
+                      placeholder="Enter Zip Code"
+                      name="zipCode"
+                      value={value.zipCode}
+                      onChange={handleChange}
+                      error={!!simpleValidator.current.message("zipCode", value?.zipCode, "required")}
+                      helperText={simpleValidator.current.message("zipCode", value?.zipCode, "required")}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&:hover fieldset': {
+                            borderColor: theme.palette.primary.main,
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <FormControl 
+                      fullWidth 
+                      error={!!simpleValidator.current.message("Site Color", value?.primaryColor, "required")}
+                    >
+                      <InputLabel>Site Color *</InputLabel>
+                      <Select
+                        name="primaryColor"
+                        value={value.primaryColor}
+                        onChange={handleChange}
+                        label="Site Color *"
+                        renderValue={(selected) => (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box
+                              sx={{
+                                width: 20,
+                                height: 20,
+                                backgroundColor: selected,
+                                borderRadius: '50%',
+                                border: '1px solid #ccc'
+                              }}
+                            />
+                            {ColorList.find(color => color.value === selected)?.label || selected}
+                          </Box>
+                        )}
+                      >
+                        {ColorList.map((color) => (
+                          <MenuItem key={color.value} value={color.value}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Box
+                                sx={{
+                                  width: 20,
+                                  height: 20,
+                                  backgroundColor: color.value,
+                                  borderRadius: '50%',
+                                  border: '1px solid #ccc'
+                                }}
+                              />
+                              {color.label}
+                            </Box>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {simpleValidator.current.message("Site Color", value?.primaryColor, "required") && (
+                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                          {simpleValidator.current.message("Site Color", value?.primaryColor, "required")}
+                        </Typography>
+                      )}
+                    </FormControl>
+                  </Grid>
+                </Grid>
+
+                {/* Action Buttons */}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2, mt: 4 }}>
+                  <Button
                     type="submit"
-                    className="btn blue-btn me-3"
-                    name={"Submit"}
+                    variant="contained"
                     disabled={loader}
-                  />
-                  <Link
-                    to={"/dashboard"}
-                    className="cancel text-decoration-underline"
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                      boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                      '&:hover': {
+                        background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                        boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+                      },
+                      '&:disabled': {
+                        background: theme.palette.grey[300],
+                        color: theme.palette.grey[500],
+                      }
+                    }}
+                  >
+                    Submit
+                  </Button>
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                    variant="outlined"
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      borderColor: theme.palette.grey[300],
+                      color: theme.palette.text.secondary,
+                      '&:hover': {
+                        borderColor: theme.palette.grey[400],
+                        backgroundColor: alpha(theme.palette.grey[100], 0.5),
+                      }
+                    }}
                   >
                     Cancel
-                  </Link>
-                </div>
-                </div>
-            </form>
-          </div>
-        </div>
-      </div>
+                  </Button>
+                </Box>
+              </form>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
     </div>
   );
 };

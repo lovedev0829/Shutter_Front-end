@@ -138,7 +138,7 @@ const Appointment = ({ open, handleclose, action, jobId, sendToParent }) => {
               </div>
               <form onSubmit={languageAdd}>
                 <div className="modal-body modale-scroll">
-                  {loader && <ApiLoder />}
+                  <ApiLoder open={loader} />
                   <div className="form-design">
                     <div className="row">
                       <div className="col-lg-4 col-md-4">

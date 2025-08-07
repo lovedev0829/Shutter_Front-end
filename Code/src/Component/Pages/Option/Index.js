@@ -7,7 +7,27 @@ import Search from '../../Form/Search'
 import AddEditButton from '../../Form/AddEditButton'
 import { apiUrls } from '../../../utils/apiUrls'
 import { callAPI } from '../../../utils/apiUtils'
-import { TablePagination } from "@mui/material";
+import { 
+  Container,
+  Paper,
+  Box,
+  Typography,
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
+  Card,
+  CardContent,
+  Stack,
+  Divider,
+  TablePagination,
+  useTheme,
+  useMediaQuery
+} from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
 import AddEditOption from './AddEditOption'
 import { ApiLoder, Delete, ErrorMessage, HasPermission, SuccessMessage } from '../../../helpers/common'
 import { useDebounce } from "use-debounce";
@@ -16,6 +36,10 @@ import StatusDropdown from '../../../helpers/StatusDropdown'
 
 
 export default function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("")
   const [object, setObject] = useState("")
@@ -228,77 +252,196 @@ export default function Index() {
 
   return (
     <>
-    {loder && <ApiLoder/>}
-      <div className="intersight_content">
+      <ApiLoder open={loder} />
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }} className="intersight_content">
         <Header title="Options" />
-        <div className="body_content">
-        <div className="contact-profile">
-        <div className="d-flex align-items-center justify-content-between mb-30">
-        <TableTitle title="Manage Options"/>
-          <div className="heading_width_search d-flex align-items-center gap-3">
-          
         
-          {HasPermission("OptionsAdd") && 
-          <AddEditButton handleClick={(() => {
-              setAction("add")
-              setOpen(true)
-            })
-            }   title="Add Option"/>
-          }
-          </div>
-        </div>
+        <Container 
+          maxWidth="xl" 
+          sx={{ 
+            py: { xs: 2, sm: 3 },
+            px: { xs: 1, sm: 2, md: 3 }
+          }}
+        >
+          <Paper 
+            elevation={1}
+            sx={{ 
+              p: { xs: 2, sm: 3, md: 4 },
+              borderRadius: 2,
+              backgroundColor: 'background.paper'
+            }}
+          >
+            {/* Header Section */}
+            <Box 
+              sx={{ 
+                mb: { xs: 2, sm: 3 },
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'stretch', sm: 'center' },
+                gap: { xs: 2, sm: 1 }
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h1"
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  fontSize: { 
+                    xs: '1.25rem', 
+                    sm: '1.5rem', 
+                    md: '1.75rem' 
+                  }
+                }}
+              >
+                Manage Options
+              </Typography>
+              
+              {HasPermission("OptionsAdd") && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    setAction("add")
+                    setOpen(true)
+                  }}
+                  sx={{
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 2, sm: 3 },
+                    minWidth: { xs: '100%', sm: 'auto' }
+                  }}
+                >
+                  Add Option
+                </Button>
+              )}
+            </Box>
 
-        <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-              <div className="filter-dropdown dropdown">
-                <Search handleSearch={handleSearch} />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <StatusDropdown value={filter.status} fn={handleChange} />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <ProductTypeDropdown
-                  value={filter.productType}
-                  fn={handleChange}
-                  load={true}
-                  className="selectboxdropdown"
-                />
-              </div>
-            </div>
-        
-        <div className="task_table mb-30">
-          <div className="table-responsive">
-          <DynamicTable data={OptionsList} columns={columns}  title="Options" rowActions={['edit', 'delete']} edituser={handleedit} handledelete={handledelete} handlestatus={handlestatus}
-          deletepermission="OptionsDelete" editpermission="OptionsEdit"  handleFilterSortChange={handleFilterSortChange}
-                sortColumn={filter.sortColumn}
-                sortDirection={filter.sortDirection}
-                columnFilters={filter.columnFilters}
-                handlesearchChange={handlesearchChange} />
-          {OptionsList && OptionsList?.length > 0 &&
-            <div className="d-flex align-items-center justify-content-end bottom_nav">
-        <nav aria-label="Page navigation example">
-          <ul className="pagination">
-            <TablePagination
-              rowsPerPageOptions={[10,25,50,100]}
-              component="div"
-              count={paginatedItems}
-              rowsPerPage={rowsPerPage}
-              page={page - 1}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </ul>
-        </nav>
-      </div>
-}
-          </div>
-        </div>
-     
-    
-</div>
-        </div>
-      </div>
-     {open && <AddEditOption open={open} handleclose={handleclose} action={action} LanguageListAPI={handleapi} object={object}/>}
-      {delOpen &&<Delete open={delOpen} handleClose={handledelclose} title={object.optionName} id={object?.optionId} handleDelete={handleDelete} loder={loder}/>}
+            <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+
+            {/* Filters Section */}
+            <Card 
+              variant="outlined" 
+              sx={{ 
+                mb: { xs: 2, sm: 3 },
+                backgroundColor: 'background.default'
+              }}
+            >
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mb: 2,
+                    fontWeight: 600,
+                    fontSize: { xs: '1rem', sm: '1.125rem' }
+                  }}
+                >
+                  Search & Filters
+                </Typography>
+                
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Search handleSearch={handleSearch} />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <StatusDropdown value={filter.status} fn={handleChange} />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <ProductTypeDropdown
+                      value={filter.productType}
+                      fn={handleChange}
+                      load={true}
+                      className="selectboxdropdown"
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Table Section */}
+            <Card variant="outlined">
+              <CardContent sx={{ p: 0 }}>
+                <Box sx={{ overflowX: 'auto' }}>
+                  <DynamicTable 
+                    data={OptionsList} 
+                    columns={columns}  
+                    title="Options" 
+                    rowActions={['edit', 'delete']} 
+                    edituser={handleedit} 
+                    handledelete={handledelete} 
+                    handlestatus={handlestatus}
+                    deletepermission="OptionsDelete" 
+                    editpermission="OptionsEdit"  
+                    handleFilterSortChange={handleFilterSortChange}
+                    sortColumn={filter.sortColumn}
+                    sortDirection={filter.sortDirection}
+                    columnFilters={filter.columnFilters}
+                    handlesearchChange={handlesearchChange} 
+                  />
+                </Box>
+                
+                {/* Pagination */}
+                {OptionsList && OptionsList?.length > 0 && (
+                  <Box 
+                    sx={{ 
+                      display: 'flex',
+                      justifyContent: { xs: 'center', md: 'flex-end' },
+                      alignItems: 'center',
+                      p: { xs: 1, sm: 2 },
+                      borderTop: '1px solid',
+                      borderColor: 'divider',
+                      backgroundColor: 'background.default'
+                    }}
+                  >
+                    <TablePagination
+                      rowsPerPageOptions={[10, 25, 50, 100]}
+                      component="div"
+                      count={paginatedItems}
+                      rowsPerPage={rowsPerPage}
+                      page={page - 1}
+                      onPageChange={handleChangePage}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                      sx={{
+                        '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                          fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        },
+                        '& .MuiTablePagination-select': {
+                          fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        },
+                        '& .MuiIconButton-root': {
+                          padding: { xs: '4px', sm: '8px' }
+                        }
+                      }}
+                    />
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Paper>
+        </Container>
+      </Box>
+
+      {/* Modals */}
+      {open && (
+        <AddEditOption 
+          open={open} 
+          handleclose={handleclose} 
+          action={action} 
+          LanguageListAPI={handleapi} 
+          object={object}
+        />
+      )}
+      {delOpen && (
+        <Delete 
+          open={delOpen} 
+          handleClose={handledelclose} 
+          title={object.optionName} 
+          id={object?.optionId} 
+          handleDelete={handleDelete} 
+          loder={loder}
+        />
+      )}
     </>
   )
 }
