@@ -94,7 +94,7 @@ export default function Login() {
 
   return (
     <>
-      {loader && <ApiLoder />}
+      <ApiLoder open={loader} />
       <Box sx={{ 
         minHeight: '100vh',
         backgroundColor: '#f5f5f5',

@@ -7,8 +7,17 @@ import Search from "../../Form/Search";
 import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination, 
+  Box, 
+  Paper, 
+  Stack, 
+  useTheme, 
+  useMediaQuery,
+  Grid
+} from "@mui/material";
 import AddEditContact from "./AddEditContact";
+import { ResponsiveContainer } from "../../Layout/ResponsiveLayout";
 import {
   ApiLoder,
   Delete,
@@ -25,6 +34,10 @@ import ExportFile from "../../../helpers/ExportFile";
 import SampleDownload from "../../../helpers/SampleDownload";
 
 export default function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+  
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
   const [object, setObject] = useState("");
@@ -159,6 +172,13 @@ export default function Index() {
     setPage(1);
     // eslint-disable-next-line
   }, [debouncedSearch,debouncedSearchcolumn]);
+
+  // Cleanup loader state on component unmount
+  useEffect(() => {
+    return () => {
+      setLoader(false);
+    };
+  }, []);
 
   const handleclose = () => {
     setOpen(false);
@@ -335,45 +355,98 @@ const handlesearchChange = (columnKey, value = null) => {
   
 
   return (
-    <>
-      {loder && <ApiLoder />}
-      <div className="intersight_content">
+    <Box
+      sx={{
+        backgroundColor: 'background.default',
+        minHeight: '100vh',
+      }}
+    >
+      <ApiLoder open={loder} />
+      <Box className="intersight_content">
         <Header title="Contacts" />
-        <div className="body_content">
-          <div className="awarded-jobs task_table">
-            <div className="d-flex align-items-center justify-content-between mb-30">
+        <Box className="body_content">
+          <ResponsiveContainer 
+            maxWidth="xl"
+            disableGutters={false}
+            sx={{ 
+              py: { xs: 1, sm: 2, md: 3 },
+              px: { xs: 1, sm: 2, md: 3 }
+            }}
+          >
+          <Paper
+            sx={{
+              p: { xs: 2, sm: 3, md: 4 },
+              borderRadius: 2,
+              boxShadow: 1,
+              backgroundColor: 'background.paper',
+              width: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Header Section */}
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              spacing={2}
+              sx={{ mb: 3 }}
+            >
               <TableTitle title="Manage Contacts" />
+              
+              {!filter.tenantId && HasPermission("ContactAdd") && (
+                <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
+                  <AddEditButton
+                    handleClick={() => {
+                      setAction("add");
+                      setOpen(true);
+                    }}
+                    title="Add New Contact"
+                  />
+                </Box>
+              )}
+            </Stack>
 
-              <div className="heading_width_search d-flex align-items-center gap-3">
-                {!filter.tenantId && (
-                  <>
-                    {HasPermission("ContactAdd") && (
-                      <AddEditButton
-                        handleClick={() => {
-                          setAction("add");
-                          setOpen(true);
-                        }}
-                        title="Add New Contact"
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="d-block d-lg-flex align-items-center gap-2 mb-30">
-              <div className="filter-dropdown dropdown">
-                <Search handleSearch={handleSearch} />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <StatusDropdown value={filter.status} fn={handleChange} />
-              </div>
-              <div className="filter-dropdown dropdown">
+            {/* Filters Section */}
+            <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+              {/* First Row - Search and Filters */}
+              <Grid container spacing={{ xs: 1.5, sm: 2 }} sx={{ mb: { xs: 1.5, sm: 2 } }}>
+                {/* Search */}
+                <Grid item xs={12} sm={6} md={3} lg={3}>
+                  <Box sx={{ width: '100%' }}>
+                    <Search handleSearch={handleSearch} />
+                  </Box>
+                </Grid>
+                
+                {/* Status Dropdown */}
+                <Grid item xs={12} sm={6} md={3} lg={3}>
+                  <Box sx={{ width: '100%' }}>
+                    <StatusDropdown value={filter.status} fn={handleChange} />
+                  </Box>
+                </Grid>
+                
+                {/* Partner Dropdown */}
                 {HasPermission("SubTenantView") && (
-                  <PartnerDropdown value={filter.tenantId} fn={handleChange} />
+                  <Grid item xs={12} sm={6} md={3} lg={3}>
+                    <Box sx={{ width: '100%' }}>
+                      <PartnerDropdown value={filter.tenantId} fn={handleChange} />
+                    </Box>
+                  </Grid>
                 )}
-              </div>
-              <div className="d-flex justify-content-between gap-2 ">
+                
+                {/* Spacer for alignment */}
+                <Grid item xs={12} sm={6} md={3} lg={3} />
+              </Grid>
+
+              {/* Second Row - Action Buttons */}
+              <Box 
+                sx={{ 
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 1.5, sm: 2 },
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                  justifyContent: { xs: 'center', sm: 'flex-start' }
+                }}
+              >
                 {HasPermission("ContactAdd") && (
                   <ImportFile LanguageListAPI={refreshContactlistAPI} type="contact" />
                 )}
@@ -388,10 +461,23 @@ const handlesearchChange = (columnKey, value = null) => {
                   jobStatus={""}
                 />
                 <SampleDownload type="contact" />
-              </div>
-            </div>
+              </Box>
+            </Box>
 
-            <div className="table-responsive">
+            {/* Table Section */}
+            <Box
+              sx={{
+                width: '100%',
+                overflowX: { xs: 'auto', md: 'visible' },
+                '& .table-responsive': {
+                  overflowX: { xs: 'auto', md: 'visible' }
+                },
+                '& .MuiTable-root': {
+                  minWidth: { xs: 700, md: 'auto' },
+                  width: '100%'
+                }
+              }}
+            >
               <DynamicTable
                 data={ContactsList}
                 columns={columns}
@@ -409,27 +495,49 @@ const handlesearchChange = (columnKey, value = null) => {
                 columnFilters={filter.columnFilters}
                 handlesearchChange={handlesearchChange}
               />
+              
+              {/* Pagination */}
               {ContactsList && ContactsList?.length > 0 && (
-                <div className="d-flex align-items-center justify-content-end bottom_nav">
-                  <nav aria-label="Page navigation example">
-                    <ul className="pagination">
-                      <TablePagination
-                        rowsPerPageOptions={[10,25,50,100]}
-                        component="div"
-                        count={paginatedItems}
-                        rowsPerPage={rowsPerPage}
-                        page={page - 1}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </ul>
-                  </nav>
-                </div>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    justifyContent: { xs: 'center', sm: 'flex-end' },
+                    mt: { xs: 1.5, sm: 2 },
+                    '& .MuiTablePagination-root': {
+                      overflow: 'visible'
+                    },
+                    '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    },
+                    '& .MuiTablePagination-actions button': {
+                      padding: { xs: '4px', sm: '8px' }
+                    }
+                  }}
+                >
+                  <TablePagination
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    component="div"
+                    count={paginatedItems}
+                    rowsPerPage={rowsPerPage}
+                    page={page - 1}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    sx={{
+                      '& .MuiTablePagination-toolbar': {
+                        flexWrap: { xs: 'wrap', sm: 'nowrap' },
+                        gap: { xs: 1, sm: 0 }
+                      }
+                    }}
+                  />
+                </Box>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
+            </Box>
+          </Paper>
+          </ResponsiveContainer>
+        </Box>
+      </Box>
+      
+      {/* Modals */}
       {open && (
         <AddEditContact
           open={open}
@@ -456,6 +564,6 @@ const handlesearchChange = (columnKey, value = null) => {
           loder={loder}
         />
       )}
-    </>
+    </Box>
   );
 }

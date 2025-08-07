@@ -186,7 +186,7 @@ export default function EstimateList({ listdata }) {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
 
       <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
         <div className="d-flex gap-3 invoice-new">

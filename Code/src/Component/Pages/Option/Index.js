@@ -228,7 +228,7 @@ export default function Index() {
 
   return (
     <>
-    {loder && <ApiLoder/>}
+    <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Options" />
         <div className="body_content">

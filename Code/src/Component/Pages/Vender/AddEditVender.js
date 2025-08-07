@@ -6,7 +6,23 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { ErrorMessage, FormatPhoneNumber, SuccessMessage } from "../../../helpers/common";
 import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Button, Stack } from "@mui/material";
+import { 
+  Button, 
+  Stack, 
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  IconButton,
+  Typography,
+  Box,
+  Grid,
+  useTheme,
+  useMediaQuery,
+  Divider,
+  Paper,
+} from "@mui/material";
+import { Close } from "@mui/icons-material";
 import Allstate from "../../../helpers/Allstate";
 
 const AddEditVender = ({
@@ -35,6 +51,8 @@ const AddEditVender = ({
   const [loader, setLoader] = useState(false);
   const simpleValidator = useRef(new SimpleReactValidator());
   const [, forceUpdate] = useState();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
  
 
@@ -109,269 +127,364 @@ const AddEditVender = ({
     <>
       <Dialog
         open={open}
+        fullScreen={isMobile}
+        maxWidth="md"
+        fullWidth
         sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",
-            },
+          "& .MuiDialog-paper": {
+            borderRadius: isMobile ? 0 : '12px',
+            margin: isMobile ? 0 : 2,
+            maxHeight: isMobile ? '100vh' : 'calc(100vh - 64px)',
+            width: isMobile ? '100vw' : 'auto',
           },
         }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby="vendor-dialog-title"
       >
-        <div
-          className="modal fade show"
-          id="contactModal"
-          tabIndex={-1}
-          aria-labelledby="exampleModalLabel"
-          aria-modal="true"
-          role="dialog"
-          style={{ display: "block", backgroundColor: "#00000080" }}
+        <DialogTitle 
+          id="vendor-dialog-title"
+          sx={{
+            backgroundColor: '#f8fafc',
+            borderBottom: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            py: { xs: 2, sm: 3 },
+            px: { xs: 2, sm: 3 },
+          }}
         >
-          <div className="modal-dialog modal-dialog-centered filter_modal">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title" id="exampleModalLabel">
-                  {action === "add" ? "Add Vendor" : "Update Vendor"}
-                </h1>
-                <i
-                  className="icofont-close btn-close"
-                  onClick={() => {
-                    setValue(defaultState);
-                    handleclose();
-                    simpleValidator.current.hideMessages();
-                    forceUpdate();
+          <Typography 
+            variant="h5" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              color: '#1e293b',
+            }}
+          >
+            {action === "add" ? "Add Vendor" : "Update Vendor"}
+          </Typography>
+          <IconButton
+            onClick={() => {
+              setValue(defaultState);
+              handleclose();
+              simpleValidator.current.hideMessages();
+              forceUpdate();
+            }}
+            sx={{ 
+              color: '#64748b',
+              '&:hover': { backgroundColor: '#f1f5f9' },
+            }}
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        <form onSubmit={VendorAddUpdate}>
+          <DialogContent 
+            sx={{ 
+              p: { xs: 2, sm: 3 },
+              maxHeight: 'calc(100vh - 200px)',
+              overflowY: 'auto',
+            }}
+          >
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="Company Name"
+                  placeholder="Enter Company Name"
+                  name="companyName"
+                  value={value.companyName}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  required
+                  error={!!simpleValidator.current.message("Company Name", value?.companyName, "required")}
+                  helperText={simpleValidator.current.message("Company Name", value?.companyName, "required")}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
                   }}
-                ></i>
-              </div>
-              <form onSubmit={VendorAddUpdate}>
-                <div className="modal-body modale-scroll">
-                  <div className="form-design">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Company Name"}
-                            placeholderName={"Enter Company Name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"companyName"}
-                            name={"companyName"}
-                            value={value.companyName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Company Name",
-                              value?.companyName,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"First Name"}
-                            placeholderName={"Enter First Name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"firstName"}
-                            name={"firstName"}
-                            value={value.firstName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "First Name",
-                              value?.firstName,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Last Name"}
-                            placeholderName={"Enter Last Name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"lastName"}
-                            name={"lastName"}
-                            value={value.lastName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Last Name",
-                              value?.lastName,
-                              "required"
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Email"}
-                            placeholderName={"Enter Email"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"email"}
-                            name={"email"}
-                            value={value.email}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Email",
-                              value?.email,
-                              `required|email|max:50`
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  placeholder="Enter First Name"
+                  name="firstName"
+                  value={value.firstName}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  required
+                  error={!!simpleValidator.current.message("First Name", value?.firstName, "required")}
+                  helperText={simpleValidator.current.message("First Name", value?.firstName, "required")}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  placeholder="Enter Last Name"
+                  name="lastName"
+                  value={value.lastName}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  required
+                  error={!!simpleValidator.current.message("Last Name", value?.lastName, "required")}
+                  helperText={simpleValidator.current.message("Last Name", value?.lastName, "required")}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  placeholder="Enter Email"
+                  type="email"
+                  name="email"
+                  value={value.email}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  required
+                  error={!!simpleValidator.current.message("Email", value?.email, "required|email|max:50")}
+                  helperText={simpleValidator.current.message("Email", value?.email, "required|email|max:50")}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
 
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Phone Number"}
-                            placeholderName={"Enter Phone Number"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"phoneNumber"}
-                            name={"phoneNumber"}
-                            value={FormatPhoneNumber(value.phoneNumber||"")}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Phone Number",
-                              value?.phoneNumber,
-                              `required|integer|min:10|max:10`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Street Address"}
-                            placeholderName={"Enter Street Address"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"streetAddress"}
-                            name={"streetAddress"}
-                            value={value.streetAddress}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <label className="font-14">
-                            State
-                          </label>
-                          <Allstate
-                            name="stateId"
-                            value={value.stateId || ""}
-                            fn={handleChange}
-                            load={action}
-                          />
-                          {/* <InputField
-                            labelName={"State"}
-                            placeholderName={"Enter State"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"state"}
-                            name={"state"}
-                            value={value.state}
-                            required={true}
-                          /> */}
-                        
-                        </div>
-                      </div>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="Phone Number"
+                  placeholder="Enter Phone Number"
+                  name="phoneNumber"
+                  value={FormatPhoneNumber(value.phoneNumber||"")}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  required
+                  error={!!simpleValidator.current.message("Phone Number", value?.phoneNumber, "required|integer|min:10|max:10")}
+                  helperText={simpleValidator.current.message("Phone Number", value?.phoneNumber, "required|integer|min:10|max:10")}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="Street Address"
+                  placeholder="Enter Street Address"
+                  name="streetAddress"
+                  value={value.streetAddress}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
 
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"City"}
-                            placeholderName={"Enter City"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"city"}
-                            name={"city"}
-                            value={value.city}
-                          />
-                        </div>
-                      </div>
+              <Grid item xs={12} sm={6} md={4}>
+                  <Allstate
+                    name="stateId"
+                    value={value.stateId || ""}
+                    fn={handleChange}
+                    load={action}
+                  />
+              </Grid>
 
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"ZipCode"}
-                            placeholderName={"Enter ZipCode"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"zipCode"}
-                            name={"zipCode"}
-                            value={value.zipCode}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "zipCode",
-                              value?.zipCode,
-                              `integer|min:5|max:6`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="City"
+                  placeholder="Enter City"
+                  name="city"
+                  value={value.city}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
 
-                <div className="modal-footer">
-                  <Stack 
-                    direction="row" 
-                    spacing={2} 
-                    justifyContent="flex-end" 
-                    alignItems="center"
-                    sx={{ padding: '16px 24px' }}
-                  >
-                    <Button
-                      variant="text"
-                      color="primary"
-                      onClick={() => {
-                        setValue(defaultState);
-                        handleclose();
-                        simpleValidator.current.hideMessages();
-                        forceUpdate();
-                      }}
-                      sx={{
-                        textTransform: 'none',
-                        textDecoration: 'underline',
-                        fontWeight: 500,
-                        '&:hover': {
-                          textDecoration: 'underline',
-                          backgroundColor: 'transparent'
-                        }
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <SubmitButton
-                      type="submit"
-                      buttonName={action === "add" ? "Submit" : "Update"}
-                      disabled={loader}
-                      loading={loader}
-                    />
-                  </Stack>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  label="ZipCode"
+                  placeholder="Enter ZipCode"
+                  name="zipCode"
+                  value={value.zipCode}
+                  onChange={handleChange}
+                  size={isMobile ? "small" : "medium"}
+                  error={!!simpleValidator.current.message("zipCode", value?.zipCode, "integer|min:5|max:6")}
+                  helperText={simpleValidator.current.message("zipCode", value?.zipCode, "integer|min:5|max:6")}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&.Mui-focused': {
+                        color: '#3b82f6',
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+
+          <Divider />
+          
+          <DialogActions sx={{ p: { xs: 2, sm: 3 } }}>
+            <Button
+              variant="text"
+              color="primary"
+              onClick={() => {
+                setValue(defaultState);
+                handleclose();
+                simpleValidator.current.hideMessages();
+                forceUpdate();
+              }}
+              sx={{
+                textTransform: 'none',
+                textDecoration: 'underline',
+                fontWeight: 500,
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                '&:hover': {
+                  textDecoration: 'underline',
+                  backgroundColor: 'transparent'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+            <SubmitButton
+              type="submit"
+              buttonName={action === "add" ? "Submit" : "Update"}
+              disabled={loader}
+              loading={loader}
+            />
+          </DialogActions>
+        </form>
       </Dialog>
     </>
   );

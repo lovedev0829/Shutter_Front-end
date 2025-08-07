@@ -14,7 +14,9 @@ import {
   TableRow,
   TablePagination,
   CircularProgress,
-  Stack
+  Stack,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import TableTitle from "../../Form/TableTitle";
 import Search from "../../Form/Search";
@@ -26,6 +28,9 @@ import { defaultConfig } from "../../../config";
 import ExportFile from "../../../helpers/ExportFile";
 
 export default function TaxReport() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
@@ -85,18 +90,32 @@ export default function TaxReport() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       
-      <Paper sx={{ width: '100%', mb: 3 }}>
-        <Box sx={{ p: 3 }}>
+      <Paper sx={{ 
+        width: '100%', 
+        mb: { xs: 1, md: 3 },
+        mx: { xs: 0, md: 0 },
+        borderRadius: { xs: 1, md: 2 }
+      }}>
+        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
           {/* Header Section */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between', 
+            alignItems: { xs: 'flex-start', sm: 'center' }, 
+            mb: { xs: 2, md: 3 },
+            gap: { xs: 1, sm: 0 }
+          }}>
             <Typography 
-              variant="h5" 
+              variant={isMobile ? "h6" : "h5"}
               component="h2" 
               sx={{ 
                 fontWeight: 600,
-                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' },
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                lineHeight: 1.2
               }}
             >
               All Tax Report
@@ -106,55 +125,86 @@ export default function TaxReport() {
               sx={{ 
                 color: 'success.main', 
                 fontWeight: 500,
+                fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
                 fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
               }}
             >
-              Total Number Of All Tax Report: {paginatedItems}
+              Total: {paginatedItems}
             </Typography>
           </Box>
 
           {/* Filters Section */}
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
-            <Box sx={{ flexGrow: 1 }}>
+          <Stack 
+            direction={{ xs: 'column', md: 'row' }} 
+            spacing={{ xs: 1.5, md: 2 }} 
+            sx={{ mb: { xs: 2, md: 3 } }}
+          >
+            <Box sx={{ flexGrow: 1, order: { xs: 1, md: 1 } }}>
               <Search handleSearch={handleSearch} />
             </Box>
 
-            <ExportFile
-              type="tax"
-              serach={search}
-              page={page}
-              perpage={rowsPerPage}
-              status={"2"}
-              Url={apiUrls.ExportContacts}
-            />
+            <Box sx={{ order: { xs: 2, md: 2 } }}>
+              <ExportFile
+                type="tax"
+                serach={search}
+                page={page}
+                perpage={rowsPerPage}
+                status={"2"}
+                Url={apiUrls.ExportContacts}
+              />
+            </Box>
           </Stack>
 
           {/* Table Section */}
-          <TableContainer>
-            <Table>
+          <TableContainer sx={{ 
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': {
+              height: 8,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'grey.100',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'grey.400',
+              borderRadius: 4,
+            },
+          }}>
+            <Table sx={{ minWidth: { xs: 500, md: 'auto' } }}>
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ 
                     fontWeight: 600,
-                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                    fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                    py: { xs: 1, md: 2 },
+                    px: { xs: 1, md: 2 }
                   }}>
                     Estimation Code
                   </TableCell>
                   <TableCell sx={{ 
                     fontWeight: 600,
-                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                    fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                    py: { xs: 1, md: 2 },
+                    px: { xs: 1, md: 2 }
                   }}>
                     Job Code
                   </TableCell>
                   <TableCell sx={{ 
                     fontWeight: 600,
-                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                    fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                    py: { xs: 1, md: 2 },
+                    px: { xs: 1, md: 2 }
                   }}>
                     Contact Name
                   </TableCell>
                   <TableCell align="right" sx={{ 
                     fontWeight: 600,
-                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                    fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                    py: { xs: 1, md: 2 },
+                    px: { xs: 1, md: 2 }
                   }}>
                     Tax Amount
                   </TableCell>
@@ -163,16 +213,36 @@ export default function TaxReport() {
               <TableBody>
                 {tenantList?.map((val, i) => (
                   <TableRow key={i} hover>
-                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                    <TableCell sx={{ 
+                      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                      fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                      py: { xs: 1, md: 2 },
+                      px: { xs: 1, md: 2 }
+                    }}>
                       {val?.estimateCode}
                     </TableCell>
-                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                    <TableCell sx={{ 
+                      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                      fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                      py: { xs: 1, md: 2 },
+                      px: { xs: 1, md: 2 }
+                    }}>
                       {val?.jobDetails?.jobUniqueId}
                     </TableCell>
-                    <TableCell sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                    <TableCell sx={{ 
+                      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                      fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                      py: { xs: 1, md: 2 },
+                      px: { xs: 1, md: 2 }
+                    }}>
                       {val?.jobDetails?.firstName + " " + val?.jobDetails?.lastName + " " + (val?.jobDetails?.suffix ?? "")}
                     </TableCell>
-                    <TableCell align="right" sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}>
+                    <TableCell align="right" sx={{ 
+                      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                      fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' },
+                      py: { xs: 1, md: 2 },
+                      px: { xs: 1, md: 2 }
+                    }}>
                       {defaultConfig.currencySign} {val?.tax}
                     </TableCell>
                   </TableRow>
@@ -180,18 +250,24 @@ export default function TaxReport() {
 
                 {(!tenantList || tenantList?.length === 0) && (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" sx={{ py: 8 }}>
+                    <TableCell colSpan={4} align="center" sx={{ py: { xs: 4, md: 8 } }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <img
                           src="/image/no-records.svg"
                           alt="No records"
                           loading="lazy"
-                          style={{ width: 120, marginBottom: 16 }}
+                          style={{ 
+                            width: isMobile ? 80 : 120, 
+                            marginBottom: isMobile ? 8 : 16 
+                          }}
                         />
                         <Typography 
                           variant="body2" 
                           color="text.secondary"
-                          sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}
+                          sx={{ 
+                            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                            fontSize: { xs: '0.75rem', sm: '0.8125rem', md: '0.875rem' }
+                          }}
                         >
                           No Tax Report
                         </Typography>
@@ -214,12 +290,25 @@ export default function TaxReport() {
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               sx={{
+                mt: { xs: 1, md: 0 },
                 '& .MuiTablePagination-toolbar': {
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontSize: { xs: '0.75rem', md: '0.875rem' },
+                  px: { xs: 1, md: 2 },
+                  minHeight: { xs: 48, md: 52 },
                 },
                 '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
                   fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-                }
+                  fontSize: { xs: '0.75rem', md: '0.875rem' },
+                },
+                '& .MuiTablePagination-select': {
+                  fontSize: { xs: '0.75rem', md: '0.875rem' },
+                },
+                '& .MuiTablePagination-actions': {
+                  '& button': {
+                    fontSize: { xs: '0.75rem', md: '0.875rem' },
+                  },
+                },
               }}
             />
           )}

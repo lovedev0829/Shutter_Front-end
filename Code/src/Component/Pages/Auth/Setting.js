@@ -161,7 +161,7 @@ const Setting = () => {
 
   return (
     <div className="intersight_content">
-      {loader && <ApiLoder />}
+      <ApiLoder open={loader} />
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header title="Setting" />
         

@@ -5,7 +5,8 @@ import {
   MenuItem, 
   Typography, 
   Box,
-  CircularProgress
+  CircularProgress,
+  InputLabel
 } from '@mui/material';
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
@@ -61,10 +62,17 @@ export default function Allstate({ value = "", fn, load, name = "" }) {
             '&.Mui-disabled': {
               backgroundColor: 'action.disabledBackground',
             }
+          },
+          '& .MuiInputLabel-root': {
+            fontSize: '14px',
+            '&.Mui-focused': {
+              color: 'primary.main',
+            }
           }
         }}
       >
         <Select
+          labelId="state-select-label"
           value={value}
           name={name}
           onChange={(e) => {

@@ -334,16 +334,19 @@ const DynamicTable = ({
                       >
                         {col.label || col.key}
                       </Typography>
-                      <Typography
-                        variant="body2"
+                      <Box
                         sx={{
                           mt: 0.5,
                           fontSize: '0.875rem',
-                          lineHeight: 1.4
+                          lineHeight: 1.4,
+                          '& .MuiTypography-root': {
+                            fontSize: 'inherit',
+                            lineHeight: 'inherit'
+                          }
                         }}
                       >
                         {cellContent}
-                      </Typography>
+                      </Box>
                     </Box>
                   );
                 })}

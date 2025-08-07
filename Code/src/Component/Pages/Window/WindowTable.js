@@ -229,7 +229,7 @@ function WindowTable({ listdata }) {
   
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Typography 
           variant="h5" 

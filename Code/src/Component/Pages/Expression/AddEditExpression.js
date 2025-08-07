@@ -504,7 +504,7 @@ const updatedChips = [...clickedChips];
                                 )}
                               </div>
                             </div>
-                            {chipshow && <ApiLoder />}
+                            <ApiLoder open={chipshow} />
                           </div>
                           <div className="option-scroll col-lg-12">
                             <div className="filter_jobs">

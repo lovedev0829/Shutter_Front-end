@@ -174,7 +174,7 @@ export default function AllOrderList() {
 
   return (
     <div className="intersight_content">
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Header title="All Orders" />
       <div className="body_content">
         <div className="contact-profile">

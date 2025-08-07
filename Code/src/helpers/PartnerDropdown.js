@@ -3,44 +3,6 @@ import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 import { SelectBoxLoader } from "./common";
 import { FormControl, Select, MenuItem, InputLabel, CircularProgress, Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
-
-const StyledFormControl = styled(FormControl)(({ theme }) => ({
-  minWidth: 200,
-  position: 'relative',
-  '& .MuiOutlinedInput-root': {
-    backgroundColor: '#fff',
-    borderRadius: theme.spacing(1),
-    '&:hover': {
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: theme.palette.primary.main,
-      },
-    },
-    '&.Mui-focused': {
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: theme.palette.primary.main,
-      },
-    },
-  },
-  '& .MuiInputBase-input': {
-    padding: '10px 12px', 
-    fontSize: '14px',
-  },
-}));
-
-const LoadingOverlay = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  zIndex: 1,
-  borderRadius: theme.spacing(1),
-}));
 
 export default function PartnerDropdown({ value = "", fn }) {
   const [countryList, setCountryList] = useState([]);
@@ -74,11 +36,50 @@ export default function PartnerDropdown({ value = "", fn }) {
   }, []);
 
   return (
-    <StyledFormControl size="small" variant="outlined">
+    <FormControl 
+      fullWidth 
+      size="small" 
+      variant="outlined"
+      sx={{
+        position: 'relative',
+        '& .MuiOutlinedInput-root': {
+          backgroundColor: '#fff',
+          borderRadius: 1,
+          '&:hover': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'primary.main',
+            },
+          },
+          '&.Mui-focused': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'primary.main',
+            },
+          },
+        },
+        '& .MuiInputBase-input': {
+          padding: '10px 12px', 
+          fontSize: '14px',
+        },
+      }}
+    >
       {show && (
-        <LoadingOverlay>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 1,
+            borderRadius: 1,
+          }}
+        >
           <CircularProgress size={20} />
-        </LoadingOverlay>
+        </Box>
       )}
       <InputLabel id="partner-select-label">Partner</InputLabel>
       <Select
@@ -98,7 +99,7 @@ export default function PartnerDropdown({ value = "", fn }) {
           </MenuItem>
         ))}
       </Select>
-    </StyledFormControl>
+    </FormControl>
   );
 }
 

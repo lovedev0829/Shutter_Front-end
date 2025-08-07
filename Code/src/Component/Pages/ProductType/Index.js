@@ -170,7 +170,7 @@ export default function Index() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Product Type" />
         <div className="body_content">

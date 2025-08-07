@@ -23,7 +23,13 @@ import {
   Typography,
   Box,
   Chip,
-  Link as MuiLink
+  Link as MuiLink,
+  Grid,
+  Card,
+  CardContent,
+  useTheme,
+  useMediaQuery,
+  Container
 } from '@mui/material';
 
 export default function Index() {
@@ -88,17 +94,28 @@ export default function Index() {
     return result;
   }, {});
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <>
-      {loder && <ApiLoder />}
-      <div className="intersight_content">
+      <ApiLoder open={loder} />
+      <Box className="intersight_content">
         <Header title="Estimate Cost Break Down" />
-        <div className="body_content">
-          <div className="contact-profile">
-            <div className="d-flex align-items-center justify-content-between mb-30">
+        <Box className="body_content" sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+          <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 } }}>
+            <Box 
+              display="flex" 
+              justifyContent="space-between" 
+              alignItems={isMobile ? "flex-start" : "center"}
+              flexDirection={isMobile ? "column" : "row"}
+              gap={2}
+              mb={3}
+            >
               <TableTitle title="Breakdown List" />
               {tenantList?.length !== 0 && (
-                <div className="heading_width_search d-flex align-items-center gap-3">
+                <Box>
                   <ExportFile
                     type="breakdown"
                     serach={""}
@@ -117,49 +134,81 @@ export default function Index() {
                       filter.windowProdcutId ? "" : filter.EstimationId
                     }
                   />
-                </div>
+                </Box>
               )}
-            </div>
+            </Box>
 
-            <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-              <div className="filter-dropdown dropdown">
-                <ContactBreakdown
-                  value={filter.ContactName}
-                  fn={handleChange}
-                />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <ContactUniqueIdBreakdown
-                  value={filter.contactUniqueId}
-                  fn={handleChange}
-                  ContactId={filter.ContactName}
-                />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <ContactJobBreakdown
-                  value={filter.JobId}
-                  fn={handleChange}
-                  ContactId={filter.contactUniqueId}
-                />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <ContactEstimatioBreakdown
-                  value={filter.EstimationId}
-                  fn={handleChange}
-                  JobId={filter.JobId}
-                />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <GetProductBreakdown
-                  value={filter.windowProdcutId}
-                  fn={handleChange}
-                  EstimationId={filter.EstimationId}
-                />
-              </div>
-            </div>
+            <Card 
+              sx={{ 
+                mb: 3, 
+                borderRadius: 2,
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                border: '1px solid #e3f2fd'
+              }}
+            >
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    mb: 2, 
+                    fontSize: isMobile ? '1rem' : '1.1rem',
+                    fontWeight: 600,
+                    color: 'text.primary'
+                  }}
+                >
+                  Filter Options
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Box sx={{ minHeight: { xs: 'auto', sm: '56px' } }}>
+                      <ContactBreakdown
+                        value={filter.ContactName}
+                        fn={handleChange}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Box sx={{ minHeight: { xs: 'auto', sm: '56px' } }}>
+                      <ContactUniqueIdBreakdown
+                        value={filter.contactUniqueId}
+                        fn={handleChange}
+                        ContactId={filter.ContactName}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Box sx={{ minHeight: { xs: 'auto', sm: '56px' } }}>
+                      <ContactJobBreakdown
+                        value={filter.JobId}
+                        fn={handleChange}
+                        ContactId={filter.contactUniqueId}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Box sx={{ minHeight: { xs: 'auto', sm: '56px' } }}>
+                      <ContactEstimatioBreakdown
+                        value={filter.EstimationId}
+                        fn={handleChange}
+                        JobId={filter.JobId}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={2.4}>
+                    <Box sx={{ minHeight: { xs: 'auto', sm: '56px' } }}>
+                      <GetProductBreakdown
+                        value={filter.windowProdcutId}
+                        fn={handleChange}
+                        EstimationId={filter.EstimationId}
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
 
             {Object.entries(groupedData).map(([key, items]) => (
-              <Box key={key} sx={{ mb: 4, width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+              <Box key={key} sx={{ mb: 4, width: '100%' }}>
                 <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Typography
                     variant="h6"
@@ -168,13 +217,14 @@ export default function Index() {
                       color: '#2c3e50',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 1
+                      gap: 1,
+                      fontSize: isMobile ? '1rem' : '1.25rem'
                     }}
                   >
                     <Box
                       sx={{
-                        width: 4,
-                        height: 24,
+                        width: isMobile ? 3 : 4,
+                        height: isMobile ? 20 : 24,
                         backgroundColor: '#1976d2',
                         borderRadius: '2px'
                       }}
@@ -183,59 +233,88 @@ export default function Index() {
                   </Typography>
                 </Box>
                 
-                <TableContainer 
-                  component={Paper} 
-                  sx={{
-                    borderRadius: '12px',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-                    overflowX: 'auto',
-                    overflowY: 'hidden',
-                    border: '1px solid #e3f2fd',
-                    maxHeight: '70vh',
-                    width: '100%',
-                    maxWidth: 'calc(100vw - 300px)', // Account for sidebar
-                    display: 'block',
-                    '&::-webkit-scrollbar': {
-                      height: '8px',
-                      width: '8px',
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      backgroundColor: '#f1f5f9',
-                      borderRadius: '4px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: '#cbd5e1',
-                      borderRadius: '4px',
-                      '&:hover': {
-                        backgroundColor: '#94a3b8',
+                <Box sx={{ 
+                  overflowX: 'auto',
+                  width: '100%',
+                  ...(isMobile && {
+                    marginLeft: '-16px',
+                    marginRight: '-16px',
+                    width: 'calc(100vw - 32px)',
+                    maxWidth: 'calc(100vw - 32px)',
+                  })
+                }}>
+                  <TableContainer 
+                    component={Paper} 
+                    sx={{
+                      borderRadius: isMobile ? '0px' : '12px',
+                      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                      border: '1px solid #e3f2fd',
+                      maxHeight: isMobile ? '60vh' : '70vh',
+                      width: '100%',
+                      minWidth: isMobile ? '800px' : 'auto',
+                      '&::-webkit-scrollbar': {
+                        height: '8px',
+                        width: '8px',
                       },
-                    },
-                  }}
-                >
-                  <Table sx={{ minWidth: '100%', width: 'max-content', tableLayout: 'auto' }}>
+                      '&::-webkit-scrollbar-track': {
+                        backgroundColor: '#f1f5f9',
+                        borderRadius: '4px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: '#cbd5e1',
+                        borderRadius: '4px',
+                        '&:hover': {
+                          backgroundColor: '#94a3b8',
+                        },
+                      },
+                    }}
+                  >
+                  <Table 
+                    sx={{ 
+                      minWidth: isMobile ? 800 : '100%', 
+                      width: isMobile ? 'max-content' : '100%', 
+                      tableLayout: 'auto'
+                    }}
+                  >
                     <TableHead>
                       <TableRow
                         sx={{
                           backgroundColor: '#f8fafc',
                           '& .MuiTableCell-head': {
                             fontWeight: 600,
-                            fontSize: '0.875rem',
+                            fontSize: isMobile ? '0.75rem' : '0.875rem',
                             color: '#475569',
                             borderBottom: '2px solid #e2e8f0',
-                            padding: '16px 12px',
+                            padding: isMobile ? '12px 8px' : '16px 12px',
                           }
                         }}
                       >
-                        <TableCell sx={{ minWidth: 120, position: 'sticky', left: 0, backgroundColor: '#f8fafc', zIndex: 3 }}>Product Type</TableCell>
-                        <TableCell sx={{ minWidth: 150, position: 'sticky', left: 120, backgroundColor: '#f8fafc', zIndex: 3 }}>Product</TableCell>
-                        <TableCell align="center" sx={{ minWidth: 100 }}>Window Qty</TableCell>
-                        <TableCell align="center" sx={{ minWidth: 80 }}>Width</TableCell>
-                        <TableCell align="center" sx={{ minWidth: 80 }}>Height</TableCell>
+                        <TableCell sx={{ 
+                          minWidth: isMobile ? 100 : 120, 
+                          position: 'sticky', 
+                          left: 0, 
+                          backgroundColor: '#f8fafc', 
+                          zIndex: 3 
+                        }}>
+                          Product Type
+                        </TableCell>
+                        <TableCell sx={{ 
+                          minWidth: isMobile ? 120 : 150, 
+                          position: 'sticky', 
+                          left: isMobile ? 100 : 120, 
+                          backgroundColor: '#f8fafc', 
+                          zIndex: 3 
+                        }}>
+                          Product
+                        </TableCell>
+                        <TableCell align="center" sx={{ minWidth: isMobile ? 80 : 100 }}>Window Qty</TableCell>
+                        <TableCell align="center" sx={{ minWidth: isMobile ? 60 : 80 }}>Width</TableCell>
+                        <TableCell align="center" sx={{ minWidth: isMobile ? 60 : 80 }}>Height</TableCell>
 
                         {items?.map(
                           (vals, ind) =>
                             vals.componentId && (
-                              <TableCell key={ind} align="center" sx={{ minWidth: 120 }}>
+                              <TableCell key={ind} align="center" sx={{ minWidth: isMobile ? 100 : 120 }}>
                                 <MuiLink
                                   component={Link}
                                   to={`/component/detail/${vals.componentId}`}
@@ -243,7 +322,7 @@ export default function Index() {
                                     color: '#1976d2',
                                     textDecoration: 'none',
                                     fontWeight: 500,
-                                    fontSize: '0.875rem',
+                                    fontSize: isMobile ? '0.75rem' : '0.875rem',
                                     '&:hover': {
                                       textDecoration: 'underline',
                                     }
@@ -261,17 +340,23 @@ export default function Index() {
                               a.optionName.localeCompare(b.optionName)
                             )
                             .map((opt, idx) => (
-                              <TableCell key={idx} align="center" sx={{ minWidth: 140 }}>
+                              <TableCell key={idx} align="center" sx={{ minWidth: isMobile ? 110 : 140 }}>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                  <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8rem' }}>
+                                  <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                      fontWeight: 500, 
+                                      fontSize: isMobile ? '0.7rem' : '0.8rem' 
+                                    }}
+                                  >
                                     {opt.optionName}
                                   </Typography>
                                   <Chip
                                     label={opt.optionTypeName}
                                     size="small"
                                     sx={{
-                                      fontSize: '0.7rem',
-                                      height: '18px',
+                                      fontSize: isMobile ? '0.6rem' : '0.7rem',
+                                      height: isMobile ? '16px' : '18px',
                                       backgroundColor: '#e3f2fd',
                                       color: '#1976d2'
                                     }}
@@ -279,9 +364,43 @@ export default function Index() {
                                 </Box>
                               </TableCell>
                             ))}
-                        <TableCell align="right" sx={{ fontWeight: 600, minWidth: 120, position: 'sticky', right: 240, backgroundColor: '#f8fafc', zIndex: 3 }}>Sub Total</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600, minWidth: 120, position: 'sticky', right: 120, backgroundColor: '#f8fafc', zIndex: 3 }}>Over Head</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600, color: '#1976d2', minWidth: 120, position: 'sticky', right: 0, backgroundColor: '#f8fafc', zIndex: 3 }}>Total</TableCell>
+                        <TableCell align="right" sx={{ 
+                          fontWeight: 600, 
+                          minWidth: isMobile ? 90 : 120, 
+                          position: 'sticky', 
+                          right: isMobile ? 180 : 240, 
+                          backgroundColor: '#f8fafc', 
+                          zIndex: 3,
+                          fontSize: isMobile ? '0.7rem' : '0.875rem',
+                          px: isMobile ? 1 : 1.5
+                        }}>
+                          Sub Total
+                        </TableCell>
+                        <TableCell align="right" sx={{ 
+                          fontWeight: 600, 
+                          minWidth: isMobile ? 90 : 120, 
+                          position: 'sticky', 
+                          right: isMobile ? 90 : 120, 
+                          backgroundColor: '#f8fafc', 
+                          zIndex: 3,
+                          fontSize: isMobile ? '0.7rem' : '0.875rem',
+                          px: isMobile ? 1 : 1.5
+                        }}>
+                          Over Head
+                        </TableCell>
+                        <TableCell align="right" sx={{ 
+                          fontWeight: 600, 
+                          color: '#1976d2', 
+                          minWidth: isMobile ? 90 : 120, 
+                          position: 'sticky', 
+                          right: 0, 
+                          backgroundColor: '#f8fafc', 
+                          zIndex: 3,
+                          fontSize: isMobile ? '0.7rem' : '0.875rem',
+                          px: isMobile ? 1 : 1.5
+                        }}>
+                          Total
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -291,23 +410,35 @@ export default function Index() {
                             backgroundColor: '#fafbfc',
                           },
                           '& .MuiTableCell-root': {
-                            padding: '16px 12px',
+                            padding: isMobile ? '12px 8px' : '16px 12px',
                             borderBottom: '1px solid #f1f5f9',
+                            fontSize: isMobile ? '0.75rem' : '0.875rem'
                           }
                         }}
                       >
-                        <TableCell sx={{ position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 2 }}>
+                        <TableCell sx={{ 
+                          position: 'sticky', 
+                          left: 0, 
+                          backgroundColor: 'white', 
+                          zIndex: 2 
+                        }}>
                           <Chip
                             label={items[0]?.productTypeName}
                             sx={{
                               backgroundColor: '#f1f5f9',
                               color: '#475569',
                               fontWeight: 500,
-                              fontSize: '0.8rem'
+                              fontSize: isMobile ? '0.7rem' : '0.8rem',
+                              height: isMobile ? '24px' : '28px'
                             }}
                           />
                         </TableCell>
-                        <TableCell sx={{ position: 'sticky', left: 120, backgroundColor: 'white', zIndex: 2 }}>
+                        <TableCell sx={{ 
+                          position: 'sticky', 
+                          left: isMobile ? 100 : 120, 
+                          backgroundColor: 'white', 
+                          zIndex: 2 
+                        }}>
                           <MuiLink
                             component={Link}
                             to={`/products/detail/${items[0]?.productId}`}
@@ -315,7 +446,7 @@ export default function Index() {
                               color: '#1976d2',
                               textDecoration: 'none',
                               fontWeight: 500,
-                              fontSize: '0.875rem',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
                               '&:hover': {
                                 textDecoration: 'underline',
                               }
@@ -330,37 +461,44 @@ export default function Index() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              minWidth: '32px',
-                              height: '32px',
+                              minWidth: isMobile ? '28px' : '32px',
+                              height: isMobile ? '28px' : '32px',
                               backgroundColor: '#e8f5e8',
                               color: '#2e7d32',
-                              borderRadius: '8px',
-                              fontWeight: 600
+                              borderRadius: isMobile ? '6px' : '8px',
+                              fontWeight: 600,
+                              fontSize: isMobile ? '0.75rem' : '0.875rem'
                             }}
                           >
                             {items[0]?.quantity}
                           </Box>
                         </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 500 }}>
+                        <TableCell align="center" sx={{ 
+                          fontWeight: 500,
+                          fontSize: isMobile ? '0.75rem' : '0.875rem'
+                        }}>
                           {items[0]?.buildWidth}
                         </TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 500 }}>
+                        <TableCell align="center" sx={{ 
+                          fontWeight: 500,
+                          fontSize: isMobile ? '0.75rem' : '0.875rem'
+                        }}>
                           {items[0]?.buildHeight}
                         </TableCell>
                         {items?.map(
                           (vals, ind) =>
                             vals.componentId && (
-                              <TableCell key={ind} align="center" sx={{ minWidth: 120 }}>
+                              <TableCell key={ind} align="center" sx={{ minWidth: isMobile ? 100 : 120 }}>
                                 <Typography
                                   variant="body2"
                                   sx={{
                                     fontWeight: 600,
                                     color: '#059669',
                                     backgroundColor: '#ecfdf5',
-                                    padding: '4px 8px',
+                                    padding: isMobile ? '3px 6px' : '4px 8px',
                                     borderRadius: '6px',
                                     display: 'inline-block',
-                                    fontSize: '0.8rem'
+                                    fontSize: isMobile ? '0.7rem' : '0.8rem'
                                   }}
                                 >
                                   {defaultConfig.currencySign} {vals?.price}
@@ -375,31 +513,37 @@ export default function Index() {
                               a.optionName.localeCompare(b.optionName)
                             )
                             .map((opt, idx) => (
-                              <TableCell key={idx} align="center" sx={{ minWidth: 140 }}>
+                              <TableCell key={idx} align="center" sx={{ minWidth: isMobile ? 110 : 140 }}>
                                 <Typography
                                   variant="body2"
                                   sx={{
                                     fontWeight: 600,
                                     color: '#7c3aed',
                                     backgroundColor: '#f3e8ff',
-                                    padding: '4px 8px',
+                                    padding: isMobile ? '3px 6px' : '4px 8px',
                                     borderRadius: '6px',
                                     display: 'inline-block',
-                                    fontSize: '0.8rem'
+                                    fontSize: isMobile ? '0.7rem' : '0.8rem'
                                   }}
                                 >
                                   {defaultConfig.currencySign} {opt.optionPrice || 0}
                                 </Typography>
                               </TableCell>
                             ))}
-                        <TableCell align="right" sx={{ position: 'sticky', right: 240, backgroundColor: 'white', zIndex: 2 }}>
+                        <TableCell align="right" sx={{ 
+                          position: 'sticky', 
+                          right: isMobile ? 180 : 240, 
+                          backgroundColor: 'white', 
+                          zIndex: 2,
+                          px: isMobile ? 1 : 1.5
+                        }}>
                           <Typography
                             variant="body1"
                             sx={{
                               fontWeight: 600,
                               color: '#374151',
                               whiteSpace: 'nowrap',
-                              fontSize: '0.9rem'
+                              fontSize: isMobile ? '0.7rem' : '0.9rem'
                             }}
                           >
                             {defaultConfig.currencySign}{" "}
@@ -412,14 +556,20 @@ export default function Index() {
                             )?.toFixed(2)}
                           </Typography>
                         </TableCell>
-                        <TableCell align="right" sx={{ position: 'sticky', right: 120, backgroundColor: 'white', zIndex: 2 }}>
+                        <TableCell align="right" sx={{ 
+                          position: 'sticky', 
+                          right: isMobile ? 90 : 120, 
+                          backgroundColor: 'white', 
+                          zIndex: 2,
+                          px: isMobile ? 1 : 1.5
+                        }}>
                           <Typography
                             variant="body1"
                             sx={{
                               fontWeight: 600,
                               color: '#f59e0b',
                               whiteSpace: 'nowrap',
-                              fontSize: '0.9rem'
+                              fontSize: isMobile ? '0.7rem' : '0.9rem'
                             }}
                           >
                             {(
@@ -429,7 +579,13 @@ export default function Index() {
                             )?.toFixed(2)}
                           </Typography>
                         </TableCell>
-                        <TableCell align="right" sx={{ position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 2 }}>
+                        <TableCell align="right" sx={{ 
+                          position: 'sticky', 
+                          right: 0, 
+                          backgroundColor: 'white', 
+                          zIndex: 2,
+                          px: isMobile ? 1 : 1.5
+                        }}>
                           <Typography
                             variant="h6"
                             sx={{
@@ -437,10 +593,10 @@ export default function Index() {
                               color: '#1976d2',
                               whiteSpace: 'nowrap',
                               backgroundColor: '#e3f2fd',
-                              padding: '6px 10px',
-                              borderRadius: '8px',
+                              padding: isMobile ? '3px 5px' : '6px 10px',
+                              borderRadius: isMobile ? '4px' : '8px',
                               display: 'inline-block',
-                              fontSize: '0.95rem'
+                              fontSize: isMobile ? '0.7rem' : '0.95rem'
                             }}
                           >
                             {defaultConfig.currencySign}{" "}
@@ -461,14 +617,15 @@ export default function Index() {
                     </TableBody>
                   </Table>
                 </TableContainer>
+                </Box>
               </Box>
             ))}
             {(!tenantList || tenantList?.length === 0) && (
               <Paper
                 sx={{
                   textAlign: 'center',
-                  py: 8,
-                  borderRadius: '12px',
+                  py: isMobile ? 4 : 8,
+                  borderRadius: isMobile ? '8px' : '12px',
                   backgroundColor: '#fafbfc',
                   border: '2px dashed #cbd5e1'
                 }}
@@ -486,8 +643,8 @@ export default function Index() {
                     src="/image/no-records.svg"
                     alt="No records"
                     sx={{
-                      width: 120,
-                      height: 120,
+                      width: isMobile ? 80 : 120,
+                      height: isMobile ? 80 : 120,
                       opacity: 0.6
                     }}
                   />
@@ -495,7 +652,8 @@ export default function Index() {
                     variant="h6"
                     sx={{
                       color: '#64748b',
-                      fontWeight: 500
+                      fontWeight: 500,
+                      fontSize: isMobile ? '1rem' : '1.25rem'
                     }}
                   >
                     No Breakdown available
@@ -504,7 +662,9 @@ export default function Index() {
                     variant="body2"
                     sx={{
                       color: '#94a3b8',
-                      maxWidth: 400
+                      maxWidth: isMobile ? 280 : 400,
+                      fontSize: isMobile ? '0.8rem' : '0.875rem',
+                      px: isMobile ? 2 : 0
                     }}
                   >
                     Select filters above to view cost breakdown details
@@ -512,9 +672,9 @@ export default function Index() {
                 </Box>
               </Paper>
             )}
-          </div>
-        </div>
-      </div>
+          </Container>
+        </Box>
+      </Box>
     </>
   );
 }

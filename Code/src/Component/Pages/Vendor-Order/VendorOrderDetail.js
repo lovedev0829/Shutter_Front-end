@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   ApiLoder,
-  BackButton,
   Delete,
   ErrorMessage,
   HasPermission,
@@ -12,22 +11,67 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { Link, useParams } from "react-router-dom";
 import moment from "moment";
 import EditVendorMaterial from "./EditVendorMaterial";
-import Detail from "../../Form/Details";
 import { defaultConfig } from "../../../config";
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Button,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  useTheme,
+  useMediaQuery,
+  Stack,
+  Avatar,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import {
+  Edit,
+  Delete as DeleteIcon,
+  Email,
+  Business,
+  DateRange,
+  AttachMoney,
+  MoreVert,
+  Inventory,
+  ArrowBack,
+} from "@mui/icons-material";
 
 function VendorOrderDetail() {
   const { vendorId } = useParams();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+  
   const [open, setOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [action, setAction] = useState("");
   const [object, setObject] = useState("");
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
-  const TenantlistAPI = async () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [paginatedItems, setPaginatedItems] = useState(0);
+  
+  const TenantlistAPI = async (pageNo = 1, recordPerPage = 10) => {
     let query = {
       searchValue: vendorId,
-      pageNo: 1,
-      recordPerPage: 10,
+      pageNo: pageNo,
+      recordPerPage: recordPerPage,
       tenantId: "",
       status: 2,
     };
@@ -37,8 +81,10 @@ function VendorOrderDetail() {
       setLoader(false);
       if (apiResponse?.data?.isSuccess) {
         setTenantList(apiResponse?.data?.data);
+        setPaginatedItems(apiResponse?.data?.totalRecords || 0);
       } else {
         setTenantList([]);
+        setPaginatedItems(0);
         ErrorMessage(apiResponse?.data?.message);
       }
     } catch (error) {
@@ -93,321 +139,728 @@ function VendorOrderDetail() {
       setLoader(false);
     }
   };
+  
   const handleclose = () => {
     setOpen(false);
   };
+  
   useEffect(() => {
     TenantlistAPI();
     // eslint-disable-next-line
   }, []);
+  
   const handleedit = (item) => {
     setAction("edit");
     setObject({ ...item });
     setOpen(true);
+    setAnchorEl(null);
   };
+  
   const handledelclose = () => {
     setDelOpen(false);
   };
+  
   const handledelete = (item) => {
     setDelOpen(true);
     setObject(item);
+    setAnchorEl(null);
   };
+  
   const handleapi = () => {
-    TenantlistAPI();
+    TenantlistAPI(page, rowsPerPage);
     setOpen(false);
   };
 
-  const details = [
-    {
-      label: "Vendor Name",
-      value: tenantList[0]?.firstName + " " + tenantList[0]?.lastName,
-    },
-    { label: "Job Name", value: tenantList[0]?.jobName },
-    { label: "Order No", value: tenantList[0]?.orderNumber },
-    {
-      label: "Order Date",
-      value: tenantList[0]?.orderDate
-        ? moment(tenantList[0].orderDate).format("MM-DD-YYYY")
-        : "---",
-    },
-    {
-      label: "Expiry Delivery Date",
-      value: tenantList[0]?.expectedDeliveryDate
-        ? moment(tenantList[0].expectedDeliveryDate).format("MM-DD-YYYY")
-        : "---",
-    },
-    {
-      label: "Actual Delivery Date",
-      value: tenantList[0]?.actualDeliveryDate
-        ? moment(tenantList[0].actualDeliveryDate).format("MM-DD-YYYY")
-        : "---",
-    },
-    { label: "Status", value: tenantList[0]?.vendorOrderStatus },
-    {
-      label: "Total Cost",
-      value: `${defaultConfig.currencySign} ${tenantList[0]?.totalAmount}`,
-    },
-    { label: "Notes", value: tenantList[0]?.notes || "---" },
-  ];
+  const handleChangePage = (event, newPage) => {
+    TenantlistAPI(newPage + 1, rowsPerPage);
+    setPage(newPage + 1);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(1);
+    TenantlistAPI(1, newRowsPerPage);
+  };
+
+  // Mobile Material Card Component for materials
+  const MobileMaterialCard = ({ item, index }) => (
+    <Card 
+      sx={{ 
+        mb: 1.5, 
+        borderRadius: 2,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        border: '1px solid #e3f2fd',
+        '&:hover': {
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          transform: 'translateY(-1px)',
+        },
+        transition: 'all 0.3s ease',
+      }}
+    >
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
+              color: '#1e293b',
+            }}
+          >
+            {item?.materialName}
+          </Typography>
+          {(HasPermission("VendorOrderEdit") || HasPermission("VendorOrderDelete")) && (
+            <IconButton 
+              size="small"
+              onClick={(e) => {
+                setAnchorEl(e.currentTarget);
+                setObject(item);
+              }}
+              sx={{ 
+                color: '#64748b',
+                p: 0.5,
+                '&:hover': { backgroundColor: '#f1f5f9' }
+              }}
+            >
+              <MoreVert fontSize="small" />
+            </IconButton>
+          )}
+        </Box>
+        
+        <Grid container spacing={1}>
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+              Quantity
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                fontWeight: 500,
+                fontSize: '0.8rem',
+                color: '#1e293b',
+              }}
+            >
+              {item?.quantity}
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+              Unit Price
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                color: '#059669',
+              }}
+            >
+              {defaultConfig.currencySign} {item?.unitPrice}
+            </Typography>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <>
       {loder && <ApiLoder />}
       <div className="main_container">
         <div className="limani_body">
           <div className="intersight_content">
-            <div className="top_header d-flex align-items-center justify-content-between">
-              <h1>Vender</h1>
-            </div>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              p: { xs: 2, sm: 3 },
+              borderBottom: '1px solid #e2e8f0',
+            }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 700,
+                  fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+                  color: '#1e293b',
+                }}
+              >
+                Vendor Order
+              </Typography>
+            </Box>
             <div className="body_content">
-              <div className="contact-profile">
-                <div className="engage-tabs">
-                  <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                    <li className="nav-item" role="presentation">
-                      <Link to={"/vendors"}>
-                        <button
-                          onClick={() =>
-                            localStorage.setItem(
-                              "activeTab2",
-                              "#vendorlisttabd"
-                            )
-                          }
-                          className="nav-link "
-                          id="pills-playbook-tab"
-                          data-bs-toggle="pill"
-                          data-bs-target="#vendorlisttab"
-                          type="button"
-                          role="tab"
-                          aria-controls="pills-playbook"
-                          aria-selected="true"
-                        >
-                          <span>
-                            <svg
-                              width={20}
-                              height={22}
-                              viewBox="0 0 20 22"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M0.500031 7.85964L9.50003 13.0596C9.65205 13.1474 9.82449 13.1936 10 13.1936C10.1756 13.1936 10.348 13.1474 10.5 13.0596L19.5 7.85964C19.6512 7.77238 19.7768 7.64709 19.8646 7.49622C19.9523 7.34535 19.999 7.17415 20 6.99964C20.0007 6.82343 19.9549 6.65016 19.8671 6.49738C19.7792 6.34461 19.6526 6.21774 19.5 6.12964L10.5 0.939639C10.348 0.85187 10.1756 0.805664 10 0.805664C9.82449 0.805664 9.65205 0.85187 9.50003 0.939639L0.500031 6.12964C0.347426 6.21774 0.220812 6.34461 0.133009 6.49738C0.0452054 6.65016 -0.000669067 6.82343 3.05002e-05 6.99964C0.00108387 7.17415 0.0477894 7.34535 0.135505 7.49622C0.223221 7.64709 0.348893 7.77238 0.500031 7.85964ZM10 2.99964L17 6.99964L10 10.9996L3.00003 6.99964L10 2.99964ZM18.5 10.1696L10 14.9996L1.50003 10.1296C1.3859 10.0635 1.25981 10.0206 1.12903 10.0035C0.998253 9.98627 0.865367 9.99513 0.738027 10.0295C0.610687 10.0639 0.491408 10.1232 0.387061 10.2038C0.282714 10.2845 0.195361 10.3851 0.130031 10.4996C-0.000341877 10.7293 -0.0346082 11.0011 0.0347087 11.2559C0.104026 11.5107 0.271299 11.7277 0.500031 11.8596L9.50003 17.0596C9.65205 17.1474 9.82449 17.1936 10 17.1936C10.1756 17.1936 10.348 17.1474 10.5 17.0596L19.5 11.8596C19.7288 11.7277 19.896 11.5107 19.9654 11.2559C20.0347 11.0011 20.0004 10.7293 19.87 10.4996C19.8047 10.3851 19.7173 10.2845 19.613 10.2038C19.5087 10.1232 19.3894 10.0639 19.262 10.0295C19.1347 9.99513 19.0018 9.98627 18.871 10.0035C18.7402 10.0206 18.6142 10.0635 18.5 10.1296V10.1696ZM18.5 14.1696L10 18.9996L1.50003 14.1296C1.3859 14.0635 1.25981 14.0206 1.12903 14.0035C0.998253 13.9863 0.865367 13.9951 0.738027 14.0295C0.610687 14.0639 0.491408 14.1232 0.387061 14.2038C0.282714 14.2845 0.195361 14.3851 0.130031 14.4996C-0.000341877 14.7293 -0.0346082 15.0011 0.0347087 15.2559C0.104026 15.5107 0.271299 15.7277 0.500031 15.8596L9.50003 21.0596C9.65205 21.1474 9.82449 21.1936 10 21.1936C10.1756 21.1936 10.348 21.1474 10.5 21.0596L19.5 15.8596C19.7288 15.7277 19.896 15.5107 19.9654 15.2559C20.0347 15.0011 20.0004 14.7293 19.87 14.4996C19.8047 14.3851 19.7173 14.2845 19.613 14.2038C19.5087 14.1232 19.3894 14.0639 19.262 14.0295C19.1347 13.9951 19.0018 13.9863 18.871 14.0035C18.7402 14.0206 18.6142 14.0635 18.5 14.1296V14.1696Z"
-                                fill="#9C9BA3"
-                              />
-                            </svg>
-                          </span>
-                          Manage Vendor
-                        </button>
-                      </Link>
-                    </li>
-                    <li className="nav-item" role="presentation">
-                      <button
-                        className="nav-link active"
-                        id="pills-overview-tab"
-                        data-bs-toggle="pill"
-                        data-bs-target="#addvendortab"
-                        type="button"
-                        role="tab"
-                        aria-controls="pills-overview"
-                        aria-selected="false"
-                      >
-                        <span>
-                          <svg
-                            width={18}
-                            height={18}
-                            viewBox="0 0 18 18"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M16.3333 0.75H1.66667C1.42355 0.75 1.19039 0.846577 1.01849 1.01849C0.846577 1.19039 0.75 1.42355 0.75 1.66667V16.3333C0.75 16.5764 0.846577 16.8096 1.01849 16.9815C1.19039 17.1534 1.42355 17.25 1.66667 17.25H16.3333C16.5764 17.25 16.8096 17.1534 16.9815 16.9815C17.1534 16.8096 17.25 16.5764 17.25 16.3333V1.66667C17.25 1.42355 17.1534 1.19039 16.9815 1.01849C16.8096 0.846577 16.5764 0.75 16.3333 0.75ZM8.08333 15.4167H2.58333V9.91667H8.08333V15.4167ZM8.08333 8.08333H2.58333V2.58333H8.08333V8.08333ZM15.4167 15.4167H9.91667V9.91667H15.4167V15.4167ZM15.4167 8.08333H9.91667V2.58333H15.4167V8.08333Z"
-                              fill="#9C9BA3"
-                            />
-                          </svg>
-                        </span>
+              <Container maxWidth={false} sx={{ p: { xs: 2, sm: 3 } }}>
+                {/* Navigation & Back Button */}
+                <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+                  <Button
+                    component={Link}
+                    to="/vendors"
+                    startIcon={<ArrowBack />}
+                    sx={{
+                      color: theme.palette.primary.main,
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    Back to Vendors
+                  </Button>
+                  <Button
+                    startIcon={<Inventory />}
+                    variant="contained"
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                    }}
+                  >
                         Vendor Order
-                      </button>
-                    </li>
-                  </ul>
-                  <div className="tab-content" id="pills-tabContent">
-                    <div
-                      className="tab-pane fade "
-                      id="vendorlisttab"
-                      role="tabpanel"
-                      aria-labelledby="pills-overview-tab"
-                      tabIndex={0}
-                    ></div>
-                    <div
-                      className="tab-pane fade show active"
-                      id="addvendortab"
-                      role="tabpanel"
-                      aria-labelledby="pills-payment-tab"
-                      tabIndex={0}
-                    >
-                      <BackButton link={`/vendors`} />
-                      <div className="d-flex align-items-center justify-content-between mb-30">
-                        <h2 className="body_heading width-left-border mb-0">
+                  </Button>
+                </Stack>
+
+                {/* Header Section */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'stretch', sm: 'center' }, 
+                  justifyContent: 'space-between', 
+                  mb: { xs: 3, sm: 4 },
+                  gap: { xs: 2, sm: 0 },
+                }}>
+                  <Typography 
+                    variant="h5" 
+                    sx={{ 
+                      fontWeight: 700,
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      color: '#1e293b',
+                      borderLeft: '4px solid',
+                      borderColor: theme.palette.primary.main,
+                      pl: 2,
+                    }}
+                  >
                           Vendor Order Items
-                        </h2>
-                        <div className="heading_width_search d-flex align-items-center gap-3">
-                          {HasPermission("VendorOrderEdit") &&  <Link
-                            to="#"
-                            className="btn blue-btn small_btn"
+                  </Typography>
+                  {HasPermission("VendorOrderEdit") && (
+                    <Button
+                      variant="contained"
+                      startIcon={<Email />}
                             onClick={handlesendInvoice}
+                      sx={{
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        px: { xs: 2, sm: 3 },
+                        py: { xs: 1, sm: 1.5 },
+                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                        boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+                        '&:hover': {
+                          boxShadow: '0 6px 16px rgba(25, 118, 210, 0.25)',
+                          transform: 'translateY(-1px)',
+                        },
+                        minHeight: { xs: '44px', sm: '48px' },
+                      }}
                           >
                             Send Order
-                          </Link>}
-                        </div>
-                      </div>
-                      <div className="row">
-                        <Detail title="Vendor Detail" Data={details} />
+                    </Button>
+                  )}
+                </Box>
 
-                        <div className="col-xxl-8 col-lg-8 col-md-7 col-12">
-                          <div className="task_table mb-30">
-                            <div className="table-responsive">
-                              <table className="table">
-                                <thead>
-                                  <tr>
-                                    <th scope="col">Material Name</th>
-                                    <th scope="col">Qty</th>
-                                    <th scope="col">Unit Price</th>
-                                    <th
-                                      scope="col"
-                                      className="text-end actionheading"
+                {/* Main Content Grid */}
+                <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
+                  {/* Vendor Details Card */}
+                  <Grid item xs={12} lg={4}>
+                    <Card 
+                      sx={{ 
+                        borderRadius: 3,
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        border: '1px solid #e3f2fd',
+                        height: 'fit-content',
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: theme.palette.primary.main,
+                              width: { xs: 48, sm: 56 },
+                              height: { xs: 48, sm: 56 },
+                              mr: 2,
+                            }}
+                          >
+                            <Business fontSize={isMobile ? "medium" : "large"} />
+                          </Avatar>
+                          <Box>
+                            <Typography 
+                              variant="h6" 
+                              sx={{ 
+                                fontWeight: 700,
+                                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                                color: '#1e293b',
+                              }}
+                            >
+                              Vendor Details
+                            </Typography>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: '#64748b',
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                              }}
+                            >
+                              Order Information
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <Stack spacing={2.5}>
+                          {[
+                            {
+                              icon: <Business fontSize="small" />,
+                              label: "Vendor Name",
+                              value: `${tenantList[0]?.firstName || ''} ${tenantList[0]?.lastName || ''}`.trim() || '---',
+                            },
+                            {
+                              icon: <Inventory fontSize="small" />,
+                              label: "Job Name",
+                              value: tenantList[0]?.jobName || '---',
+                            },
+                            {
+                              icon: <DateRange fontSize="small" />,
+                              label: "Order Number",
+                              value: tenantList[0]?.orderNumber || '---',
+                            },
+                            {
+                              icon: <DateRange fontSize="small" />,
+                              label: "Order Date",
+                              value: tenantList[0]?.orderDate
+                                ? moment(tenantList[0].orderDate).format("MMM DD, YYYY")
+                                : "---",
+                            },
+                            {
+                              icon: <DateRange fontSize="small" />,
+                              label: "Expected Delivery",
+                              value: tenantList[0]?.expectedDeliveryDate
+                                ? moment(tenantList[0].expectedDeliveryDate).format("MMM DD, YYYY")
+                                : "---",
+                            },
+                            {
+                              icon: <DateRange fontSize="small" />,
+                              label: "Actual Delivery",
+                              value: tenantList[0]?.actualDeliveryDate
+                                ? moment(tenantList[0].actualDeliveryDate).format("MMM DD, YYYY")
+                                : "---",
+                            },
+                            {
+                              icon: <AttachMoney fontSize="small" />,
+                              label: "Total Cost",
+                              value: tenantList[0]?.totalAmount ? `${defaultConfig.currencySign} ${tenantList[0]?.totalAmount}` : '---',
+                            },
+                          ].map((item, index) => (
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                              <Box 
+                                sx={{ 
+                                  color: theme.palette.primary.main,
+                                  backgroundColor: theme.palette.primary.main + '10',
+                                  borderRadius: '50%',
+                                  p: 1,
+                                  minWidth: 32,
+                                  height: 32,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                {item.icon}
+                              </Box>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography 
+                                  variant="caption" 
+                                  sx={{ 
+                                    color: '#64748b',
+                                    fontWeight: 500,
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                  }}
+                                >
+                                  {item.label}
+                                </Typography>
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    color: '#1e293b',
+                                    fontWeight: item.label === 'Total Cost' ? 700 : 500,
+                                    fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                                    mt: 0.5,
+                                  }}
+                                >
+                                  {item.value}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))}
+
+                          {/* Status */}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Box 
+                              sx={{ 
+                                color: '#8b5cf6',
+                                backgroundColor: '#8b5cf610',
+                                borderRadius: '50%',
+                                p: 1,
+                                minWidth: 32,
+                                height: 32,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Business fontSize="small" />
+                            </Box>
+                            <Box sx={{ flex: 1 }}>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: '#64748b',
+                                  fontWeight: 500,
+                                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px',
+                                }}
+                              >
+                                Status
+                              </Typography>
+                              <Box sx={{ mt: 0.5 }}>
+                                <Chip
+                                  label={tenantList[0]?.vendorOrderStatus || 'Unknown'}
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: tenantList[0]?.vendorOrderStatus === 'Approved' ? '#dcfce7' : '#fef3c7',
+                                    color: tenantList[0]?.vendorOrderStatus === 'Approved' ? '#16a34a' : '#d97706',
+                                    fontWeight: 600,
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                  }}
+                                />
+                              </Box>
+                            </Box>
+                          </Box>
+
+                          {/* Notes */}
+                          {tenantList[0]?.notes && (
+                            <Box>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: '#64748b',
+                                  fontWeight: 500,
+                                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px',
+                                }}
+                              >
+                                Notes
+                              </Typography>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  color: '#475569',
+                                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                                  mt: 1,
+                                  fontStyle: 'italic',
+                                }}
+                              >
+                                {tenantList[0]?.notes}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  {/* Materials List */}
+                  <Grid item xs={12} lg={8}>
+                    <Card 
+                      sx={{ 
+                        borderRadius: 3,
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        border: '1px solid #e3f2fd',
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: '#059669',
+                              width: { xs: 40, sm: 48 },
+                              height: { xs: 40, sm: 48 },
+                              mr: 2,
+                            }}
+                          >
+                            <Inventory fontSize={isMobile ? "small" : "medium"} />
+                          </Avatar>
+                          <Box>
+                            <Typography 
+                              variant="h6" 
+                              sx={{ 
+                                fontWeight: 700,
+                                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                                color: '#1e293b',
+                              }}
+                            >
+                              Order Materials
+                            </Typography>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: '#64748b',
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                              }}
+                            >
+                              {tenantList[0]?.vendorOrderItems?.length || 0} materials
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Materials Content */}
+                        {isMobile ? (
+                          // Mobile Card View
+                          <Box>
+                            {tenantList[0]?.vendorOrderItems && tenantList[0]?.vendorOrderItems?.length > 0 ? (
+                              <Stack spacing={1.5}>
+                                {tenantList[0]?.vendorOrderItems?.map((item, index) => (
+                                  <MobileMaterialCard key={index} item={item} index={index} />
+                                ))}
+                              </Stack>
+                            ) : (
+                              <Card sx={{ p: 4, textAlign: 'center', backgroundColor: '#f8fafc' }}>
+                                <Inventory sx={{ fontSize: 48, color: '#94a3b8', mb: 2 }} />
+                                <Typography variant="h6" sx={{ color: '#64748b', fontWeight: 600, mb: 1 }}>
+                                  No materials found
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+                                  This order doesn't have any materials yet
+                                </Typography>
+                              </Card>
+                            )}
+                          </Box>
+                        ) : (
+                          // Desktop Table View
+                          <TableContainer
+                            sx={{
+                              borderRadius: '8px',
+                              border: '1px solid #e2e8f0',
+                              overflow: 'auto',
+                            }}
+                          >
+                            <Table 
+                              sx={{
+                                '& .MuiTableCell-root': {
+                                  padding: isTablet ? '8px' : '12px',
+                                  fontSize: isTablet ? '0.8rem' : '0.875rem',
+                                },
+                              }}
+                            >
+                              <TableHead>
+                                <TableRow>
+                                  {['Material Name', 'Quantity', 'Unit Price', 'Actions'].map((header) => (
+                                    <TableCell
+                                      key={header}
+                                      sx={{
+                                        backgroundColor: '#f8fafc',
+                                        fontWeight: 700,
+                                        color: '#1e293b',
+                                        borderBottom: '2px solid #e2e8f0',
+                                      }}
                                     >
-                                      Action
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {tenantList[0]?.vendorOrderItems?.map(
-                                    (item, i) => {
-                                      return (
-                                        <tr key={i}>
-                                          <td>{item?.materialName}</td>
-                                          <td>{item?.quantity}</td>
-                                          <td>
-                                            {defaultConfig.currencySign}{" "}
-                                            {item?.unitPrice}
-                                          </td>
-                                          <td className="text-end actiondescription">
-                                            <div className="company-logo-dropdown">
-                                              <div className="dropdown text-end">
-                                                {(HasPermission(
-                                                  "VendorOrderEdit"
-                                                ) ||
-                                                  HasPermission(
-                                                    "VendorOrderDelete"
-                                                  )) && (
-                                                  <>
-                                                    <button
-                                                      className="dropdown-toggle border-0 w-100 d-flex align-items-center justify-content-end"
-                                                      type="button"
-                                                      data-bs-toggle="dropdown"
-                                                      aria-expanded="false"
-                                                    >
-                                                      <img
-                                                        src="/image/three-dot.svg"
-                                                        alt=""
-                                                        loading="lazy"
-                                                      />
-                                                    </button>
-                                                    <ul className="dropdown-menu dropdown-menu-end w-100 shadow">
-                                                      {HasPermission(
-                                                        "VendorOrderEdit"
-                                                      ) && (
-                                                        <li
-                                                          onClick={() =>
-                                                            handleedit(item)
-                                                          }
-                                                        >
-                                                          <Link
-                                                            className="dropdown-item"
-                                                            to="#"
-                                                          >
-                                                            <img
-                                                              src="/image/edit 1.svg"
-                                                              alt=""
-                                                              loading="lazy"
-                                                              className="me-1"
-                                                            />
-                                                            Edit
-                                                          </Link>
-                                                        </li>
-                                                      )}
-                                                      {HasPermission(
-                                                        "VendorOrderDelete"
-                                                      ) && (
-                                                        <li
-                                                          onClick={() =>
-                                                            handledelete(item)
-                                                          }
-                                                        >
-                                                          <Link
-                                                            className="dropdown-item"
-                                                            to="#"
-                                                          >
-                                                            <img
-                                                              src="/image/delete 1.svg"
-                                                              alt=""
-                                                              loading="lazy"
-                                                              className="me-1"
-                                                            />
-                                                            Delete
-                                                          </Link>
-                                                        </li>
-                                                      )}
-                                                    </ul>
-                                                  </>
+                                      {header}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {tenantList[0]?.vendorOrderItems && tenantList[0]?.vendorOrderItems?.length > 0 ? (
+                                  tenantList[0]?.vendorOrderItems?.map((item, index) => (
+                                    <TableRow
+                                      key={index}
+                                      sx={{
+                                        '&:nth-of-type(odd)': {
+                                          backgroundColor: '#fafbfc',
+                                        },
+                                        '&:hover': {
+                                          backgroundColor: '#f1f5f9',
+                                        },
+                                        transition: 'all 0.2s ease',
+                                      }}
+                                    >
+                                      <TableCell>
+                                        <Typography 
+                                          variant="body2" 
+                                          sx={{ 
+                                            fontWeight: 600,
+                                            color: '#1e293b',
+                                          }}
+                                        >
+                                          {item?.materialName}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Typography 
+                                          variant="body2" 
+                                          sx={{ 
+                                            color: '#475569',
+                                          }}
+                                        >
+                                          {item?.quantity}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Typography 
+                                          variant="body2" 
+                                          sx={{ 
+                                            color: '#059669',
+                                            fontWeight: 600,
+                                          }}
+                                        >
+                                          {defaultConfig.currencySign} {item?.unitPrice}
+                                        </Typography>
+                                      </TableCell>
+                                      <TableCell>
+                                        <IconButton
+                                          size="small"
+                                          onClick={(e) => {
+                                            setAnchorEl(e.currentTarget);
+                                            setObject(item);
+                                          }}
+                                          sx={{
+                                            color: '#64748b',
+                                            '&:hover': {
+                                              backgroundColor: '#f1f5f9',
+                                            },
+                                          }}
+                                        >
+                                          <MoreVert fontSize="small" />
+                                        </IconButton>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))
+                                ) : (
+                                  <TableRow>
+                                    <TableCell colSpan={4} sx={{ textAlign: 'center', py: 6 }}>
+                                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                                        <Inventory sx={{ fontSize: 48, color: '#94a3b8' }} />
+                                        <Typography variant="h6" sx={{ color: '#64748b', fontWeight: 600 }}>
+                                          No materials found
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+                                          This order doesn't have any materials yet
+                                        </Typography>
+                                      </Box>
+                                    </TableCell>
+                                  </TableRow>
+                                )}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        )}
+
+                        {/* Total */}
+                        {tenantList[0]?.vendorOrderItems && tenantList[0]?.vendorOrderItems?.length > 0 && (
+                          <Box sx={{ 
+                            mt: 3, 
+                            pt: 2, 
+                            borderTop: '2px solid #e2e8f0',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                          }}>
+                            <Box sx={{ textAlign: 'right' }}>
+                              <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                  color: '#059669',
+                                  fontWeight: 700,
+                                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                                }}
+                              >
+                                Total: {defaultConfig.currencySign} {tenantList[0]?.totalAmount}
+                              </Typography>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: '#64748b',
+                                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                }}
+                              >
+                                Including all materials
+                              </Typography>
+                            </Box>
+                          </Box>
                                                 )}
-                                              </div>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      );
-                                    }
-                                  )}
-                                  {(!tenantList[0]?.vendorOrderItems ||
-                                    tenantList[0]?.vendorOrderItems?.length ===
-                                      0) && (
-                                    <tr>
-                                      <td
-                                        className="text-center border-0 no-records"
-                                        colSpan={7}
-                                      >
-                                        <img
-                                          src="/image/no-records.svg"
-                                          alt=" "
-                                          loading="lazy"
-                                          className="img-fluid"
-                                        />
-                                        <p className="font-14">
-                                          No Material Found
-                                        </p>
-                                      </td>
-                                    </tr>
-                                  )}
-                                </tbody>
-                              </table>
-                            </div>
-                            <div className="d-flex justify-content-end">
-                              <h2 className="font-14">
-                                Total Price:-{" "}
-                                <span className="color-blue">
-                                  {tenantList[0]?.totalAmount}
-                                </span>
-                              </h2>
-                            </div>
+
+                        {/* Original Pagination */}
+                        {tenantList[0]?.vendorOrderItems && tenantList[0]?.vendorOrderItems?.length > 0 && (
+                          <div className="d-flex align-items-center justify-content-end bottom_nav">
+                            <nav aria-label="Page navigation example">
+                              <ul className="pagination">
+                                <TablePagination
+                                  rowsPerPageOptions={[10, 25, 50, 100]}
+                                  component="div"
+                                  count={paginatedItems}
+                                  rowsPerPage={rowsPerPage}
+                                  page={page - 1}
+                                  onPageChange={handleChangePage}
+                                  onRowsPerPageChange={handleChangeRowsPerPage}
+                                />
+                              </ul>
+                            </nav>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Container>
             </div>
           </div>
         </div>
       </div>
-     {open && <EditVendorMaterial
+
+      {/* Action Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+        PaperProps={{
+          sx: {
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            borderRadius: 2,
+          }
+        }}
+      >
+        {HasPermission("VendorOrderEdit") && (
+          <MenuItem onClick={() => handleedit(object)}>
+            <ListItemIcon>
+              <Edit fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
+        {HasPermission("VendorOrderDelete") && (
+          <MenuItem onClick={() => handledelete(object)}>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
+
+      {/* Modals */}
+      {open && (
+        <EditVendorMaterial
         open={open}
         handleclose={handleclose}
         action={action}
@@ -417,8 +870,9 @@ function VendorOrderDetail() {
         materials={tenantList[0]?.vendorOrderItems}
         vendorId={tenantList[0]?.vendorId}
       />
-     }
-     {delOpen && <Delete
+      )}
+      {delOpen && (
+        <Delete
         open={delOpen}
         handleClose={handledelclose}
         title={object?.materialName}
@@ -426,7 +880,7 @@ function VendorOrderDetail() {
         handleDelete={handleDelete}
         loder={loder}
       />
-     }
+      )}
     </>
   );
 }

@@ -134,7 +134,7 @@ export default function PreviewEstimate() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
         {/* Header Section */}
         <Paper

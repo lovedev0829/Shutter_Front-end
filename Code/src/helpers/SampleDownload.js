@@ -10,8 +10,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   textTransform: 'none',
   fontWeight: 600,
-  maxHeight: "43px",
-  padding: theme.spacing(0.5, 2),
   fontSize: '14px',
   boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
   '&:hover': {
@@ -57,7 +55,7 @@ export default function SampleDownload({ type }) {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <StyledButton
         variant="outlined"
         onClick={postImage}

@@ -694,7 +694,7 @@ export default function Index() {
 
   return (
     <div className="intersight_content">
-      {loder > 0 && <ApiLoder />}
+      <ApiLoder open={loder > 0} />
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Header
           title={`Contacts / ${

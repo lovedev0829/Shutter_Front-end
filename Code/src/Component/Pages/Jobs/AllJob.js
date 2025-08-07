@@ -151,9 +151,11 @@ function StatusTab({ status, isActive, onClick, count = 0 }) {
         borderRadius: 2,
         textTransform: 'none',
         fontWeight: 600,
-        px: 2.5,
-        py: 1,
-        minWidth: 120,
+        px: { xs: 1.5, sm: 2.5 },
+        py: { xs: 0.75, sm: 1 },
+        minWidth: { xs: 'auto', sm: 120 },
+        width: { xs: '100%', sm: 'auto' },
+        fontSize: { xs: '0.8rem', sm: '0.875rem' },
         border: '1px solid',
         borderColor: isActive ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
         backgroundColor: isActive ? 'primary.main' : 'transparent',
@@ -171,12 +173,12 @@ function StatusTab({ status, isActive, onClick, count = 0 }) {
           label={count}
           size="small"
           sx={{
-            ml: 1,
-            height: 20,
+            ml: { xs: 0.5, sm: 1 },
+            height: { xs: 18, sm: 20 },
             backgroundColor: isActive ? alpha(theme.palette.primary.contrastText, 0.2) : alpha(theme.palette.primary.main, 0.1),
             color: isActive ? 'primary.contrastText' : 'primary.main',
             fontWeight: 600,
-            fontSize: '0.75rem',
+            fontSize: { xs: '0.7rem', sm: '0.75rem' },
           }}
         />
       )}
@@ -192,20 +194,27 @@ function EnhancedTableCell({ column, filter, onSort, onFilter }) {
     <TableCell
       sx={{
         fontWeight: 700,
-        fontSize: '0.875rem',
+        fontSize: { xs: '0.75rem', sm: '0.875rem' },
         color: 'text.primary',
         backgroundColor: alpha(theme.palette.primary.main, 0.04),
         borderBottom: '2px solid',
         borderBottomColor: 'primary.main',
         whiteSpace: 'nowrap',
         position: 'relative',
-        py: 2,
+        py: { xs: 1, sm: 2 },
+        px: { xs: 1, sm: 2 },
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {/* Header with sort */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              fontWeight: 700,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
             {column.label}
           </Typography>
           
@@ -245,11 +254,11 @@ function EnhancedTableCell({ column, filter, onSort, onFilter }) {
               ),
             }}
             sx={{
-              minWidth: 120,
+              minWidth: { xs: 80, sm: 120 },
               '& .MuiOutlinedInput-root': {
                 backgroundColor: 'background.paper',
                 borderRadius: 1.5,
-                fontSize: '0.8rem',
+                fontSize: { xs: '0.7rem', sm: '0.8rem' },
                 '& fieldset': {
                   borderColor: alpha(theme.palette.divider, 0.5),
                 },
@@ -261,8 +270,8 @@ function EnhancedTableCell({ column, filter, onSort, onFilter }) {
                 },
               },
               '& .MuiInputBase-input': {
-                py: 0.75,
-                px: 1,
+                py: { xs: 0.5, sm: 0.75 },
+                px: { xs: 0.75, sm: 1 },
               },
             }}
           />
@@ -557,17 +566,17 @@ export default function AllJob() {
 
   return (
     <div className="intersight_content">
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Header title="All Jobs" />
       
       <div className="body_content">
-        <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Container maxWidth="xl" sx={{ py: { xs: 1, sm: 2, md: 3 }, px: { xs: 1, sm: 2, md: 3 } }}>
           {/* Enhanced Header Section */}
           <Paper 
             elevation={0}
             sx={{ 
-              p: 4, 
-              mb: 4, 
+              p: { xs: 2, sm: 3, md: 4 }, 
+              mb: { xs: 2, md: 4 }, 
               background: alpha(theme.palette.primary.main, 0.05),
               border: '1px solid',
               borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -585,17 +594,23 @@ export default function AllJob() {
               }
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: { xs: 'flex-start', sm: 'center' }, 
+              justifyContent: 'space-between', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 2, sm: 2 }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
                 <Avatar
                   sx={{
-                    width: 56,
-                    height: 56,
+                    width: { xs: 40, sm: 48, md: 56 },
+                    height: { xs: 40, sm: 48, md: 56 },
                     backgroundColor: 'primary.main',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <WorkIcon sx={{ fontSize: 28 }} />
+                  <WorkIcon sx={{ fontSize: { xs: 20, sm: 24, md: 28 } }} />
                 </Avatar>
                 <Box>
                   <Typography 
@@ -604,6 +619,8 @@ export default function AllJob() {
                       fontWeight: 700, 
                       mb: 0.5,
                       color: 'primary.main',
+                      fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' },
+                      lineHeight: { xs: 1.3, md: 1.2 },
                     }}
                   >
                     {filter.jobStatus ? filter.jobStatus.jobStatusName : "All"} Jobs
@@ -613,6 +630,8 @@ export default function AllJob() {
                     sx={{ 
                       color: 'text.secondary',
                       fontWeight: 500,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      display: { xs: 'none', sm: 'block' },
                     }}
                   >
                     Manage and track all jobs across your organization
@@ -623,8 +642,8 @@ export default function AllJob() {
               {HasPermission("JobAdd") && (
                 <Button
                   variant="contained"
-                  size="large"
-                  startIcon={<WorkIcon />}
+                  size={window.innerWidth < 600 ? "medium" : "large"}
+                  startIcon={<WorkIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
                   onClick={() => {
                     setAction("add");
                     setOpen(true);
@@ -633,11 +652,13 @@ export default function AllJob() {
                     borderRadius: 2.5,
                     textTransform: 'none',
                     fontWeight: 700,
-                    px: 4,
-                    py: 1.5,
-                    fontSize: '1rem',
+                    px: { xs: 2, sm: 3, md: 4 },
+                    py: { xs: 1, sm: 1.2, md: 1.5 },
+                    fontSize: { xs: '0.875rem', sm: '0.95rem', md: '1rem' },
                     backgroundColor: 'primary.main',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                    minWidth: { xs: 'auto', sm: 'auto' },
+                    width: { xs: '100%', sm: 'auto' },
                     '&:hover': {
                       backgroundColor: 'primary.dark',
                       transform: 'translateY(-2px)',
@@ -656,8 +677,8 @@ export default function AllJob() {
           <Paper 
             elevation={0}
             sx={{ 
-              p: 3, 
-              mb: 3,
+              p: { xs: 2, sm: 3 }, 
+              mb: { xs: 2, md: 3 },
               border: '1px solid',
               borderColor: 'divider',
               borderRadius: 3,
@@ -665,15 +686,35 @@ export default function AllJob() {
             }}
           >
             <Box sx={{ mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: 'text.primary', 
+                  mb: 1,
+                  fontSize: { xs: '1rem', sm: '1.25rem' }
+                }}
+              >
                 Filter by Status
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: 'text.secondary',
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                  display: { xs: 'none', sm: 'block' }
+                }}
+              >
                 Select a job status to filter the results
               </Typography>
             </Box>
             
-            <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+            <Stack 
+              direction={{ xs: 'column', sm: 'row' }} 
+              spacing={{ xs: 1, sm: 2 }} 
+              flexWrap="wrap" 
+              useFlexGap
+            >
               <StatusTab
                 status={null}
                 isActive={!filter?.jobStatus?.jobStatusName}
@@ -694,8 +735,8 @@ export default function AllJob() {
           <Paper 
             elevation={0}
             sx={{ 
-              p: 3, 
-              mb: 3,
+              p: { xs: 2, sm: 3 }, 
+              mb: { xs: 2, md: 3 },
               border: '1px solid',
               borderColor: 'divider',
               borderRadius: 3,
@@ -703,21 +744,41 @@ export default function AllJob() {
             }}
           >
             <Box sx={{ mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: 'text.primary', 
+                  mb: 1,
+                  fontSize: { xs: '1rem', sm: '1.25rem' }
+                }}
+              >
                 Search & Filters
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: 'text.secondary',
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                  display: { xs: 'none', sm: 'block' }
+                }}
+              >
                 Use the controls below to search and filter jobs
               </Typography>
             </Box>
             
-            <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
-              <Box sx={{ minWidth: 250 }}>
+            <Stack 
+              direction={{ xs: 'column', sm: 'row' }} 
+              spacing={{ xs: 1.5, sm: 2 }} 
+              flexWrap="wrap" 
+              useFlexGap
+            >
+              <Box sx={{ minWidth: { xs: 'auto', sm: 200, md: 250 }, width: { xs: '100%', sm: 'auto' } }}>
                 <Search handleSearch={handleSearch} />
               </Box>
               
               {HasPermission("SubTenantView") && (
-                <Box sx={{ minWidth: 200 }}>
+                <Box sx={{ minWidth: { xs: 'auto', sm: 180, md: 200 }, width: { xs: '100%', sm: 'auto' } }}>
                   <PartnerDropdown
                     value={filter.tenantId}
                     fn={handleChanges}
@@ -725,7 +786,7 @@ export default function AllJob() {
                 </Box>
               )}
               
-              <Box sx={{ minWidth: 200 }}>
+              <Box sx={{ minWidth: { xs: 'auto', sm: 180, md: 200 }, width: { xs: '100%', sm: 'auto' } }}>
                 <GetAllContact
                   value={filter.contactId}
                   fn={handleChanges}
@@ -750,8 +811,8 @@ export default function AllJob() {
           {/* Enhanced Data Table */}
           <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
             <CardContent sx={{ p: 0 }}>
-              <TableContainer>
-                <Table stickyHeader>
+              <TableContainer sx={{ overflowX: 'auto', maxWidth: '100%' }}>
+                <Table stickyHeader sx={{ minWidth: { xs: 800, md: 1200 } }}>
                   <TableHead>
                     <TableRow>
                       {columns.map((column, i) => (
@@ -785,8 +846,10 @@ export default function AllJob() {
                           sx={{ 
                             fontWeight: 600,
                             color: job?.tenantId === user?.tenantId ? 'primary.main' : 'text.primary',
-                            py: 2,
+                            py: { xs: 1, sm: 2 },
+                            px: { xs: 1, sm: 2 },
                             whiteSpace: 'nowrap',
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
                           }}
                         >
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -795,64 +858,64 @@ export default function AllJob() {
                           </Box>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                            <PersonIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                            <Typography variant="body2" sx={{ fontWeight: 500, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                               {job?.contactFirstName + " " + job?.contactLastName + " " + (job?.suffix ?? "")}
                             </Typography>
                           </Box>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <EmailIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2">{job?.contactEmail}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                            <EmailIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                            <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.contactEmail}</Typography>
                           </Box>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2">{FormatPhoneNumber(job?.contactPhone)}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                            <PhoneIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                            <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{FormatPhoneNumber(job?.contactPhone)}</Typography>
                           </Box>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <BusinessIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2">{job?.companyName}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                            <BusinessIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                            <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.companyName}</Typography>
                           </Box>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Typography variant="body2">{job?.createdbyUsername}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.createdbyUsername}</Typography>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{job?.jobName}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.jobName}</Typography>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <LocationIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2">{job?.streetAddress}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+                            <LocationIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                            <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.streetAddress}</Typography>
                           </Box>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Typography variant="body2">{job?.city}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.city}</Typography>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Typography variant="body2">{job?.state}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.state}</Typography>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
-                          <Typography variant="body2">{job?.zipCode}</Typography>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{job?.zipCode}</Typography>
                         </TableCell>
                         
-                        <TableCell sx={{ py: 2, whiteSpace: 'nowrap' }}>
+                        <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 1, sm: 2 }, whiteSpace: 'nowrap' }}>
                           <Chip
                             label={job?.jobStatusName}
                             size="small"
@@ -860,6 +923,8 @@ export default function AllJob() {
                             sx={{
                               borderRadius: 2,
                               fontWeight: 600,
+                              fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                              height: { xs: 24, sm: 32 },
                               backgroundColor: alpha(theme.palette.primary.main, 0.08),
                               borderColor: alpha(theme.palette.primary.main, 0.3),
                               color: 'primary.main',
@@ -875,7 +940,7 @@ export default function AllJob() {
               {/* Enhanced Pagination */}
               {JobsList && JobsList?.length > 0 && (
                 <Box sx={{ 
-                  p: 2, 
+                  p: { xs: 1, sm: 2 }, 
                   borderTop: '1px solid', 
                   borderTopColor: 'divider',
                   backgroundColor: alpha(theme.palette.grey[50], 0.5)
@@ -891,9 +956,11 @@ export default function AllJob() {
                     sx={{
                       '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
                         fontWeight: 500,
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
                       },
                       '& .MuiTablePagination-select': {
                         borderRadius: 1,
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
                       },
                       '& .MuiTablePagination-actions button': {
                         borderRadius: 1,
@@ -908,22 +975,39 @@ export default function AllJob() {
 
               {/* No Data State */}
               {JobsList && JobsList?.length === 0 && !loder && (
-                <Box sx={{ p: 8, textAlign: 'center' }}>
+                <Box sx={{ p: { xs: 4, sm: 6, md: 8 }, textAlign: 'center' }}>
                   <Avatar
                     sx={{
-                      width: 120,
-                      height: 120,
+                      width: { xs: 80, sm: 100, md: 120 },
+                      height: { xs: 80, sm: 100, md: 120 },
                       backgroundColor: alpha(theme.palette.grey[400], 0.1),
                       mx: 'auto',
-                      mb: 3,
+                      mb: { xs: 2, md: 3 },
                     }}
                   >
-                    <WorkIcon sx={{ fontSize: 64, color: 'text.disabled' }} />
+                    <WorkIcon sx={{ fontSize: { xs: 40, sm: 52, md: 64 }, color: 'text.disabled' }} />
                   </Avatar>
-                  <Typography variant="h5" sx={{ color: 'text.secondary', mb: 1, fontWeight: 600 }}>
+                  <Typography 
+                    variant="h5" 
+                    sx={{ 
+                      color: 'text.secondary', 
+                      mb: 1, 
+                      fontWeight: 600,
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                    }}
+                  >
                     No Jobs Found
                   </Typography>
-                  <Typography variant="body1" sx={{ color: 'text.disabled', mb: 3, lineHeight: 1.6 }}>
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      color: 'text.disabled', 
+                      mb: { xs: 2, md: 3 }, 
+                      lineHeight: 1.6,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      px: { xs: 2, sm: 0 }
+                    }}
+                  >
                     No jobs match your current filters. Try adjusting your search criteria or create a new job.
                   </Typography>
                   {HasPermission("JobAdd") && (
@@ -938,8 +1022,9 @@ export default function AllJob() {
                         borderRadius: 2,
                         textTransform: 'none',
                         fontWeight: 600,
-                        px: 3,
-                        py: 1.2,
+                        px: { xs: 2, sm: 3 },
+                        py: { xs: 1, sm: 1.2 },
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
                       }}
                     >
                       Create Your First Job

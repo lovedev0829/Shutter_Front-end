@@ -145,7 +145,7 @@ export default function Index() {
   // selectboxdropdown
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Product Markup" />
         <div className="body_content">

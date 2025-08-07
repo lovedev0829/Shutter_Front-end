@@ -44,7 +44,6 @@ export default function RoleDropdown({ value = "", fn, load }) {
         size="small"
         sx={{
           '& .MuiOutlinedInput-root': {
-            borderRadius: 2,
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: theme.palette.primary.main,
             },

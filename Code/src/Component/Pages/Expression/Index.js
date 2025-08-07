@@ -276,7 +276,7 @@ function Index() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Products Expression" />
         <div className="body_content">

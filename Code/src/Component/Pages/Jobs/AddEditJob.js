@@ -227,11 +227,14 @@ const AddEditJob = ({
         onClose={handleClose}
         maxWidth="md"
         fullWidth
+        fullScreen={window.innerWidth < 600}
         PaperProps={{
           sx: {
-            borderRadius: 3,
+            borderRadius: { xs: 0, sm: 3 },
             boxShadow: '0 16px 64px rgba(0,0,0,0.15)',
             background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)',
+            margin: { xs: 0, sm: 4 },
+            maxHeight: { xs: '100vh', sm: '90vh' },
           }
         }}
       >
@@ -244,18 +247,24 @@ const AddEditJob = ({
             borderBottomColor: 'divider',
           }}
         >
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ p: { xs: 2, sm: 3 } }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: { xs: 'flex-start', sm: 'center' }, 
+              justifyContent: 'space-between',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 2, sm: 0 }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
                 <Avatar
                   sx={{
-                    width: 48,
-                    height: 48,
+                    width: { xs: 40, sm: 48 },
+                    height: { xs: 40, sm: 48 },
                     backgroundColor: 'primary.main',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
                   }}
                 >
-                  <WorkIcon />
+                  <WorkIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
                 </Avatar>
                 <Box>
                   <Typography 
@@ -263,11 +272,21 @@ const AddEditJob = ({
                     sx={{ 
                       fontWeight: 700,
                       color: 'primary.main',
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      lineHeight: { xs: 1.3, sm: 1.2 },
                     }}
                   >
                     {action === "add" ? "Create New Job" : "Update Job"}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: 'text.secondary', 
+                      mt: 0.5,
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                      display: { xs: 'none', sm: 'block' }
+                    }}
+                  >
                     {action === "add" ? "Fill in the details below to create a new job" : "Update the job information"}
                   </Typography>
                 </Box>
@@ -276,48 +295,69 @@ const AddEditJob = ({
                 onClick={handleClose}
                 sx={{
                   color: 'text.secondary',
+                  alignSelf: { xs: 'flex-end', sm: 'center' },
+                  position: { xs: 'absolute', sm: 'relative' },
+                  top: { xs: 16, sm: 'auto' },
+                  right: { xs: 16, sm: 'auto' },
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
                   }
                 }}
               >
-                <CloseIcon />
+                <CloseIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
               </IconButton>
             </Box>
           </Box>
         </DialogTitle>
 
         <form onSubmit={JobAddUpdate}>
-          <DialogContent sx={{ p: 0 }}>
-            <Box sx={{ p: 3 }}>
+          <DialogContent sx={{ p: 0, overflowX: 'hidden' }}>
+            <Box sx={{ p: { xs: 2, sm: 3 } }}>
               {/* Job Information Section */}
               <Paper 
                 elevation={0}
                 sx={{ 
-                  p: 3, 
-                  mb: 3,
+                  p: { xs: 2, sm: 3 }, 
+                  mb: { xs: 2, sm: 3 },
                   border: '1px solid',
                   borderColor: 'divider',
                   borderRadius: 2,
                   backgroundColor: 'background.paper'
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                  <Avatar sx={{ backgroundColor: 'primary.main', width: 32, height: 32 }}>
-                    <PersonIcon sx={{ fontSize: 18 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: { xs: 2, sm: 3 } }}>
+                  <Avatar sx={{ 
+                    backgroundColor: 'primary.main', 
+                    width: { xs: 28, sm: 32 }, 
+                    height: { xs: 28, sm: 32 } 
+                  }}>
+                    <PersonIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
                   </Avatar>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 600,
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
                     Job Information
                   </Typography>
                 </Box>
 
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {!param.contactId && (
                     <Grid item xs={12} sm={6}>
                       <Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              fontWeight: 600, 
+                              color: 'text.primary',
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}
+                          >
                             Contact Name *
                           </Typography>
                           {HasPermission("ContactAdd") && (
@@ -343,7 +383,15 @@ const AddEditJob = ({
                           value?.contactId,
                           `required`
                         ) && (
-                          <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
+                          <Typography 
+                            variant="caption" 
+                            sx={{ 
+                              color: 'error.main', 
+                              mt: 0.5, 
+                              display: 'block',
+                              fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                            }}
+                          >
                             {simpleValidator.current.message("contact Name", value?.contactId, `required`)}
                           </Typography>
                         )}
@@ -354,7 +402,14 @@ const AddEditJob = ({
                   <Grid item xs={12} sm={6} mt={1}>
                     <Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Select Address *
                         </Typography>
                         {param.contactId && HasPermission("AddressAdd") && (
@@ -410,7 +465,15 @@ const AddEditJob = ({
                         value?.addressId,
                         `required`
                       ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'error.main', 
+                            mt: 0.5, 
+                            display: 'block',
+                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                          }}
+                        >
                           {simpleValidator.current.message("Address", value?.addressId, `required`)}
                         </Typography>
                       )}
@@ -419,7 +482,15 @@ const AddEditJob = ({
 
                   <Grid item xs={12} sm={6} mt={1}>
                     <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          color: 'text.primary', 
+                          mb: 1,
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}
+                      >
                         Job Name *
                       </Typography>
                       <TextField
@@ -442,7 +513,15 @@ const AddEditJob = ({
                         value?.jobName,
                         `required`
                       ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'error.main', 
+                            mt: 0.5, 
+                            display: 'block',
+                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                          }}
+                        >
                           {simpleValidator.current.message("Job Name", value?.jobName, `required`)}
                         </Typography>
                       )}
@@ -452,7 +531,14 @@ const AddEditJob = ({
                   <Grid item xs={12} sm={6}>
                     <Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Select Job Type *
                         </Typography>
                         {HasPermission("JobTypeAdd") && (
@@ -478,7 +564,15 @@ const AddEditJob = ({
                         value?.jobType,
                         `required`
                       ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'error.main', 
+                            mt: 0.5, 
+                            display: 'block',
+                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                          }}
+                        >
                           {simpleValidator.current.message("Job Type", value?.jobType, `required`)}
                         </Typography>
                       )}
@@ -487,7 +581,15 @@ const AddEditJob = ({
 
                   <Grid item xs={12} sm={6} mt={1}>
                     <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          color: 'text.primary', 
+                          mb: 1,
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}
+                      >
                         Select GHL Stage
                       </Typography>
                       <GetAllStages
@@ -501,7 +603,14 @@ const AddEditJob = ({
                   <Grid item xs={12} sm={6}>
                     <Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Select Assigned Personnel *
                         </Typography>
                         {HasPermission("UsersAdd") && (
@@ -527,7 +636,15 @@ const AddEditJob = ({
                         value?.assignedPersonnel,
                         `required`
                       ) && (
-                        <Typography variant="caption" sx={{ color: 'error.main', mt: 0.5, display: 'block' }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'error.main', 
+                            mt: 0.5, 
+                            display: 'block',
+                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                          }}
+                        >
                           {simpleValidator.current.message("Assigned Personnel", value?.assignedPersonnel, `required`)}
                         </Typography>
                       )}
@@ -537,7 +654,15 @@ const AddEditJob = ({
                   {action === "edit" && (
                     <Grid item xs={12} sm={6}>
                       <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary', 
+                            mb: 1,
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Select Job Status
                         </Typography>
                         <JobstatusDropdown
@@ -551,7 +676,15 @@ const AddEditJob = ({
 
                   <Grid item xs={12} sm={6}>
                     <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          color: 'text.primary', 
+                          mb: 1,
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}
+                      >
                         Schedule Date and Time
                       </Typography>
                       <TextField
@@ -586,26 +719,45 @@ const AddEditJob = ({
                 }}
               >
                                  <AccordionSummary 
-                   expandIcon={<ExpandMoreIcon />}
+                   expandIcon={<ExpandMoreIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />}
                    sx={{ 
                      backgroundColor: alpha(theme.palette.primary.main, 0.02),
                      borderRadius: '8px 8px 0 0',
+                     py: { xs: 1, sm: 2 },
                    }}
                  >
-                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                     <Avatar sx={{ backgroundColor: 'primary.main', width: 32, height: 32 }}>
-                       <NotesIcon sx={{ fontSize: 18 }} />
+                   <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+                     <Avatar sx={{ 
+                       backgroundColor: 'primary.main', 
+                       width: { xs: 28, sm: 32 }, 
+                       height: { xs: 28, sm: 32 } 
+                     }}>
+                       <NotesIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
                      </Avatar>
-                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                     <Typography 
+                       variant="h6" 
+                       sx={{ 
+                         fontWeight: 600,
+                         fontSize: { xs: '1rem', sm: '1.25rem' }
+                       }}
+                     >
                        Notes & Attachments
                      </Typography>
                    </Box>
                  </AccordionSummary>
-                <AccordionDetails sx={{ p: 3 }}>
-                  <Grid container spacing={3}>
+                <AccordionDetails sx={{ p: { xs: 2, sm: 3 } }}>
+                  <Grid container spacing={{ xs: 2, sm: 3 }}>
                     <Grid item xs={12} md={6}>
                       <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary', 
+                            mb: 1,
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Job Notes
                         </Typography>
                         <TextField
@@ -630,7 +782,15 @@ const AddEditJob = ({
 
                     <Grid item xs={12} md={6}>
                       <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', mb: 1 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary', 
+                            mb: 1,
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Attachments
                         </Typography>
                         <Box
@@ -638,7 +798,7 @@ const AddEditJob = ({
                             border: '2px dashed',
                             borderColor: 'divider',
                             borderRadius: 2,
-                            p: 3,
+                            p: { xs: 2, sm: 3 },
                             textAlign: 'center',
                             backgroundColor: alpha(theme.palette.primary.main, 0.02),
                             position: 'relative',
@@ -664,11 +824,24 @@ const AddEditJob = ({
                               cursor: 'pointer'
                             }}
                           />
-                          <AttachmentIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                          <AttachmentIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: 'text.disabled', mb: 1 }} />
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: 'text.secondary', 
+                              mb: 1,
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}
+                          >
                             Drop files here or click to browse
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                          <Typography 
+                            variant="caption" 
+                            sx={{ 
+                              color: 'text.disabled',
+                              fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                            }}
+                          >
                             Supports: Images, PDF, DOC, DOCX
                           </Typography>
                         </Box>
@@ -687,23 +860,49 @@ const AddEditJob = ({
 
                     <Grid item xs={12}>
                       <Box sx={{ 
-                        p: 2, 
+                        p: { xs: 1.5, sm: 2 }, 
                         backgroundColor: alpha(theme.palette.info.main, 0.05),
                         borderRadius: 2,
                         border: '1px solid',
                         borderColor: alpha(theme.palette.info.main, 0.2)
                       }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'info.main', mb: 1 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'info.main', 
+                            mb: 1,
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           Examples:
                         </Typography>
                         <Stack spacing={0.5}>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: 'text.secondary',
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                            }}
+                          >
                             • Customer prefers afternoon visits.
                           </Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: 'text.secondary',
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                            }}
+                          >
                             • Be aware of the dog in the backyard.
                           </Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: 'text.secondary',
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                            }}
+                          >
                             • Parking available on the street; permit required.
                           </Typography>
                         </Stack>
@@ -717,7 +916,14 @@ const AddEditJob = ({
 
           <Divider />
 
-          <DialogActions sx={{ p: 3, gap: 2 }}>
+          <DialogActions sx={{ 
+            p: { xs: 2, sm: 3 }, 
+            gap: { xs: 1.5, sm: 2 },
+            flexDirection: { xs: 'column-reverse', sm: 'row' },
+            '& > *': {
+              width: { xs: '100%', sm: 'auto' }
+            }
+          }}>
             <Button
               variant="outlined"
               onClick={handleClose}
@@ -725,8 +931,9 @@ const AddEditJob = ({
                 borderRadius: 2,
                 textTransform: 'none',
                 fontWeight: 600,
-                px: 3,
-                py: 1,
+                px: { xs: 2, sm: 3 },
+                py: { xs: 1.2, sm: 1 },
+                fontSize: { xs: '0.875rem', sm: '1rem' },
                 borderColor: 'divider',
                 color: 'text.secondary',
                 '&:hover': {
@@ -745,8 +952,9 @@ const AddEditJob = ({
                 borderRadius: 2,
                 textTransform: 'none',
                 fontWeight: 700,
-                px: 4,
-                py: 1,
+                px: { xs: 2, sm: 4 },
+                py: { xs: 1.2, sm: 1 },
+                fontSize: { xs: '0.875rem', sm: '1rem' },
                 backgroundColor: 'primary.main',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                 '&:hover': {

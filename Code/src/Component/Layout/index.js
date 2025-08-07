@@ -35,5 +35,29 @@ export {
   ResponsiveTableWrapper
 } from './ResponsivePageWrapper';
 
+// Typography components
+export {
+  ResponsivePageTitle,
+  ResponsiveSectionTitle,
+  ResponsiveCardTitle,
+  ResponsiveBodyText,
+  ResponsiveCaptionText,
+  ResponsiveSubtitle,
+  ResponsiveButtonText,
+  ResponsiveListText,
+  responsiveFontSizes,
+  responsiveLineHeights
+} from './ResponsiveTypography';
+
+// Page templates
+export {
+  default as ResponsivePageTemplate,
+  ResponsiveListPageTemplate,
+  ResponsiveFormPageTemplate,
+  ResponsiveDashboardTemplate,
+  ResponsiveCardGrid,
+  ResponsivePageTableWrapper
+} from './ResponsivePageTemplate';
+
 // Re-export the main layout as default
 export { default } from './ResponsiveLayout';

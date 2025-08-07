@@ -70,7 +70,7 @@ export default function ExportFile({
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Button
         variant="contained"
         onClick={postImage}

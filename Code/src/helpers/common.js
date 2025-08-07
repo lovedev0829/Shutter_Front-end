@@ -43,11 +43,11 @@ import Appointment from "./Appointment";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 
-const ApiLoder = () => {
+const ApiLoder = ({ open = true }) => {
   return (
     <Backdrop
       sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      open={true}
+      open={open}
     >
       <CircularProgress color="inherit" />
     </Backdrop>
@@ -951,7 +951,7 @@ const InlineLoader = ({ size = 16, color = "inherit" }) => (
 const LoadingOverlay = ({ show }) => {
   if (!show) return null;
   
-  return <ApiLoder />;
+  return <ApiLoder open={show} />;
 };
 
 // Skeleton loader for table rows and content placeholders

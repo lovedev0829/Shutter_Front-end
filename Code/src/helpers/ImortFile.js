@@ -125,7 +125,7 @@ export default function ImportFile({ LanguageListAPI, type }) {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <UploadContainer>
         <HiddenInput
           id="import-file-input"

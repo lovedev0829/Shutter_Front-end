@@ -53,7 +53,12 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     borderRadius: theme.spacing(2),
     maxWidth: '900px',
     width: '100%',
-    margin: theme.spacing(2),
+    margin: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      margin: theme.spacing(0.5),
+      maxHeight: '95vh',
+      borderRadius: theme.spacing(1),
+    },
   },
 }));
 
@@ -64,6 +69,10 @@ const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(2, 2.5),
+    fontSize: '1.125rem',
+  },
 }));
 
 const SectionCard = styled(Card)(({ theme }) => ({
@@ -71,6 +80,10 @@ const SectionCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(1.5),
   boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
   border: '1px solid #e0e0e0',
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+  },
 }));
 
 const SectionHeader = styled(Box)(({ theme }) => ({
@@ -429,8 +442,8 @@ LanguageListAPI, // Refesh Api
                     name={"contactType"}
                     value={value.contactType}
                     required={true}
-                    style={{
-                      marginTop: '10px',
+                    sx={{
+                      mt: 1.25,
                     }}
                   />
                   <Typography color="error" variant="caption">
@@ -651,7 +664,7 @@ LanguageListAPI, // Refesh Api
                 <Grid item xs={12} sm={3}>
                   <Box sx={{ mt: 0.5 }}>
                     <Typography variant="body2" gutterBottom>
-                      State<sup style={{ color: 'red' }}>*</sup>
+                      State<Typography component="sup" sx={{ color: 'error.main' }}>*</Typography>
                     </Typography>
                     <Allstate
                       name="billingAddressVm.stateId"

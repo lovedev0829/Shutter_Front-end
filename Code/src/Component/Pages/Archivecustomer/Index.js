@@ -17,9 +17,15 @@ import {
   Button,
   TextField,
   IconButton,
-  Link as MuiLink
+  Link as MuiLink,
+  useTheme,
+  useMediaQuery,
+  Container,
+  Stack,
+  Divider,
+  Alert
 } from "@mui/material";
-import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import { ArrowUpward, ArrowDownward, Archive } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { callAPI } from "../../../utils/apiUtils";
@@ -34,6 +40,11 @@ import moment from "moment";
 import ArchivePopup from "./ArchivePopup";
 
 export default function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [paginatedItems, setPaginatedItems] = useState(0);
@@ -249,68 +260,134 @@ export default function Index() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Archive Customer" />
         <div className="body_content">
-          <div className="awarded-jobs task_table">
-            <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-              <TableTitle title="Archive Customer Tool" />
-              <div className="heading_width_search d-flex align-items-center gap-3">
-                <div className="red_btn">
-                  Note: Only inactive customers will be archived
-                </div>
-              </div>
-            </div>
-            <div className="d-flex align-items-center justify-content-between gap-2 mb-30">
-              <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-                <div className="filter-dropdown dropdown">
-                  <Search handleSearch={handleSearch} />
-                </div>
-                <div className="filter-dropdown dropdown">
-                  <StatusDropdown value={filter.status} fn={handleChange} />
-                </div>
-              </div>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  setApproved(true);
-                  setObject("");
-                }}
-                sx={{
-                  backgroundColor: '#1976d2',
-                  color: 'white',
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  padding: '8px 16px',
-                  boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
-                  '&:hover': {
-                    backgroundColor: '#1565c0',
-                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)',
-                  },
-                }}
+          <Container 
+            maxWidth={false}
+            sx={{ 
+              px: isMobile ? 2 : 3,
+              py: isMobile ? 2 : 3,
+              maxWidth: '100%'
+            }}
+          >
+            {/* Header Section */}
+            <Box sx={{ mb: isMobile ? 3 : 4 }}>
+              <Stack
+                direction={isMobile ? 'column' : 'row'}
+                justifyContent="space-between"
+                alignItems={isMobile ? 'stretch' : 'center'}
+                spacing={isMobile ? 2 : 3}
+                sx={{ mb: 3 }}
               >
-                Archive All Inactive
-              </Button>
-            </div>
+                <Box>
+                  <TableTitle title="Archive Customer Tool" />
+                </Box>
+                
+                <Alert 
+                  severity="warning" 
+                  variant={isMobile ? "filled" : "outlined"}
+                  sx={{
+                    minWidth: isMobile ? '100%' : 'auto',
+                    fontSize: isMobile ? '0.75rem' : '0.875rem',
+                    py: isMobile ? 0.5 : 1,
+                    '& .MuiAlert-message': {
+                      fontSize: 'inherit',
+                      fontWeight: 500,
+                    },
+                    backgroundColor: isMobile ? '#fef3c7' : 'transparent',
+                    color: isMobile ? '#92400e' : '#d97706',
+                    borderColor: '#f59e0b',
+                  }}
+                >
+                  Note: Only inactive customers will be archived
+                </Alert>
+              </Stack>
 
-            <Box sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+              {/* Filters and Actions Section */}
+              <Stack
+                direction={isMobile ? 'column' : 'row'}
+                justifyContent="space-between"
+                alignItems={isMobile ? 'stretch' : 'center'}
+                spacing={isMobile ? 2 : 3}
+              >
+                <Stack
+                  direction={isMobile ? 'column' : 'row'}
+                  spacing={isMobile ? 1.5 : 2}
+                  sx={{ 
+                    width: isMobile ? '100%' : 'auto',
+                    minWidth: isMobile ? 'unset' : '400px'
+                  }}
+                >
+                  <Box sx={{ flex: isMobile ? 1 : 'unset', minWidth: isMobile ? 'unset' : '200px' }}>
+                    <Search handleSearch={handleSearch} />
+                  </Box>
+                  <Box sx={{ flex: isMobile ? 1 : 'unset', minWidth: isMobile ? 'unset' : '150px' }}>
+                    <StatusDropdown value={filter.status} fn={handleChange} />
+                  </Box>
+                </Stack>
+
+                <Button
+                  variant="contained"
+                  startIcon={<Archive />}
+                  onClick={() => {
+                    setApproved(true);
+                    setObject("");
+                  }}
+                  size={isMobile ? 'large' : 'medium'}
+                  sx={{
+                    backgroundColor: '#dc2626',
+                    color: 'white',
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: isMobile ? '0.875rem' : '0.9375rem',
+                    padding: isMobile ? '12px 20px' : '10px 16px',
+                    minHeight: isMobile ? '48px' : '40px',
+                    width: isMobile ? '100%' : 'auto',
+                    boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
+                    '&:hover': {
+                      backgroundColor: '#b91c1c',
+                      boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
+                    },
+                  }}
+                >
+                  Archive All Inactive
+                </Button>
+              </Stack>
+            </Box>
+
+            {/* Table Section */}
+            <Box 
+              sx={{ 
+                width: '100%', 
+                maxWidth: '100%', 
+                overflow: 'hidden',
+                position: 'relative'
+              }}
+            >
               <TableContainer 
                 component={Paper} 
                 sx={{
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  borderRadius: isMobile ? '8px' : '12px',
+                  boxShadow: isMobile 
+                    ? '0 2px 12px rgba(0, 0, 0, 0.08)' 
+                    : '0 4px 20px rgba(0, 0, 0, 0.08)',
                   overflowX: 'auto',
                   overflowY: 'hidden',
                   border: '1px solid #e3f2fd',
-                  maxHeight: '70vh',
+                  maxHeight: isMobile ? '60vh' : '70vh',
                   width: '100%',
-                  maxWidth: 'calc(100vw - 300px)',
+                  maxWidth: isMobile 
+                    ? '100vw' 
+                    : isTablet 
+                      ? 'calc(100vw - 200px)' 
+                      : 'calc(100vw - 300px)',
                   display: 'block',
                   '&::-webkit-scrollbar': {
-                    height: '8px',
-                    width: '8px',
+                    height: isMobile ? '6px' : '8px',
+                    width: isMobile ? '6px' : '8px',
                   },
                   '&::-webkit-scrollbar-track': {
                     backgroundColor: '#f1f5f9',
@@ -325,7 +402,13 @@ export default function Index() {
                   },
                 }}
               >
-                <Table sx={{ minWidth: '100%', width: 'max-content', tableLayout: 'auto' }}>
+                <Table 
+                  sx={{ 
+                    minWidth: isMobile ? '800px' : '100%', 
+                    width: 'max-content', 
+                    tableLayout: 'auto' 
+                  }}
+                >
                   <TableHead>
                     <TableRow sx={{ backgroundColor: '#f8fafc' }}>
                       {columns.map((val, i) => (
@@ -333,21 +416,34 @@ export default function Index() {
                           key={i}
                           sx={{
                             fontWeight: 700,
-                            fontSize: '0.875rem',
+                            fontSize: isMobile ? '0.75rem' : '0.875rem',
                             color: '#374151',
                             borderBottom: '2px solid #e5e7eb',
                             backgroundColor: '#f8fafc',
-                            padding: '16px 12px',
+                            padding: isMobile ? '12px 8px' : '16px 12px',
                             whiteSpace: 'nowrap',
-                            minWidth: val.key === 'contactUniqueId' ? 120 : 
-                                    val.key === 'firstName' ? 150 : 
-                                    val.key === 'streetAddress' ? 180 : 
-                                    val.key === 'contactType' ? 100 : 120,
+                            minWidth: isMobile 
+                              ? (val.key === 'contactUniqueId' ? 100 : 
+                                 val.key === 'firstName' ? 120 : 
+                                 val.key === 'streetAddress' ? 140 : 
+                                 val.key === 'contactType' ? 80 : 90)
+                              : (val.key === 'contactUniqueId' ? 120 : 
+                                 val.key === 'firstName' ? 150 : 
+                                 val.key === 'streetAddress' ? 180 : 
+                                 val.key === 'contactType' ? 100 : 120),
                           }}
                         >
-                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#374151' }}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 0.5 : 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Typography 
+                                variant="subtitle2" 
+                                sx={{ 
+                                  fontWeight: 700, 
+                                  color: '#374151',
+                                  fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                  lineHeight: isMobile ? 1.3 : 1.2,
+                                }}
+                              >
                                 {val.label}
                               </Typography>
                               {val.sort && (
@@ -355,7 +451,9 @@ export default function Index() {
                                   size="small"
                                   onClick={() => val.sort ? handleFilterSortChange(val.key) : null}
                                   sx={{
-                                    padding: '2px',
+                                    padding: isMobile ? '1px' : '2px',
+                                    minWidth: isMobile ? '20px' : '24px',
+                                    minHeight: isMobile ? '20px' : '24px',
                                     '&:hover': {
                                       backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                     },
@@ -363,12 +461,12 @@ export default function Index() {
                                 >
                                   {filter.sortColumn === val.key ? (
                                     filter.sortDirection === "asc" ? (
-                                      <ArrowUpward sx={{ fontSize: 16, color: '#3b82f6' }} />
+                                      <ArrowUpward sx={{ fontSize: isMobile ? 12 : 16, color: '#3b82f6' }} />
                                     ) : (
-                                      <ArrowDownward sx={{ fontSize: 16, color: '#3b82f6' }} />
+                                      <ArrowDownward sx={{ fontSize: isMobile ? 12 : 16, color: '#3b82f6' }} />
                                     )
                                   ) : (
-                                    <ArrowUpward sx={{ fontSize: 16, color: '#9ca3af' }} />
+                                    <ArrowUpward sx={{ fontSize: isMobile ? 12 : 16, color: '#9ca3af' }} />
                                   )}
                                 </IconButton>
                               )}
@@ -376,7 +474,7 @@ export default function Index() {
                             {val.sort && (
                               <TextField
                                 size="small"
-                                placeholder="Search here"
+                                placeholder={isMobile ? "Search" : "Search here"}
                                 value={
                                   filter.columnFilters.find(
                                     (f) => f.field === val.key
@@ -387,8 +485,8 @@ export default function Index() {
                                 }
                                 sx={{
                                   '& .MuiOutlinedInput-root': {
-                                    height: '32px',
-                                    fontSize: '0.75rem',
+                                    height: isMobile ? '28px' : '32px',
+                                    fontSize: isMobile ? '0.6875rem' : '0.75rem',
                                     backgroundColor: 'white',
                                     '& fieldset': {
                                       borderColor: '#d1d5db',
@@ -401,7 +499,7 @@ export default function Index() {
                                     },
                                   },
                                   '& .MuiOutlinedInput-input': {
-                                    padding: '6px 8px',
+                                    padding: isMobile ? '4px 6px' : '6px 8px',
                                   },
                                 }}
                               />
@@ -421,15 +519,28 @@ export default function Index() {
                           },
                           '&:hover': {
                             backgroundColor: '#f0f9ff',
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                            transform: isMobile ? 'none' : 'translateY(-1px)',
+                            boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)',
                           },
                           transition: 'all 0.2s ease-in-out',
                         }}
                       >
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           {val.isArchive ? (
-                            <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 500 }}>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: '#6b7280', 
+                                fontWeight: 500,
+                                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                lineHeight: isMobile ? 1.3 : 1.2,
+                              }}
+                            >
                               {val?.contactUniqueId}
                             </Typography>
                           ) : (
@@ -446,6 +557,8 @@ export default function Index() {
                                 color: '#3b82f6',
                                 textDecoration: 'none',
                                 fontWeight: 600,
+                                fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                lineHeight: isMobile ? 1.3 : 1.2,
                                 '&:hover': {
                                   color: '#1d4ed8',
                                   textDecoration: 'underline',
@@ -457,12 +570,19 @@ export default function Index() {
                           )}
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           <Typography 
                             variant="body2" 
                             sx={{ 
                               color: val.isArchive ? '#ef4444' : '#374151',
-                              fontWeight: 500 
+                              fontWeight: 500,
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
                             }}
                           >
                             {val?.firstName +
@@ -473,43 +593,125 @@ export default function Index() {
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {val?.contactType}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                              maxWidth: isMobile ? '120px' : 'none',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {val?.billingAddressVm?.streetAddress}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {val?.billingAddressVm?.city}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {val?.billingAddressVm?.state}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {val?.billingAddressVm?.zipCode}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280', fontWeight: 500 }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280', 
+                              fontWeight: 500,
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {moment(val?.createdAt).format("MM-DD-YYYY") || ""}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           <Chip
                             label={val?.isActive ? "Active" : "Inactive"}
                             size="small"
@@ -517,16 +719,21 @@ export default function Index() {
                               backgroundColor: val?.isActive ? '#dcfce7' : '#fee2e2',
                               color: val?.isActive ? '#166534' : '#991b1b',
                               fontWeight: 600,
-                              fontSize: '0.75rem',
-                              height: '24px',
+                              fontSize: isMobile ? '0.6875rem' : '0.75rem',
+                              height: isMobile ? '20px' : '24px',
                               '& .MuiChip-label': {
-                                padding: '0 8px',
+                                padding: isMobile ? '0 6px' : '0 8px',
                               },
                             }}
                           />
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           {!val.isArchive && !val?.isActive && (
                             <Button
                               variant="contained"
@@ -541,9 +748,10 @@ export default function Index() {
                                 borderRadius: '6px',
                                 textTransform: 'none',
                                 fontWeight: 600,
-                                fontSize: '0.75rem',
-                                padding: '4px 12px',
+                                fontSize: isMobile ? '0.6875rem' : '0.75rem',
+                                padding: isMobile ? '3px 8px' : '4px 12px',
                                 minWidth: 'auto',
+                                minHeight: isMobile ? '24px' : '28px',
                                 boxShadow: '0 1px 3px rgba(59, 130, 246, 0.3)',
                                 '&:hover': {
                                   backgroundColor: '#2563eb',
@@ -563,32 +771,37 @@ export default function Index() {
                           colSpan={10}
                           sx={{
                             textAlign: 'center',
-                            padding: '40px 20px',
+                            padding: isMobile ? '24px 16px' : '40px 20px',
                             borderBottom: 'none',
                           }}
                         >
                           <Paper
                             elevation={0}
                             sx={{
-                              padding: '24px',
+                              padding: isMobile ? '16px' : '24px',
                               backgroundColor: '#f9fafb',
                               border: '2px dashed #d1d5db',
-                              borderRadius: '12px',
+                              borderRadius: isMobile ? '8px' : '12px',
                             }}
                           >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 1.5 : 2 }}>
                               <img
                                 src="/image/no-records.svg"
                                 alt="No records"
                                 loading="lazy"
-                                style={{ width: '64px', height: '64px', opacity: 0.5 }}
+                                style={{ 
+                                  width: isMobile ? '48px' : '64px', 
+                                  height: isMobile ? '48px' : '64px', 
+                                  opacity: 0.5 
+                                }}
                               />
                               <Typography
                                 variant="body1"
                                 sx={{
                                   color: '#6b7280',
                                   fontWeight: 500,
-                                  fontSize: '0.875rem',
+                                  fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                  lineHeight: isMobile ? 1.3 : 1.2,
                                 }}
                               >
                                 No Archive Customer Found
@@ -605,15 +818,15 @@ export default function Index() {
               {tenantList && tenantList?.length > 0 && (
                 <Box sx={{ 
                   display: 'flex', 
-                  justifyContent: 'flex-end', 
-                  mt: 2,
+                  justifyContent: isMobile ? 'center' : 'flex-end', 
+                  mt: isMobile ? 2 : 3,
                   backgroundColor: 'white',
-                  borderRadius: '8px',
+                  borderRadius: isMobile ? '6px' : '8px',
                   boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                  p: 1
+                  p: isMobile ? 0.5 : 1
                 }}>
                   <TablePagination
-                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    rowsPerPageOptions={isMobile ? [10, 25, 50] : [10, 25, 50, 100]}
                     component="div"
                     count={paginatedItems}
                     rowsPerPage={rowsPerPage}
@@ -622,19 +835,26 @@ export default function Index() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                     sx={{
                       '& .MuiTablePagination-toolbar': {
-                        minHeight: '52px',
+                        minHeight: isMobile ? '48px' : '52px',
+                        padding: isMobile ? '0 8px' : '0 16px',
+                        flexWrap: isMobile ? 'wrap' : 'nowrap',
                       },
                       '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
-                        fontSize: '0.875rem',
+                        fontSize: isMobile ? '0.75rem' : '0.875rem',
                         color: '#374151',
                         fontWeight: 500,
+                        marginBottom: isMobile ? '4px' : '0',
                       },
                       '& .MuiTablePagination-select': {
-                        fontSize: '0.875rem',
+                        fontSize: isMobile ? '0.75rem' : '0.875rem',
                         fontWeight: 500,
+                      },
+                      '& .MuiTablePagination-actions': {
+                        marginLeft: isMobile ? '8px' : '16px',
                       },
                       '& .MuiIconButton-root': {
                         color: '#6b7280',
+                        padding: isMobile ? '6px' : '8px',
                         '&:hover': {
                           backgroundColor: '#f3f4f6',
                           color: '#374151',
@@ -643,12 +863,15 @@ export default function Index() {
                           color: '#d1d5db',
                         },
                       },
+                      '& .MuiTablePagination-spacer': {
+                        display: isMobile ? 'none' : 'flex',
+                      },
                     }}
                   />
                 </Box>
               )}
             </Box>
-          </div>
+          </Container>
         </div>
       </div>
       <ArchivePopup

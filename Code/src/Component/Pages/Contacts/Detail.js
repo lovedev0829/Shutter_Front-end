@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -48,11 +48,12 @@ import AddEditContact from "./AddEditContact";
 import Addresslist from "../Address/Addresslist";
 import moment from "moment";
 import Joblist from "../Jobs/Joblist";
+import { ResponsiveContainer } from "../../Layout/ResponsiveLayout";
 
 // Custom TabPanel component
 function TabPanel({ children, value, index, ...other }) {
   return (
-    <div
+    <Box
       role="tabpanel"
       hidden={value !== index}
       id={`contact-tabpanel-${index}`}
@@ -66,7 +67,7 @@ function TabPanel({ children, value, index, ...other }) {
           </Box>
         </Fade>
       )}
-    </div>
+    </Box>
   );
 }
 
@@ -75,10 +76,17 @@ function InfoItem({ icon, label, value, variant = "default" }) {
   if (!value && variant !== "document") return null;
   
   return (
-    <Box sx={{ mb: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+    <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: { xs: 0.25, sm: 0.5 } }}>
         {icon && (
-          <Box sx={{ mr: 1, color: "primary.main", display: "flex" }}>
+          <Box sx={{ 
+            mr: { xs: 0.75, sm: 1 }, 
+            color: "primary.main", 
+            display: "flex",
+            '& .MuiSvgIcon-root': {
+              fontSize: { xs: '0.875rem', sm: '1rem' }
+            }
+          }}>
             {icon}
           </Box>
         )}
@@ -88,7 +96,8 @@ function InfoItem({ icon, label, value, variant = "default" }) {
             fontWeight: 600, 
             color: "text.secondary",
             textTransform: "uppercase",
-            letterSpacing: 0.5
+            letterSpacing: 0.5,
+            fontSize: { xs: '0.6875rem', sm: '0.75rem' }
           }}
         >
           {label}
@@ -102,7 +111,9 @@ function InfoItem({ icon, label, value, variant = "default" }) {
           sx={{ 
             color: "text.primary",
             fontWeight: 500,
-            pl: icon ? 3 : 0
+            pl: icon ? { xs: 2.5, sm: 3 } : 0,
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            lineHeight: { xs: 1.4, sm: 1.5 }
           }}
         >
           {value || "—"}
@@ -188,19 +199,24 @@ export default function Detail() {
   const billingAddress = contact?.billingAddressVm || {};
 
   return (
-    <>
-      {/* Loading Overlay */}
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loder}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-
-      <div className="intersight_content">
+    <Box
+      sx={{
+        backgroundColor: 'background.default',
+        minHeight: '100vh',
+      }}
+    >
+      <ApiLoder open={loder} />
+      <Box className="intersight_content">
         <Header title={`Contacts / ${contact?.firstName + " " + contact?.lastName + " " + (contact?.suffix ?? "")}`} />
 
-        <Box sx={{ p: 3 }}>
+        <ResponsiveContainer 
+            maxWidth="xl"
+            disableGutters={false}
+            sx={{ 
+              py: { xs: 1, sm: 2, md: 3 },
+              px: { xs: 1, sm: 2, md: 3 }
+            }}
+          >
           {/* Header Section */}
           <Paper 
             elevation={0}
@@ -213,24 +229,38 @@ export default function Detail() {
               borderRadius: 2
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <IconButton 
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'flex-start', sm: 'center' }, 
+              justifyContent: 'space-between', 
+              mb: { xs: 3, sm: 2 },
+              gap: { xs: 2, sm: 0 }
+            }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: { xs: 1.5, sm: 2 },
+                width: { xs: '100%', sm: 'auto' }
+              }}>
+                                <IconButton 
                   onClick={() => navigate('/contacts')}
                   sx={{ 
                     backgroundColor: 'action.hover',
-                    '&:hover': { backgroundColor: 'action.selected' }
+                    '&:hover': { backgroundColor: 'action.selected' },
+                    width: { xs: 36, sm: 40 },
+                    height: { xs: 36, sm: 40 }
                   }}
                 >
-                  <ArrowBackIcon />
+                  <ArrowBackIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
                 </IconButton>
                 
                 <Avatar 
                   sx={{ 
-                    width: 56, 
-                    height: 56,
+                    width: { xs: 48, sm: 56 }, 
+                    height: { xs: 48, sm: 56 }, 
                     backgroundColor: 'primary.main',
-                    fontSize: '1.5rem',
+                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
                     fontWeight: 600
                   }}
                 >
@@ -238,7 +268,15 @@ export default function Detail() {
                 </Avatar>
                 
                 <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  <Typography 
+                    variant="h5" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: 'text.primary',
+                      fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+                      lineHeight: { xs: 1.3, sm: 1.4 }
+                    }}
+                  >
                     {contact?.firstName} {contact?.lastName} {contact?.suffix}
                   </Typography>
                   <Chip 
@@ -247,7 +285,11 @@ export default function Detail() {
                     size="small"
                     color="primary"
                     variant="outlined"
-                    sx={{ mt: 0.5 }}
+                    sx={{ 
+                      mt: 0.5,
+                      fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+                      height: { xs: 24, sm: 28 }
+                    }}
                   />
                 </Box>
               </Box>
@@ -261,7 +303,11 @@ export default function Detail() {
                     borderRadius: 2,
                     textTransform: 'none',
                     fontWeight: 600,
-                    px: 3
+                    px: { xs: 2, sm: 3 },
+                    py: { xs: 0.75, sm: 1 },
+                    fontSize: { xs: '0.8125rem', sm: '0.875rem' },
+                    width: { xs: '100%', sm: 'auto' },
+                    mt: { xs: 2, sm: 0 }
                   }}
                 >
                   Edit Profile
@@ -273,15 +319,26 @@ export default function Detail() {
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
                 '& .MuiTab-root': {
                   textTransform: 'none',
                   fontWeight: 500,
-                  minHeight: 48,
+                  minHeight: { xs: 40, sm: 48 },
+                  fontSize: { xs: '0.8125rem', sm: '0.875rem' },
+                  minWidth: { xs: 'auto', sm: 160 },
+                  px: { xs: 1, sm: 2 },
                   '&.Mui-selected': {
                     fontWeight: 600,
+                  },
+                },
+                '& .MuiTabs-scrollButtons': {
+                  '&.Mui-disabled': {
+                    opacity: 0.3,
                   },
                 },
               }}
@@ -292,14 +349,19 @@ export default function Detail() {
                   label={tab.label}
                   icon={tab.icon}
                   iconPosition="start"
-                  sx={{ gap: 1 }}
+                  sx={{ 
+                    gap: { xs: 0.5, sm: 1 },
+                    '& .MuiSvgIcon-root': {
+                      fontSize: { xs: '1.125rem', sm: '1.25rem' }
+                    }
+                  }}
                 />
               ))}
             </Tabs>
           </Paper>
 
           {/* Tab Content */}
-          
+          <Box>
           {/* Profile Tab */}
           <TabPanel value={tabValue} index={0}>
             {HasPermission("ContactView") && (
@@ -315,16 +377,26 @@ export default function Detail() {
                       height: 'fit-content'
                     }}
                   >
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+                        <PersonIcon sx={{ 
+                          mr: { xs: 0.75, sm: 1 }, 
+                          color: 'primary.main',
+                          fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                        }} />
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 600,
+                            fontSize: { xs: '1rem', sm: '1.125rem' }
+                          }}
+                        >
                           Personal Information
                         </Typography>
                       </Box>
-                      <Divider sx={{ mb: 3 }} />
+                      <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
 
-                      <Grid container spacing={3}>
+                      <Grid container spacing={{ xs: 2, sm: 3 }}>
                         <Grid item xs={12} sm={6}>
                           <InfoItem
                             icon={<FullNameIcon fontSize="small" />}
@@ -431,7 +503,7 @@ export default function Detail() {
                       </Box>
                       <Divider sx={{ mb: 3 }} />
 
-                      <Grid container spacing={3}>
+                      <Grid container spacing={{ xs: 2, sm: 3 }}>
                         <Grid item xs={12} sm={6}>
                           <InfoItem
                             icon={<FullNameIcon fontSize="small" />}
@@ -502,8 +574,8 @@ export default function Detail() {
               <Joblist initialActiveTab="#pills-content" />
             )}
           </TabPanel>
-        </Box>
-      </div>
+          </Box>
+        </ResponsiveContainer>
 
       {/* Edit Contact Modal */}
       {open && (
@@ -515,6 +587,7 @@ export default function Detail() {
           object={contact}
         />
       )}
-    </>
+      </Box>
+    </Box>
   );
 }

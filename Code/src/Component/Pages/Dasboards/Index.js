@@ -68,10 +68,11 @@ export default function Index() {
         padding: 0,
       }}
     >
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Box className="intersight_content">
         <Header title="Dashboard" />
-        <ResponsiveContainer 
+        <Box className="body_content">
+          <ResponsiveContainer 
           maxWidth="xl" 
           sx={{ 
             py: { xs: 2, sm: 3 },
@@ -244,6 +245,7 @@ export default function Index() {
             </Box>
           </Fade>
         </ResponsiveContainer>
+        </Box>
       </Box>
     </Box>
   );

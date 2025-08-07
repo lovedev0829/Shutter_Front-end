@@ -452,7 +452,7 @@ export default function Addresslist() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       
       <Box sx={{ p: 0 }}>
         {/* Header */}

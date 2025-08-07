@@ -22,7 +22,12 @@ import {
   TextField,
   IconButton,
   Avatar,
-  Link as MuiLink
+  Link as MuiLink,
+  useTheme,
+  useMediaQuery,
+  Container,
+  Stack,
+  Divider
 } from "@mui/material";
 import { ArrowUpward, ArrowDownward, Edit, Delete as DeleteIcon, ToggleOn, ToggleOff, Business, Sync } from "@mui/icons-material";
 import AddEditSubTenent from "./AddEditSubTenent";
@@ -38,6 +43,11 @@ import StatusDropdown from "../../../helpers/StatusDropdown";
 import { Link } from "react-router-dom";
 
 export default function Index() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("");
   const [object, setObject] = useState("");
@@ -260,52 +270,92 @@ export default function Index() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Partners" />
         <div className="body_content">
-          <div className="awarded-jobs task_table">
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <TableTitle title="Manage Partners" />
-
-              <div className="heading_width_search d-flex align-items-center gap-3">
+          <Container 
+            maxWidth={false}
+            sx={{ 
+              px: isMobile ? 2 : 3,
+              py: isMobile ? 2 : 3,
+              maxWidth: '100%'
+            }}
+          >
+            {/* Header Section */}
+            <Box sx={{ mb: isMobile ? 3 : 4 }}>
+              <Stack
+                direction={isMobile ? 'column' : 'row'}
+                justifyContent="space-between"
+                alignItems={isMobile ? 'stretch' : 'center'}
+                spacing={isMobile ? 2 : 3}
+                sx={{ mb: 3 }}
+              >
+                <Box>
+                  <TableTitle title="Manage Partners" />
+                </Box>
+                
                 {HasPermission("SubTenantAdd") && (
-                  <AddEditButton
-                    handleClick={() => {
-                      setAction("add");
-                      setOpen(true);
-                    }}
-                    title="Add New Partners"
-                  />
+                  <Box sx={{ width: isMobile ? '100%' : 'auto' }}>
+                    <AddEditButton
+                      handleClick={() => {
+                        setAction("add");
+                        setOpen(true);
+                      }}
+                      title="Add New Partners"
+                    />
+                  </Box>
                 )}
-              </div>
-            </div>
+              </Stack>
 
-            <div className="d-block align-items-center gap-2 mb-30 d-md-flex">
-              <div className="filter-dropdown dropdown">
-                <Search handleSearch={handleSearch} />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <StatusDropdown value={filter.status} fn={handleChange} />
-              </div>
-            </div>
+              {/* Filters Section */}
+              <Stack
+                direction={isMobile ? 'column' : 'row'}
+                spacing={isMobile ? 1.5 : 2}
+                sx={{ 
+                  width: '100%',
+                  maxWidth: isMobile ? '100%' : '500px'
+                }}
+              >
+                <Box sx={{ flex: 1, minWidth: isMobile ? 'unset' : '200px' }}>
+                  <Search handleSearch={handleSearch} />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: isMobile ? 'unset' : '150px' }}>
+                  <StatusDropdown value={filter.status} fn={handleChange} />
+                </Box>
+              </Stack>
+            </Box>
 
-            <Box sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+            {/* Table Section */}
+            <Box 
+              sx={{ 
+                width: '100%', 
+                maxWidth: '100%', 
+                overflow: 'hidden',
+                position: 'relative'
+              }}
+            >
               <TableContainer 
                 component={Paper} 
                 sx={{
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  borderRadius: isMobile ? '8px' : '12px',
+                  boxShadow: isMobile 
+                    ? '0 2px 12px rgba(0, 0, 0, 0.08)' 
+                    : '0 4px 20px rgba(0, 0, 0, 0.08)',
                   overflowX: 'auto',
                   overflowY: 'hidden',
                   border: '1px solid #e3f2fd',
-                  maxHeight: '70vh',
+                  maxHeight: isMobile ? '60vh' : '70vh',
                   width: '100%',
-                  maxWidth: 'calc(100vw - 300px)',
+                  maxWidth: isMobile 
+                    ? '100vw' 
+                    : isTablet 
+                      ? 'calc(100vw - 200px)' 
+                      : 'calc(100vw - 300px)',
                   display: 'block',
                   '&::-webkit-scrollbar': {
-                    height: '8px',
-                    width: '8px',
+                    height: isMobile ? '6px' : '8px',
+                    width: isMobile ? '6px' : '8px',
                   },
                   '&::-webkit-scrollbar-track': {
                     backgroundColor: '#f1f5f9',
@@ -320,7 +370,13 @@ export default function Index() {
                   },
                 }}
               >
-                <Table sx={{ minWidth: '100%', width: 'max-content', tableLayout: 'auto' }}>
+                <Table 
+                  sx={{ 
+                    minWidth: isMobile ? '900px' : '100%', 
+                    width: 'max-content', 
+                    tableLayout: 'auto' 
+                  }}
+                >
                   <TableHead>
                     <TableRow sx={{ backgroundColor: '#f8fafc' }}>
                       {columns.map((column, index) => (
@@ -328,22 +384,36 @@ export default function Index() {
                           key={index}
                           sx={{
                             fontWeight: 700,
-                            fontSize: '0.875rem',
+                            fontSize: isMobile ? '0.75rem' : '0.875rem',
                             color: '#374151',
                             borderBottom: '2px solid #e5e7eb',
                             backgroundColor: '#f8fafc',
-                            padding: '16px 12px',
+                            padding: isMobile ? '12px 8px' : '16px 12px',
                             whiteSpace: 'nowrap',
-                            minWidth: column.key === 'logo' ? 80 : 
-                                    column.key === 'primaryColor' ? 100 : 
-                                    column.key === 'companyName' ? 180 : 
-                                    column.key === 'firstName' ? 150 : 
-                                    column.key === 'email' ? 200 : 120,
+                            minWidth: isMobile 
+                              ? (column.key === 'logo' ? 60 : 
+                                 column.key === 'primaryColor' ? 80 : 
+                                 column.key === 'companyName' ? 140 : 
+                                 column.key === 'firstName' ? 120 : 
+                                 column.key === 'email' ? 160 : 100)
+                              : (column.key === 'logo' ? 80 : 
+                                 column.key === 'primaryColor' ? 100 : 
+                                 column.key === 'companyName' ? 180 : 
+                                 column.key === 'firstName' ? 150 : 
+                                 column.key === 'email' ? 200 : 120),
                           }}
                         >
-                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#374151' }}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 0.5 : 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Typography 
+                                variant="subtitle2" 
+                                sx={{ 
+                                  fontWeight: 700, 
+                                  color: '#374151',
+                                  fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                  lineHeight: isMobile ? 1.3 : 1.2,
+                                }}
+                              >
                                 {column.label}
                               </Typography>
                               {column.sort && (
@@ -351,7 +421,9 @@ export default function Index() {
                                   size="small"
                                   onClick={() => handleFilterSortChange(column.key)}
                                   sx={{
-                                    padding: '2px',
+                                    padding: isMobile ? '1px' : '2px',
+                                    minWidth: isMobile ? '20px' : '24px',
+                                    minHeight: isMobile ? '20px' : '24px',
                                     '&:hover': {
                                       backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                     },
@@ -359,12 +431,12 @@ export default function Index() {
                                 >
                                   {filter.sortColumn === column.key ? (
                                     filter.sortDirection === "asc" ? (
-                                      <ArrowUpward sx={{ fontSize: 16, color: '#3b82f6' }} />
+                                      <ArrowUpward sx={{ fontSize: isMobile ? 12 : 16, color: '#3b82f6' }} />
                                     ) : (
-                                      <ArrowDownward sx={{ fontSize: 16, color: '#3b82f6' }} />
+                                      <ArrowDownward sx={{ fontSize: isMobile ? 12 : 16, color: '#3b82f6' }} />
                                     )
                                   ) : (
-                                    <ArrowUpward sx={{ fontSize: 16, color: '#9ca3af' }} />
+                                    <ArrowUpward sx={{ fontSize: isMobile ? 12 : 16, color: '#9ca3af' }} />
                                   )}
                                 </IconButton>
                               )}
@@ -372,7 +444,7 @@ export default function Index() {
                             {column.sort && (
                               <TextField
                                 size="small"
-                                placeholder="Search here"
+                                placeholder={isMobile ? "Search" : "Search here"}
                                 value={
                                   filter.columnFilters.find(
                                     (f) => f.field === column.key
@@ -383,8 +455,8 @@ export default function Index() {
                                 }
                                 sx={{
                                   '& .MuiOutlinedInput-root': {
-                                    height: '32px',
-                                    fontSize: '0.75rem',
+                                    height: isMobile ? '28px' : '32px',
+                                    fontSize: isMobile ? '0.6875rem' : '0.75rem',
                                     backgroundColor: 'white',
                                     '& fieldset': {
                                       borderColor: '#d1d5db',
@@ -397,7 +469,7 @@ export default function Index() {
                                     },
                                   },
                                   '& .MuiOutlinedInput-input': {
-                                    padding: '6px 8px',
+                                    padding: isMobile ? '4px 6px' : '6px 8px',
                                   },
                                 }}
                               />
@@ -408,16 +480,23 @@ export default function Index() {
                       <TableCell
                         sx={{
                           fontWeight: 700,
-                          fontSize: '0.875rem',
+                          fontSize: isMobile ? '0.75rem' : '0.875rem',
                           color: '#374151',
                           borderBottom: '2px solid #e5e7eb',
                           backgroundColor: '#f8fafc',
-                          padding: '16px 12px',
+                          padding: isMobile ? '12px 8px' : '16px 12px',
                           whiteSpace: 'nowrap',
-                          minWidth: 150,
+                          minWidth: isMobile ? 120 : 150,
                         }}
                       >
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#374151' }}>
+                        <Typography 
+                          variant="subtitle2" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            color: '#374151',
+                            fontSize: isMobile ? '0.75rem' : '0.875rem',
+                          }}
+                        >
                           Actions
                         </Typography>
                       </TableCell>
@@ -433,43 +512,53 @@ export default function Index() {
                           },
                           '&:hover': {
                             backgroundColor: '#f0f9ff',
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                            transform: isMobile ? 'none' : 'translateY(-1px)',
+                            boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)',
                           },
                           transition: 'all 0.2s ease-in-out',
                         }}
                       >
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           {partner.logo ? (
                             <Avatar 
                               src={partner.logo} 
                               alt={partner.companyName}
                               sx={{ 
-                                width: 40, 
-                                height: 40,
+                                width: isMobile ? 32 : 40, 
+                                height: isMobile ? 32 : 40,
                                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                               }}
                             />
                           ) : (
                             <Avatar 
                               sx={{ 
-                                width: 40, 
-                                height: 40,
+                                width: isMobile ? 32 : 40, 
+                                height: isMobile ? 32 : 40,
                                 backgroundColor: '#e3f2fd',
                                 color: '#1976d2',
                               }}
                             >
-                              <Business />
+                              <Business sx={{ fontSize: isMobile ? 16 : 20 }} />
                             </Avatar>
                           )}
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           {partner.primaryColor ? (
                             <Box
                               sx={{
-                                width: 32,
-                                height: 32,
+                                width: isMobile ? 24 : 32,
+                                height: isMobile ? 24 : 32,
                                 backgroundColor: partner.primaryColor,
                                 borderRadius: '6px',
                                 border: '2px solid #e5e7eb',
@@ -477,31 +566,84 @@ export default function Index() {
                               }}
                             />
                           ) : (
-                            <Typography variant="body2" sx={{ color: '#9ca3af', fontSize: '0.75rem' }}>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: '#9ca3af', 
+                                fontSize: isMobile ? '0.6875rem' : '0.75rem' 
+                              }}
+                            >
                               No Color
                             </Typography>
                           )}
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#374151', fontWeight: 600 }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#374151', 
+                              fontWeight: 600,
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {partner.companyName}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#374151', fontWeight: 500 }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#374151', 
+                              fontWeight: 500,
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {partner.firstName} {partner.lastName}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#6b7280',
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                              maxWidth: isMobile ? '140px' : 'none',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {partner.email}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
                           <Chip
                             label={partner.code}
                             size="small"
@@ -509,35 +651,57 @@ export default function Index() {
                               backgroundColor: '#f3f4f6',
                               color: '#374151',
                               fontWeight: 600,
-                              fontSize: '0.75rem',
-                              height: '24px',
+                              fontSize: isMobile ? '0.6875rem' : '0.75rem',
+                              height: isMobile ? '20px' : '24px',
                               fontFamily: 'monospace',
                               '& .MuiChip-label': {
-                                padding: '0 8px',
+                                padding: isMobile ? '0 6px' : '0 8px',
                               },
                             }}
                           />
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Typography variant="body2" sx={{ color: '#059669', fontWeight: 600 }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#059669', 
+                              fontWeight: 600,
+                              fontSize: isMobile ? '0.75rem' : '0.875rem',
+                              lineHeight: isMobile ? 1.3 : 1.2,
+                            }}
+                          >
                             {partner.markup}%
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0.5 : 1 }}>
                             <IconButton
                               size="small"
                               onClick={() => handlestatus(partner)}
                               sx={{
                                 color: partner.isActive ? '#16a34a' : '#dc2626',
+                                padding: isMobile ? '4px' : '6px',
                                 '&:hover': {
                                   backgroundColor: partner.isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                 },
                               }}
                             >
-                              {partner.isActive ? <ToggleOn /> : <ToggleOff />}
+                              {partner.isActive ? 
+                                <ToggleOn sx={{ fontSize: isMobile ? 16 : 20 }} /> : 
+                                <ToggleOff sx={{ fontSize: isMobile ? 16 : 20 }} />
+                              }
                             </IconButton>
                             <Chip
                               label={partner.isActive ? "Active" : "Inactive"}
@@ -546,18 +710,23 @@ export default function Index() {
                                 backgroundColor: partner.isActive ? '#dcfce7' : '#fee2e2',
                                 color: partner.isActive ? '#166534' : '#991b1b',
                                 fontWeight: 600,
-                                fontSize: '0.75rem',
-                                height: '24px',
+                                fontSize: isMobile ? '0.6875rem' : '0.75rem',
+                                height: isMobile ? '20px' : '24px',
                                 '& .MuiChip-label': {
-                                  padding: '0 8px',
+                                  padding: isMobile ? '0 6px' : '0 8px',
                                 },
                               }}
                             />
                           </Box>
                         </TableCell>
 
-                        <TableCell sx={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <TableCell 
+                          sx={{ 
+                            padding: isMobile ? '8px 6px' : '12px', 
+                            borderBottom: '1px solid #e5e7eb' 
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', gap: isMobile ? 0.5 : 1, flexWrap: 'wrap' }}>
                             {HasPermission("SubTenantEdit") && (
                               <IconButton
                                 size="small"
@@ -565,6 +734,9 @@ export default function Index() {
                                 sx={{
                                   backgroundColor: '#e3f2fd',
                                   color: '#1976d2',
+                                  padding: isMobile ? '4px' : '6px',
+                                  minWidth: isMobile ? '24px' : '28px',
+                                  minHeight: isMobile ? '24px' : '28px',
                                   '&:hover': {
                                     backgroundColor: '#bbdefb',
                                     transform: 'scale(1.1)',
@@ -572,7 +744,7 @@ export default function Index() {
                                   transition: 'all 0.2s ease',
                                 }}
                               >
-                                <Edit sx={{ fontSize: 16 }} />
+                                <Edit sx={{ fontSize: isMobile ? 12 : 16 }} />
                               </IconButton>
                             )}
                             {HasPermission("SubTenantDelete") && (
@@ -582,6 +754,9 @@ export default function Index() {
                                 sx={{
                                   backgroundColor: '#ffebee',
                                   color: '#d32f2f',
+                                  padding: isMobile ? '4px' : '6px',
+                                  minWidth: isMobile ? '24px' : '28px',
+                                  minHeight: isMobile ? '24px' : '28px',
                                   '&:hover': {
                                     backgroundColor: '#ffcdd2',
                                     transform: 'scale(1.1)',
@@ -589,7 +764,7 @@ export default function Index() {
                                   transition: 'all 0.2s ease',
                                 }}
                               >
-                                <DeleteIcon sx={{ fontSize: 16 }} />
+                                <DeleteIcon sx={{ fontSize: isMobile ? 12 : 16 }} />
                               </IconButton>
                             )}
                           </Box>
@@ -602,32 +777,37 @@ export default function Index() {
                           colSpan={columns.length + 1}
                           sx={{
                             textAlign: 'center',
-                            padding: '40px 20px',
+                            padding: isMobile ? '24px 16px' : '40px 20px',
                             borderBottom: 'none',
                           }}
                         >
                           <Paper
                             elevation={0}
                             sx={{
-                              padding: '24px',
+                              padding: isMobile ? '16px' : '24px',
                               backgroundColor: '#f9fafb',
                               border: '2px dashed #d1d5db',
-                              borderRadius: '12px',
+                              borderRadius: isMobile ? '8px' : '12px',
                             }}
                           >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 1.5 : 2 }}>
                               <img
                                 src="/image/no-records.svg"
                                 alt="No records"
                                 loading="lazy"
-                                style={{ width: '64px', height: '64px', opacity: 0.5 }}
+                                style={{ 
+                                  width: isMobile ? '48px' : '64px', 
+                                  height: isMobile ? '48px' : '64px', 
+                                  opacity: 0.5 
+                                }}
                               />
                               <Typography
                                 variant="body1"
                                 sx={{
                                   color: '#6b7280',
                                   fontWeight: 500,
-                                  fontSize: '0.875rem',
+                                  fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                  lineHeight: isMobile ? 1.3 : 1.2,
                                 }}
                               >
                                 No Partners Found
@@ -641,158 +821,63 @@ export default function Index() {
                 </Table>
               </TableContainer>
               
-                             {subtenantList && subtenantList?.length > 0 && (
+              {subtenantList && subtenantList?.length > 0 && (
                 <Box sx={{ 
                   display: 'flex', 
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                  mt: 3,
-                  p: 2,
-                  backgroundColor: '#ffffff',
-                  borderRadius: '12px',
-                  boxShadow: '0 2px 12px rgba(0, 0, 0, 0.06)',
-                  border: '1px solid #f1f5f9',
-                  position: 'relative',
-                  minHeight: '60px',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '2px',
-                    background: 'linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%)',
-                    borderRadius: '12px 12px 0 0',
-                  }
+                  justifyContent: isMobile ? 'center' : 'flex-end', 
+                  mt: isMobile ? 2 : 3,
+                  backgroundColor: 'white',
+                  borderRadius: isMobile ? '6px' : '8px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  p: isMobile ? 0.5 : 1
                 }}>
-                  {/* Compact Results Info */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, alignItems: 'baseline' }}>
-                    <Box sx={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '8px',
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 2px 8px rgba(59, 130, 246, 0.25)',
-                    }}>
-                      <Typography sx={{ 
-                        color: 'white', 
-                        fontWeight: 700, 
-                        fontSize: '0.75rem'
-                      }}>
-                        {subtenantList.length}
-                      </Typography>
-                    </Box>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: '#1e293b',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {(() => {
-                        if (!subtenantList || subtenantList.length === 0) {
-                          return `No partners found`;
-                        }
-                        const startItem = ((page - 1) * rowsPerPage) + 1;
-                        const actualItemsOnPage = subtenantList.length;
-                        const endItem = ((page - 1) * rowsPerPage) + actualItemsOnPage;
-                        return `${startItem} - ${endItem} of ${paginatedItems} partners`;
-                      })()}
-                    </Typography>
-                  </Box>
-
-                  {/* Compact Pagination */}
                   <TablePagination
-                    rowsPerPageOptions={[
-                      { label: '10', value: 10 },
-                      { label: '25', value: 25 },
-                      { label: '50', value: 50 },
-                      { label: '100', value: 100 },
-                    ]}
+                    rowsPerPageOptions={isMobile ? [10, 25, 50] : [10, 25, 50, 100]}
                     component="div"
-                    count={paginatedItems || 0}
+                    count={paginatedItems}
                     rowsPerPage={rowsPerPage}
-                    page={Math.max(0, page - 1)}
+                    page={page - 1}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Show:"
                     sx={{
                       '& .MuiTablePagination-toolbar': {
-                        minHeight: '44px',
-                        padding: '0 4px',
-                        alignItems: 'baseline',
+                        minHeight: isMobile ? '48px' : '52px',
+                        padding: isMobile ? '0 8px' : '0 16px',
+                        flexWrap: isMobile ? 'wrap' : 'nowrap',
                       },
-                      '& .MuiTablePagination-selectLabel': {
-                        fontSize: '0.8rem',
+                      '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                        fontSize: isMobile ? '0.75rem' : '0.875rem',
                         color: '#374151',
-                        fontWeight: 600,
-                        marginRight: '6px',
-                      },
-                      '& .MuiTablePagination-displayedRows': {
-                        fontSize: '0.8rem',
-                        color: '#6b7280',
                         fontWeight: 500,
-                        margin: '0 12px',
+                        marginBottom: isMobile ? '4px' : '0',
                       },
                       '& .MuiTablePagination-select': {
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        backgroundColor: '#f8fafc',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        padding: '4px 24px 4px 8px',
-                        minWidth: '60px',
-                        height: '32px',
-                        transition: 'all 0.2s ease',
-                        '&:hover': {
-                          borderColor: '#3b82f6',
-                          backgroundColor: '#f1f5f9',
-                        },
-                        '&:focus': {
-                          borderColor: '#3b82f6',
-                          boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.1)',
-                        },
+                        fontSize: isMobile ? '0.75rem' : '0.875rem',
+                        fontWeight: 500,
                       },
-                      '& .MuiSelect-icon': {
-                        color: '#6b7280',
-                        fontSize: '16px',
-                        right: '6px',
+                      '& .MuiTablePagination-actions': {
+                        marginLeft: isMobile ? '8px' : '16px',
                       },
                       '& .MuiIconButton-root': {
-                        width: '32px',
-                        height: '32px',
                         color: '#6b7280',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px',
-                        margin: '0 2px',
-                        transition: 'all 0.2s ease',
+                        padding: isMobile ? '6px' : '8px',
                         '&:hover': {
-                          backgroundColor: '#3b82f6',
-                          borderColor: '#3b82f6',
-                          color: 'white',
-                          transform: 'translateY(-1px)',
-                          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151',
                         },
                         '&.Mui-disabled': {
-                          backgroundColor: '#f1f5f9',
-                          borderColor: '#e2e8f0',
-                          color: '#cbd5e1',
-                          transform: 'none',
-                          boxShadow: 'none',
+                          color: '#d1d5db',
                         },
                       },
+                      '& .MuiTablePagination-spacer': {
+                        display: isMobile ? 'none' : 'flex',
+                      },
                     }}
-                    />
+                  />
                 </Box>
               )}
             </Box>
-          </div>
+          </Container>
         </div>
       </div>
     {open &&  <AddEditSubTenent

@@ -24,7 +24,18 @@ import {
   InputLabel,
   Stack,
   Pagination,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
+import {
+  ResponsivePageTemplate,
+  ResponsiveCardGrid,
+  ResponsivePageTitle,
+  ResponsiveCardTitle,
+  ResponsiveBodyText,
+  ResponsiveCaptionText,
+  responsiveFontSizes
+} from '../../Layout';
 import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
@@ -268,14 +279,14 @@ function JobCard({ job, onEdit, onDelete, onView, stagesList, jobStatus, navigat
         {/* Job Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box sx={{ flexGrow: 1, mr: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: 'text.primary' }}>
+            <ResponsiveCardTitle sx={{ mb: 0.5 }}>
               {job?.jobName}
-            </Typography>
+            </ResponsiveCardTitle>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <LocationIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 0.5 }} />
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+              <LocationIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary', mr: 0.5 }} />
+              <ResponsiveCaptionText>
                 {job?.streetAddress}, {job?.city}, {job?.state}-{job?.zipCode}
-              </Typography>
+              </ResponsiveCaptionText>
             </Box>
             <Chip 
               icon={<BusinessIcon />}
@@ -544,6 +555,13 @@ export default function Joblist({ initialActiveTab }) {
     // eslint-disable-next-line
   }, []);
 
+  // Cleanup loader state on component unmount
+  useEffect(() => {
+    return () => {
+      setLoader(false);
+    };
+  }, []);
+
   const handleChangePage = (newPage) => {
     TenantlistAPI(newPage, rowsPerPage, value.jobStatus, value.address);
     setPage(newPage);
@@ -630,151 +648,158 @@ export default function Joblist({ initialActiveTab }) {
     setJobStatus(data);
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       
-      <Box sx={{ p: 0 }}>
-        <BackButton link="/contacts" />
-        
-        <FilterJob
-          addresList={addresList}
-          handleAddresschnage={handleAddresschnage}
-          handleStatuschange={handleStatuschange}
-          value={value}
-          GetSatus={GetSatus}
-        />
+      <FilterJob
+        addresList={addresList}
+        handleAddresschnage={handleAddresschnage}
+        handleStatuschange={handleStatuschange}
+        value={value}
+        GetSatus={GetSatus}
+      />
 
-        {/* Header */}
-        <Paper 
-          elevation={0}
-          sx={{ 
-            p: 3, 
-            mb: 3, 
-            backgroundColor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2
-          }}
+      {/* Header */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 2, sm: 3 }, 
+          mb: 3, 
+          backgroundColor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 2
+        }}
+      >
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          justifyContent="space-between"
+          spacing={2}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <WorkIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-              <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                Jobs
-              </Typography>
-            </Box>
-            
-            {HasPermission("JobAdd") && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => {
-                  setAction("add");
-                  setOpen(true);
-                }}
-                sx={{
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  px: 3
-                }}
-              >
-                Create New Job
-              </Button>
-            )}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <WorkIcon sx={{ color: 'primary.main', fontSize: { xs: 24, sm: 28 } }} />
+            <ResponsivePageTitle sx={{ mb: 0 }}>
+              Jobs
+            </ResponsivePageTitle>
           </Box>
-        </Paper>
+          
+          {HasPermission("JobAdd") && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                setAction("add");
+                setOpen(true);
+              }}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                px: { xs: 2, sm: 3 },
+                fontSize: responsiveFontSizes.buttonText,
+                width: { xs: '100%', sm: 'auto' }
+              }}
+            >
+              Create New Job
+            </Button>
+          )}
+        </Stack>
+      </Paper>
 
         {/* Jobs Grid */}
-        <Grid container spacing={3}>
+        <ResponsiveCardGrid 
+          spacing={{ xs: 2, sm: 3 }}
+          breakpoints={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+        >
           {/* Create New Job Card */}
           {HasPermission("JobAdd") && (
-            <Grid item xs={12} sm={6} lg={4} xl={3}>
-              <Card 
-                elevation={0}
-                sx={{ 
-                  border: '2px dashed',
-                  borderColor: 'primary.main',
-                  borderRadius: 2,
-                  height: 300,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    backgroundColor: 'primary.50',
-                    borderColor: 'primary.dark',
-                  }
-                }}
-                onClick={() => {
-                  setAction("add");
-                  setOpen(true);
-                }}
-              >
-                <Box sx={{ textAlign: 'center', p: 3 }}>
-                  <Avatar 
-                    sx={{ 
-                      width: 64, 
-                      height: 64, 
-                      backgroundColor: 'primary.main',
-                      mb: 2,
-                      mx: 'auto'
-                    }}
-                  >
-                    <AddIcon sx={{ fontSize: 32 }} />
-                  </Avatar>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    Create New Job
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-                    Start a new job for this contact
-                  </Typography>
-                </Box>
-              </Card>
-            </Grid>
+            <Card 
+              elevation={0}
+              sx={{ 
+                border: '2px dashed',
+                borderColor: 'primary.main',
+                borderRadius: 2,
+                height: { xs: 200, sm: 250, md: 300 },
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  backgroundColor: 'primary.50',
+                  borderColor: 'primary.dark',
+                }
+              }}
+              onClick={() => {
+                setAction("add");
+                setOpen(true);
+              }}
+            >
+              <Box sx={{ textAlign: 'center', p: { xs: 2, sm: 3 } }}>
+                <Avatar 
+                  sx={{ 
+                    width: { xs: 48, sm: 56, md: 64 }, 
+                    height: { xs: 48, sm: 56, md: 64 }, 
+                    backgroundColor: 'primary.main',
+                    mb: 2,
+                    mx: 'auto'
+                  }}
+                >
+                  <AddIcon sx={{ fontSize: { xs: 24, sm: 28, md: 32 } }} />
+                </Avatar>
+                <ResponsiveCardTitle sx={{ color: 'primary.main', mb: 1 }}>
+                  Create New Job
+                </ResponsiveCardTitle>
+                <ResponsiveBodyText sx={{ color: 'text.secondary' }}>
+                  Start a new job for this contact
+                </ResponsiveBodyText>
+              </Box>
+            </Card>
           )}
 
           {/* Job Cards */}
           {tenantList?.map((job, i) => (
-            <Grid item xs={12} sm={6} lg={4} xl={3} key={i}>
-              <JobCard
-                job={job}
-                onEdit={handleedit}
-                onDelete={handledelete}
-                onView={handleView}
-                stagesList={StagesList}
-                jobStatus={JobStatus}
-                navigate={navigate}
-              />
-            </Grid>
+            <JobCard
+              key={i}
+              job={job}
+              onEdit={handleedit}
+              onDelete={handledelete}
+              onView={handleView}
+              stagesList={StagesList}
+              jobStatus={JobStatus}
+              navigate={navigate}
+            />
           ))}
 
-          {/* No Records */}
-          {(!tenantList || tenantList?.length === 0) && (
-            <Grid item xs={12}>
-              <Paper 
-                elevation={0}
-                sx={{ 
-                  p: 6, 
-                  textAlign: 'center',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2
-                }}
-              >
-                <WorkIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-                <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
-                  No Jobs Found
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.disabled' }}>
-                  There are no jobs associated with this contact yet.
-                </Typography>
-              </Paper>
-            </Grid>
-          )}
-        </Grid>
+        </ResponsiveCardGrid>
+
+        {/* No Records */}
+        {(!tenantList || tenantList?.length === 0) && (
+          <Paper 
+            elevation={0}
+            sx={{ 
+              p: { xs: 4, sm: 6 }, 
+              textAlign: 'center',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 2,
+              mt: 3
+            }}
+          >
+            <WorkIcon sx={{ fontSize: { xs: 48, sm: 64 }, color: 'text.disabled', mb: 2 }} />
+            <ResponsiveCardTitle sx={{ color: 'text.secondary', mb: 1 }}>
+              No Jobs Found
+            </ResponsiveCardTitle>
+            <ResponsiveBodyText sx={{ color: 'text.disabled' }}>
+              There are no jobs associated with this contact yet.
+            </ResponsiveBodyText>
+          </Paper>
+        )}
 
         {/* Modern Pagination */}
         {tenantList && tenantList?.length > 0 && (
@@ -786,8 +811,8 @@ export default function Joblist({ initialActiveTab }) {
             onItemsPerPageChange={handleChangeRowsPerPage}
           />
         )}
-      </Box>
 
+      {/* Modals */}
       {open && (
         <AddEditJob
           open={open}

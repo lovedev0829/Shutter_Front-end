@@ -17,6 +17,8 @@ import {
   MenuItem,
   FormHelperText,
   Avatar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { 
   Close,
@@ -44,6 +46,10 @@ const AddEditSubTenent = ({
   action,
   object,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+
   const defaultState = {
     companyName: "",
     firstName: "",
@@ -218,12 +224,19 @@ const AddEditSubTenent = ({
     <>
       <Dialog
         open={open}
-        maxWidth="md"
-        fullWidth
+        maxWidth={isMobile ? false : "md"}
+        fullWidth={!isMobile}
+        fullScreen={isMobile}
         sx={{
           "& .MuiDialog-paper": {
-            borderRadius: "12px",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            borderRadius: isMobile ? "0" : "12px",
+            boxShadow: isMobile 
+              ? "none" 
+              : "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            margin: isMobile ? 0 : "32px",
+            maxHeight: isMobile ? "100vh" : "90vh",
+            width: isMobile ? "100%" : "auto",
+            maxWidth: isMobile ? "100%" : "800px",
           },
         }}
       >
@@ -233,10 +246,19 @@ const AddEditSubTenent = ({
             justifyContent: "space-between",
             alignItems: "center",
             borderBottom: "1px solid #e2e8f0",
-            pb: 2,
+            pb: isMobile ? 1.5 : 2,
+            px: isMobile ? 2 : 3,
+            py: isMobile ? 1.5 : 2,
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e293b" }}>
+          <Typography 
+            variant={isMobile ? "h6" : "h5"} 
+            sx={{ 
+              fontWeight: 600, 
+              color: "#1e293b",
+              fontSize: isMobile ? '1.125rem' : '1.5rem',
+            }}
+          >
             {action === "add" ? "Add Partner" : "Update Partner"}
           </Typography>
           <IconButton
@@ -247,18 +269,36 @@ const AddEditSubTenent = ({
               forceUpdate();
               setImage("");
             }}
+            size={isMobile ? "medium" : "large"}
             sx={{
               color: "#64748b",
+              padding: isMobile ? "6px" : "8px",
               "&:hover": { backgroundColor: "#f1f5f9", color: "#ef4444" },
             }}
           >
-            <Close />
+            <Close fontSize={isMobile ? "medium" : "large"} />
           </IconButton>
         </DialogTitle>
         <form onSubmit={SubTenantAddUpdate}>
-          <DialogContent sx={{ px: 3, py: 2 }}>
+          <DialogContent 
+            sx={{ 
+              px: isMobile ? 2 : 3, 
+              py: isMobile ? 2 : 3,
+              maxHeight: isMobile ? 'calc(100vh - 140px)' : 'none',
+              overflowY: 'auto',
+            }}
+          >
             {/* Logo Upload Section */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
+            <Box 
+              sx={{ 
+                display: "flex", 
+                flexDirection: isMobile ? "column" : "row",
+                alignItems: isMobile ? "center" : "center", 
+                gap: isMobile ? 2 : 3, 
+                mb: isMobile ? 3 : 4,
+                textAlign: isMobile ? "center" : "left",
+              }}
+            >
               <Box sx={{ position: "relative" }}>
                 <input
                   id="fileInput"
@@ -284,8 +324,8 @@ const AddEditSubTenent = ({
                         : undefined
                     }
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: isMobile ? 64 : 80,
+                      height: isMobile ? 64 : 80,
                       cursor: "pointer",
                       border: "2px dashed #cbd5e1",
                       backgroundColor: "#f8fafc",
@@ -295,7 +335,7 @@ const AddEditSubTenent = ({
                       },
                     }}
                   >
-                    <PhotoCamera sx={{ color: "#64748b", fontSize: 32 }} />
+                    <PhotoCamera sx={{ color: "#64748b", fontSize: isMobile ? 24 : 32 }} />
                   </Avatar>
                 </label>
                 {(image || value.logo) && (
@@ -310,26 +350,40 @@ const AddEditSubTenent = ({
                       right: -8,
                       backgroundColor: "#ef4444",
                       color: "white",
-                      width: 24,
-                      height: 24,
+                      width: isMobile ? 20 : 24,
+                      height: isMobile ? 20 : 24,
                       "&:hover": { backgroundColor: "#dc2626" },
                     }}
                   >
-                    <DeleteOutline sx={{ fontSize: 16 }} />
+                    <DeleteOutline sx={{ fontSize: isMobile ? 12 : 16 }} />
                   </IconButton>
                 )}
               </Box>
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                <Typography 
+                  variant={isMobile ? "subtitle1" : "h6"} 
+                  sx={{ 
+                    fontWeight: 600, 
+                    mb: 0.5,
+                    fontSize: isMobile ? '1rem' : '1.25rem',
+                  }}
+                >
                   Upload Logo
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b" }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: "#64748b",
+                    fontSize: isMobile ? '0.8125rem' : '0.875rem',
+                    lineHeight: isMobile ? 1.4 : 1.3,
+                  }}
+                >
                   Please upload right to use image and format like: png, jpg, jpeg
                 </Typography>
               </Box>
             </Box>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={isMobile ? 2 : 3}>
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
@@ -682,14 +736,15 @@ const AddEditSubTenent = ({
               {/* User Details Section */}
               <Grid item xs={12}>
                 <Typography 
-                  variant="h6" 
+                  variant={isMobile ? "subtitle1" : "h6"} 
                   sx={{ 
                     fontWeight: 600, 
                     color: "#1e293b",
                     borderBottom: "1px solid #e2e8f0",
-                    pb: 1,
-                    mb: 2,
-                    mt: 2,
+                    pb: isMobile ? 0.5 : 1,
+                    mb: isMobile ? 1.5 : 2,
+                    mt: isMobile ? 1.5 : 2,
+                    fontSize: isMobile ? '1.125rem' : '1.25rem',
                   }}
                 >
                   User Details
@@ -848,7 +903,19 @@ const AddEditSubTenent = ({
             </Grid>
           </DialogContent>
 
-          <DialogActions sx={{ px: 3, py: 2, borderTop: "1px solid #e2e8f0" }}>
+          <DialogActions 
+            sx={{ 
+              px: isMobile ? 2 : 3, 
+              py: isMobile ? 2 : 2, 
+              borderTop: "1px solid #e2e8f0",
+              flexDirection: isMobile ? "column-reverse" : "row",
+              gap: isMobile ? 1 : 0,
+              '& > *': {
+                width: isMobile ? '100%' : 'auto',
+                minWidth: isMobile ? 'unset' : '80px',
+              },
+            }}
+          >
             <Button
               variant="outlined"
               onClick={() => {
@@ -858,12 +925,16 @@ const AddEditSubTenent = ({
                 forceUpdate();
                 setImage("");
               }}
+              size={isMobile ? "large" : "medium"}
               sx={{
                 borderRadius: "8px",
                 textTransform: "none",
                 fontWeight: 600,
                 borderColor: "#d1d5db",
                 color: "#6b7280",
+                fontSize: isMobile ? "0.875rem" : "0.9375rem",
+                padding: isMobile ? "12px 24px" : "10px 20px",
+                minHeight: isMobile ? "48px" : "40px",
                 "&:hover": {
                   borderColor: "#9ca3af",
                   backgroundColor: "#f9fafb",
@@ -876,18 +947,21 @@ const AddEditSubTenent = ({
               type="submit"
               variant="contained"
               disabled={loader}
+              size={isMobile ? "large" : "medium"}
               sx={{
                 borderRadius: "8px",
                 textTransform: "none",
                 fontWeight: 600,
-                px: 3,
-                py: 1,
+                px: isMobile ? 3 : 3,
+                py: isMobile ? 1.5 : 1,
+                fontSize: isMobile ? "0.875rem" : "0.9375rem",
+                minHeight: isMobile ? "48px" : "40px",
                 backgroundColor: "#3b82f6",
                 boxShadow: "0 4px 12px rgba(59, 130, 246, 0.15)",
                 "&:hover": {
                   backgroundColor: "#2563eb",
                   boxShadow: "0 6px 16px rgba(59, 130, 246, 0.25)",
-                  transform: "translateY(-1px)",
+                  transform: isMobile ? "none" : "translateY(-1px)",
                 },
                 "&:disabled": {
                   backgroundColor: "#9ca3af",

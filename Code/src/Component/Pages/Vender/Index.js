@@ -22,6 +22,14 @@ import {
   TextField,
   Tabs,
   Tab,
+  useTheme,
+  useMediaQuery,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Grid,
+  Container,
+  Divider,
 } from "@mui/material";
 import { 
   Edit,
@@ -31,6 +39,8 @@ import {
   ToggleOn,
   ToggleOff,
   Add,
+  ExpandMore,
+  FilterList,
 } from "@mui/icons-material";
 import AddEditVender from "./AddEditVender";
 import {
@@ -57,6 +67,9 @@ export default function Index() {
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [debouncedSearch] = useDebounce(search, 500);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [filter, setFilter] = useState({
     status: "2",
     tenantId: "",
@@ -355,7 +368,7 @@ export default function Index() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Vendor" />
         <div className="body_content">
@@ -363,26 +376,41 @@ export default function Index() {
             <Tabs
               value={getCurrentTabIndex()}
               onChange={handleTabChange}
+              variant={isMobile ? "scrollable" : "standard"}
+              scrollButtons={isMobile ? "auto" : false}
+              allowScrollButtonsMobile
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
+                minHeight: { xs: 44, sm: 48 },
                 '& .MuiTab-root': {
                   textTransform: 'none',
                   fontWeight: 500,
-                  minHeight: 48,
+                  minHeight: { xs: 44, sm: 48 },
+                  fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                  minWidth: { xs: 'auto', sm: 160 },
+                  px: { xs: 1, sm: 2 },
                   '&.Mui-selected': {
                     fontWeight: 600,
                   },
+                },
+                '& .MuiTabs-scrollButtons': {
+                  color: theme.palette.primary.main,
                 },
               }}
             >
               {Tablist.filter(Boolean).map((tab, index) => (
                 <Tab
                   key={index}
-                  icon={tab.svg}
+                  icon={isMobile ? null : tab.svg}
                   label={tab.title}
                   iconPosition="start"
-                  sx={{ gap: 1 }}
+                  sx={{ 
+                    gap: { xs: 0.5, sm: 1 },
+                    '& .MuiTab-iconWrapper': {
+                      fontSize: { xs: '1rem', sm: '1.25rem' },
+                    },
+                  }}
                 />
               ))}
             </Tabs>
@@ -390,30 +418,35 @@ export default function Index() {
             <Box sx={{ p: 0 }}>
               {/* Tab Content */}
               {tabdata === "#vendorlisttabd" && (
-                <Box sx={{ p: 3 }}>
+                <Box sx={{ p: { xs: 2, sm: 3 } }}>
                     {/* Header Section */}
                     <Box sx={{ 
                       display: 'flex', 
-                      alignItems: 'center', 
+                      alignItems: { xs: 'flex-start', sm: 'center' },
                       justifyContent: 'space-between', 
-                      mb: 4 
+                      flexDirection: { xs: 'column', sm: 'row' },
+                      gap: { xs: 2, sm: 0 },
+                      mb: { xs: 3, sm: 4 }
                     }}>
                       <TableTitle title="Manage Vendor" />
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {HasPermission("VendorsAdd") && (
                           <Button
                             variant="contained"
-                            startIcon={<Add />}
+                            startIcon={isMobile ? null : <Add />}
                             onClick={() => {
                               setAction("add");
                               setOpen(true);
                             }}
+                            size={isMobile ? "small" : "medium"}
                             sx={{
                               borderRadius: '8px',
                               textTransform: 'none',
                               fontWeight: 600,
-                              px: 3,
-                              py: 1,
+                              fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                              px: { xs: 2, sm: 3 },
+                              py: { xs: 0.5, sm: 1 },
+                              minWidth: { xs: 'auto', sm: 'auto' },
                               boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
                               '&:hover': {
                                 boxShadow: '0 6px 16px rgba(25, 118, 210, 0.25)',
@@ -428,22 +461,58 @@ export default function Index() {
                     </Box>
 
                     {/* Search and Filter Section */}
-                    <Box sx={{ 
-                      display: 'flex',
-                      flexDirection: { xs: 'column', md: 'row' },
-                      alignItems: 'center',
-                      gap: 2,
-                      mb: 4
-                    }}>
-                      <Box sx={{ flexGrow: 1, maxWidth: { xs: '100%', md: '300px' } }}>
-                        <Search handleSearch={handleSearch} />
-                      </Box>
-                      <Box sx={{ minWidth: { xs: '100%', md: '200px' } }}>
-                        <StatusDropdown
-                          value={filter.status}
-                          fn={handleChange}
-                        />
-                      </Box>
+                    <Box sx={{ mb: 3 }}>
+                      <Accordion 
+                        defaultExpanded={!isMobile}
+                        sx={{
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                          borderRadius: '8px !important',
+                          '&:before': { display: 'none' },
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <AccordionSummary 
+                          expandIcon={<ExpandMore sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />}
+                          sx={{
+                            backgroundColor: '#f8fafc',
+                            minHeight: { xs: 44, sm: 48, md: 56 },
+                            px: { xs: 2, sm: 3 },
+                            '& .MuiAccordionSummary-content': {
+                              alignItems: 'center',
+                              gap: { xs: 0.5, sm: 1 },
+                              margin: { xs: '8px 0', sm: '12px 0' },
+                            },
+                            '& .MuiAccordionSummary-expandIconWrapper': {
+                              color: '#3b82f6',
+                            },
+                          }}
+                        >
+                          <FilterList sx={{ color: '#3b82f6', fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 600,
+                              fontSize: { xs: '1rem', sm: '1.125rem' },
+                              color: '#1e293b',
+                            }}
+                          >
+                            Search & Filters
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ p: { xs: 2, sm: 3 } }}>
+                          <Grid container spacing={{ xs: 2, sm: 3 }}>
+                            <Grid item xs={12} md={6}>
+                              <Search handleSearch={handleSearch} />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                              <StatusDropdown
+                                value={filter.status}
+                                fn={handleChange}
+                              />
+                            </Grid>
+                          </Grid>
+                        </AccordionDetails>
+                      </Accordion>
                     </Box>
 
                     {/* Modern Table Section */}
@@ -474,7 +543,7 @@ export default function Index() {
                           },
                         }}
                       >
-                        <Table sx={{ minWidth: 1200 }} stickyHeader>
+                        <Table sx={{ minWidth: { xs: 800, sm: 1000, md: 1200 } }} stickyHeader>
                           <TableHead>
                             <TableRow>
                               {columns.map((column) => (
@@ -483,50 +552,63 @@ export default function Index() {
                                   sx={{
                                     backgroundColor: '#f8fafc',
                                     fontWeight: 700,
-                                    fontSize: '0.875rem',
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
                                     color: '#1e293b',
                                     borderBottom: '2px solid #e2e8f0',
-                                    py: 2,
-                                                            position: 'sticky',
-                        top: 0,
-                        zIndex: 3,
+                                    py: { xs: 1, sm: 2 },
+                                    px: { xs: 1, sm: 2 },
+                                    position: 'sticky',
+                                    top: 0,
+                                    zIndex: 3,
+                                    minWidth: { xs: '100px', sm: '120px', md: 'auto' },
+                                    whiteSpace: 'nowrap',
                                   }}
                                 >
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography variant="inherit" sx={{ fontWeight: 700 }}>
+                                    <Typography variant="inherit" sx={{ 
+                                      fontWeight: 700,
+                                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                    }}>
                                       {column.label}
                                     </Typography>
                                     {column.sort && (
                                       <IconButton
-                                        size="small"
+                                        size={isMobile ? 'small' : 'medium'}
                                         onClick={() => handleFilterSortChange(column.key)}
                                         sx={{
                                           color: filter.sortColumn === column.key ? '#3b82f6' : '#94a3b8',
                                           '&:hover': { color: '#3b82f6' },
+                                          p: { xs: 0.5, sm: 1 },
                                         }}
                                       >
                                         {filter.sortColumn === column.key && filter.sortDirection === 'desc' ? (
-                                          <ArrowDownward fontSize="small" />
+                                          <ArrowDownward fontSize={isMobile ? 'small' : 'medium'} />
                                         ) : (
-                                          <ArrowUpward fontSize="small" />
+                                          <ArrowUpward fontSize={isMobile ? 'small' : 'medium'} />
                                         )}
                                       </IconButton>
                                     )}
                                   </Box>
                                   {column.sort && (
                                     <TextField
-                                      size="small"
+                                      size={isMobile ? "small" : "small"}
                                       placeholder={`Search ${column.label.toLowerCase()}...`}
                                       variant="outlined"
                                       onChange={(e) => handlesearchChange(column.key, e.target.value)}
                                       value={filter.columnFilters?.find(f => f.field === column.key)?.value || ''}
                                       sx={{
                                         mt: 1,
+                                        minWidth: { xs: '80px', sm: '100px', md: '150px' },
+                                        maxWidth: { xs: '120px', sm: '150px', md: 'none' },
                                         '& .MuiOutlinedInput-root': {
-                                          height: '32px',
-                                          fontSize: '0.75rem',
+                                          height: { xs: '24px', sm: '28px', md: '32px' },
+                                          fontSize: { xs: '0.625rem', sm: '0.6875rem', md: '0.75rem' },
                                           borderRadius: '6px',
                                           backgroundColor: 'white',
+                                          '& input': {
+                                            py: { xs: '2px', sm: '4px' },
+                                            px: { xs: '6px', sm: '8px' },
+                                          },
                                           '&:hover .MuiOutlinedInput-notchedOutline': {
                                             borderColor: '#3b82f6',
                                           },
@@ -543,14 +625,17 @@ export default function Index() {
                                 sx={{
                                   backgroundColor: '#f8fafc',
                                   fontWeight: 700,
-                                  fontSize: '0.875rem',
+                                  fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
                                   color: '#1e293b',
                                   borderBottom: '2px solid #e2e8f0',
-                                  py: 2,
-                                                          position: 'sticky',
-                        top: 0,
-                        zIndex: 3,
+                                  py: { xs: 1, sm: 2 },
+                                  px: { xs: 1, sm: 2 },
+                                  position: 'sticky',
+                                  top: 0,
+                                  zIndex: 3,
                                   textAlign: 'center',
+                                  minWidth: { xs: '80px', sm: '100px', md: 'auto' },
+                                  whiteSpace: 'nowrap',
                                 }}
                               >
                                 Actions
@@ -574,116 +659,249 @@ export default function Index() {
                                     transition: 'all 0.2s ease',
                                   }}
                                 >
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '100px', sm: '120px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        fontWeight: 600, 
+                                        color: '#1e293b',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        maxWidth: { xs: '80px', sm: '120px', md: 'auto' },
+                                      }}
+                                    >
                                       {vendor.companyName}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '70px', sm: '80px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.firstName}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '70px', sm: '80px', md: 'auto' },
+                                  }}>
                                     <Chip
                                       label={vendor.vendorCode}
-                                      size="small"
+                                      size={isMobile ? 'small' : 'medium'}
                                       sx={{
                                         backgroundColor: '#e0f2fe',
                                         color: '#0277bd',
                                         fontWeight: 600,
-                                        fontSize: '0.75rem',
+                                        fontSize: { xs: '0.5625rem', sm: '0.625rem', md: '0.75rem' },
+                                        height: { xs: '20px', sm: '24px', md: '32px' },
+                                        '& .MuiChip-label': {
+                                          px: { xs: 0.5, sm: 1 },
+                                        },
                                       }}
                                     />
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '100px', sm: '120px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.email}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '80px', sm: '100px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.phoneNumber}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '100px', sm: '120px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.streetAddress}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '70px', sm: '80px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.stateName}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '70px', sm: '80px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.city}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '60px', sm: '70px', md: 'auto' },
+                                  }}>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#475569',
+                                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.875rem' },
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                      }}
+                                    >
                                       {vendor.zipCode}
                                     </Typography>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    minWidth: { xs: '80px', sm: '100px', md: 'auto' },
+                                  }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                                       <IconButton
-                                        size="small"
+                                        size={isMobile ? 'small' : 'medium'}
                                         onClick={() => handlestatus(vendor)}
                                         sx={{
                                           color: vendor.isActive ? '#16a34a' : '#94a3b8',
                                           '&:hover': {
                                             backgroundColor: vendor.isActive ? '#f0fdf4' : '#f8fafc',
                                           },
+                                          p: { xs: 0.5, sm: 1 },
                                         }}
                                       >
-                                        {vendor.isActive ? <ToggleOn /> : <ToggleOff />}
+                                        {vendor.isActive ? 
+                                          <ToggleOn fontSize={isMobile ? 'small' : 'medium'} /> : 
+                                          <ToggleOff fontSize={isMobile ? 'small' : 'medium'} />
+                                        }
                                       </IconButton>
                                       <Chip
                                         label={vendor.isActive ? 'Active' : 'Inactive'}
-                                        size="small"
+                                        size={isMobile ? 'small' : 'medium'}
                                         sx={{
                                           backgroundColor: vendor.isActive ? '#dcfce7' : '#f1f5f9',
                                           color: vendor.isActive ? '#16a34a' : '#64748b',
                                           fontWeight: 600,
-                                          fontSize: '0.75rem',
+                                          fontSize: { xs: '0.5625rem', sm: '0.625rem', md: '0.75rem' },
+                                        height: { xs: '20px', sm: '24px', md: '32px' },
+                                        '& .MuiChip-label': {
+                                          px: { xs: 0.5, sm: 1 },
+                                        },
                                         }}
                                       />
                                     </Box>
                                   </TableCell>
-                                  <TableCell sx={{ py: 2, textAlign: 'center' }}>
-                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                  <TableCell sx={{ 
+                                    py: { xs: 0.5, sm: 1, md: 2 }, 
+                                    px: { xs: 0.5, sm: 1, md: 2 },
+                                    textAlign: 'center',
+                                    minWidth: { xs: '70px', sm: '80px', md: 'auto' },
+                                  }}>
+                                    <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 1 }, justifyContent: 'center' }}>
                                       {HasPermission("VendorsEdit") && (
                                         <IconButton
-                                          size="small"
+                                          size={isMobile ? 'small' : 'medium'}
                                           onClick={() => handleedit(vendor)}
                                           sx={{
                                             color: '#3b82f6',
                                             backgroundColor: '#eff6ff',
+                                            p: { xs: 0.5, sm: 1 },
                                             '&:hover': {
                                               backgroundColor: '#dbeafe',
                                               transform: 'scale(1.1)',
                                             },
                                           }}
                                         >
-                                          <Edit fontSize="small" />
+                                          <Edit fontSize={isMobile ? 'small' : 'medium'} />
                                         </IconButton>
                                       )}
                                       {HasPermission("VendorsDelete") && (
                                         <IconButton
-                                          size="small"
+                                          size={isMobile ? 'small' : 'medium'}
                                           onClick={() => handledelete(vendor)}
                                           sx={{
                                             color: '#ef4444',
                                             backgroundColor: '#fef2f2',
+                                            p: { xs: 0.5, sm: 1 },
                                             '&:hover': {
                                               backgroundColor: '#fee2e2',
                                               transform: 'scale(1.1)',
                                             },
                                           }}
                                         >
-                                          <DeleteIcon fontSize="small" />
+                                          <DeleteIcon fontSize={isMobile ? 'small' : 'medium'} />
                                         </IconButton>
                                       )}
                                     </Box>
@@ -731,8 +949,8 @@ export default function Index() {
               )}
                 {/* vendorlisttab */}
 
-              {HasPermission("VendorOrderView") && tabdata === "#addvendortab" && (
-                <Box sx={{ p: 3 }}>
+                              {HasPermission("VendorOrderView") && tabdata === "#addvendortab" && (
+                <Box sx={{ p: { xs: 2, sm: 3 } }}>
                   <VendorOrderList />
                 </Box>
               )}

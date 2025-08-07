@@ -110,7 +110,7 @@ export default function Details() {
 
   return (
     <div className="intersight_content">
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
         <Header title="Products" />
 
