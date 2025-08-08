@@ -10,12 +10,54 @@ import {
   SuccessMessage,
 } from "../../../helpers/common";
 import PartnerDropdown from "../../../helpers/PartnerDropdown";
-import { TablePagination } from "@mui/material";
+import {
+  Box,
+  Container,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Paper,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
+  IconButton,
+  Collapse,
+  Typography,
+  Stack,
+  Chip,
+  Button,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  alpha,
+  Backdrop,
+  CircularProgress
+} from "@mui/material";
+import {
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  Save as SaveIcon,
+  Clear as ClearIcon,
+  Visibility as VisibilityIcon
+} from "@mui/icons-material";
 import ProductTypeDropdown from "../../../helpers/ProductTypeDropdown";
 import { defaultConfig } from "../../../config";
 import { useParams } from "react-router-dom";
 
 export default function ProductEdit() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [page, setPage] = useState(1);
@@ -480,77 +522,199 @@ export default function ProductEdit() {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loder}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      
       <div className="intersight_content">
         <Header title="Manage Product" />
         <div className="body_content">
           <div className="contact-profile">
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <TableTitle title="Manage Product" />
-            </div>
+            <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', p: 0 }}>
+              <Container 
+                maxWidth="xl" 
+                sx={{ 
+                  py: isMobile ? 1 : 3,
+                  px: isMobile ? 1 : 3
+                }}
+              >
+                <Card elevation={2} sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: isMobile ? 1.5 : 3 }}>
+              {/* Header Section */}
+              <Box sx={{ mb: isMobile ? 2 : 3 }}>
+                <TableTitle title="Manage Product" />
+              </Box>
 
-            <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-              <div className="filter-dropdown dropdown">
-                <ProductTypeDropdown
-                  value={filter.productType}
-                  fn={handleChange}
-                  load={true}
-                  className="selectboxdropdown"
-                  Getproduct={Getproduct}
-                />
-              </div>
-              <div className="filter-dropdown dropdown">
+              {/* Filters Section */}
+              <Stack 
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={2}
+                sx={{ mb: isMobile ? 2 : 3 }}
+              >
+                <Box sx={{ minWidth: { xs: '100%', md: 200 } }}>
+                  <ProductTypeDropdown
+                    value={filter.productType}
+                    fn={handleChange}
+                    load={true}
+                    className="selectboxdropdown"
+                    Getproduct={Getproduct}
+                  />
+                </Box>
                 {HasPermission("SubTenantView") && (
-                  <PartnerDropdown value={filter.tenantId} fn={handleChange} />
+                  <Box sx={{ minWidth: { xs: '100%', md: 200 } }}>
+                    <PartnerDropdown value={filter.tenantId} fn={handleChange} />
+                  </Box>
                 )}
-              </div>
-            </div>
-            <div className="task_table mb-30">
-              <div className="table-responsive">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">SN</th>
-                      <th scope="col">Product Name</th>
-                      {/* <th scope="col">
-                        {HasPermission("SubTenantView")
-                          ? "MSRP / Wholesale Price"
-                          : "MSRP"}
-                      </th> */}
-                      {HasPermission("SubTenantView") && (
-                        <th scope="col">IsVisible</th>
-                      )}
-
-                      <th scope="col">Price Type</th>
-
-                      {HasPermission("SubTenantView") && (
-                        <th scope="col">
-                          Wholesale Price{" "}
-                          {HasPermission("SubTenantView") ? "Markup" : ""}
-                        </th>
-                      )}
-                      <th scope="col">
-                        {" "}
-                        {HasPermission("SubTenantView")
-                          ? "Max Partner Price Markup"
-                          : "Selling price Markup"}
-                      </th>
-                      {!HasPermission("SubTenantView") && (
-                        <th scope="col">Tax</th>
-                      )}
-                      <th scope="col"></th>
-
-                      <th scope="col" className="text-end">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tenantList?.map((val, i) => (
-                      <React.Fragment key={i}>
-                        <tr>
-                          <td>{(page - 1) * rowsPerPage + i + 1}</td>
-                          <td>{val?.productName}</td>
+              </Stack>
+              {/* Table Section */}
+              <Box sx={{ mb: isMobile ? 2 : 3 }}>
+                <Paper elevation={1} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                  <TableContainer sx={{ 
+                    overflowX: 'auto',
+                    '&::-webkit-scrollbar': {
+                      height: 8,
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      backgroundColor: '#f1f1f1',
+                      borderRadius: 4,
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      backgroundColor: '#c1c1c1',
+                      borderRadius: 4,
+                      '&:hover': {
+                        backgroundColor: '#a8a8a8',
+                      },
+                    },
+                  }}>
+                    <Table sx={{ minWidth: isMobile ? 800 : 650 }}>
+                      <TableHead sx={{ backgroundColor: '#f8fafc' }}>
+                        <TableRow>
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2
+                          }}>
+                            SN
+                          </TableCell>
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2,
+                            minWidth: isMobile ? 120 : 150
+                          }}>
+                            Product Name
+                          </TableCell>
+                          {HasPermission("SubTenantView") && (
+                            <TableCell sx={{ 
+                              fontWeight: 600, 
+                              fontSize: isMobile ? '12px' : '14px',
+                              py: isMobile ? 1 : 2,
+                              px: isMobile ? 1 : 2
+                            }}>
+                              IsVisible
+                            </TableCell>
+                          )}
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2,
+                            minWidth: isMobile ? 100 : 120
+                          }}>
+                            Price Type
+                          </TableCell>
+                          {HasPermission("SubTenantView") && (
+                            <TableCell sx={{ 
+                              fontWeight: 600, 
+                              fontSize: isMobile ? '12px' : '14px',
+                              py: isMobile ? 1 : 2,
+                              px: isMobile ? 1 : 2,
+                              minWidth: isMobile ? 120 : 150
+                            }}>
+                              Wholesale Price{" "}
+                              {HasPermission("SubTenantView") ? "Markup" : ""}
+                            </TableCell>
+                          )}
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2,
+                            minWidth: isMobile ? 140 : 180
+                          }}>
+                            {HasPermission("SubTenantView")
+                              ? "Max Partner Price Markup"
+                              : "Selling price Markup"}
+                          </TableCell>
+                          {!HasPermission("SubTenantView") && (
+                            <TableCell sx={{ 
+                              fontWeight: 600, 
+                              fontSize: isMobile ? '12px' : '14px',
+                              py: isMobile ? 1 : 2,
+                              px: isMobile ? 1 : 2,
+                              minWidth: isMobile ? 100 : 120
+                            }}>
+                              Tax
+                            </TableCell>
+                          )}
+                          <TableCell sx={{ 
+                            fontWeight: 600, 
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2,
+                            minWidth: isMobile ? 100 : 120
+                          }}>
+                            Options
+                          </TableCell>
+                          <TableCell align="center" sx={{ 
+                            fontWeight: 600, 
+                            fontSize: isMobile ? '12px' : '14px',
+                            py: isMobile ? 1 : 2,
+                            px: isMobile ? 1 : 2,
+                            minWidth: isMobile ? 80 : 100
+                          }}>
+                            Action
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {tenantList?.map((val, i) => (
+                          <React.Fragment key={i}>
+                            <TableRow 
+                              sx={{
+                                '&:hover': {
+                                  backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                                },
+                                backgroundColor: editedRows.has(i) ? alpha(theme.palette.warning.main, 0.1) : 'inherit',
+                              }}
+                            >
+                              <TableCell sx={{ 
+                                py: isMobile ? 1 : 2,
+                                px: isMobile ? 1 : 2,
+                                fontSize: isMobile ? '12px' : '14px'
+                              }}>
+                                {(page - 1) * rowsPerPage + i + 1}
+                              </TableCell>
+                              <TableCell sx={{ 
+                                py: isMobile ? 1 : 2,
+                                px: isMobile ? 1 : 2
+                              }}>
+                                <Typography 
+                                  variant={isMobile ? "caption" : "body2"} 
+                                  fontWeight={500}
+                                  sx={{ 
+                                    fontSize: isMobile ? '12px' : '14px',
+                                    lineHeight: isMobile ? 1.2 : 1.5
+                                  }}
+                                >
+                                  {val?.productName}
+                                </Typography>
+                              </TableCell>
                           {/* <td>
                             {val.isComponentAvailable ? (
                               <span
@@ -609,280 +773,454 @@ export default function ProductEdit() {
                               </span>
                             )}
                           </td> */}
-                          {HasPermission("SubTenantView") && (
-                            <td>
-                              <input
-                                type="checkbox"
-                                style={{ border: "1px solid #8f8b8b" }}
-                                className="form-check-input"
-                                checked={val.isAvailable}
-                                onChange={(e) =>
-                                  handleChanges(e, i, "isAvailable")
-                                }
-                              />
-                            </td>
-                          )}
-
-                          {!HasPermission("SubTenantView") ? (
-                            <td>
-                              <select
-                                className="form-select"
-                                name="productType"
-                                style={{ width: "137px" }}
-                                value={val?.markupType}
-                                onChange={(e) =>
-                                  handleChanges(e, i, "markupType")
-                                }
-                                disabled
-                              >
-                                <option value="Fixed">Fixed</option>
-                                <option value="Percentage">Percentage</option>
-                              </select>
-                            </td>
-                          ) : (
-                            <td>
-                              {val.isComponentAvailable ? (
-                                <select
-                                  className="form-select"
-                                  name="productType"
-                                  style={{ width: "137px" }}
-                                  value={val?.priceType}
-                                  onChange={(e) =>
-                                    handleChanges(e, i, "priceType")
-                                  }
-                                  disabled={!val.isComponentAvailable}
-                                >
-                                  <option value="Fixed">Fixed</option>
-                                  <option value="Percentage">Percentage</option>
-                                </select>
-                              ) : (
-                                "Pricing at Estimation Screen"
-                              )}
-                            </td>
-                          )}
-
-                          {HasPermission("SubTenantView") && (
-                            <td>
-                              {val.isComponentAvailable ? (
-                                <input
-                                  type="number"
-                                  style={{ width: "120px" }}
-                                  className="form-control"
-                                  value={val?.wholeSalePrice}
-                                  onChange={(e) =>
-                                    handleChanges(e, i, "wholeSalePrice")
-                                  }
-                                  disabled={!val.isAvailable}
-                                />
-                              ) : (
-                                "Pricing at Estimation Screen"
-                              )}
-                            </td>
-                            // ) : (
-                            //   <p>
-                            //     {" "}
-                            //     {defaultConfig?.currencySign}{" "}
-                            //     {val?.wholeSalePrice}
-                            //   </p>
-                          )}
-
-                          <td>
-                            {HasPermission("SubTenantView") ? (
-                              <>
-                                {val.isComponentAvailable ? (
-                                  <input
-                                    type="number"
-                                    className="form-control"
-                                    style={{ width: "120px" }}
-                                    value={val?.maxPartnerPrice}
-                                    disabled={!val.isAvailable}
-                                    onChange={(e) =>
-                                      handleChanges(e, i, "maxPartnerPrice")
-                                    }
-                                  />
-                                ) : (
-                                  "Pricing at Estimation Screen"
-                                )}
-                              </>
-                            ) : (
-                              <input
-                                type="number"
-                                className="form-control"
-                                style={{ width: "120px" }}
-                                value={val?.partnerSellingPrice}
-                                onChange={(e) =>
-                                  handleChanges(e, i, "partnerSellingPrice")
-                                }
-                                disabled={
-                                  val.isComponentAvailable ? false : true
-                                }
-                              />
-                            )}
-                          </td>
-                          {!HasPermission("SubTenantView") && (
-                            <td>
-                              <select
-                                className="form-select"
-                                name="taxRateId"
-                                style={{ width: "137px" }}
-                                value={val?.taxRateId}
-                                onChange={(e) =>
-                                  handleChanges(e, i, "taxRateId")
-                                }
-                                disabled={
-                                  val.isTenantProductTaxAvailable ? false : true
-                                }
-                              >
-                                <option value="">Select Tax</option>
-                                {countryList?.map((item, i) => {
-                                  return (
-                                    <option
-                                      key={i}
-                                      value={item?.taxRateId}
-                                      selected={
-                                        item?.taxRateId === val?.taxRateId
-                                          ? true
-                                          : false
-                                      }
-                                    >
-                                      {item?.taxName}
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                            </td>
-                          )}
-
-                          {val?.options?.length > 0 ? (
-                            <td
-                              style={{ cursor: "pointer" }}
-                              onClick={() => toggleMilestone(i)}
-                            >
-                              Show Options{" "}
-                              <i
-                                className="fa fa-angle-down me-2"
-                                aria-hidden="true"
-                              ></i>
-                            </td>
-                          ) : (
-                            <td></td>
-                          )}
-                          <td className="text-end">
-                            {HasPermission("ManageProductEdit") &&
-                              editedRows.has(i) && (
-                                <>
-                                  <img
-                                    alt=""
-                                    style={{ cursor: "pointer" }}
-                                    src="/image/submit.png"
-                                    onClick={() => handleSubmit(i)}
-                                  />
-                                  <img
-                                    alt=""
-                                    style={{
-                                      cursor: "pointer",
-                                      marginLeft: "5px",
+                              {HasPermission("SubTenantView") && (
+                                <TableCell sx={{ 
+                                  py: isMobile ? 1 : 2,
+                                  px: isMobile ? 1 : 2
+                                }}>
+                                  <Checkbox
+                                    checked={val.isAvailable}
+                                    onChange={(e) => handleChanges(e, i, "isAvailable")}
+                                    color="primary"
+                                    size={isMobile ? "small" : "medium"}
+                                    sx={{
+                                      '&.Mui-checked': {
+                                        color: theme.palette.primary.main,
+                                      },
                                     }}
-                                    src="/image/cross.png"
-                                    onClick={() => handleClear(i)}
                                   />
-                                </>
+                                </TableCell>
                               )}
-                          </td>
-                        </tr>
-                        {expandedMilestone === i && (
-                          <React.Fragment>
-                            {val?.options?.map((vals, ind) =>
-                              vals?.optionTypes?.length > 0 ? (
-                                <tr key={ind}>
-                                  <td
-                                    style={{ padding: "0px" }}
-                                    colSpan={
-                                      HasPermission("SubTenantView") ? 9 : 9
-                                    }
+
+                              {!HasPermission("SubTenantView") ? (
+                                <TableCell sx={{ 
+                                  py: isMobile ? 1 : 2,
+                                  px: isMobile ? 1 : 2
+                                }}>
+                                  <FormControl 
+                                    size="small" 
+                                    sx={{ 
+                                      minWidth: isMobile ? 100 : 137,
+                                      width: '100%'
+                                    }}
                                   >
-                                    <div className="product-table-new">
-                                      <div className="d-flex align-items-center justify-content-between mb-3">
-                                        <h2 className="body_heading width-left-border mb-0 new-table-heading">
-                                          Option Name{" "}
-                                          <span className="text-black">
-                                            : {vals?.optionName}
-                                          </span>
-                                        </h2>
-                                        {!HasPermission("SubTenantView") && (
-                                          <div style={{ marginTop: "10px" }}>
-                                            <select
-                                              className="form-select"
-                                              style={{ width: "200px" }}
-                                              value={vals?.taxRateId || ""}
-                                              onChange={(e) =>
-                                                handleParentTaxRateChange(
-                                                  e,
-                                                  i,
-                                                  ind
-                                                )
-                                              }
-                                              disabled={
-                                                vals.isTenantOptionTaxAvailable
-                                                  ? false
-                                                  : true
-                                              }
-                                            >
-                                              <option value="">
-                                                Select Tax
-                                              </option>
-                                              {countryList?.map(
-                                                (item, index) => (
-                                                  <option
-                                                    key={index}
-                                                    value={item?.taxRateId}
+                                    <Select
+                                      value={val?.markupType}
+                                      onChange={(e) => handleChanges(e, i, "markupType")}
+                                      disabled
+                                      name="markupType"
+                                      sx={{ fontSize: isMobile ? '12px' : '14px' }}
+                                    >
+                                      <MenuItem value="Fixed">Fixed</MenuItem>
+                                      <MenuItem value="Percentage">Percentage</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                </TableCell>
+                              ) : (
+                                <TableCell sx={{ 
+                                  py: isMobile ? 1 : 2,
+                                  px: isMobile ? 1 : 2
+                                }}>
+                                  {val.isComponentAvailable ? (
+                                    <FormControl 
+                                      size="small" 
+                                      sx={{ 
+                                        minWidth: isMobile ? 100 : 137,
+                                        width: '100%'
+                                      }}
+                                    >
+                                      <Select
+                                        value={val?.priceType}
+                                        onChange={(e) => handleChanges(e, i, "priceType")}
+                                        disabled={!val.isComponentAvailable}
+                                        name="priceType"
+                                        sx={{ fontSize: isMobile ? '12px' : '14px' }}
+                                      >
+                                        <MenuItem value="Fixed">Fixed</MenuItem>
+                                        <MenuItem value="Percentage">Percentage</MenuItem>
+                                      </Select>
+                                    </FormControl>
+                                  ) : (
+                                    <Typography 
+                                      variant={isMobile ? "caption" : "body2"} 
+                                      color="primary"
+                                      sx={{ 
+                                        fontSize: isMobile ? '11px' : '14px',
+                                        lineHeight: isMobile ? 1.2 : 1.5
+                                      }}
+                                    >
+                                      Pricing at Estimation Screen
+                                    </Typography>
+                                  )}
+                                </TableCell>
+                              )}
+
+                              {HasPermission("SubTenantView") && (
+                                <TableCell sx={{ 
+                                  py: isMobile ? 1 : 2,
+                                  px: isMobile ? 1 : 2
+                                }}>
+                                  {val.isComponentAvailable ? (
+                                    <TextField
+                                      type="number"
+                                      size="small"
+                                      value={val?.wholeSalePrice}
+                                      onChange={(e) => handleChanges(e, i, "wholeSalePrice")}
+                                      disabled={!val.isAvailable}
+                                      sx={{ 
+                                        width: isMobile ? 80 : 120,
+                                        '& .MuiInputBase-input': {
+                                          fontSize: isMobile ? '12px' : '14px',
+                                          padding: isMobile ? '6px 8px' : '8px 12px'
+                                        }
+                                      }}
+                                      variant="outlined"
+                                    />
+                                  ) : (
+                                    <Typography 
+                                      variant={isMobile ? "caption" : "body2"} 
+                                      color="primary"
+                                      sx={{ 
+                                        fontSize: isMobile ? '11px' : '14px',
+                                        lineHeight: isMobile ? 1.2 : 1.5
+                                      }}
+                                    >
+                                      Pricing at Estimation Screen
+                                    </Typography>
+                                  )}
+                                </TableCell>
+                              )}
+
+                              <TableCell sx={{ 
+                                py: isMobile ? 1 : 2,
+                                px: isMobile ? 1 : 2
+                              }}>
+                                {HasPermission("SubTenantView") ? (
+                                  <>
+                                    {val.isComponentAvailable ? (
+                                      <TextField
+                                        type="number"
+                                        size="small"
+                                        value={val?.maxPartnerPrice}
+                                        disabled={!val.isAvailable}
+                                        onChange={(e) => handleChanges(e, i, "maxPartnerPrice")}
+                                        sx={{ 
+                                          width: isMobile ? 80 : 120,
+                                          '& .MuiInputBase-input': {
+                                            fontSize: isMobile ? '12px' : '14px',
+                                            padding: isMobile ? '6px 8px' : '8px 12px'
+                                          }
+                                        }}
+                                        variant="outlined"
+                                      />
+                                    ) : (
+                                      <Typography 
+                                        variant={isMobile ? "caption" : "body2"} 
+                                        color="primary"
+                                        sx={{ 
+                                          fontSize: isMobile ? '11px' : '14px',
+                                          lineHeight: isMobile ? 1.2 : 1.5
+                                        }}
+                                      >
+                                        Pricing at Estimation Screen
+                                      </Typography>
+                                    )}
+                                  </>
+                                ) : (
+                                  <TextField
+                                    type="number"
+                                    size="small"
+                                    value={val?.partnerSellingPrice}
+                                    onChange={(e) => handleChanges(e, i, "partnerSellingPrice")}
+                                    disabled={val.isComponentAvailable ? false : true}
+                                    sx={{ 
+                                      width: isMobile ? 80 : 120,
+                                      '& .MuiInputBase-input': {
+                                        fontSize: isMobile ? '12px' : '14px',
+                                        padding: isMobile ? '6px 8px' : '8px 12px'
+                                      }
+                                    }}
+                                    variant="outlined"
+                                  />
+                                )}
+                              </TableCell>
+                              {!HasPermission("SubTenantView") && (
+                                <TableCell sx={{ 
+                                  py: isMobile ? 1 : 2,
+                                  px: isMobile ? 1 : 2
+                                }}>
+                                  <FormControl 
+                                    size="small" 
+                                    sx={{ 
+                                      minWidth: isMobile ? 100 : 137,
+                                      width: '100%'
+                                    }}
+                                  >
+                                    <Select
+                                      value={val?.taxRateId || ""}
+                                      onChange={(e) => handleChanges(e, i, "taxRateId")}
+                                      name="taxRateId"
+                                      displayEmpty
+                                      sx={{ fontSize: isMobile ? '12px' : '14px' }}
+                                    >
+                                      <MenuItem value="">Select Tax</MenuItem>
+                                      {countryList?.map((item, index) => (
+                                        <MenuItem
+                                          key={index}
+                                          value={item?.taxRateId}
+                                        >
+                                          {item?.taxName}
+                                        </MenuItem>
+                                      ))}
+                                    </Select>
+                                  </FormControl>
+                                </TableCell>
+                              )}
+
+                              <TableCell sx={{ 
+                                py: isMobile ? 1 : 2,
+                                px: isMobile ? 1 : 2
+                              }}>
+                                {val?.options?.length > 0 ? (
+                                  <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => toggleMilestone(i)}
+                                    startIcon={!isSmallMobile && (expandedMilestone === i ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
+                                    sx={{
+                                      textTransform: 'none',
+                                      color: theme.palette.primary.main,
+                                      borderColor: theme.palette.primary.main,
+                                      fontSize: isMobile ? '11px' : '13px',
+                                      padding: isMobile ? '4px 8px' : '6px 12px',
+                                      minWidth: isMobile ? 'auto' : 'unset',
+                                      '&:hover': {
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                                      }
+                                    }}
+                                  >
+                                    {isSmallMobile ? (expandedMilestone === i ? '−' : '+') : (expandedMilestone === i ? 'Hide Options' : 'Show Options')}
+                                  </Button>
+                                ) : (
+                                  <Typography 
+                                    variant={isMobile ? "caption" : "body2"} 
+                                    color="textSecondary"
+                                    sx={{ 
+                                      fontSize: isMobile ? '11px' : '14px'
+                                    }}
+                                  >
+                                    No Options
+                                  </Typography>
+                                )}
+                              </TableCell>
+                              <TableCell 
+                                align="center"
+                                sx={{ 
+                                  py: isMobile ? 1 : 2,
+                                  px: isMobile ? 0.5 : 2
+                                }}
+                              >
+                                {HasPermission("ManageProductEdit") && editedRows.has(i) && (
+                                  <Stack 
+                                    direction={isMobile ? "column" : "row"} 
+                                    spacing={isMobile ? 0.5 : 1} 
+                                    justifyContent="center"
+                                    alignItems="center"
+                                  >
+                                    <Tooltip title="Save Changes">
+                                      <IconButton
+                                        color="success"
+                                        onClick={() => handleSubmit(i)}
+                                        size={isMobile ? "small" : "small"}
+                                        sx={{
+                                          backgroundColor: alpha(theme.palette.success.main, 0.1),
+                                          padding: isMobile ? '4px' : '8px',
+                                          '&:hover': {
+                                            backgroundColor: alpha(theme.palette.success.main, 0.2),
+                                          }
+                                        }}
+                                      >
+                                        <SaveIcon fontSize={isMobile ? "small" : "small"} />
+                                      </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Clear Changes">
+                                      <IconButton
+                                        color="error"
+                                        onClick={() => handleClear(i)}
+                                        size={isMobile ? "small" : "small"}
+                                        sx={{
+                                          backgroundColor: alpha(theme.palette.error.main, 0.1),
+                                          padding: isMobile ? '4px' : '8px',
+                                          '&:hover': {
+                                            backgroundColor: alpha(theme.palette.error.main, 0.2),
+                                          }
+                                        }}
+                                      >
+                                        <ClearIcon fontSize={isMobile ? "small" : "small"} />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </Stack>
+                                )}
+                              </TableCell>
+                          </TableRow>
+                            {expandedMilestone === i && (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={HasPermission("SubTenantView") ? 9 : 9}
+                                  sx={{ p: 0, border: 'none' }}
+                                >
+                                  <Collapse in={expandedMilestone === i} timeout="auto" unmountOnExit>
+                                    <Box sx={{ 
+                                      p: isMobile ? 1.5 : 3, 
+                                      backgroundColor: alpha(theme.palette.grey[50], 0.3) 
+                                    }}>
+                                      {val?.options?.map((vals, ind) =>
+                                        vals?.optionTypes?.length > 0 ? (
+                                          <Card key={ind} sx={{ mb: isMobile ? 1 : 2, boxShadow: 1 }}>
+                                            <CardContent sx={{ p: isMobile ? 1.5 : 3 }}>
+                                              <Box sx={{ mb: isMobile ? 2 : 3 }}>
+                                                <Stack 
+                                                  direction="column"
+                                                  spacing={2}
+                                                >
+                                                  <Typography 
+                                                    variant={isMobile ? "subtitle2" : "h6"} 
+                                                    sx={{ 
+                                                      fontWeight: 600,
+                                                      color: theme.palette.primary.main,
+                                                      borderLeft: `4px solid ${theme.palette.primary.main}`,
+                                                      pl: 2,
+                                                      fontSize: isMobile ? '14px' : '18px'
+                                                    }}
                                                   >
-                                                    {item?.taxName}
-                                                  </option>
-                                                )
-                                              )}
-                                            </select>
-                                          </div>
-                                        )}
-                                      </div>
-                                      <table className="table">
-                                        <thead>
-                                          <tr>
-                                            <th scope="col">Option Value</th>
-                                            {/* <th scope="col">
-                                              {HasPermission("SubTenantView")
-                                                ? "MSRP / Wholesale Price"
-                                                : "MSRP"}
-                                            </th> */}
-
-                                            {HasPermission("SubTenantView") && (
-                                              <th scope="col">IsVisible</th>
-                                            )}
-                                            <th scope="col">Price Type</th>
-                                            {HasPermission("SubTenantView") && (
-                                              <th scope="col">
-                                                Wholesale Price{" "}
-                                                {HasPermission("SubTenantView")
-                                                  ? "Markup"
-                                                  : ""}
-                                              </th>
-                                            )}
-
-                                            <th scope="col">
-                                              {HasPermission("SubTenantView")
-                                                ? "Max Price Markup"
-                                                : "Selling Price Markup"}
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {vals?.optionTypes?.map(
-                                            (valss, inds) => (
-                                              <React.Fragment key={inds}>
-                                                <tr>
-                                                  <td>
-                                                    {valss?.optionTypeName}
-                                                  </td>
+                                                    Option Name: 
+                                                    <Typography 
+                                                      component="span" 
+                                                      sx={{ 
+                                                        color: 'text.primary', 
+                                                        ml: 1,
+                                                        fontSize: isMobile ? '14px' : '18px'
+                                                      }}
+                                                    >
+                                                      {vals?.optionName}
+                                                    </Typography>
+                                                  </Typography>
+                                                  {!HasPermission("SubTenantView") && (
+                                                    <FormControl 
+                                                      size="small" 
+                                                      sx={{ 
+                                                        minWidth: isMobile ? 150 : 200,
+                                                        width: isMobile ? '100%' : 'auto'
+                                                      }}
+                                                    >
+                                                      <InputLabel sx={{ fontSize: isMobile ? '12px' : '14px' }}>
+                                                        Select Tax
+                                                      </InputLabel>
+                                                      <Select
+                                                        value={vals?.taxRateId || ""}
+                                                        onChange={(e) => handleParentTaxRateChange(e, i, ind)}
+                                                        label="Select Tax"
+                                                        sx={{ fontSize: isMobile ? '12px' : '14px' }}
+                                                      >
+                                                        <MenuItem value="">Select Tax</MenuItem>
+                                                        {countryList?.map((item, index) => (
+                                                          <MenuItem key={index} value={item?.taxRateId}>
+                                                            {item?.taxName}
+                                                          </MenuItem>
+                                                        ))}
+                                                      </Select>
+                                                    </FormControl>
+                                                  )}
+                                              </Stack>
+                                            </Box>
+                                              <TableContainer 
+                                                component={Paper} 
+                                                sx={{ 
+                                                  mt: 2,
+                                                  overflowX: 'auto',
+                                                  '&::-webkit-scrollbar': {
+                                                    height: 6,
+                                                  },
+                                                  '&::-webkit-scrollbar-track': {
+                                                    backgroundColor: '#f1f1f1',
+                                                    borderRadius: 3,
+                                                  },
+                                                  '&::-webkit-scrollbar-thumb': {
+                                                    backgroundColor: '#c1c1c1',
+                                                    borderRadius: 3,
+                                                  },
+                                                }}
+                                              >
+                                                <Table size="small" sx={{ minWidth: isMobile ? 600 : 500 }}>
+                                                  <TableHead sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.1) }}>
+                                                    <TableRow>
+                                                      <TableCell sx={{ 
+                                                        fontWeight: 600,
+                                                        fontSize: isMobile ? '11px' : '14px',
+                                                        py: isMobile ? 0.5 : 1,
+                                                        px: isMobile ? 1 : 2
+                                                      }}>
+                                                        Option Value
+                                                      </TableCell>
+                                                      {HasPermission("SubTenantView") && (
+                                                        <TableCell sx={{ 
+                                                          fontWeight: 600,
+                                                          fontSize: isMobile ? '11px' : '14px',
+                                                          py: isMobile ? 0.5 : 1,
+                                                          px: isMobile ? 1 : 2
+                                                        }}>
+                                                          IsVisible
+                                                        </TableCell>
+                                                      )}
+                                                      <TableCell sx={{ 
+                                                        fontWeight: 600,
+                                                        fontSize: isMobile ? '11px' : '14px',
+                                                        py: isMobile ? 0.5 : 1,
+                                                        px: isMobile ? 1 : 2
+                                                      }}>
+                                                        Price Type
+                                                      </TableCell>
+                                                      {HasPermission("SubTenantView") && (
+                                                        <TableCell sx={{ 
+                                                          fontWeight: 600,
+                                                          fontSize: isMobile ? '11px' : '14px',
+                                                          py: isMobile ? 0.5 : 1,
+                                                          px: isMobile ? 1 : 2
+                                                        }}>
+                                                          Wholesale Price{" "}
+                                                          {HasPermission("SubTenantView") ? "Markup" : ""}
+                                                        </TableCell>
+                                                      )}
+                                                      <TableCell sx={{ 
+                                                        fontWeight: 600,
+                                                        fontSize: isMobile ? '11px' : '14px',
+                                                        py: isMobile ? 0.5 : 1,
+                                                        px: isMobile ? 1 : 2
+                                                      }}>
+                                                        {HasPermission("SubTenantView")
+                                                          ? "Max Price Markup"
+                                                          : "Selling Price Markup"}
+                                                      </TableCell>
+                                                    </TableRow>
+                                                  </TableHead>
+                                                  <TableBody>
+                                                    {vals?.optionTypes?.map((valss, inds) => (
+                                                      <TableRow key={inds}>
+                                                        <TableCell sx={{ 
+                                                          py: isMobile ? 0.5 : 1,
+                                                          px: isMobile ? 1 : 2
+                                                        }}>
+                                                          <Typography 
+                                                            variant={isMobile ? "caption" : "body2"} 
+                                                            fontWeight={500}
+                                                            sx={{ 
+                                                              fontSize: isMobile ? '11px' : '14px',
+                                                              lineHeight: isMobile ? 1.2 : 1.5
+                                                            }}
+                                                          >
+                                                            {valss?.optionTypeName}
+                                                          </Typography>
+                                                        </TableCell>
                                                   {/* <td>
                                                     {val.isComponentAvailable ? (
                                                       <span
@@ -993,289 +1331,297 @@ export default function ProductEdit() {
                                                       </span>
                                                     )}
                                                   </td> */}
-                                                  {HasPermission(
-                                                    "SubTenantView"
-                                                  ) && (
-                                                    <td>
-                                                      <input
-                                                        type="checkbox"
-                                                        style={{
-                                                          border:
-                                                            "1px solid #8f8b8b",
-                                                        }}
-                                                        disabled={
-                                                          !val.isAvailable
-                                                        }
-                                                        checked={
-                                                          valss?.isAvailable
-                                                        }
-                                                        onChange={(e) =>
-                                                          handleOptionChange(
-                                                            e,
-                                                            i,
-                                                            ind,
-                                                            inds,
-                                                            "isAvailable"
-                                                          )
-                                                        }
-                                                        className="form-check-input"
-                                                      />
-                                                    </td>
-                                                  )}
-
-                                                  <td>
-                                                    {HasPermission(
-                                                      "SubTenantView"
-                                                    ) ? (
-                                                      <select
-                                                        className="form-select"
-                                                        name="productType"
-                                                        style={{
-                                                          width: "137px",
-                                                        }}
-                                                        value={valss?.priceType}
-                                                        onChange={(e) =>
-                                                          handleOptionChange(
-                                                            e,
-                                                            i,
-                                                            ind,
-                                                            inds,
-                                                            "priceType"
-                                                          )
-                                                        }
-                                                        disabled={
-                                                          val.isComponentAvailable
-                                                            ? false
-                                                            : true
-                                                        }
-                                                      >
-                                                        <option value="Fixed">
-                                                          Fixed
-                                                        </option>
-                                                        <option value="Percentage">
-                                                          Percentage
-                                                        </option>
-                                                      </select>
-                                                    ) : (
-                                                      <select
-                                                        className="form-select"
-                                                        name="productType"
-                                                        style={{
-                                                          width: "137px",
-                                                        }}
-                                                        value={
-                                                          valss?.markupOptionType
-                                                        }
-                                                        onChange={(e) =>
-                                                          handleOptionChange(
-                                                            e,
-                                                            i,
-                                                            ind,
-                                                            inds,
-                                                            "markupOptionType"
-                                                          )
-                                                        }
-                                                        disabled
-                                                      >
-                                                        <option value="Fixed">
-                                                          Fixed
-                                                        </option>
-                                                        <option value="Percentage">
-                                                          Percentage
-                                                        </option>
-                                                      </select>
-                                                    )}
-                                                  </td>
-
-                                                  {HasPermission(
-                                                    "SubTenantView"
-                                                  ) && (
-                                                    <td>
-                                                      {val.isComponentAvailable ? (
-                                                        <input
-                                                          type="number"
-                                                          style={{
-                                                            width: "120px",
-                                                          }}
-                                                          className="form-control"
-                                                          value={
-                                                            valss?.wholeSalePrice
-                                                          }
-                                                          disabled={
-                                                            !valss?.isAvailable
-                                                          }
-                                                          onChange={(e) =>
-                                                            handleOptionChange(
-                                                              e,
-                                                              i,
-                                                              ind,
-                                                              inds,
-                                                              "wholeSalePrice"
-                                                            )
-                                                          }
-                                                        />
-                                                      ) : (
-                                                        <input
-                                                          type="number"
-                                                          style={{
-                                                            width: "120px",
-                                                          }}
-                                                          className="form-control"
-                                                          value={
-                                                            valss?.wholeSalePrice
-                                                          }
-                                                          disabled={true}
-                                                          onChange={(e) =>
-                                                            handleOptionChange(
-                                                              e,
-                                                              i,
-                                                              ind,
-                                                              inds,
-                                                              "wholeSalePrice"
-                                                            )
-                                                          }
-                                                        />
-                                                      )}
-                                                    </td>
-                                                    // ) : (
-                                                    //   <p>
-                                                    //     {
-                                                    //       defaultConfig?.currencySign
-                                                    //     }{" "}
-                                                    //     {valss?.wholeSalePrice}
-                                                    //   </p>
-                                                  )}
-
-                                                  <td>
-                                                    {HasPermission(
-                                                      "SubTenantView"
-                                                    ) ? (
-                                                      <>
-                                                        {val.isComponentAvailable ? (
-                                                          <input
-                                                            type="number"
-                                                            className="form-control"
-                                                            style={{
-                                                              width: "120px",
-                                                            }}
-                                                            value={
-                                                              valss?.maxPrice
-                                                            }
-                                                            disabled={
-                                                              !valss?.isAvailable
-                                                            }
-                                                            onChange={(e) =>
-                                                              handleOptionChange(
-                                                                e,
-                                                                i,
-                                                                ind,
-                                                                inds,
-                                                                "maxPrice"
-                                                              )
-                                                            }
-                                                          />
-                                                        ) : (
-                                                          <input
-                                                            type="number"
-                                                            className="form-control"
-                                                            style={{
-                                                              width: "120px",
-                                                            }}
-                                                            value={
-                                                              valss?.maxPrice
-                                                            }
-                                                            disabled={true}
-                                                            onChange={(e) =>
-                                                              handleOptionChange(
-                                                                e,
-                                                                i,
-                                                                ind,
-                                                                inds,
-                                                                "maxPrice"
-                                                              )
-                                                            }
-                                                          />
+                                                        {HasPermission("SubTenantView") && (
+                                                          <TableCell sx={{ 
+                                                            py: isMobile ? 0.5 : 1,
+                                                            px: isMobile ? 1 : 2
+                                                          }}>
+                                                            <Checkbox
+                                                              disabled={!val.isAvailable}
+                                                              checked={valss?.isAvailable}
+                                                              onChange={(e) =>
+                                                                handleOptionChange(e, i, ind, inds, "isAvailable")
+                                                              }
+                                                              color="primary"
+                                                              size={isMobile ? "small" : "medium"}
+                                                              sx={{
+                                                                '&.Mui-checked': {
+                                                                  color: theme.palette.primary.main,
+                                                                },
+                                                              }}
+                                                            />
+                                                          </TableCell>
                                                         )}
-                                                      </>
-                                                    ) : (
-                                                      <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        style={{
-                                                          width: "120px",
-                                                        }}
-                                                        value={
-                                                          valss?.partnerSellingPrice
-                                                        }
-                                                        disabled={
-                                                          val.isComponentAvailable
-                                                            ? false
-                                                            : true
-                                                        }
-                                                        onChange={(e) =>
-                                                          handleOptionChange(
-                                                            e,
-                                                            i,
-                                                            ind,
-                                                            inds,
-                                                            "partnerSellingPrice"
-                                                          )
-                                                        }
-                                                      />
-                                                    )}
-                                                  </td>
-                                                </tr>
-                                              </React.Fragment>
-                                            )
-                                          )}
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ) : null
-                            )}
-                          </React.Fragment>
-                        )}
+
+                                                        <TableCell sx={{ 
+                                                          py: isMobile ? 0.5 : 1,
+                                                          px: isMobile ? 1 : 2
+                                                        }}>
+                                                          {HasPermission("SubTenantView") ? (
+                                                            <FormControl 
+                                                              size="small" 
+                                                              sx={{ 
+                                                                minWidth: isMobile ? 90 : 137,
+                                                                width: '100%'
+                                                              }}
+                                                            >
+                                                              <Select
+                                                                value={valss?.priceType}
+                                                                onChange={(e) =>
+                                                                  handleOptionChange(e, i, ind, inds, "priceType")
+                                                                }
+                                                                disabled={val.isComponentAvailable ? false : true}
+                                                                name="priceType"
+                                                                sx={{ fontSize: isMobile ? '11px' : '14px' }}
+                                                              >
+                                                                <MenuItem value="Fixed">Fixed</MenuItem>
+                                                                <MenuItem value="Percentage">Percentage</MenuItem>
+                                                              </Select>
+                                                            </FormControl>
+                                                          ) : (
+                                                            <FormControl 
+                                                              size="small" 
+                                                              sx={{ 
+                                                                minWidth: isMobile ? 90 : 137,
+                                                                width: '100%'
+                                                              }}
+                                                            >
+                                                              <Select
+                                                                value={valss?.markupOptionType}
+                                                                onChange={(e) =>
+                                                                  handleOptionChange(e, i, ind, inds, "markupOptionType")
+                                                                }
+                                                                disabled
+                                                                name="markupOptionType"
+                                                                sx={{ fontSize: isMobile ? '11px' : '14px' }}
+                                                              >
+                                                                <MenuItem value="Fixed">Fixed</MenuItem>
+                                                                <MenuItem value="Percentage">Percentage</MenuItem>
+                                                              </Select>
+                                                            </FormControl>
+                                                          )}
+                                                        </TableCell>
+
+                                                        {HasPermission("SubTenantView") && (
+                                                          <TableCell sx={{ 
+                                                            py: isMobile ? 0.5 : 1,
+                                                            px: isMobile ? 1 : 2
+                                                          }}>
+                                                            {val.isComponentAvailable ? (
+                                                              <TextField
+                                                                type="number"
+                                                                size="small"
+                                                                value={valss?.wholeSalePrice}
+                                                                disabled={!valss?.isAvailable}
+                                                                onChange={(e) =>
+                                                                  handleOptionChange(e, i, ind, inds, "wholeSalePrice")
+                                                                }
+                                                                sx={{ 
+                                                                  width: isMobile ? 70 : 120,
+                                                                  '& .MuiInputBase-input': {
+                                                                    fontSize: isMobile ? '11px' : '14px',
+                                                                    padding: isMobile ? '4px 6px' : '8px 12px'
+                                                                  }
+                                                                }}
+                                                                variant="outlined"
+                                                              />
+                                                            ) : (
+                                                              <TextField
+                                                                type="number"
+                                                                size="small"
+                                                                value={valss?.wholeSalePrice}
+                                                                disabled={true}
+                                                                onChange={(e) =>
+                                                                  handleOptionChange(e, i, ind, inds, "wholeSalePrice")
+                                                                }
+                                                                sx={{ 
+                                                                  width: isMobile ? 70 : 120,
+                                                                  '& .MuiInputBase-input': {
+                                                                    fontSize: isMobile ? '11px' : '14px',
+                                                                    padding: isMobile ? '4px 6px' : '8px 12px'
+                                                                  }
+                                                                }}
+                                                                variant="outlined"
+                                                              />
+                                                            )}
+                                                          </TableCell>
+                                                        )}
+
+                                                        <TableCell sx={{ 
+                                                          py: isMobile ? 0.5 : 1,
+                                                          px: isMobile ? 1 : 2
+                                                        }}>
+                                                          {HasPermission("SubTenantView") ? (
+                                                            <>
+                                                              {val.isComponentAvailable ? (
+                                                                <TextField
+                                                                  type="number"
+                                                                  size="small"
+                                                                  value={valss?.maxPrice}
+                                                                  disabled={!valss?.isAvailable}
+                                                                  onChange={(e) =>
+                                                                    handleOptionChange(e, i, ind, inds, "maxPrice")
+                                                                  }
+                                                                  sx={{ 
+                                                                    width: isMobile ? 70 : 120,
+                                                                    '& .MuiInputBase-input': {
+                                                                      fontSize: isMobile ? '11px' : '14px',
+                                                                      padding: isMobile ? '4px 6px' : '8px 12px'
+                                                                    }
+                                                                  }}
+                                                                  variant="outlined"
+                                                                />
+                                                              ) : (
+                                                                <TextField
+                                                                  type="number"
+                                                                  size="small"
+                                                                  value={valss?.maxPrice}
+                                                                  disabled={true}
+                                                                  onChange={(e) =>
+                                                                    handleOptionChange(e, i, ind, inds, "maxPrice")
+                                                                  }
+                                                                  sx={{ 
+                                                                    width: isMobile ? 70 : 120,
+                                                                    '& .MuiInputBase-input': {
+                                                                      fontSize: isMobile ? '11px' : '14px',
+                                                                      padding: isMobile ? '4px 6px' : '8px 12px'
+                                                                    }
+                                                                  }}
+                                                                  variant="outlined"
+                                                                />
+                                                              )}
+                                                            </>
+                                                          ) : (
+                                                            <TextField
+                                                              type="number"
+                                                              size="small"
+                                                              value={valss?.partnerSellingPrice}
+                                                              disabled={val.isComponentAvailable ? false : true}
+                                                              onChange={(e) =>
+                                                                handleOptionChange(e, i, ind, inds, "partnerSellingPrice")
+                                                              }
+                                                              sx={{ 
+                                                                width: isMobile ? 70 : 120,
+                                                                '& .MuiInputBase-input': {
+                                                                  fontSize: isMobile ? '11px' : '14px',
+                                                                  padding: isMobile ? '4px 6px' : '8px 12px'
+                                                                }
+                                                              }}
+                                                              variant="outlined"
+                                                            />
+                                                          )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                  ))}
+                                                </TableBody>
+                                              </Table>
+                                            </TableContainer>
+                                          </CardContent>
+                                        </Card>
+                                      ) : null
+                                    )}
+                                  </Box>
+                                </Collapse>
+                              </TableCell>
+                            </TableRow>
+                          )}
                       </React.Fragment>
                     ))}
-                    {(!tenantList || tenantList?.length === 0) && (
-                      <tr>
-                        <td
-                          className="text-center border-0 no-records"
-                          colSpan={7}
-                        >
-                          <img
-                            src="/image/no-records.svg"
-                            alt=" "
-                            loading="lazy"
-                            className="img-fluid"
-                          />
-                          <p className="font-14">No Product Found</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                        {(!tenantList || tenantList?.length === 0) && (
+                          <TableRow>
+                            <TableCell 
+                              colSpan={HasPermission("SubTenantView") ? 9 : 8} 
+                              sx={{ 
+                                border: 'none',
+                                textAlign: 'center', 
+                                padding: isMobile ? 3 : 6,
+                                color: 'text.secondary'
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  textAlign: 'center',
+                                  padding: isMobile ? 3 : 6,
+                                  color: 'text.secondary',
+                                }}
+                              >
+                                <img
+                                  src="/image/no-records.svg"
+                                  alt="No records"
+                                  loading="lazy"
+                                  style={{ 
+                                    maxWidth: isMobile ? '150px' : '200px', 
+                                    opacity: 0.6 
+                                  }}
+                                />
+                                <Typography 
+                                  variant={isMobile ? "body2" : "body1"} 
+                                  sx={{ 
+                                    mt: 2, 
+                                    color: 'text.secondary',
+                                    fontSize: isMobile ? '14px' : '16px'
+                                  }}
+                                >
+                                  No Products Found
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                
+                {/* Pagination */}
                 {tenantList && tenantList?.length > 0 && (
-                  <div className="d-flex align-items-center justify-content-end bottom_nav">
-                    <nav aria-label="Page navigation example">
-                      <ul className="pagination">
-                        <TablePagination
-                          rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                          component="div"
-                          count={paginatedItems}
-                          rowsPerPage={rowsPerPage}
-                          page={page - 1}
-                          onPageChange={handleChangePage}
-                          onRowsPerPageChange={handleChangeRowsPerPage}
-                        />
-                      </ul>
-                    </nav>
-                  </div>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'flex-end',
+                    mt: isMobile ? 1 : 2,
+                    px: isMobile ? 1 : 0
+                  }}>
+                    <TablePagination
+                      rowsPerPageOptions={isMobile ? [5, 10, 15] : [5, 10, 15, 25, 100]}
+                      component="div"
+                      count={paginatedItems}
+                      rowsPerPage={rowsPerPage}
+                      page={page - 1}
+                      onPageChange={handleChangePage}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                      sx={{
+                        '& .MuiTablePagination-toolbar': {
+                          paddingLeft: 0,
+                          paddingRight: 0,
+                          fontSize: isMobile ? '12px' : '14px',
+                          flexWrap: isMobile ? 'wrap' : 'nowrap',
+                        },
+                        '& .MuiTablePagination-selectLabel': {
+                          fontSize: isMobile ? '12px' : '14px',
+                          marginBottom: isMobile ? '4px' : 0,
+                        },
+                        '& .MuiTablePagination-displayedRows': {
+                          fontSize: isMobile ? '12px' : '14px',
+                          marginBottom: isMobile ? '4px' : 0,
+                        },
+                        '& .MuiTablePagination-select': {
+                          fontSize: isMobile ? '12px' : '14px',
+                        },
+                        '& .MuiTablePagination-actions': {
+                          marginLeft: isMobile ? '8px' : '20px',
+                        },
+                        '& .MuiIconButton-root': {
+                          padding: isMobile ? '4px' : '12px',
+                        }
+                      }}
+                    />
+                  </Box>
                 )}
-              </div>
-            </div>
+                  </Paper>
+                </Box>
+                  </CardContent>
+                </Card>
+              </Container>
+            </Box>
           </div>
         </div>
       </div>

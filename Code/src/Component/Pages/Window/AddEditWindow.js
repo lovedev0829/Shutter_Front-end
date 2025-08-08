@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import Dialog from "@mui/material/Dialog";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -20,6 +19,40 @@ import GetAllForedit from "./GetAllForedit";
 import AddEditProduct from "../Products/AddEditProduct";
 import AddEditProductType from "../ProductType/AddEditProductType";
 import AddEditOption from "../Option/AddEditOption";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Box,
+  Grid,
+  Paper,
+  IconButton,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Chip,
+  Tabs,
+  Tab,
+  Divider,
+  Card,
+  CardContent,
+  FormHelperText,
+  CircularProgress,
+  Fade
+} from "@mui/material";
+import {
+  Close as CloseIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  CloudUpload as UploadIcon,
+  Image as ImageIcon
+} from "@mui/icons-material";
 
 function AddEditWindow({
   open,
@@ -160,18 +193,12 @@ function AddEditWindow({
   };
 
   const handleproduct = (e, i) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value, type } = e.target;
     setValue((prev) => {
       const updatedProducts = [...prev.windowProducts];
       if (name === "optionTypeId" && type === "radio") {
-        const selectedOptions = updatedProducts[i][name] || [];
-        if (checked) {
-          updatedProducts[i][name] = [...selectedOptions, value];
-        } else {
-          updatedProducts[i][name] = selectedOptions.filter(
-            (id) => id !== value
-          );
-        }
+        // For radio buttons, we receive an array of all selected option values
+        updatedProducts[i][name] = Array.isArray(value) ? value : [value];
       } else {
         updatedProducts[i][name] = value;
       }
@@ -324,558 +351,696 @@ function AddEditWindow({
     <>
       <Dialog
         open={open}
+        onClose={handleClearState}
+        maxWidth="lg"
+        fullWidth
         sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",
-            },
-          },
+          '& .MuiDialog-paper': {
+            borderRadius: 3,
+            maxHeight: '90vh'
+          }
         }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
       >
-        <div
-          className="modal fade show"
-          id="contactModal"
-          tabIndex={-1}
-          aria-labelledby="exampleModalLabel"
-          aria-modal="true"
-          role="dialog"
-          style={{ display: "block", backgroundColor: "#00000080" }}
-        >
-          <div className="modal-dialog modal-dialog-centered filter_modal highwidthmodal">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title" id="exampleModalLabel">
-                  {action === "add" ? "Add New Window" : "Update Window"}
-                </h1>
-                <i
-                  className="icofont-close btn-close"
-                  onClick={handleClearState}
-                ></i>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body modale-scroll">
-                  <div className="form-design window-form-design">
-                    <div className="middle-heading">
-                      <h4 className="mt-0">Window information</h4>
-                    </div>
-                    <div className="row">
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Qty"}
-                            placeholderName={"Enter window qty"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"quantity"}
-                            name={"quantity"}
-                            value={value.quantity}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "quantity",
-                              value?.quantity,
-                              `required|numeric`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-6 col-md-6">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Window label"}
-                            placeholderName={"e.g., Living Room Window 1"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"label"}
-                            name={"label"}
-                            value={value.label}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "label",
-                              value?.label,
-                              `required`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="row">
-                        <label className="font-14">Dimensions </label>
-                        <div className="col-lg-4 col-md-4">
-                          <div className="form-group">
-                            <InputField
-                              labelName={"Width"}
-                              placeholderName={"Width (entered in Inches)"}
-                              type={"text"}
-                              handleChange={handleChange}
-                              id={"width"}
-                              name={"width"}
-                              value={value.width}
-                              required={true}
-                              displayLabel={""}
-                            />
-                            <div className="error">
-                              {simpleValidator.current.message(
-                                "width",
-                                value?.width,
-                                `required|numeric`
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-4 col-md-4">
-                          <div className="form-group">
-                            <InputField
-                              labelName={"Height"}
-                              placeholderName={"Height (entered in Inches)"}
-                              type={"text"}
-                              handleChange={handleChange}
-                              id={"height"}
-                              name={"height"}
-                              value={value.height}
-                              required={true}
-                              displayLabel={""}
-                            />
-                            <div className="error">
-                              {simpleValidator.current.message(
-                                "height",
-                                value?.height,
-                                `required|numeric`
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-4 col-md-4">
-                          <div className="form-group">
-                            <InputField
-                              labelName={"Arch Height"}
-                              placeholderName={"Arch (entered in Inches)"}
-                              type={"text"}
-                              handleChange={handleChange}
-                              id={"archHeight"}
-                              name={"archHeight"}
-                              value={value.archHeight}
-                              displayLabel={""}
-                            />
-                            <div className="error">
-                              {simpleValidator.current.message(
-                                "archHeight",
-                                value?.archHeight,
-                                `numeric`
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="middle-heading">
-                        <h4>Product Types</h4>
-                      </div>
-                      <div className="row gx-2">
-                        {value.windowProducts !== undefined &&
-                          value.windowProducts.length > 0 &&
-                          value?.windowProducts?.map((val, i) => {
-                            return (
-                              <React.Fragment key={i}>
-                                <div className="col-lg-2 col-md-2">
-                                  <div className="form-group">
-                                    {i === 0 && (
-                                      <label className="font-14 d-flex align-items-center justify-content-between">
-                                        <span>
-                                          {" "}
-                                          Product Type <sup>*</sup>{" "}
-                                        </span>
-                                        {HasPermission("ProductTypeAdd") && (
-                                          <img
-                                            src="/image/plusblue.svg"
-                                            alt=""
-                                            loading="lazy"
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => setproducttype(true)}
-                                          />
-                                        )}
-                                      </label>
-                                    )}
-
-                                    <div className="position-relative">
-                                      {show && <SelectBoxLoader />}
-                                      <select
-                                        className="form-select "
-                                        aria-label="Default select example"
-                                        name="productTypeId"
-                                        value={val?.productTypeId}
-                                        onChange={(e) => {
-                                          handleproduct(e, i);
-                                        }}
-                                      >
-                                        <option value="">Choose Type</option>
-
-                                        {countryList?.map((vals, idx) => {
-                                          return (
-                                            <option
-                                              value={vals.productId}
-                                              key={idx}
-                                              selected={
-                                                vals.productId ===
-                                                val?.productId
-                                                  ? true
-                                                  : false
-                                              }
-                                            >
-                                              {vals.productName}
-                                            </option>
-                                          );
-                                        })}
-                                      </select>
-                                    </div>
-                                    <div className="error">
-                                      {simpleValidator.current.message(
-                                        "Product type",
-                                        val?.productTypeId,
-                                        "required"
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="col-lg-2 col-md-2">
-                                  <div className="form-group">
-                                    {i === 0 && (
-                                      <label className="font-14 d-flex align-items-center justify-content-between">
-                                        <span>
-                                          {" "}
-                                          Select Product <sup>*</sup>{" "}
-                                        </span>
-                                        {HasPermission("ProductsAdd") && (
-                                          <img
-                                            src="/image/plusblue.svg"
-                                            alt=""
-                                            loading="lazy"
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => setvendor(true)}
-                                          />
-                                        )}
-                                      </label>
-                                    )}
-                                    <GetAllProduct
-                                      fn={(e) => handleproduct(e, i)}
-                                      value={val.productId}
-                                      name="productId"
-                                      load={vendorlist}
-                                      producttypeId={val.productTypeId}
-                                    />
-                                    <div className="error">
-                                      {simpleValidator.current.message(
-                                        "product",
-                                        val?.productId,
-                                        "required"
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="col-lg-5 col-md-4">
-                                  <div className="form-group">
-                                    {i === 0 && (
-                                      <label className="font-14">
-                                        Select Options{" "}
-                                      </label>
-                                    )}
-                                    {action === "edit" && (
-                                      <>
-                                        <div className="new-option-wrapper">
-                                          {optionName
-                                            .filter(
-                                              (entry) => entry.indexId === i
-                                            )
-                                            .map((entry) => (
-                                              <div
-                                                key={entry.indexId}
-                                                className="mb-3"
-                                              >
-                                                <ul className="list-unstyled new-option-main">
-                                                  {Object.entries(
-                                                    entry.data
-                                                  ).map(
-                                                    ([label, value], idx) => (
-                                                      <li
-                                                        key={idx}
-                                                        className="new-option-li d-flex justify-content-between align-items-center"
-                                                      >
-                                                        <span style={{marginRight: "20px"}}>
-                                                          {label.replace(
-                                                            new RegExp(`-${i}$`),
-                                                            ""
-                                                          )}
-                                                          - {value}
-                                                        </span>
-                                                        <button
-                                                          type="button"
-                                                          className="btn btn-sm btn-outline-danger"
-                                                          onClick={() => removeOption(i, label)}
-                                                          title="Remove Option"
-                                                        >
-                                                          ×
-                                                        </button>
-                                                      </li>
-                                                    )
-                                                  )}
-                                                 {Object.keys(entry.data).length > 0 && ( <img
-                                                    src="/image/editblue.svg"
-                                                    alt=""
-                                                    className="option-edit-new"
-                                                    onClick={() => {
-                                                      setActiveProductIndex(i);
-                                                      setShowOptionsPopup(true);
-                                                      setPopupMode(action);
-                                                    }}
-                                                  ></img>
-                                                     )}
-                                                </ul>
-                                              </div>
-                                            ))}
-                                        </div>
-
-                                        <GetAllForedit
-                                          fn={(e) => handleproduct(e, i)}
-                                          values={val.optionTypeId}
-                                          optiondata={val.optionTypeId}
-                                          name="optionTypeId"
-                                          load={optionlist}
-                                          producttypeId={val.productId}
-                                          indexId={i}
-                                          optionName={optionName}
-                                          setOptionName={setOptionName}
-                                          additionalCosts={additionalCosts}
-                                          setAdditionalCosts={setAdditionalCosts}
-                                          isRender={false}
-                                          buildRequirement={false}
-                                          showOptionsPopup={false}
-                                          optionMapping={optionMapping}
-                                          setOptionMapping={setOptionMapping}
-                                        />
-                                      </>
-                                    )}
-                                    {action === "add" && (
-                                      <>
-                                        {optionName
-                                          .filter(
-                                            (entry) => entry.indexId === i
-                                          )
-                                          .map((entry) => (
-                                            <div
-                                              key={entry.indexId}
-                                              className="mb-3"
-                                            >
-                                              <ul className="list-unstyled new-option-main">
-                                                {Object.entries(entry.data).map(
-                                                  ([label, value], idx) => (
-                                                    <li
-                                                      key={idx}
-                                                      className="new-option-li d-flex justify-content-between align-items-center"
-                                                    >
-                                                      <span style={{marginRight: "20px"}}>
-                                                        {label.replace(
-                                                          new RegExp(`-${i}$`),
-                                                          ""
-                                                        )}
-                                                        - {value}
-                                                      </span>
-                                                      <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-outline-danger"
-                                                        onClick={() => removeOption(i, label)}
-                                                        title="Remove Option"
-                                                      >
-                                                        ×
-                                                      </button>
-                                                    </li>
-                                                  )
-                                                )}
-                                                {Object.keys(entry.data).length > 0 && ( <img
-                                                  src="/image/editblue.svg"
-                                                  alt=""
-                                                  className="option-edit-new"
-                                                  onClick={() => {
-                                                    setActiveProductIndex(i);
-                                                    setShowOptionsPopup(true);
-                                                    setPopupMode(action);
-                                                  }}
-                                                ></img>
-                                                 )}
-                                              </ul>
-                                            </div>
-                                          ))}
-                                        <GetAllOptions
-                                          fn={(e) => handleproduct(e, i)}
-                                          value={val.optionTypeId}
-                                          name="optionTypeId"
-                                          load={optionlist}
-                                          producttypeId={val.productId}
-                                          indexId={i}
-                                          optionName={optionName}
-                                          setOptionName={setOptionName}
-                                          additionalCosts={additionalCosts}
-                                          setAdditionalCosts={setAdditionalCosts}
-                                          isRender={false}
-                                          buildRequirement={false}
-                                          showOptionsPopup={false}
-                                          optionMapping={optionMapping}
-                                          setOptionMapping={setOptionMapping}
-                                        />
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="col-lg-3 col-md-3 d-flex align-items-start gap-3">
-                                  <div className="form-group build-new">
-                                    {i === 0 && (
-                                      <label
-                                        className="font-14"
-                                        style={{ whiteSpace: "nowrap" }}
-                                      >
-                                        Build Width (in)<sup>*</sup>
-                                      </label>
-                                    )}
-                                    <div className="">
-                                      <InputField
-                                        labelName={"Build Width"}
-                                        placeholderName={""}
-                                        type={"text"}
-                                        handleChange={(e) =>
-                                          handleproduct(e, i)
-                                        }
-                                        id={"buildWidth"}
-                                        name={"buildWidth"}
-                                        value={val.buildWidth}
-                                        required={true}
-                                        displayLabel={"none"}
-                                      />
-                                      <div className="error">
-                                        {simpleValidator.current.message(
-                                          "Width",
-                                          val?.buildWidth,
-                                          `required|numeric`
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="form-group build-new">
-                                    {i === 0 && (
-                                      <label
-                                        className="font-14"
-                                        style={{ whiteSpace: "nowrap" }}
-                                      >
-                                        Build Height (in)<sup>*</sup>
-                                      </label>
-                                    )}
-                                    <div className="">
-                                      <InputField
-                                        labelName={"Build Height"}
-                                        placeholderName={""}
-                                        type={"text"}
-                                        handleChange={(e) =>
-                                          handleproduct(e, i)
-                                        }
-                                        id={"buildHeight"}
-                                        name={"buildHeight"}
-                                        value={val.buildHeight}
-                                        required={true}
-                                        displayLabel={"none"}
-                                      />
-                                    </div>
-
-                                    <div className="error">
-                                      {simpleValidator.current.message(
-                                        "Height",
-                                        val?.buildHeight,
-                                        `required|numeric`
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  <div className="add-delete" style={{marginTop:i === 0?"32px":"6px"}}>
-                                    {i === value.windowProducts.length - 1 && (
-                                      <div onClick={addProduct}>
-                                        <img
-                                          src="/image/plusblue.svg"
-                                          alt=""
-                                          loading="lazy"
-                                        />
-                                      </div>
-                                    )}
-                                    {value.windowProducts.length > 1 && (
-                                      <div
-                                        className="mt-1"
-                                        onClick={() => {
-                                          deleteProduct(i);
-                                        }}
-                                      >
-                                        <img
-                                          src="/image/deletered.svg"
-                                          alt=""
-                                          loading="lazy"
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </React.Fragment>
-                            );
-                          })}
-                      </div>
-
-                      {showOptionsPopup && (
-                        <div className="modal-backdrop windowsdata">
-                          <div className="custom-modal custom-modald">
-                            <div className="modal-header d-flex justify-content-between align-items-center">
-                              <h5 className="modal-title">Add Option</h5>
-                              {HasPermission("OptionsAdd") && (
-                                <img
-                                  src="/image/plusblue.svg"
-                                  alt=""
-                                  loading="lazy"
-                                  style={{
-                                    cursor: "pointer",
-                                    marginLeft: "20px",
-                                  }}
-                                  onClick={() => setoption(true)}
-                                />
-                              )}
-                              <button
-                                type="button"
-                                className="btn-close btn-closee"
-                                onClick={() => {
-                                  setShowOptionsPopup(false);
-                                  setoptionlist((prev) => !prev); // Force refresh of inline components
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 600, color: '#1976d2' }}>
+              {action === "add" ? "Add New Window" : "Update Window"}
+            </Typography>
+            <IconButton
+              onClick={handleClearState}
+              sx={{
+                color: '#666',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        
+        <form onSubmit={handleSubmit}>
+          <DialogContent dividers sx={{ p: 3 }}>
+            <Box sx={{ mb: 4 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mb: 3, 
+                  color: '#1976d2', 
+                  fontWeight: 600,
+                  borderLeft: '4px solid #1976d2',
+                  paddingLeft: 2
+                }}
+              >
+                Window Information
+              </Typography>
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Quantity"
+                    placeholder="Enter window qty"
+                    type="text"
+                    name="quantity"
+                    value={value.quantity}
+                    onChange={handleChange}
+                    required
+                    size="small"
+                    error={!!simpleValidator.current.message("quantity", value?.quantity, "required|numeric")}
+                    helperText={simpleValidator.current.message("quantity", value?.quantity, "required|numeric")}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#1976d2'
+                      }
+                    }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Window Label"
+                    placeholder="e.g., Living Room Window 1"
+                    type="text"
+                    name="label"
+                    value={value.label}
+                    onChange={handleChange}
+                    required
+                    size="small"
+                    error={!!simpleValidator.current.message("label", value?.label, "required")}
+                    helperText={simpleValidator.current.message("label", value?.label, "required")}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#1976d2'
+                      }
+                    }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" sx={{ mb: 2, color: '#666', fontWeight: 500 }}>
+                    Dimensions
+                  </Typography>
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Width"
+                    placeholder="Width (entered in Inches)"
+                    type="text"
+                    name="width"
+                    value={value.width}
+                    onChange={handleChange}
+                    required
+                    size="small"
+                    error={!!simpleValidator.current.message("width", value?.width, "required|numeric")}
+                    helperText={simpleValidator.current.message("width", value?.width, "required|numeric")}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#1976d2'
+                      }
+                    }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Height"
+                    placeholder="Height (entered in Inches)"
+                    type="text"
+                    name="height"
+                    value={value.height}
+                    onChange={handleChange}
+                    required
+                    size="small"
+                    error={!!simpleValidator.current.message("height", value?.height, "required|numeric")}
+                    helperText={simpleValidator.current.message("height", value?.height, "required|numeric")}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#1976d2'
+                      }
+                    }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Arch Height"
+                    placeholder="Arch (entered in Inches)"
+                    type="text"
+                    name="archHeight"
+                    value={value.archHeight || ""}
+                    onChange={handleChange}
+                    size="small"
+                    error={!!simpleValidator.current.message("archHeight", value?.archHeight, "numeric")}
+                    helperText={simpleValidator.current.message("archHeight", value?.archHeight, "numeric")}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#1976d2'
+                      }
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+            
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: '#1976d2', 
+                    fontWeight: 600,
+                    borderLeft: '4px solid #1976d2',
+                    paddingLeft: 2
+                  }}
+                >
+                  Product Configuration
+                </Typography>
+                <Button
+                  onClick={addProduct}
+                  startIcon={<AddIcon />}
+                  size="small"
+                  sx={{
+                    color: '#1976d2',
+                    textTransform: 'none',
+                    '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' }
+                  }}
+                >
+                  Add Product
+                </Button>
+              </Box>
+              
+              {value.windowProducts !== undefined &&
+                value.windowProducts.length > 0 &&
+                value?.windowProducts?.map((val, i) => (
+                  <Paper key={i} elevation={1} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
+                    <Box sx={{ backgroundColor: '#f8f9fa', p: 2, borderBottom: '1px solid #e0e0e0' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#333' }}>
+                          Product {i + 1}
+                        </Typography>
+                        {value.windowProducts.length > 1 && (
+                          <IconButton
+                            onClick={() => deleteProduct(i)}
+                            size="small"
+                            sx={{ 
+                              color: '#d32f2f',
+                              '&:hover': { backgroundColor: 'rgba(211, 47, 47, 0.04)' }
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ p: 3 }}>
+                      <Grid container spacing={3}>
+                        {/* Product Type & Product Selection Row */}
+                        <Grid item xs={12} md={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 500, color: '#555' }}>
+                              Product Type <span style={{ color: 'red' }}>*</span>
+                            </Typography>
+                            {HasPermission("ProductTypeAdd") && (
+                              <IconButton
+                                size="small"
+                                onClick={() => setproducttype(true)}
+                                sx={{ 
+                                  color: '#1976d2',
+                                  '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' }
                                 }}
-                              ></button>
-                            </div>
-                            <div className="modal-body">
-                              {/* Tab Navigation */}
-                              <div className="nav nav-tabs mb-3" role="tablist">
-                                <button
-                                  className={`nav-link ${activeOptionsTab === 'options' ? 'active' : ''}`}
-                                  onClick={() => setActiveOptionsTab('options')}
-                                  type="button"
-                                >
-                                  Options
-                                </button>
-                                <button
-                                  className={`nav-link ${activeOptionsTab === 'buildRequirements' ? 'active' : ''}`}
-                                  onClick={() => setActiveOptionsTab('buildRequirements')}
-                                  type="button"
-                                >
-                                  Build Requirements
-                                </button>
-                              </div>
+                              >
+                                <AddIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                          
+                          <FormControl fullWidth size="small" error={!!simpleValidator.current.message("Product type", val?.productTypeId, "required")}>
+                            <InputLabel>Choose Product Type</InputLabel>
+                            <Select
+                              value={val?.productTypeId || ""}
+                              label="Choose Product Type"
+                              name="productTypeId"
+                              onChange={(e) => handleproduct(e, i)}
+                              disabled={show}
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1976d2',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1976d2',
+                                  }
+                                }
+                              }}
+                            >
+                              <MenuItem value="">
+                                <em>Choose Product Type</em>
+                              </MenuItem>
+                              {countryList?.map((vals, idx) => (
+                                <MenuItem key={idx} value={vals.productId}>
+                                  {vals.productName}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            {simpleValidator.current.message("Product type", val?.productTypeId, "required") && (
+                              <FormHelperText>
+                                {simpleValidator.current.message("Product type", val?.productTypeId, "required")}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                        
+                        <Grid item xs={12} md={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 500, color: '#555' }}>
+                              Select Product <span style={{ color: 'red' }}>*</span>
+                            </Typography>
+                            {HasPermission("ProductsAdd") && (
+                              <IconButton
+                                size="small"
+                                onClick={() => setvendor(true)}
+                                sx={{ 
+                                  color: '#1976d2',
+                                  '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' }
+                                }}
+                              >
+                                <AddIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                          
+                          <Box sx={{ position: 'relative', width: '100%' }}>
+                            <GetAllProduct
+                              fn={(e) => handleproduct(e, i)}
+                              value={val.productId}
+                              name="productId"
+                              load={vendorlist}
+                              producttypeId={val.productTypeId}
+                            />
+                            {simpleValidator.current.message("product", val?.productId, "required") && (
+                              <FormHelperText error sx={{ mt: 1 }}>
+                                {simpleValidator.current.message("product", val?.productId, "required")}
+                              </FormHelperText>
+                            )}
+                          </Box>
+                        </Grid>
 
-                              {/* Tab Content */}
-                              <div className="tab-content">
+
+                        
+                        {/* Build Dimensions Row */}
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, color: '#555', mb: 1 }}>
+                            Build Dimensions <span style={{ color: 'red' }}>*</span>
+                          </Typography>
+                          <Box sx={{ display: 'flex', gap: 2 }}>
+                            <TextField
+                              label="Width (in)"
+                              placeholder="Build Width"
+                              type="text"
+                              name="buildWidth"
+                              value={val.buildWidth}
+                              onChange={(e) => handleproduct(e, i)}
+                              required
+                              size="small"
+                              error={!!simpleValidator.current.message("Width", val?.buildWidth, "required|numeric")}
+                              helperText={simpleValidator.current.message("Width", val?.buildWidth, "required|numeric")}
+                              sx={{
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1976d2',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1976d2',
+                                  }
+                                }
+                              }}
+                            />
+                            
+                            <TextField
+                              label="Height (in)"
+                              placeholder="Build Height"
+                              type="text"
+                              name="buildHeight"
+                              value={val.buildHeight}
+                              onChange={(e) => handleproduct(e, i)}
+                              required
+                              size="small"
+                              error={!!simpleValidator.current.message("Height", val?.buildHeight, "required|numeric")}
+                              helperText={simpleValidator.current.message("Height", val?.buildHeight, "required|numeric")}
+                              sx={{
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1976d2',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1976d2',
+                                  }
+                                }
+                              }}
+                            />
+                          </Box>
+                        </Grid>
+                        
+                        {/* Options Section */}
+                        <Grid item xs={12}>
+                          <Divider sx={{ my: 2 }} />
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 500, color: '#555' }}>
+                              Product Options
+                            </Typography>
+                            {HasPermission("OptionsAdd") && (
+                              <IconButton
+                                size="small"
+                                onClick={() => setoption(true)}
+                                sx={{ 
+                                  color: '#1976d2',
+                                  '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' }
+                                }}
+                              >
+                                <AddIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                          
+                          {/* Options Display Area */}
+                          <Box sx={{ minHeight: 60, backgroundColor: '#fafafa', borderRadius: 1, p: 2, border: '1px dashed #ddd' }}>
+                            {action === "edit" && (
+                              <>
+                                <div className="new-option-wrapper">
+                                  {optionName
+                                    .filter((entry) => entry.indexId === i)
+                                    .map((entry) => (
+                                      <div key={entry.indexId} className="mb-3">
+                                        <ul className="list-unstyled new-option-main">
+                                          {Object.entries(entry.data).map(([label, value], idx) => (
+                                            <li key={idx} className="new-option-li d-flex justify-content-between align-items-center">
+                                              <Chip
+                                                label={`${label.replace(new RegExp(`-${i}$`), "")} - ${value}`}
+                                                onDelete={() => removeOption(i, label)}
+                                                deleteIcon={<CloseIcon />}
+                                                size="small"
+                                                sx={{ 
+                                                  mr: 1, 
+                                                  mb: 1,
+                                                  backgroundColor: '#e3f2fd',
+                                                  color: '#1976d2'
+                                                }}
+                                              />
+                                            </li>
+                                          ))}
+                                          {Object.keys(entry.data).length > 0 && (
+                                            <IconButton
+                                              size="small"
+                                              onClick={() => {
+                                                setActiveProductIndex(i);
+                                                setShowOptionsPopup(true);
+                                                setPopupMode(action);
+                                              }}
+                                              sx={{ 
+                                                color: '#1976d2',
+                                                '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' }
+                                              }}
+                                            >
+                                              <EditIcon fontSize="small" />
+                                            </IconButton>
+                                          )}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                </div>
+
+                                <GetAllForedit
+                                  fn={(e) => handleproduct(e, i)}
+                                  values={val.optionTypeId}
+                                  optiondata={val.optionTypeId}
+                                  name="optionTypeId"
+                                  load={optionlist}
+                                  producttypeId={val.productId}
+                                  indexId={i}
+                                  optionName={optionName}
+                                  setOptionName={setOptionName}
+                                  additionalCosts={additionalCosts}
+                                  setAdditionalCosts={setAdditionalCosts}
+                                  isRender={false}
+                                  buildRequirement={false}
+                                  showOptionsPopup={false}
+                                  optionMapping={optionMapping}
+                                  setOptionMapping={setOptionMapping}
+                                />
+                              </>
+                            )}
+                            
+                            {action === "add" && (
+                              <>
+                                {optionName
+                                  .filter((entry) => entry.indexId === i)
+                                  .map((entry) => (
+                                    <div key={entry.indexId} className="mb-3">
+                                      <ul className="list-unstyled new-option-main">
+                                        {Object.entries(entry.data).map(([label, value], idx) => (
+                                          <li key={idx} className="new-option-li d-flex justify-content-between align-items-center">
+                                            <Chip
+                                              label={`${label.replace(new RegExp(`-${i}$`), "")} - ${value}`}
+                                              onDelete={() => removeOption(i, label)}
+                                              deleteIcon={<CloseIcon />}
+                                              size="small"
+                                              sx={{ 
+                                                mr: 1, 
+                                                mb: 1,
+                                                backgroundColor: '#e3f2fd',
+                                                color: '#1976d2'
+                                              }}
+                                            />
+                                          </li>
+                                        ))}
+                                        {Object.keys(entry.data).length > 0 && (
+                                          <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                              setActiveProductIndex(i);
+                                              setShowOptionsPopup(true);
+                                              setPopupMode(action);
+                                            }}
+                                            sx={{ 
+                                              color: '#1976d2',
+                                              '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' }
+                                            }}
+                                          >
+                                            <EditIcon fontSize="small" />
+                                          </IconButton>
+                                        )}
+                                      </ul>
+                                    </div>
+                                  ))}
+                                  
+                                <GetAllOptions
+                                  fn={(e) => handleproduct(e, i)}
+                                  value={val.optionTypeId}
+                                  name="optionTypeId"
+                                  load={optionlist}
+                                  producttypeId={val.productId}
+                                  indexId={i}
+                                  optionName={optionName}
+                                  setOptionName={setOptionName}
+                                  additionalCosts={additionalCosts}
+                                  setAdditionalCosts={setAdditionalCosts}
+                                  isRender={false}
+                                  buildRequirement={false}
+                                  showOptionsPopup={false}
+                                  optionMapping={optionMapping}
+                                  setOptionMapping={setOptionMapping}
+                                />
+                              </>
+                            )}
+                            
+                            {/* Add Options Button */}
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<AddIcon />}
+                              onClick={() => {
+                                setActiveProductIndex(i);
+                                setShowOptionsPopup(true);
+                                setPopupMode(action);
+                              }}
+                              sx={{
+                                mt: 2,
+                                borderColor: '#1976d2',
+                                color: '#1976d2',
+                                textTransform: 'none',
+                                '&:hover': {
+                                  borderColor: '#1976d2',
+                                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                                }
+                              }}
+                            >
+                              Add Options
+                            </Button>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Paper>
+                ))}
+            </Box>
+
+
+                      <Dialog
+                        open={showOptionsPopup}
+                        onClose={() => {
+                          setShowOptionsPopup(false);
+                          setoptionlist((prev) => !prev); // Force refresh of inline components
+                        }}
+                        maxWidth="md"
+                        fullWidth
+                        PaperProps={{
+                          sx: {
+                            maxHeight: '80vh',
+                            borderRadius: 2,
+                            boxShadow: 24,
+                          }
+                        }}
+                      >
+                        <DialogTitle sx={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'center',
+                          borderBottom: 1,
+                          borderColor: 'divider',
+                          pb: 2
+                        }}>
+                          <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
+                            Add Option
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {HasPermission("OptionsAdd") && (
+                              <IconButton
+                                color="primary"
+                                onClick={() => setoption(true)}
+                                sx={{
+                                  bgcolor: 'primary.light',
+                                  '&:hover': {
+                                    bgcolor: 'primary.main',
+                                    color: 'white'
+                                  }
+                                }}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            )}
+                            <IconButton
+                              onClick={() => {
+                                setShowOptionsPopup(false);
+                                setoptionlist((prev) => !prev); // Force refresh of inline components
+                              }}
+                              sx={{ 
+                                color: 'grey.500',
+                                '&:hover': { 
+                                  bgcolor: 'grey.100',
+                                  color: 'grey.700'
+                                }
+                              }}
+                            >
+                              <CloseIcon />
+                            </IconButton>
+                          </Box>
+                        </DialogTitle>
+
+                        <DialogContent sx={{ p: 0 }}>
+                          {/* Tab Navigation */}
+                          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                            <Tabs
+                              value={activeOptionsTab}
+                              onChange={(event, newValue) => setActiveOptionsTab(newValue)}
+                              sx={{
+                                '& .MuiTab-root': {
+                                  textTransform: 'none',
+                                  fontSize: '1rem',
+                                  fontWeight: 500,
+                                  minWidth: 120,
+                                },
+                                '& .MuiTabs-indicator': {
+                                  height: 3,
+                                }
+                              }}
+                            >
+                              <Tab
+                                label="Options"
+                                value="options"
+                                sx={{
+                                  '&.Mui-selected': {
+                                    color: 'primary.main',
+                                    fontWeight: 600,
+                                  }
+                                }}
+                              />
+                              <Tab
+                                label="Build Requirements"
+                                value="buildRequirements"
+                                sx={{
+                                  '&.Mui-selected': {
+                                    color: 'primary.main',
+                                    fontWeight: 600,
+                                  }
+                                }}
+                              />
+                            </Tabs>
+                          </Box>
+
+                          {/* Tab Content */}
+                          <Box sx={{ p: 3 }}>
+                            <Fade in={true} timeout={300}>
+                              <Box>
                                 {popupMode === "add" ? (
                                   <GetAllOptions
                                     fn={(e) =>
@@ -925,107 +1090,197 @@ function AddEditWindow({
                                     setAdditionalCosts={setAdditionalCosts}
                                     buildRequirement={activeOptionsTab === 'buildRequirements'}
                                     showOptionsPopup={showOptionsPopup}
-
                                   />
                                 )}
-                              </div>
-                            </div>
-                                                          <div className="modal-footer">
-                                <div className="form-style form-group d-flex align-items-center justify-content-end w-100 gap-4">
-                                  <button
-                                    type="button"
-                                    className="btn blue-btn"
-                                    onClick={() => {
-                                      setShowOptionsPopup(false);
-                                      setoptionlist((prev) => !prev); // Force refresh of inline components
-                                    }}
-                                  >
-                                    Submit
-                                  </button>
-                                  <Link
-                                    className="cancel"
-                                    onClick={() => {
-                                      setShowOptionsPopup(false);
-                                      setoptionlist((prev) => !prev); // Force refresh of inline components
-                                    }}
-                                  >
-                                    Cancel
-                                  </Link>
-                                </div>
-                              </div>
-                          </div>
-                        </div>
-                      )}
+                              </Box>
+                            </Fade>
+                          </Box>
+                        </DialogContent>
 
-                      <div className="middle-heading">
-                        <h4>Notes</h4>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Add Notes"}
-                            placeholderName={"Add notes"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"notes"}
-                            name={"notes"}
-                            value={value.notes}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <label className="font-14">Upload Photo</label>
-                          <div className="position-relative upload-photo">
-                            <input
-                              type="file"
-                              className="form-control"
-                              accept="image/png,image/jpg,image/jpeg"
-                              name="exemptionCertificate"
-                              onChange={(e) => {
-                                UploadImage(e);
-                              }}
-                              multiple
-                            />
-                            <span>
-                              <img
-                                src="/image/upload.svg"
-                                className="me-2"
-                                alt=" "
-                                loading="lazy"
-                              />{" "}
-                              Choose File
-                            </span>
-                            {imageLoader && <SelectBoxLoader />}
-                          </div>
+                        <DialogActions sx={{ 
+                          borderTop: 1, 
+                          borderColor: 'divider',
+                          p: 3,
+                          gap: 2
+                        }}>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                              setShowOptionsPopup(false);
+                              setoptionlist((prev) => !prev); // Force refresh of inline components
+                            }}
+                            sx={{
+                              textTransform: 'none',
+                              px: 4,
+                              py: 1.5,
+                              fontWeight: 600,
+                              borderRadius: 2,
+                              boxShadow: 2,
+                              '&:hover': {
+                                boxShadow: 4,
+                              }
+                            }}
+                          >
+                            Submit
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => {
+                              setShowOptionsPopup(false);
+                              setoptionlist((prev) => !prev); // Force refresh of inline components
+                            }}
+                            sx={{
+                              textTransform: 'none',
+                              px: 4,
+                              py: 1.5,
+                              borderRadius: 2,
+                              borderWidth: 2,
+                              '&:hover': {
+                                borderWidth: 2,
+                                bgcolor: 'secondary.light',
+                              }
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
 
-                          <PreviewFiles
-                            file={value?.photo}
-                            isdelete={true}
-                            handleImageDelelet={handleImageDelete}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-start w-100 gap-4">
-                    <SubmitButton
-                      type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
-                      disabled={loader}
+            
+            <Box sx={{ mb: 4 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mb: 3, 
+                  color: '#1976d2', 
+                  fontWeight: 600,
+                  borderLeft: '4px solid #1976d2',
+                  paddingLeft: 2
+                }}
+              >
+                Additional Information
+              </Typography>
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Add Notes"
+                    placeholder="Add notes"
+                    multiline
+                    rows={3}
+                    name="notes"
+                    value={value.notes}
+                    onChange={handleChange}
+                    size="small"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#1976d2',
+                        }
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#1976d2'
+                      }
+                    }}
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                  <Box>
+                    <Typography variant="body2" sx={{ mb: 2, fontWeight: 500, color: '#666' }}>
+                      Upload Photos
+                    </Typography>
+                    
+                    <Box sx={{ position: 'relative', mb: 2 }}>
+                      <Button
+                        component="label"
+                        variant="outlined"
+                        startIcon={<UploadIcon />}
+                        sx={{
+                          borderColor: '#1976d2',
+                          color: '#1976d2',
+                          '&:hover': {
+                            borderColor: '#1976d2',
+                            backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                          },
+                          width: '100%',
+                          py: 1.5
+                        }}
+                        disabled={imageLoader}
+                      >
+                        {imageLoader ? (
+                          <>
+                            <CircularProgress size={16} sx={{ mr: 1 }} />
+                            Uploading...
+                          </>
+                        ) : (
+                          'Choose Files'
+                        )}
+                        <input
+                          type="file"
+                          hidden
+                          accept="image/png,image/jpg,image/jpeg"
+                          multiple
+                          onChange={UploadImage}
+                        />
+                      </Button>
+                    </Box>
+
+                    <PreviewFiles
+                      file={value?.photo}
+                      isdelete={true}
+                      handleImageDelelet={handleImageDelete}
                     />
-                    <Link className="cancel" onClick={handleClearState}>
-                      Cancel
-                    </Link>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </DialogContent>
+          
+          <DialogActions sx={{ p: 3, justifyContent: 'flex-start', gap: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loader}
+              sx={{
+                backgroundColor: '#1976d2',
+                '&:hover': {
+                  backgroundColor: '#1565c0'
+                },
+                textTransform: 'none',
+                px: 4,
+                py: 1
+              }}
+              startIcon={loader && <CircularProgress size={16} color="inherit" />}
+            >
+              {loader ? 'Processing...' : (action === "add" ? "Submit" : "Update")}
+            </Button>
+            
+            <Button
+              variant="outlined"
+              onClick={handleClearState}
+              sx={{
+                borderColor: '#666',
+                color: '#666',
+                '&:hover': {
+                  borderColor: '#666',
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                },
+                textTransform: 'none',
+                px: 4,
+                py: 1
+              }}
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
       {vendor && (
         <AddEditProduct

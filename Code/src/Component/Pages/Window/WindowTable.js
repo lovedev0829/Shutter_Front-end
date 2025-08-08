@@ -10,11 +10,33 @@ import AddEditButton from "../../Form/AddEditButton";
 import AddEditWindow from "./AddEditWindow";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableContainer,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  IconButton,
+  Menu,
+  MenuItem,
+  Radio,
+  FormControlLabel,
+  Chip
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Window } from "../../../Redux/Redux/Action/Action";
 import Imagepreview from "../../MultiImage/Imagepreview";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 
 function WindowTable({ listdata }) {
   const [multiImage, setMultiImage] = useState(false);
@@ -30,6 +52,8 @@ function WindowTable({ listdata }) {
   const [delOpen, setDelOpen] = useState(false);
 
   const [selectedParentId, setSelectedParentId] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuItemIndex, setMenuItemIndex] = useState(null);
   const dispatch = useDispatch();
   const handleChangePage = (event, newPage) => {
     TenantlistAPI(newPage + 1, rowsPerPage);
@@ -189,249 +213,347 @@ function WindowTable({ listdata }) {
   const resetObject = () => {
     setObject("");
   };
+  
+  const handleMenuClick = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setMenuItemIndex(index);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuItemIndex(null);
+  };
+
   const HandleImagePreview = () => setMultiImage(false);
- const Loginuser = JSON.parse(localStorage.getItem("userData"));
+  const Loginuser = JSON.parse(localStorage.getItem("userData"));
   
   return (
     <>
-      {loder && <ApiLoder />}
-      <div className="d-flex align-items-center justify-content-between mb-30">
-        <h2 className="body_heading width-left-border mb-0">
-          {" "}
+      <ApiLoder open={loder} />
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography 
+          variant="h5" 
+          component="h2" 
+          sx={{ 
+            fontWeight: 600,
+            borderLeft: '4px solid #1976d2',
+            paddingLeft: 2,
+            mb: 0
+          }}
+        >
           Window Measurements
-        </h2>
-      </div>
+        </Typography>
+      </Box>
 
-      <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-        <div className="d-flex align-items-center gap-2 status-full-width"></div>
-        <div className="heading_width_search d-flex align-items-center gap-3">
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        mb: 3,
+        flexDirection: { xs: 'column', md: 'row' },
+        gap: 2
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}></Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId && (
-            <Link
+            <Button
+              component={Link}
               to={`/contacts/estimate/${listdata?.jobId}`}
-              className={`btn blue-outline-btn small_btn ${
-                selectedParentId?.length > 0 ? "" : "disabled-link"
-              }`}
+              variant="outlined"
+              size="small"
+              disabled={selectedParentId?.length === 0}
+              sx={{
+                textTransform: 'none',
+                borderColor: '#1976d2',
+                color: '#1976d2',
+                '&:hover': {
+                  borderColor: '#1976d2',
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
+                },
+                '&.Mui-disabled': {
+                  borderColor: '#e0e0e0',
+                  color: '#bdbdbd'
+                }
+              }}
             >
               Build Estimate
-            </Link>
+            </Button>
           )}
-          {HasPermission("WindowAdd") && listdata?.tenantId === Loginuser?.tenantId &&  (
+          {HasPermission("WindowAdd") && listdata?.tenantId === Loginuser?.tenantId && (
             <AddEditButton
               handleClick={() => {
                 setAction("add");
-
                 setOpen(true);
               }}
               title="Add new Window"
             />
           )}
-        </div>
-      </div>
+        </Box>
+      </Box>
       {tenantList?.map((val, i) => (
-        <div className="living-room-window-table mb-3" key={i}>
-          <div className="d-flex align-items-center justify-content-between">
-            <h2 className="mb-3 font-16">{val?.label}</h2>
+        <Paper key={i} sx={{ mb: 3, p: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 500, fontSize: '1rem' }}>
+              {val?.label}
+            </Typography>
             {(HasPermission("WindowEdit") || HasPermission("WindowDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
-              <div className="company-logo-dropdown mb-2">
-                <div className="dropdown">
-                  <button
-                    className="dropdown-toggle border-0 w-100 d-flex align-items-center"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Action{" "}
-                    <img
-                      src="/image/three-dot.svg"
-                      className="ps-3"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </button>
-                  <ul className="dropdown-menu dropdown-menu-end w-100 shadow">
-                    {HasPermission("WindowEdit") && (
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to="#"
-                          onClick={() => handleedit(val)}
-                        >
-                          <img
-                            src="/image/edit 1.svg"
-                            className="me-1"
-                            alt=""
-                            loading="lazy"
-                          />
-                          Edit
-                        </Link>
-                      </li>
-                    )}
-                    {HasPermission("WindowDelete") && (
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to="#"
-                          onClick={() => handledelete(val)}
-                        >
-                          <img
-                            src="/image/delete 1.svg"
-                            className="me-1"
-                            alt=""
-                            loading="lazy"
-                          />
-                          Delete
-                        </Link>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
+              <Box>
+                <IconButton
+                  onClick={(event) => handleMenuClick(event, i)}
+                  sx={{ 
+                    color: '#666',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                    }
+                  }}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl) && menuItemIndex === i}
+                  onClose={handleMenuClose}
+                  PaperProps={{
+                    sx: {
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                      mt: 1
+                    }
+                  }}
+                >
+                  {HasPermission("WindowEdit") && (
+                    <MenuItem 
+                      onClick={() => {
+                        handleedit(val);
+                        handleMenuClose();
+                      }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                    >
+                      <EditIcon fontSize="small" sx={{ color: '#1976d2' }} />
+                      Edit
+                    </MenuItem>
+                  )}
+                  {HasPermission("WindowDelete") && (
+                    <MenuItem 
+                      onClick={() => {
+                        handledelete(val);
+                        handleMenuClose();
+                      }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                    >
+                      <DeleteIcon fontSize="small" sx={{ color: '#d32f2f' }} />
+                      Delete
+                    </MenuItem>
+                  )}
+                </Menu>
+              </Box>
             )}
-          </div>
-          <div className="table-responsive">
-            <table className="table mb-0">
-              <thead>
-                <tr>
-                  <th scope="col" className="text-center">
+          </Box>
+          <TableContainer>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                  <TableCell align="center" sx={{ fontWeight: 600, color: '#333' }}>
                     Qty
-                  </th>
-                  <th scope="col">Product Type</th>
-                  <th scope="col">Product</th>
-                  <th scope="col">Dimensions</th>
-                  <th scope="col">Build Width</th>
-                  <th scope="col">Build Height</th>
-                  <th scope="col">Photo</th>
-                </tr>
-              </thead>
-              <tbody>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: '#333' }}>Product Type</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: '#333' }}>Product</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: '#333' }}>Dimensions</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: '#333' }}>Build Width</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: '#333' }}>Build Height</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: '#333' }}>Photo</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {val?.productDetails?.map((vals, ind) => (
-                  <tr key={ind}>
-                    <td>
-                      <div className="form-check table-form-check">
-                        {listdata?.tenantId === Loginuser?.tenantId && 
-                        <input
-                          className="form-check-input table-form-check-input"
-                          type="radio"
-                          name={`parentRadio-${i}`}
-                          id={`parentRadio-${ind}`}
-                          checked={selectedParentId.some(
-                            (id) =>
-                              id.windowProductId === vals.windowProductId &&
-                              id.parentIndex === i
-                          )}
-                          onChange={() =>
-                            handleRadioChange(
-                              vals,
-                              i,
-                              val?.label,
-                              val?.height,
-                              val?.width,
-                              val?.archHeight
-                            )
-                          }
-                        />
-}
+                  <TableRow 
+                    key={ind}
+                    sx={{ 
+                      '&:nth-of-type(odd)': { backgroundColor: '#fafafa' },
+                      '&:hover': { backgroundColor: '#f0f0f0' }
+                    }}
+                  >
+                    <TableCell align="center">
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        {listdata?.tenantId === Loginuser?.tenantId && (
+                          <FormControlLabel
+                            control={
+                              <Radio
+                                size="small"
+                                name={`parentRadio-${i}`}
+                                checked={selectedParentId.some(
+                                  (id) =>
+                                    id.windowProductId === vals.windowProductId &&
+                                    id.parentIndex === i
+                                )}
+                                onChange={() =>
+                                  handleRadioChange(
+                                    vals,
+                                    i,
+                                    val?.label,
+                                    val?.height,
+                                    val?.width,
+                                    val?.archHeight
+                                  )
+                                }
+                                sx={{
+                                  color: '#1976d2',
+                                  '&.Mui-checked': {
+                                    color: '#1976d2',
+                                  }
+                                }}
+                              />
+                            }
+                            label={val.quantity}
+                            sx={{ margin: 0 }}
+                          />
+                        )}
                         {selectedParentId.some(
                           (id) =>
                             id.windowProductId === vals.windowProductId &&
                             id.parentIndex === i
                         ) && (
-                          <img
-                            src="/image/cross.png"
-                            alt=""
-                            style={{width:"17px",cursor:"pointer"}}
+                          <IconButton
+                            size="small"
                             onClick={() => handleRemoveRadio(i)}
+                            sx={{ 
+                              color: '#d32f2f',
+                              '&:hover': { backgroundColor: 'rgba(211, 47, 47, 0.04)' }
+                            }}
                           >
-                            
-                          </img>
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
                         )}
-                        <label
-                          className="form-check-label"
-                          htmlFor={`parentRadio-${ind}`}
-                        >
-                          {val.quantity}
-                        </label>
-                      </div>
-                    </td>
-                    <td>{vals?.productTypeName}</td>
-                    <td>
-                      <Link
-                        className="color-blue"
+                      </Box>
+                    </TableCell>
+                    <TableCell>{vals?.productTypeName}</TableCell>
+                    <TableCell>
+                      <Button
+                        component={Link}
                         to={`/products/detail/${vals.productId}`}
+                        variant="text"
+                        sx={{
+                          textTransform: 'none',
+                          color: '#1976d2',
+                          padding: 0,
+                          minWidth: 'auto',
+                          '&:hover': {
+                            backgroundColor: 'transparent',
+                            textDecoration: 'underline'
+                          }
+                        }}
                       >
                         {vals?.productName}
-                      </Link>
-                    </td>
-                    <td>
-                      W: {val?.width}”, H: {val?.height}”, A: {val?.archHeight}”
-                    </td>
-                    <td>{vals?.buildWidth}</td>
-                    <td>{vals?.buildHeight}</td>
-                    <td>
-                      <span
-                        className="d-flex align-items-center gap-2 table-photo"
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        W: {val?.width}", H: {val?.height}", A: {val?.archHeight}"
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{vals?.buildWidth}</TableCell>
+                    <TableCell>{vals?.buildHeight}</TableCell>
+                    <TableCell>
+                      <Box 
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 1, 
+                          cursor: 'pointer' 
+                        }}
                         onClick={() => {
                           setSelectedImages(val || {});
                           setMultiImage(true);
                         }}
                       >
-                        <img
+                        <Box
+                          component="img"
                           src={val?.photo[0] || "/image/no-image.jpg"}
                           alt=""
-                          loading="lazy"
-                          style={{ cursor: "pointer" }}
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                            border: '1px solid #e0e0e0'
+                          }}
                         />
                         {val?.photo?.length > 1 && (
-                          <h2
-                            className="font-14 mb-0"
-                            style={{ cursor: "pointer" }}
-                          >
-                            +{val?.photo?.length - 1}
-                          </h2>
+                          <Chip
+                            label={`+${val?.photo?.length - 1}`}
+                            size="small"
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              fontSize: '0.75rem'
+                            }}
+                          />
                         )}
-                      </span>
-                    </td>
-                  </tr>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
                 ))}
-                {multiImage && (
-                  <Imagepreview
-                    imagesData={selectedImages}
-                    imageopen={multiImage}
-                    handlecloseImage={HandleImagePreview}
-                  />
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {multiImage && (
+            <Imagepreview
+              imagesData={selectedImages}
+              imageopen={multiImage}
+              handlecloseImage={HandleImagePreview}
+            />
+          )}
+        </Paper>
       ))}
       {(!tenantList || tenantList?.length === 0) && (
-        <div className="text-center border-0 no-records">
-          <img
+        <Paper sx={{ 
+          textAlign: 'center', 
+          p: 6, 
+          borderRadius: 2,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          <Box
+            component="img"
             src="/image/no-records.svg"
-            alt=" "
-            loading="lazy"
-            className="img-fluid"
+            alt="No records found"
+            sx={{
+              maxWidth: 100,
+              width: '100%',
+              height: 'auto',
+              mb: 2
+            }}
           />
-          <p className="font-14">No Windows Found</p>
-        </div>
+          <Typography variant="body1" color="text.secondary">
+            No Windows Found
+          </Typography>
+        </Paper>
       )}
       {tenantList && tenantList?.length > 0 && (
-        <div className="d-flex align-items-center justify-content-end bottom_nav">
-          <nav aria-label="Page navigation example">
-            <ul className="pagination">
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                component="div"
-                count={paginatedItems}
-                rowsPerPage={rowsPerPage}
-                page={page - 1}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </ul>
-          </nav>
-        </div>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          mt: 3,
+          mb: 2
+        }}>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 15, 25, 100]}
+            component="div"
+            count={paginatedItems}
+            rowsPerPage={rowsPerPage}
+            page={page - 1}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{
+              '.MuiTablePagination-toolbar': {
+                paddingLeft: 0,
+                paddingRight: 0
+              },
+              '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                color: '#666',
+                fontSize: '0.875rem'
+              }
+            }}
+          />
+        </Box>
       )}
       {open && (
         <AddEditWindow

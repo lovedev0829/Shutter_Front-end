@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { Box, Tabs, Tab, Paper, useTheme, useMediaQuery } from "@mui/material";
 import Header from "../../../Layout/header";
-import Tab from "../../Form/Tab";
 import { ReportOrderReport, ReportReciptSvg, ReportTaxReport } from "../../../SvgFile/Index";
 import FinanceReport from "./FinanceReport";
 import OrderReport from "./OrderReport";
 import TaxReport from "./TaxReport";
+
 export default function Index() {
-  const [tabdata, setTabdata] = useState("#pills-overview-tab");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [tabdata, setTabdata] = useState("#FinanceReports");
+  
   const Tablist = [
     {
       status: true,
@@ -27,57 +31,89 @@ export default function Index() {
       title: "Tax Reports",
     },
   ];
-  const handleTabchnage = (value) => {
-    setTabdata(value || Tablist[0].id);
+
+  const handleTabChange = (event, newValue) => {
+    const selectedTab = Tablist[newValue];
+    setTabdata(selectedTab.id);
   };
+
+  const getCurrentTabIndex = () => {
+    return Tablist.findIndex(tab => tab.id === tabdata);
+  };
+
   const initialActiveTab = localStorage.getItem("activeTab2") || Tablist[0].id;
+
   return (
     <>
       <div className="intersight_content">
         <Header title="Reports" />
         <div className="body_content">
-          <div className="contact-profile">
-            <div className="engage-tabs">
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <Tab Tablist={Tablist} handleTabchnage={handleTabchnage} />
-              </ul>
-              <div className="tab-content" id="pills-tabContent">
-                <div
-                  className={`tab-pane fade ${
-                    tabdata === "#FinanceReports" ? "show active" : ""
-                  }`}
-                  id="FinanceReports"
-                  role="tabpanel"
-                  aria-labelledby="pills-overview-tab"
-                  tabIndex={0}
-                >
-                {tabdata === "#FinanceReports" &&   <FinanceReport /> }
-                </div>
-                <div
-                  className={`tab-pane fade ${
-                    initialActiveTab === "#OrderReports" ? "show active" : ""
-                  }`}
-                  id="OrderReports"
-                  role="tabpanel"
-                  aria-labelledby="pills-payment-tab"
-                  tabIndex={0}
-                >
-                  {tabdata === "#OrderReports" && <OrderReport />}
-                </div>
-                <div
-                  className={`tab-pane fade ${
-                    initialActiveTab === "#TaxReports" ? "show active" : ""
-                  }`}
-                  id="TaxReports"
-                  role="tabpanel"
-                  aria-labelledby="pills-payment-tab"
-                  tabIndex={0}
-                >
-                  {tabdata === "#TaxReports" && <TaxReport/>}
-                </div>
-              </div>
-            </div>
-          </div>
+          <Paper 
+            sx={{ 
+              width: '100%', 
+              mb: { xs: 1, md: 3 },
+              mx: { xs: 1, md: 0 },
+              maxWidth: { xs: 'calc(100vw - 16px)', md: '100%' }
+            }}
+          >
+            <Tabs
+              value={getCurrentTabIndex()}
+              onChange={handleTabChange}
+              variant={isMobile ? "scrollable" : "standard"}
+              scrollButtons={isMobile ? "auto" : false}
+              allowScrollButtonsMobile
+              sx={{
+                borderBottom: 1,
+                borderColor: 'divider',
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  minHeight: { xs: 44, md: 48 },
+                  fontSize: { xs: '0.75rem', sm: '0.875rem', md: '0.9375rem' },
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  minWidth: { xs: 'auto', md: 160 },
+                  px: { xs: 1, md: 2 },
+                  '&.Mui-selected': {
+                    fontWeight: 600,
+                  },
+                },
+                '& .MuiTabs-flexContainer': {
+                  flexWrap: { xs: 'nowrap', md: 'wrap' },
+                },
+                '& .MuiTabs-scrollButtons': {
+                  '&.Mui-disabled': {
+                    opacity: 0.3,
+                  },
+                },
+              }}
+            >
+              {Tablist.map((tab, index) => (
+                <Tab
+                  key={index}
+                  icon={isMobile ? null : tab.svg}
+                  label={isMobile ? tab.title.replace(" Reports", "") : tab.title}
+                  iconPosition="start"
+                  sx={{ 
+                    gap: { xs: 0, md: 1 },
+                    '& .MuiTab-iconWrapper': {
+                      display: { xs: 'none', md: 'block' }
+                    }
+                  }}
+                />
+              ))}
+            </Tabs>
+
+            <Box sx={{ 
+              p: { xs: 1, sm: 2, md: 3 },
+              overflow: 'hidden'
+            }}>
+              {tabdata === "#FinanceReports" && <FinanceReport />}
+              {(tabdata === "#OrderReports" || initialActiveTab === "#OrderReports") && 
+               tabdata === "#OrderReports" && <OrderReport />}
+              {(tabdata === "#TaxReports" || initialActiveTab === "#TaxReports") && 
+               tabdata === "#TaxReports" && <TaxReport />}
+            </Box>
+          </Paper>
         </div>
       </div>
     </>

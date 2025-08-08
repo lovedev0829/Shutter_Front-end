@@ -6,7 +6,29 @@ import { apiUrls } from "../../../utils/apiUrls";
 import { ErrorMessage, FormatPhoneNumber, HasPermission, SuccessMessage } from "../../../helpers/common";
 import SubmitButton from "../../Form/SubmitButton";
 import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
+import { 
+  Button, 
+  Stack,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  IconButton,
+  Typography,
+  Box,
+  Grid,
+  useTheme,
+  useMediaQuery,
+  InputAdornment,
+  Divider,
+  Paper,
+} from "@mui/material";
+import { 
+  Close,
+  Visibility,
+  VisibilityOff,
+  Add,
+} from "@mui/icons-material";
 import { Eyeclose, Eyeopen } from "../../../SvgFile/Index";
 import RoleDropdown from "../../../helpers/RoleDropdown";
 import JobtitleDropdown from "../../../helpers/JobtitleDropdown";
@@ -135,273 +157,627 @@ const AddEditUser = ({
    const handleapi2 = () => {
     setuserlist((prev) => !prev)
   }
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+
   return (
     <>
       <Dialog
         open={open}
+        fullScreen={isMobile}
+        maxWidth="md"
+        fullWidth
         sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",
-            },
+          "& .MuiDialog-paper": {
+            borderRadius: isMobile ? 0 : '12px',
+            margin: isMobile ? 0 : '32px',
+            width: isMobile ? '100%' : 'auto',
+            maxWidth: isMobile ? '100%' : '800px',
+            height: isMobile ? '100%' : 'auto',
+            maxHeight: isMobile ? '100%' : '90vh',
           },
         }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby="user-dialog-title"
       >
-        <div
-          className="modal fade show"
-          id="contactModal"
-          tabIndex={-1}
-          aria-labelledby="exampleModalLabel"
-          aria-modal="true"
-          role="dialog"
-          style={{ display: "block", backgroundColor: "#00000080" }}
+        <DialogTitle
+          id="user-dialog-title"
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: { xs: '12px 16px', sm: '16px 24px' },
+            borderBottom: '1px solid #e5e7eb',
+            backgroundColor: '#f8fafc',
+          }}
         >
-          <div className="modal-dialog modal-dialog-centered filter_modal">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title" id="exampleModalLabel">
-                  {action === "add" ? "Add User" : "Update User"}
-                </h1>
-                <i
-                  className="icofont-close btn-close"
-                  onClick={() => {
-                    setValue(defaultState);
-                    handleclose();
-                    simpleValidator.current.hideMessages();
-                    forceUpdate();
-                  }}
-                ></i>
-              </div>
-              <form onSubmit={UserAddEdit}>
-                <div className="modal-body modale-scroll">
-                  <div className="form-design">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"First Name"}
-                            placeholderName={"Enter First name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"firstName"}
-                            name={"firstName"}
-                            value={value.firstName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "firstName",
-                              value?.firstName,
-                              `required|min:3|alpha|max:50`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Last Name"}
-                            placeholderName={"Enter Last name"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"lastName"}
-                            name={"lastName"}
-                            value={value.lastName}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "lastName",
-                              value?.lastName,
-                              `required|min:3|alpha|max:50`
-                            )}
-                          </div>
-                        </div>
-                      </div>
- <div className="col-lg-4 col-md-4">
-                                              <div className="form-group">
-                                                <InputField
-                                                  labelName={"Suffix"}
-                                                  placeholderName={"Enter Suffix"}
-                                                  type={"text"}
-                                                  handleChange={handleChange}
-                                                  id={"suffix"}
-                                                  name={"suffix"}
-                                                  value={value.suffix}
-                                                />
-                                              </div>
-                                            </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Email"}
-                            placeholderName={"Enter email"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"email"}
-                            name={"email"}
-                            value={value.email}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "email",
-                              value?.email,
-                              `required|email|max:50`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <InputField
-                            labelName={"Phone Number"}
-                            placeholderName={"Enter Phone Number"}
-                            type={"text"}
-                            handleChange={handleChange}
-                            id={"phone"}
-                            name={"phone"}
-                            value={FormatPhoneNumber(value.phone||"")}
-                            required={true}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "phone",
-                              value?.phone,
-                              `required|integer|min:10|max:10`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <label className="font-14 d-flex align-items-center justify-content-between"><span>Job Title</span>
-                           {HasPermission("JobTitleAdd") && 
-                            <img
-                              src="/image/plusblue.svg"
-                              alt=""
-                              loading="lazy"
-                              style={{ cursor: "pointer" }}
-                             onClick={(()=>setuser(true))}
-                            />
-                          }
-                          </label>
-                          <JobtitleDropdown
-                            value={value.jobTitle}
-                            fn={handleChange}
-                            load={userlist}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                        <label className="font-14 d-flex align-items-center justify-content-between">
-                           <span> Select Role <sup>*</sup></span>
-                           {HasPermission("RolesAdd") && 
-                            <img
-                              src="/image/plusblue.svg"
-                              alt=""
-                              loading="lazy"
-                              style={{ cursor: "pointer" }}
-                             onClick={(()=>setvendor(true))}
-                            />
-                          }
-                          </label>
-                          <RoleDropdown
-                            value={value.roleId}
-                            fn={handleChange}
-                            load={vendorlist}
-                          />
-                          <div className="error">
-                            {simpleValidator.current.message(
-                              "Role",
-                              value?.roleId,
-                              `required`
-                            )}
-                          </div>
-                        </div>
-                      </div>
-<div className="col-lg-4 col-md-4">
-                        <div className="form-group">
-                          <label className="font-14">GHL Users</label>
-                          <GetAllGHLUsers
-                            name="ghlUserId"
-                            value={value.ghlUserId}
-                            fn={handleChange}
-                            load={action}
-                          />
-                        </div>
-                      </div>
-                     
-                        <div className="col-lg-4 col-md-4">
-                          <div className="form-group">
-                            <div className="position-relative password_svg">
-                              <InputField
-                                labelName={"Password"}
-                                placeholderName={"Enter Password"}
-                                type={eye ? "text" : "password"}
-                                handleChange={handleChange}
-                                id={"password"}
-                                name={"password"}
-                                value={value.password}
-                               
-                                required={action === "edit" ? false : true}
-                              />
-                              <span
-                                onClick={showPassword}
-                                style={{ cursor: "pointer" }}
-                              >
-                                {eye ? <Eyeopen /> : <Eyeclose />}{" "}
-                              </span>
-                            </div>
-                              <div className='error'>{action !== "edit" && simpleValidator.current.message("password", value?.password, "required|min:8")}</div>
-                          </div>
-                        </div>
-                     
-                    </div>
-                  </div>
-                </div>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              color: '#1f2937',
+              fontSize: { xs: '1.125rem', sm: '1.25rem' },
+            }}
+          >
+            {action === "add" ? "Add User" : "Update User"}
+          </Typography>
+          <IconButton
+            onClick={() => {
+              setValue(defaultState);
+              handleclose();
+              simpleValidator.current.hideMessages();
+              forceUpdate();
+            }}
+            sx={{
+              color: '#6b7280',
+              '&:hover': {
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+              },
+            }}
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
 
-                <div className="modal-footer">
-                  <div className="form-style form-group d-flex align-items-center justify-content-end">
-                    <Link
-                      to={"#"}
-                      className="cancel text-decoration-underline"
-                      onClick={() => {
-                        setValue(defaultState);
-                        handleclose();
-                        simpleValidator.current.hideMessages();
-                        forceUpdate();
+        <form onSubmit={UserAddEdit}>
+          <DialogContent
+            sx={{
+              padding: { xs: '16px', sm: '24px' },
+              '&.MuiDialogContent-root': {
+                paddingTop: { xs: '16px', sm: '24px' },
+              },
+            }}
+          >
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
+              {/* First Name */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    First Name *
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Enter First name"
+                    name="firstName"
+                    value={value.firstName}
+                    onChange={handleChange}
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        '& fieldset': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#3b82f6',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#3b82f6',
+                          borderWidth: '2px',
+                        },
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#ef4444',
+                      fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    {simpleValidator.current.message(
+                      "firstName",
+                      value?.firstName,
+                      `required|min:3|alpha|max:50`
+                    )}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Last Name */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    Last Name *
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Enter Last name"
+                    name="lastName"
+                    value={value.lastName}
+                    onChange={handleChange}
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        '& fieldset': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#3b82f6',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#3b82f6',
+                          borderWidth: '2px',
+                        },
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#ef4444',
+                      fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    {simpleValidator.current.message(
+                      "lastName",
+                      value?.lastName,
+                      `required|min:3|alpha|max:50`
+                    )}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Suffix */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    Suffix
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Enter Suffix"
+                    name="suffix"
+                    value={value.suffix}
+                    onChange={handleChange}
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        '& fieldset': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#3b82f6',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#3b82f6',
+                          borderWidth: '2px',
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              </Grid>
+
+              {/* Email */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    Email *
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Enter email"
+                    name="email"
+                    type="email"
+                    value={value.email}
+                    onChange={handleChange}
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        '& fieldset': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#3b82f6',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#3b82f6',
+                          borderWidth: '2px',
+                        },
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#ef4444',
+                      fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    {simpleValidator.current.message(
+                      "email",
+                      value?.email,
+                      `required|email|max:50`
+                    )}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Phone Number */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    Phone Number *
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Enter Phone Number"
+                    name="phone"
+                    value={FormatPhoneNumber(value.phone||"")}
+                    onChange={handleChange}
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        '& fieldset': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#3b82f6',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#3b82f6',
+                          borderWidth: '2px',
+                        },
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#ef4444',
+                      fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    {simpleValidator.current.message(
+                      "phone",
+                      value?.phone,
+                      `required|integer|min:10|max:10`
+                    )}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Job Title */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    mb: 1,
+                  }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        color: '#374151',
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
                       }}
                     >
-                      Cancel
-                    </Link>
-                    <SubmitButton
-                      type="submit"
-                      className="btn blue-btn"
-                      name={action === "add" ? "Submit" : "Update"}
-                      disabled={loader}
-                    />
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </Dialog>
-     {vendor && <AddEditRole open={vendor} handleclose={(()=>setvendor(false))} action={"add"} LanguageListAPI={handleapi} object={""}  permission={permission}/>}
+                      Job Title
+                    </Typography>
+                    {HasPermission("JobTitleAdd") && (
+                      <IconButton
+                        size="small"
+                        onClick={() => setuser(true)}
+                        sx={{
+                          color: '#3b82f6',
+                          backgroundColor: '#eff6ff',
+                          width: { xs: 24, sm: 28 },
+                          height: { xs: 24, sm: 28 },
+                          '&:hover': {
+                            backgroundColor: '#dbeafe',
+                          },
+                        }}
+                      >
+                        <Add sx={{ fontSize: { xs: 14, sm: 16 } }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <JobtitleDropdown
+                    value={value.jobTitle}
+                    fn={handleChange}
+                    load={userlist}
+                  />
+                </Box>
+              </Grid>
 
-        {user &&<AddEditJobTitle
-                        open={user}
-                        handleclose={(()=>setuser(false))}
-                        action={"add"}
-                        LanguageListAPI={handleapi2}
-                        object={""}
-                      />
-        }
+              {/* Select Role */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    mb: 1,
+                  }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        color: '#374151',
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      }}
+                    >
+                      Select Role *
+                    </Typography>
+                    {HasPermission("RolesAdd") && (
+                      <IconButton
+                        size="small"
+                        onClick={() => setvendor(true)}
+                        sx={{
+                          color: '#3b82f6',
+                          backgroundColor: '#eff6ff',
+                          width: { xs: 24, sm: 28 },
+                          height: { xs: 24, sm: 28 },
+                          '&:hover': {
+                            backgroundColor: '#dbeafe',
+                          },
+                        }}
+                      >
+                        <Add sx={{ fontSize: { xs: 14, sm: 16 } }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <RoleDropdown
+                    value={value.roleId}
+                    fn={handleChange}
+                    load={vendorlist}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#ef4444',
+                      fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    {simpleValidator.current.message(
+                      "Role",
+                      value?.roleId,
+                      `required`
+                    )}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* GHL Users */}
+              <Grid item xs={12} sm={6} md={4} sx={{ mt: 1 }}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    GHL Users
+                  </Typography>
+                  <GetAllGHLUsers
+                    name="ghlUserId"
+                    value={value.ghlUserId}
+                    fn={handleChange}
+                    load={action}
+                  />
+                </Box>
+              </Grid>
+
+              {/* Password */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: '#374151',
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    }}
+                  >
+                    Password {action === "add" && "*"}
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    placeholder="Enter Password"
+                    name="password"
+                    type={eye ? "text" : "password"}
+                    value={value.password}
+                    onChange={handleChange}
+                    size={isMobile ? "small" : "medium"}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={showPassword}
+                            edge="end"
+                            sx={{ color: '#6b7280' }}
+                          >
+                            {eye ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        fontSize: { xs: '0.875rem', sm: '1rem' },
+                        '& fieldset': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#3b82f6',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#3b82f6',
+                          borderWidth: '2px',
+                        },
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#ef4444',
+                      fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                      mt: 0.5,
+                      display: 'block',
+                    }}
+                  >
+                    {action !== "edit" && simpleValidator.current.message("password", value?.password, "required|min:8")}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </DialogContent>
+
+          <Divider />
+
+          <DialogActions
+            sx={{
+              padding: { xs: '16px', sm: '16px 24px' },
+              backgroundColor: '#f8fafc',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: { xs: 1, sm: 2 },
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setValue(defaultState);
+                handleclose();
+                simpleValidator.current.hideMessages();
+                forceUpdate();
+              }}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 500,
+                borderColor: '#d1d5db',
+                color: '#6b7280',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                px: { xs: 2, sm: 3 },
+                py: { xs: 0.75, sm: 1 },
+                '&:hover': {
+                  borderColor: '#9ca3af',
+                  backgroundColor: '#f9fafb',
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loader}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                backgroundColor: '#3b82f6',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                px: { xs: 2, sm: 3 },
+                py: { xs: 0.75, sm: 1 },
+                '&:hover': {
+                  backgroundColor: '#2563eb',
+                },
+                '&:disabled': {
+                  backgroundColor: '#9ca3af',
+                },
+              }}
+            >
+              {action === "add" ? "Submit" : "Update"}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {vendor && (
+        <AddEditRole 
+          open={vendor} 
+          handleclose={() => setvendor(false)} 
+          action={"add"} 
+          LanguageListAPI={handleapi} 
+          object={""} 
+          permission={permission}
+        />
+      )}
+
+      {user && (
+        <AddEditJobTitle
+          open={user}
+          handleclose={() => setuser(false)}
+          action={"add"}
+          LanguageListAPI={handleapi2}
+          object={""}
+        />
+      )}
     </>
   );
 };

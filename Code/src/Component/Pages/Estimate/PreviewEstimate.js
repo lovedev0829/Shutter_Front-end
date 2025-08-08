@@ -11,8 +11,45 @@ import moment from "moment";
 import SendApproved from "./SendApproved";
 import { defaultConfig } from "../../../config";
 import Breakdown from "./Breakdown";
+import {
+  Container,
+  Paper,
+  Box,
+  Typography,
+  Button,
+  Chip,
+  Grid,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Divider,
+  Stack,
+  useTheme,
+  useMediaQuery,
+  List,
+  ListItem,
+  ListItemText
+} from "@mui/material";
+import {
+  CheckCircle as ApproveIcon,
+  Cancel as RejectIcon,
+  ExpandMore as ExpandMoreIcon,
+  ArrowBack as BackIcon
+} from "@mui/icons-material";
 
 export default function PreviewEstimate() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [approved, setApproved] = useState(false);
@@ -97,372 +134,502 @@ export default function PreviewEstimate() {
     }
   };
 
+  const getStatusChip = (status) => {
+    switch (status) {
+      case "Approved":
+        return <Chip label="Approved" color="success" variant="filled" />;
+      case "Rejected":
+        return <Chip label="Rejected" color="error" variant="filled" />;
+      case "GenerateOrder":
+        return <Chip label="Order Generated" color="info" variant="filled" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       {loder && <ApiLoder />}
-      <div className="main_container">
-        <div className="limani_body">
-          <div
-            className="estimate-header"
-            style={{ backgroundColor: tenantList[0]?.primarycolor }}
-          >
-            <div className="container">
-              <div className="header-body">
-                <div className="d-flex align-items-center justify-content-between w-100">
-                  <h2>{tenantList[0]?.companyName}</h2>
-                  <div className="d-flex align-items-center gap-3">
-                    {token && (
-                      <Link
-                        to={`/contacts/job/${tenantList[0]?.jobId}`}
-                        className="cancelheader text-decoration-underlinet"
+      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+        {/* Header Section */}
+        <Paper
+          elevation={0}
+          sx={{
+            backgroundColor: tenantList[0]?.primarycolor || theme.palette.primary.main,
+            color: 'white',
+            borderRadius: 0,
+            py: { xs: 2, sm: 3 },
+            px: { xs: 1, sm: 2 }
+          }}
+        >
+          <Container maxWidth="xl">
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'stretch', sm: 'center' },
+                gap: { xs: 2, sm: 1 }
+              }}
+            >
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 600,
+                  color: 'inherit',
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' }
+                }}
+              >
+                {tenantList[0]?.companyName}
+              </Typography>
+
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={1}
+                sx={{ width: { xs: '100%', sm: 'auto' } }}
+              >
+                {token && (
+                  <Button
+                    component={Link}
+                    to={`/contacts/job/${tenantList[0]?.jobId}`}
+                    variant="outlined"
+                    startIcon={<BackIcon />}
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.7)',
+                      color: 'white',
+                      '&:hover': {
+                        borderColor: 'white',
+                        backgroundColor: 'rgba(255,255,255,0.1)'
+                      },
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+
+                {getStatusChip(tenantList[0]?.status)}
+
+                {tenantList[0]?.status !== "Approved" &&
+                  tenantList[0]?.status !== "Rejected" &&
+                  tenantList[0]?.status !== "GenerateOrder" && (
+                    <>
+                      <Button
+                        variant="contained"
+                        startIcon={<ApproveIcon />}
+                        onClick={() => {
+                          setApproved(true);
+                          setReject("");
+                        }}
+                        sx={{
+                          backgroundColor: 'success.main',
+                          '&:hover': { backgroundColor: 'success.dark' },
+                          fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
                       >
-                        Cancel
-                      </Link>
-                    )}
+                        Approve
+                      </Button>
+                      <Button
+                        variant="contained"
+                        startIcon={<RejectIcon />}
+                        onClick={() => {
+                          setApproved(true);
+                          setReject("yes");
+                        }}
+                        sx={{
+                          backgroundColor: 'error.main',
+                          '&:hover': { backgroundColor: 'error.dark' },
+                          fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  )}
+              </Stack>
+            </Box>
+          </Container>
+        </Paper>
 
-                    {tenantList[0]?.status === "Approved" && (
-                      <span className="badge badge-success">Approved</span>
-                    )}
+        {/* Main Content */}
+        <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 4 } }}>
+          {/* Job Details Section */}
+          <Paper elevation={1} sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: 3, borderRadius: 2 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                mb: 3,
+                fontWeight: 600,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              }}
+            >
+              Job Details
+            </Typography>
+            
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Address
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.address}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Job Name
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.jobName}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Job Type
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.jobType}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Assigned Personnel
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.assignedPersonnel}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Job Notes
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.jobNotes || "---"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Schedule Date & Time
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.scheduleTime
+                        ? `${moment(tenantList[0]?.jobDetails?.scheduleTime).format("MM-DD-YYYY")} | ${moment(tenantList[0]?.jobDetails?.scheduleTime).format("hh:mm A")}`
+                        : "N/A"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Estimate Name
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.estimateName}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Estimate Date
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {moment(tenantList[0]?.createdDate).format("MM-DD-YYYY") || ""}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={4}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      Powder Coating Color
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                      {tenantList[0]?.jobDetails?.powderCoatColor}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Paper>
 
-                    {tenantList[0]?.status === "Rejected" && (
-                      <Link className="badge badge-danger">Rejected</Link>
-                    )}
-                    {tenantList[0]?.status === "GenerateOrder" && (
-                      <span className="badge badge-info">Order Generated</span>
-                    )}
-                    {tenantList[0]?.status !== "Approved" &&
-                      tenantList[0]?.status !== "Rejected" &&
-                      tenantList[0]?.status !== "GenerateOrder" && (
-                        <>
-                          <Link
-                            to="#"
-                            className="btn btn-success"
-                            onClick={() => {
-                              setApproved(true);
-                              setReject("");
-                            }}
-                          >
-                            Approve
-                          </Link>
-                          <Link
-                            to="#"
-                            className="btn btn-danger"
-                            onClick={() => {
-                              setApproved(true);
-                              setReject("yes");
-                            }}
-                          >
-                            Reject
-                          </Link>
-                        </>
+          {/* Estimate Table */}
+          <Paper elevation={1} sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                p: { xs: 2, sm: 3 },
+                fontWeight: 600,
+                backgroundColor: 'background.default',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              }}
+            >
+              Estimate Details
+            </Typography>
+            
+            <TableContainer>
+              <Table size={isMobile ? "small" : "medium"}>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: 'background.default' }}>
+                    <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Window Label</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Window Qty</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Product Type</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Product</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Retail Price</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {tenantList[0]?.estimateProductList?.map((val, i) => (
+                    <TableRow key={i} hover>
+                      <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{val?.label}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{val?.windowQty}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{val?.productName}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        <Box>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                            W: {val?.estimateWindowDetails?.width}", H: {val?.estimateWindowDetails?.height}", A: {val?.estimateWindowDetails?.archHeight}"
+                          </Typography>
+                          {val?.options?.some((opt, ind) => !val?.hidePreviews?.[ind]) && (
+                            <List dense sx={{ pl: 2, mt: 1 }}>
+                              {val?.options?.map((vals, ind) =>
+                                !val?.hidePreviews?.[ind] && (
+                                  <ListItem key={ind} sx={{ py: 0, px: 0 }}>
+                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
+                                      → {vals}
+                                    </Typography>
+                                  </ListItem>
+                                )
+                              )}
+                            </List>
+                          )}
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap", fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                        {defaultConfig.currencySign}
+                        {parseFloat(
+                          (
+                            (val?.totalPrice ?? val?.productPrice ?? 0) +
+                            (val?.additionalCost ?? 0) +
+                            (val?.componentMarkup ?? 0) +
+                            (val?.productMarkup ?? 0) +
+                            (val?.optionMarkup ?? 0)
+                          ).toFixed(2)
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Summary Section */}
+            <Grid container sx={{ p: { xs: 2, sm: 3 }, backgroundColor: 'background.default' }}>
+              <Grid item xs={12} md={4}>
+                <Typography variant="h6" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.125rem' } }}>
+                  Order Notes
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', sm: '1.125rem' } }}>
+                  Terms and Conditions
+                </Typography>
+                <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                  {tenantList[0]?.termsCondition}
+                </Typography>
+              </Grid>
+              
+              <Grid item xs={12} md={4}>
+                <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', sm: '1.125rem' } }}>
+                  Additional Notes
+                </Typography>
+                <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                  {tenantList[0]?.notes}
+                </Typography>
+              </Grid>
+              
+              <Grid item xs={12} md={4}>
+                <Card variant="outlined">
+                  <CardContent>
+                    <Stack spacing={1}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="subtitle2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>Subtotal:</Typography>
+                        <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                          {defaultConfig.currencySign} {tenantList[0]?.subTotal}
+                        </Typography>
+                      </Box>
+                      
+                      {Number(tenantList[0]?.discount) > 0 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="subtitle2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>Discount:</Typography>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                            {defaultConfig.currencySign} {tenantList[0]?.discount}
+                          </Typography>
+                        </Box>
                       )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="container">
-            <div className="body_content">
-              <div className="row mt-5 new-estimate">
-                <div className="col-lg-12">
-                  <div className="mb-30" style={{ paddingBottom: "50px" }}>
-                    <div className="row">
-                      <div className="col-lg-3">
-                        <div className="additional_direction mt-0">
-                          <h6 className="mb-1">Address</h6>
-                          <span>{tenantList[0]?.jobDetails?.address}</span>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-6">
-                        <div className="additional_direction mt-0">
-                          <h6 className="mb-1">Job Name</h6>
-                          <span>{tenantList[0]?.jobDetails?.jobName}</span>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-6">
-                        <div className="additional_direction mt-0">
-                          <h6 className="mb-1">Job Type</h6>
-                          <span>{tenantList[0]?.jobDetails?.jobType}</span>
-                        </div>
-                      </div>
-                      <div className="col-lg-3">
-                        <div className="additional_direction mt-0">
-                          <h6 className="mb-1">Assigned Personnel</h6>
-                          <span>
-                            {tenantList[0]?.jobDetails?.assignedPersonnel}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-lg-3">
-                        <div className="additional_direction">
-                          <h6 className="mb-1">Job Notes</h6>
-                          <span>
-                            {tenantList[0]?.jobDetails?.jobNotes
-                              ? tenantList[0]?.jobDetails?.jobNotes
-                              : "---"}
-                          </span>
-                        </div>
-                      </div>
+                      
+                      {tenantList[0]?.isTaxApplicable && (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="subtitle2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>Taxes:</Typography>
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                            {defaultConfig.currencySign} {tenantList[0]?.tax}
+                          </Typography>
+                        </Box>
+                      )}
+                      
+                      <Divider />
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.125rem' } }}>Grand Total:</Typography>
+                        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.125rem' } }}>
+                          {defaultConfig.currencySign} {tenantList[0]?.grandTotal}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Paper>
 
-                      <div className="col-lg-3">
-                        <div className="additional_direction">
-                          <h6 className="mb-1">Schedule Date &amp; Time</h6>
-                          <span>
-                            {tenantList[0]?.jobDetails?.scheduleTime
-                              ? `${moment(
-                                  tenantList[0]?.jobDetails?.scheduleTime
-                                ).format("MM-DD-YYYY")} | ${moment(
-                                  tenantList[0]?.jobDetails?.scheduleTime
-                                ).format("hh:mm A")}`
-                              : "N/A"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="col-lg-3 col-6">
-                        <div className="additional_direction">
-                          <h6 className="mb-1">Estimate Name</h6>
-                          <span>
-                            <span>{tenantList[0]?.estimateName}</span>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-6">
-                        <div className="additional_direction">
-                          <h6 className="mb-1">Estimate Date</h6>
-                          <span>
-                            <span>
-                              {moment(tenantList[0]?.createdDate).format(
-                                "MM-DD-YYYY"
-                              ) || ""}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-lg-3">
-                        <div className="additional_direction mt-0">
-                          <h6 className="mb-1">Powder Coating Color</h6>
-                          <span>
-                            {tenantList[0]?.jobDetails?.powderCoatColor}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="estimate-table task_table mb-30">
-                    <div className="table-responsive">
-                      <table className="table">
-                        <tr>
-                          <th scope="col">Window label</th>
-                          <th scope="col">Window Qty</th>
-                          <th scope="col">Product Type</th>
-                          <th scope="col">Product</th>
-                          <th scope="col">Retail Price</th>
-                        </tr>
-                        <tbody>
-                          {tenantList[0]?.estimateProductList?.map((val, i) => (
-                            <tr key={i}>
-                              <td>{val?.label}</td>
-                              <td>{val?.windowQty}</td>
-                              <td>{val?.productName}</td>
-                              <td>
-                                {" "}
-                                W: {val?.estimateWindowDetails?.width}”, H:{" "}
-                                {val?.estimateWindowDetails?.height}”, A:{" "}
-                                {val?.estimateWindowDetails?.archHeight}”
-                                <span>
-                                  <ul className="colors">
-                                    {val?.options?.map(
-                                      (vals, ind) =>
-                                        !val?.hidePreviews?.[ind] && (
-                                          <li key={ind}>{`-> ${vals}`}</li>
-                                        )
-                                    )}
-                                  </ul>
-                                </span>
-                              </td>
-                              <td style={{ whiteSpace: "nowrap" }}>
-                                {" "}
-                                {defaultConfig.currencySign}
-                                {parseFloat(
-                                  (
-                                    (val?.totalPrice ??
-                                      val?.productPrice ??
-                                      0) +
-                                    (val?.additionalCost ?? 0) +
-                                    (val?.componentMarkup ?? 0) +
-                                    (val?.productMarkup ?? 0) +
-                                    (val?.optionMarkup ?? 0)
-                                  ).toFixed(2)
-                                )}
-                              </td>
-                            </tr>
+          {/* Payment History */}
+          {msg && msg.invoices && msg.invoices.length > 0 && (
+            <Paper elevation={1} sx={{ borderRadius: 2, mb: 3 }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  p: { xs: 2, sm: 3 },
+                  fontWeight: 600,
+                  backgroundColor: 'background.default',
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                }}
+              >
+                Payment History
+              </Typography>
+              
+              <Box sx={{ p: { xs: 1, sm: 2 } }}>
+                {msg.invoices.map((val, i) => (
+                  <Accordion key={i} sx={{ mb: 1 }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Box sx={{ width: '100%' }}>
+                        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.125rem' } }}>
+                          {val?.invoiceNumber}
+                        </Typography>
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                          <Grid item xs={12} sm={4}>
+                            <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                              <strong>Invoice Amount:</strong> {defaultConfig.currencySign} {val?.totalAmount}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                              <strong>Paid Amount:</strong> {defaultConfig.currencySign} {val?.paidAmount}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <Chip 
+                              label={val?.status} 
+                              size="small" 
+                              color={val?.status === 'Paid' ? 'success' : 'warning'}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      {val?.payments?.length > 0 && (
+                        <Stack spacing={2}>
+                          {val?.payments?.map((payment, paymentIndex) => (
+                            <Card key={paymentIndex} variant="outlined">
+                              <CardContent>
+                                <Grid container spacing={2}>
+                                  <Grid item xs={12} sm={6} md={4}>
+                                    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                      <strong>Payment Date:</strong><br />
+                                      {moment(payment?.paymentDate).format("MM-DD-YYYY hh:mm A")}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12} sm={6} md={4}>
+                                    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                      <strong>Paid Amount:</strong><br />
+                                      {defaultConfig.currencySign} {payment?.amount}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12} sm={6} md={4}>
+                                    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                      <strong>Transaction ID:</strong><br />
+                                      {payment?.transactionId}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12} sm={6} md={4}>
+                                    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                      <strong>Payment Method:</strong><br />
+                                      {payment?.paymentMethod}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid item xs={12} sm={6} md={4}>
+                                    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                                      <strong>Status:</strong><br />
+                                      <Chip 
+                                        label={payment?.status} 
+                                        size="small" 
+                                        color={payment?.status === 'Paid' ? 'success' : 'warning'}
+                                      />
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </CardContent>
+                            </Card>
                           ))}
-                          <tr>
-                            <td colSpan="2"></td>
-                            <td style={{ verticalAlign: "top" }}>
-                              <h2 className="font-14">Order Notes</h2>
-                              <h2 className="font-14">Terms and Conditions</h2>
-                              <div className="terms-content">
-                                <p>{tenantList[0]?.termsCondition}</p>
-                              </div>
-                            </td>
-                            <td style={{ verticalAlign: "top" }}>
-                              <div className="col-md-6  mb-2">
-                                <h2 className="font-14">Additional Notes</h2>
-                                <div className="terms-content">
-                                  <p>{tenantList[0]?.notes}</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td style={{ verticalAlign: "top" }}>
-                              <div className="w-100">
-                                <div className="d-flex justify-content-between">
-                                  <h2 className="font-14 mb-0">Subtotal:</h2>
-                                  <span className="mb-0">
-                                    {defaultConfig.currencySign}{" "}
-                                    {tenantList[0]?.subTotal}
-                                  </span>
-                                </div>
-                                {Number(tenantList[0]?.discount) > 0 && (
-                                  <div className="d-flex justify-content-between">
-                                    <h2 className="font-14 mb-0">Discount:</h2>
-                                    <span className="mb-0">
-                                      {defaultConfig.currencySign}{" "}
-                                      {tenantList[0]?.discount}
-                                    </span>
-                                  </div>
-                                )}
-                                {tenantList[0]?.isTaxApplicable && (
-                                  <div className="d-flex justify-content-between">
-                                    <h2 className="font-14 mb-0">Taxes:</h2>
-                                    <span className="mb-0">
-                                      {defaultConfig.currencySign}{" "}
-                                      {tenantList[0]?.tax}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="d-flex justify-content-between">
-                                  <h2 className="font-14 mb-0">Grand Total:</h2>
-                                  <span className="mb-0">
-                                    {defaultConfig.currencySign}{" "}
-                                    {tenantList[0]?.grandTotal}
-                                  </span>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      {msg && (
-                        <div className="estimation">
-                          <div
-                            className="accordion accordion-flush"
-                            id="accordionFlushExample"
-                          >
-                            {msg?.invoices?.map((val, i) => (
-                              <div className="accordion-item" key={i}>
-                                <h2 className="accordion-header">
-                                  <button
-                                    className="accordion-button collapsed"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target={`#flush-collapse${i}`}
-                                    aria-expanded="false"
-                                    aria-controls={`flush-collapse${i}`}
-                                  >
-                                    <div className="estimation-heading">
-                                      <h5>{val?.invoiceNumber}</h5>
-                                      <div className="creator">
-                                        <span>
-                                          <strong>Invioce Amount:</strong>{" "}
-                                          {defaultConfig.currencySign}{" "}
-                                          {val?.totalAmount}
-                                        </span>
-                                        <span>
-                                          <strong>Paid Amount:</strong>
-                                          {defaultConfig.currencySign}{" "}
-                                          {val?.paidAmount}
-                                        </span>
-
-                                        <span className="span_t">
-                                          <strong>Payment status:</strong>{" "}
-                                          {val?.status}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </button>
-                                </h2>
-                                <div
-                                  id={`flush-collapse${i}`}
-                                  className="accordion-collapse collapse"
-                                  data-bs-parent="#accordionFlushExample"
-                                >
-                                  <div className="accordion-body">
-                                    <div className="estimation-body">
-                                      {val?.payments?.length > 0 && (
-                                        <div className="task_attachment comments">
-                                          <div className="comment_list">
-                                            {val?.payments?.map((val, i) => (
-                                              <div className="paymentdata">
-                                                <span>
-                                                  <strong>Payment Date:</strong>{" "}
-                                                  {moment(
-                                                    val?.paymentDate
-                                                  ).format(
-                                                    "MM-DD-YYYY-hh:mm A"
-                                                  )}
-                                                </span>
-                                                <span>
-                                                  <strong>Paid Amount:</strong>
-                                                  {
-                                                    defaultConfig.currencySign
-                                                  }{" "}
-                                                  {val?.amount}
-                                                </span>
-                                                <span>
-                                                  <strong>
-                                                    Transaction Id:
-                                                  </strong>{" "}
-                                                  {val?.transactionId}
-                                                </span>
-                                                <span>
-                                                  <strong>
-                                                    Payment Method:
-                                                  </strong>{" "}
-                                                  {val?.paymentMethod}
-                                                </span>
-                                                <span>
-                                                  <strong>
-                                                    Payment status:
-                                                  </strong>{" "}
-                                                  {val?.status}
-                                                </span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                        </Stack>
                       )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
+              </Box>
+            </Paper>
+          )}
+        </Container>
+      </Box>
+
+      {/* Modals */}
       <SendApproved
         open={approved}
         handleClose={() => setApproved(false)}

@@ -1,32 +1,52 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { callAPI } from "../utils/apiUtils";
 import { ApiLoder, ErrorMessage } from "./common";
+import { Button, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
-
-export default function ExportFile({type,serach="",page,perpage,tenantId="",status,Url,jobStatus="",vendor="",productType="",WindowProductId="",EstimationId="",toDate=null,formDate=null,filterType=""}) {
+export default function ExportFile({
+  type,
+  serach = "",
+  page,
+  perpage,
+  tenantId = "",
+  status,
+  Url,
+  jobStatus = "",
+  vendor = "",
+  productType = "",
+  WindowProductId = "",
+  EstimationId = "",
+  toDate = null,
+  formDate = null
+}) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [loder, setLoader] = useState(false);
- 
+
   const postImage = async () => {
     try {
       setLoader(true);
       const apiResponse = await callAPI(
         `${Url}`,
-        {Type:type,WindowProductId:WindowProductId,
-          EstimationId:EstimationId,...(filterType ? { filterType: filterType } : {})},
+        {
+          Type: type,
+          WindowProductId: WindowProductId,
+          EstimationId: EstimationId
+        },
         "POST",
         {
-            searchValue: serach ? serach : "",
-            pageNo: page ? page : 1,
-            recordPerPage: perpage ? perpage : 10,
-            tenantId: tenantId?tenantId:"",
-            status: status?status:"",
-            jobStatus:jobStatus?jobStatus:"",
-            vendor:vendor?vendor:"",
-            productType:productType?productType:"",
-            toDate: toDate?toDate:null,
-            formDate:formDate?formDate: null,
-          }
+          searchValue: serach ? serach : "",
+          pageNo: page ? page : 1,
+          recordPerPage: perpage ? perpage : 10,
+          tenantId: tenantId ? tenantId : "",
+          status: status ? status : "",
+          jobStatus: jobStatus ? jobStatus : "",
+          vendor: vendor ? vendor : "",
+          productType: productType ? productType : "",
+          toDate: toDate ? toDate : null,
+          formDate: formDate ? formDate : null,
+        }
       );
       setLoader(false);
       if (apiResponse.data.isSuccess) {
@@ -39,31 +59,43 @@ export default function ExportFile({type,serach="",page,perpage,tenantId="",stat
         link.download = `${type}.csv`;
         link.click();
         URL.revokeObjectURL(link.href);
-    
       } else {
         ErrorMessage(apiResponse.data.message);
       }
     } catch (err) {
       setLoader(false);
       ErrorMessage(
-        err?.message || "An error occurred while uploading the file."
+        err?.message || "An error occurred while exporting the file."
       );
     }
   };
 
-
-
   return (
     <>
-      {loder && <ApiLoder />}
-      <div className="import_data position-relative" onClick={postImage}>
-        <Link to="#" className="btn blue-btn small_btn">
-        <i className="fa fa-file-o me-2"></i>
-          Export 
-        </Link>
-      </div>
-
-    
+      <ApiLoder open={loder} />
+      <Button
+        variant="contained"
+        onClick={postImage}
+        size={isMobile ? "medium" : "small"}
+        startIcon={loder ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon fontSize={isMobile ? "small" : "medium"} />}
+        disabled={loder}
+        sx={{
+          borderRadius: 1,
+          textTransform: 'none',
+          fontWeight: 600,
+          fontSize: isMobile ? '13px' : '14px',
+          padding: isMobile ? theme.spacing(1.2, 2) : theme.spacing(1, 2),
+          minHeight: isMobile ? '44px' : '36px', // Touch-friendly height
+          boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+            transform: 'translateY(-1px)',
+          },
+        }}
+      >
+        {loder ? 'Exporting...' : 'Export'}
+      </Button>
     </>
   );
 }

@@ -2,7 +2,40 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PostImage } from "../utils/apiCall";
 import { t } from "i18next";
-import { Dialog } from "@mui/material";
+import { 
+  Dialog,
+  Button,
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  IconButton,
+  CircularProgress,
+  useTheme,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Chip,
+  Backdrop
+} from "@mui/material";
+import {
+  ArrowBack as ArrowBackIcon,
+  DeleteOutline as DeleteIcon,
+  AccessTime as ScheduleIcon,
+  EditOutlined as EditIcon,
+  AddCircleOutline as AddIcon,
+  LocationOn as LocationIcon,
+  Business as BusinessIcon,
+  Person as PersonIcon,
+  Work as WorkIcon,
+  Assignment as AssignmentIcon,
+  AttachFile as AttachmentIcon,
+  Palette as PaletteIcon,
+  EventAvailable as AppointmentIcon
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import React, { useState, useEffect } from "react";
@@ -10,19 +43,14 @@ import Appointment from "./Appointment";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 
-const ApiLoder = () => {
+const ApiLoder = ({ open = true }) => {
   return (
-    <>
-      <div className="spinner_overlay"></div>
-      <div className="spinner-box">
-        <img
-          src="/image/loder.gif"
-          alt=""
-          className="loading-icon"
-          loading="lazy"
-        />
-      </div>
-    </>
+    <Backdrop
+      sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      open={open}
+    >
+      <CircularProgress color="inherit" />
+    </Backdrop>
   );
 };
 
@@ -109,79 +137,161 @@ const CustomMessages = {
 };
 
 function SubmitButton({ onClick, disabled, text }) {
+  const theme = useTheme();
+  
   return (
-    <button
+    <Button
       disabled={disabled}
-      type="button"
       onClick={onClick}
-      className="btn blue-btn"
+      variant="contained"
+      sx={{
+        backgroundColor: theme.palette.primary.main,
+        color: 'white',
+        fontWeight: 600,
+        fontSize: '0.875rem',
+        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        px: 4,
+        py: 1.5,
+        borderRadius: 2,
+        textTransform: 'none',
+        letterSpacing: '0.02em',
+        boxShadow: `0 4px 12px ${theme.palette.primary.main}30`,
+        '&:hover': {
+          backgroundColor: theme.palette.primary.dark,
+          boxShadow: `0 6px 16px ${theme.palette.primary.main}40`,
+          transform: 'translateY(-1px)',
+        },
+        '&:disabled': {
+          backgroundColor: theme.palette.grey[400],
+          color: theme.palette.grey[600],
+        },
+        transition: 'all 0.2s ease-in-out'
+      }}
+      startIcon={disabled ? <CircularProgress size={16} color="inherit" /> : null}
     >
       {text}
-      {disabled && (
-        <i className="fa fa-spinner fa-spin" style={{ marginLeft: "10px" }}></i>
-      )}
-    </button>
+    </Button>
   );
 }
 
 const Delete = ({ open, handleClose, handleDelete, title, id, loder }) => {
+  const theme = useTheme();
+  
   return (
-    <>
-      <Dialog
-        open={open}
-        fullWidth={true}
-        maxWidth={"xs"}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-body logout-popup text-center">
-              <span className="mx-auto">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={48}
-                  height={48}
-                  viewBox="0 0 48 48"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M21.592 4.4881C25.306 3.6521 28 6.8441 28 10.0001V38.0001C28 41.1561 25.306 44.3481 21.592 43.5121C12.668 41.5041 6 33.5321 6 24.0001C6 14.4681 12.668 6.4961 21.592 4.4881ZM32.586 16.5861C32.9611 16.2112 33.4697 16.0005 34 16.0005C34.5303 16.0005 35.0389 16.2112 35.414 16.5861L41.414 22.5861C41.7889 22.9612 41.9996 23.4698 41.9996 24.0001C41.9996 24.5304 41.7889 25.039 41.414 25.4141L35.414 31.4141C35.0368 31.7784 34.5316 31.98 34.0072 31.9754C33.4828 31.9709 32.9812 31.7606 32.6104 31.3897C32.2395 31.0189 32.0292 30.5173 32.0247 29.9929C32.0201 29.4685 32.2217 28.9633 32.586 28.5861L35.172 26.0001H18C17.4696 26.0001 16.9609 25.7894 16.5858 25.4143C16.2107 25.0392 16 24.5305 16 24.0001C16 23.4697 16.2107 22.961 16.5858 22.5859C16.9609 22.2108 17.4696 22.0001 18 22.0001H35.172L32.586 19.4141C32.2111 19.039 32.0004 18.5304 32.0004 18.0001C32.0004 17.4698 32.2111 16.9612 32.586 16.5861Z"
-                    fill="white"
-                  />
-                </svg>
-              </span>
-              <h3> Delete</h3>
-              <p>
-                Are your sure you want to delete{" "}
-                <strong className="stongtag">{title}</strong> ?
-              </p>
-              <div className="save_btn">
-                <button
-                  type="button"
-                  className="btn border-btn me-2"
-                  onClick={handleClose}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn blue-btn"
-                  disabled={loder}
-                  onClick={() => {
-                    handleDelete(id);
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Dialog>
-    </>
+    <Dialog
+      open={open}
+      fullWidth={true}
+      maxWidth="sm"
+      aria-labelledby="delete-dialog-title"
+      aria-describedby="delete-dialog-description"
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          overflow: 'hidden'
+        }
+      }}
+    >
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Box
+          sx={{
+            mx: 'auto',
+            mb: 3,
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            backgroundColor: '#fee2e2',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <DeleteIcon sx={{ fontSize: 32, color: '#dc2626' }} />
+        </Box>
+        
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            fontWeight: 600, 
+            mb: 2, 
+            color: theme.palette.text.primary,
+            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+            letterSpacing: '-0.01em'
+          }}
+        >
+          Delete Confirmation
+        </Typography>
+        
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            mb: 4, 
+            color: theme.palette.text.secondary,
+            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+            lineHeight: 1.6
+          }}
+        >
+          Are you sure you want to delete{" "}
+          <Typography 
+            component="span" 
+            sx={{ 
+              fontWeight: 600, 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+            }}
+          >
+            {title}
+          </Typography>
+          ? This action cannot be undone.
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+          <Button
+            variant="outlined"
+            onClick={handleClose}
+            sx={{
+              borderColor: theme.palette.grey[300],
+              color: theme.palette.text.secondary,
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 500,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              '&:hover': {
+                borderColor: theme.palette.grey[400],
+                backgroundColor: theme.palette.grey[50],
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={loder}
+            onClick={() => handleDelete(id)}
+            sx={{
+              backgroundColor: '#dc2626',
+              color: 'white',
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              '&:hover': {
+                backgroundColor: '#b91c1c',
+              },
+              '&:disabled': {
+                backgroundColor: theme.palette.grey[400],
+              }
+            }}
+            startIcon={loder ? <CircularProgress size={16} color="inherit" /> : <DeleteIcon />}
+          >
+            Delete
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
   );
 };
 
@@ -194,12 +304,18 @@ const HasPermission = (permission) => {
   return permissions?.roles.includes(permission);
 };
 
-function SelectBoxLoader() {
+function SelectBoxLoader({ size = 20, color }) {
+  const theme = useTheme();
+  
   return (
-    <div
-      className="spinner-border custom_spiner text-danger spinner-border-sm"
-      role="status"
-    ></div>
+    <CircularProgress 
+      size={size} 
+      thickness={4}
+      sx={{ 
+        color: color || theme.palette.primary.main,
+        filter: `drop-shadow(0 1px 3px ${theme.palette.primary.main}30)`
+      }} 
+    />
   );
 }
 
@@ -215,17 +331,43 @@ const ColorList = [
 ];
 
 function BackButton({ link }) {
+  const theme = useTheme();
+  
   return (
-    <div className="back-option mb-2 ">
-      <Link to={link} className="d-flex align-items-center">
-        <img src="/image/back.svg" className="me-1" alt="" loading="lazy" />{" "}
+    <Box sx={{ mb: 2 }}>
+      <Button
+        component={Link}
+        to={link}
+        variant="outlined"
+        startIcon={<ArrowBackIcon />}
+        sx={{
+          borderColor: theme.palette.grey[300],
+          color: theme.palette.text.secondary,
+          px: 3,
+          py: 1.5,
+          borderRadius: 2,
+          textTransform: 'none',
+          fontWeight: 500,
+          fontSize: '0.875rem',
+          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+          letterSpacing: '0.01em',
+          '&:hover': {
+            borderColor: theme.palette.primary.main,
+            backgroundColor: `${theme.palette.primary.main}08`,
+            color: theme.palette.primary.main,
+            transform: 'translateX(-2px)',
+          },
+          transition: 'all 0.2s ease-in-out'
+        }}
+      >
         Back
-      </Link>
-    </div>
+      </Button>
+    </Box>
   );
 }
 
 function JobUi({ tenantList, onJobUpdate }) {
+  const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [childData, setChildData] = useState("");
   const [powderCoatColors, setPowderCoatColors] = useState([]);
@@ -320,133 +462,350 @@ function JobUi({ tenantList, onJobUpdate }) {
     }
   }, [powderCoatColors, tenantList?.powderCoatColorId]);
 
-  const Loginuser = JSON.parse(localStorage.getItem("userData"));
-
   return (
     <div className="row">
       <div className="col-lg-3 col-6">
         <div className="additional_direction mt-0">
-          <h6 className="mb-1">Address</h6>
-          <span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <LocationIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Address
+            </Typography>
+          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              lineHeight: 1.5,
+              fontWeight: 400
+            }}
+          >
             {tenantList?.streetAddress}, {tenantList?.city}, {tenantList?.state}
             - {tenantList?.zipCode} ({tenantList?.label})
-          </span>
+          </Typography>
         </div>
       </div>
       <div className="col-lg-3 col-6">
         <div className="additional_direction mt-0">
-          <h6 className="mb-1">Job Name</h6>
-          <span>{tenantList?.jobName}</span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <BusinessIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Job Name
+            </Typography>
+          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              fontWeight: 500
+            }}
+          >
+            {tenantList?.jobName}
+          </Typography>
         </div>
       </div>
       <div className="col-lg-2 col-6">
         <div className="additional_direction mt-0">
-          <h6 className="mb-1">Job Type</h6>
-          <span>{tenantList?.jobTypeName}</span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <WorkIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Job Type
+            </Typography>
+          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              fontWeight: 500
+            }}
+          >
+            {tenantList?.jobTypeName}
+          </Typography>
         </div>
       </div>
       <div className="col-lg-2">
         <div className="additional_direction mt-0">
-          <h6 className="mb-1">Assigned Personnel</h6>
-          <span>{tenantList?.assignedPersonnelName}</span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <PersonIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Assigned Personnel
+            </Typography>
+          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              fontWeight: 500
+            }}
+          >
+            {tenantList?.assignedPersonnelName}
+          </Typography>
         </div>
       </div>
       <div className="col-lg-2">
         <div className="additional_direction mt-0">
-          <h6 className="mb-1">Job Status</h6>
-          <span style={{ color: "#1e90ff" }}>{tenantList?.jobStatusName}</span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <AssignmentIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Job Status
+            </Typography>
+          </Box>
+          <Chip
+            label={tenantList?.jobStatusName}
+            sx={{
+              backgroundColor: '#e3f2fd',
+              color: '#1976d2',
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              height: 28,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              letterSpacing: '0.02em'
+            }}
+          />
         </div>
       </div>
 
       <div className="col-lg-3">
         <div className="additional_direction">
-          <h6 className="mb-1">Schedule Date &amp; Time</h6>
-          <span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <ScheduleIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Schedule Date & Time
+            </Typography>
+          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              fontWeight: 500
+            }}
+          >
             {tenantList?.scheduledDate
               ? `${moment(tenantList.scheduledDate).format(
                   "MM-DD-YYYY"
                 )} | ${moment(tenantList.scheduledDate).format("hh:mm A")}`
               : "N/A"}
-          </span>
+          </Typography>
         </div>
       </div>
       <div className="col-lg-3">
         <div className="additional_direction">
-          <h6 className="mb-1">Job Notes</h6>
-          <span>{tenantList?.notes ? tenantList?.notes : "---"}</span>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <AssignmentIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Job Notes
+            </Typography>
+          </Box>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: theme.palette.text.primary,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              fontWeight: 400,
+              fontStyle: tenantList?.notes ? 'normal' : 'italic'
+            }}
+          >
+            {tenantList?.notes ? tenantList?.notes : "---"}
+          </Typography>
         </div>
       </div>
 
       <div className="col-lg-3">
         <div className="additional_direction">
-          <h6 className="mb-1">Powder Coating Color</h6>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <PaletteIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Powder Coating Color
+            </Typography>
+          </Box>
           <div className="position-relative">
             {loadingColors && <SelectBoxLoader />}
-
-            <select
-              className="selectboxdropdown"
-              style={{ width: "200px" }}
-              value={selectedPowderCoatColor}
-              onChange={handlePowderCoatColorChange}
-              disabled={
-                updatingColor ||
-                !HasPermission("JobEdit") ||
-                tenantList?.tenantId !== Loginuser?.tenantId
-              }
-            >
-              <option value="">Select Color</option>
-              {powderCoatColors.map((color) => (
-                <option key={color.id} value={color.id}>
-                  {color.colorName}
-                </option>
-              ))}
-            </select>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <Select
+                value={selectedPowderCoatColor}
+                onChange={handlePowderCoatColorChange}
+                disabled={updatingColor || !HasPermission("JobEdit")}
+                displayEmpty
+                sx={{ 
+                  borderRadius: 1,
+                  backgroundColor: 'white',
+                  fontWeight: 500,
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.grey[300],
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.primary.main,
+                  }
+                }}
+              >
+                <MenuItem value="">Select Color</MenuItem>
+                {powderCoatColors.map((color) => (
+                  <MenuItem 
+                    key={color.id} 
+                    value={color.id}
+                    sx={{ fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' }}
+                  >
+                    {color.colorName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
         </div>
       </div>
 
-      {HasPermission("JobEdit") &&
-        tenantList?.tenantId === Loginuser?.tenantId && (
-          <div className="col-lg-3">
-            <div className="additional_direction">
-              <h6 className="mb-1">Appointment Date &amp; Time</h6>
-              <span onClick={() => setOpen(true)} style={{ cursor: "pointer" }}>
-                {childData?.scheduleDateTime
-                  ? `${moment(childData.scheduleDateTime).format(
-                      "MM-DD-YYYY"
-                    )} | ${moment(childData.scheduleDateTime).format(
-                      "hh:mm A"
-                    )}`
-                  : "Add Appointment"}
-                {!childData?.scheduleDateTime ? (
-                  <i className="fa fa-plus appom" aria-hidden="true"></i>
-                ) : (
-                  <i className="fa fa-pencil appom" aria-hidden="true"></i>
-                )}
-              </span>
-            </div>
+      {HasPermission("JobEdit") && (
+        <div className="col-lg-3">
+          <div className="additional_direction">
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <AppointmentIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+              <Typography 
+                variant="subtitle2" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: theme.palette.text.secondary,
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                Appointment Date & Time
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={childData?.scheduleDateTime ? <EditIcon /> : <AddIcon />}
+              onClick={() => setOpen(true)}
+              sx={{
+                borderColor: theme.palette.primary.main,
+                color: theme.palette.primary.main,
+                textTransform: 'none',
+                borderRadius: 1,
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                mt: 0.5,
+                '&:hover': {
+                  backgroundColor: `${theme.palette.primary.main}08`,
+                }
+              }}
+            >
+              {childData?.scheduleDateTime
+                ? `${moment(childData.scheduleDateTime).format(
+                    "MM-DD-YYYY"
+                  )} | ${moment(childData.scheduleDateTime).format("hh:mm A")}`
+                : "Add Appointment"}
+            </Button>
           </div>
-        )}
-
-      {HasPermission("JobEdit") &&
-        tenantList?.tenantId !== Loginuser?.tenantId && (
-          <div className="col-lg-3">
-            <div className="additional_direction">
-              <h6 className="mb-1">Appointment Date &amp; Time</h6>
-              <span>
-                {childData?.scheduleDateTime
-                  ? `${moment(childData.scheduleDateTime).format(
-                      "MM-DD-YYYY"
-                    )} | ${moment(childData.scheduleDateTime).format(
-                      "hh:mm A"
-                    )}`
-                  : "---"}
-              </span>
-            </div>
-          </div>
-        )}
+        </div>
+      )}
       <div className="col-lg-3">
-        <PreviewFiles file={tenantList?.attachmentsAny} />
+        <div className="additional_direction">
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <AttachmentIcon sx={{ fontSize: 16, color: theme.palette.primary.main, mr: 0.5 }} />
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                fontWeight: 600, 
+                color: theme.palette.text.secondary,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+            >
+              Attachments
+            </Typography>
+          </Box>
+          <PreviewFiles file={tenantList?.attachmentsAny} />
+        </div>
       </div>
       {open && (
         <Appointment
@@ -462,48 +821,88 @@ function JobUi({ tenantList, onJobUpdate }) {
 }
 
 const PreviewFiles = ({ file, isdelete = false, handleImageDelelet }) => {
+  const theme = useTheme();
+  
   return (
-    <>
-      <div className="d-flex gap-2 flex-wrap">
-        {file &&
-          file.length > 0 &&
-          file.map((val, i) => {
-            const fileExtension = val.split(".").pop().toLowerCase();
-            const isImage = ["jpeg", "jpg", "png"].includes(fileExtension);
-            return (
-              <React.Fragment key={i}>
-                <Link
-                  to={val.trim()}
-                  target="_blank"
-                  className="d-block attchment-file tax_document"
-                >
-                  {isImage ? (
-                    <img
-                      src={val}
-                      alt={`Preview ${val}`}
-                      height={30}
-                      width={30}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <img
-                      src="/image/file.svg"
-                      alt="File preview"
-                      loading="lazy"
-                    />
-                  )}
-                </Link>
-                {isdelete && (
-                  <i
-                    className="fa fa-times deleteimage"
-                    onClick={() => handleImageDelelet(i)}
-                  ></i>
+    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      {file &&
+        file.length > 0 &&
+        file.map((val, i) => {
+          const fileExtension = val.split(".").pop().toLowerCase();
+          const isImage = ["jpeg", "jpg", "png"].includes(fileExtension);
+          return (
+            <Box key={i} sx={{ position: 'relative' }}>
+              <Paper
+                component={Link}
+                to={val.trim()}
+                target="_blank"
+                elevation={0}
+                sx={{
+                  p: 1,
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 40,
+                  height: 40,
+                  textDecoration: 'none',
+                  '&:hover': {
+                    backgroundColor: theme.palette.grey[50],
+                    borderColor: theme.palette.primary.main,
+                    transform: 'translateY(-1px)',
+                    boxShadow: `0 4px 8px ${theme.palette.primary.main}20`,
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                {isImage ? (
+                  <Box
+                    component="img"
+                    src={val}
+                    alt={`Preview ${val}`}
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      objectFit: 'cover',
+                      borderRadius: 1
+                    }}
+                  />
+                ) : (
+                  <Box
+                    component="img"
+                    src="/image/file.svg"
+                    alt="File preview"
+                    sx={{ width: 24, height: 24 }}
+                  />
                 )}
-              </React.Fragment>
-            );
-          })}
-      </div>
-    </>
+              </Paper>
+              {isdelete && (
+                <IconButton
+                  size="small"
+                  onClick={() => handleImageDelelet(i)}
+                  sx={{
+                    position: 'absolute',
+                    top: -8,
+                    right: -8,
+                    backgroundColor: '#fee2e2',
+                    color: '#dc2626',
+                    width: 20,
+                    height: 20,
+                    '&:hover': {
+                      backgroundColor: '#fecaca',
+                      transform: 'scale(1.1)',
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  <DeleteIcon sx={{ fontSize: 12 }} />
+                </IconButton>
+              )}
+            </Box>
+          );
+        })}
+    </Box>
   );
 };
 
@@ -536,8 +935,85 @@ function FormatPhoneNumber(input) {
   }
 }
 
+// Compact inline loading component for buttons and small areas
+const InlineLoader = ({ size = 16, color = "inherit" }) => (
+  <CircularProgress 
+    size={size} 
+    thickness={4}
+    sx={{ 
+      color: color,
+      animation: 'none' // Remove default animation for smoother experience
+    }} 
+  />
+);
+
+// Enhanced loading overlay for conditional loading
+const LoadingOverlay = ({ show }) => {
+  if (!show) return null;
+  
+  return <ApiLoder open={show} />;
+};
+
+// Skeleton loader for table rows and content placeholders
+const SkeletonLoader = ({ 
+  lines = 3, 
+  height = 40, 
+  showAvatar = false 
+}) => {
+  const theme = useTheme();
+  
+  return (
+    <Box sx={{ p: 2 }}>
+      {Array.from({ length: lines }).map((_, index) => (
+        <Box 
+          key={index}
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2, 
+            mb: index < lines - 1 ? 2 : 0 
+          }}
+        >
+          {showAvatar && (
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: theme.palette.grey[200]
+              }}
+            />
+          )}
+          <Box sx={{ flex: 1 }}>
+            <Box
+              sx={{
+                height: height / 2,
+                backgroundColor: theme.palette.grey[200],
+                borderRadius: 1,
+                mb: 1,
+                width: `${90 - index * 10}%`
+              }}
+            />
+            <Box
+              sx={{
+                height: height / 3,
+                backgroundColor: theme.palette.grey[100],
+                borderRadius: 1,
+                width: `${70 - index * 5}%`
+              }}
+            />
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
 export {
   ApiLoder,
+  InlineLoader,
+  LoadingOverlay,
+  SkeletonLoader,
   ErrorMessage,
   SuccessMessage,
   CommonUploadImage,

@@ -7,7 +7,48 @@ import Search from "../../Form/Search";
 import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Box,
+  Chip,
+  IconButton,
+  TextField,
+  Link as MuiLink,
+  Tabs,
+  Tab,
+  Card,
+  CardContent,
+  Stack,
+  Button,
+  useTheme,
+  useMediaQuery,
+  Collapse,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Grid,
+  Container,
+  Divider,
+} from "@mui/material";
+import { 
+  Edit,
+  Delete as DeleteIcon,
+  ArrowUpward,
+  ArrowDownward,
+  ToggleOn,
+  ToggleOff,
+  ExpandMore,
+  Search as SearchIcon,
+  FilterList,
+} from "@mui/icons-material";
 import AddEditUser from "./AddEditUser";
 import {
   ApiLoder,
@@ -17,11 +58,12 @@ import {
   SuccessMessage,
 } from "../../../helpers/common";
 import { useDebounce } from "use-debounce";
-import Tab from "../../Form/Tab";
 import RoleList from "../Role/RoleList";
 import { Manageapplication, Manageroletab } from "../../../SvgFile/Index";
 import PartnerDropdown from "../../../helpers/PartnerDropdown";
 import StatusDropdown from "../../../helpers/StatusDropdown";
+
+
 
 export default function Index() {
   const [open, setOpen] = useState(false);
@@ -282,9 +324,15 @@ export default function Index() {
     });
   };
 
-  const handleTabchnage = (value) => {
-    setTabdata(value || Tablist[0].id);
+  const handleTabChange = (event, newValue) => {
+    const selectedTab = Tablist[newValue];
+    setTabdata(selectedTab.id);
   };
+
+  const getCurrentTabIndex = () => {
+    return Tablist.findIndex(tab => tab.id === tabdata);
+  };
+
   const initialActiveTab = localStorage.getItem("activeTab2") || Tablist[0].id;
 
   const handleFilterSortChange = (columnKey) => {
@@ -337,134 +385,535 @@ export default function Index() {
     });
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Users Admin" />
         <div className="body_content">
-          <div className="contact-profile">
-            <div className="engage-tabs">
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <Tab Tablist={Tablist} handleTabchnage={handleTabchnage} />
-              </ul>
-              <div className="tab-content" id="pills-tabContent">
-                {/* manage application tab */}
-                <div
-                  className={`tab-pane fade ${
-                    initialActiveTab === "#manageapplication"
-                      ? "show active"
-                      : ""
-                  }`}
-                  id="manageapplication"
-                  role="tabpanel"
-                  aria-labelledby="pills-overview-tab"
-                  tabIndex={0}
-                >
-                  {tabdata === "#manageapplication" && (
-                    <>
-                      <div className="d-flex align-items-center justify-content-between mb-30">
-                        <TableTitle title="Manage Application Users" />
-                        <div className="heading_width_search d-flex align-items-center gap-3">
-                          {!filter.tenantId && (
-                            <>
-                              {HasPermission("UsersAdd") && (
-                                <AddEditButton
-                                  handleClick={() => {
-                                    setAction("add");
-                                    setOpen(true);
-                                  }}
-                                  title="Add New User"
-                                />
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
+          <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+            <Paper sx={{ 
+              width: '100%', 
+              mb: 3,
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              overflow: 'hidden',
+            }}>
+              <Tabs
+                value={getCurrentTabIndex()}
+                onChange={handleTabChange}
+                variant={isMobile ? "scrollable" : "standard"}
+                scrollButtons={isMobile ? "auto" : false}
+                sx={{
+                  borderBottom: 1,
+                  borderColor: 'divider',
+                  '& .MuiTab-root': {
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    minHeight: { xs: 40, sm: 48 },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                    '&.Mui-selected': {
+                      fontWeight: 600,
+                    },
+                  },
+                  '& .MuiTabs-scrollButtons': {
+                    color: '#6b7280',
+                  },
+                }}
+              >
+                {Tablist.map((tab, index) => (
+                  <Tab
+                    key={index}
+                    icon={tab.svg}
+                    label={tab.title}
+                    iconPosition="start"
+                    sx={{ 
+                      gap: { xs: 0.5, sm: 1 },
+                      px: { xs: 1, sm: 2, md: 3 },
+                    }}
+                  />
+                ))}
+              </Tabs>
 
-                      <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-                        <div className="filter-dropdown dropdown">
-                          <Search handleSearch={handleSearch} />
-                        </div>
-                        <div className="filter-dropdown dropdown">
-                          <StatusDropdown
-                            value={filter.status}
-                            fn={handleChange}
-                          />
-                        </div>
-                        <div className="filter-dropdown dropdown">
-                          {HasPermission("SubTenantView") && (
-                            <PartnerDropdown
-                              value={filter.tenantId}
+              <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+                {tabdata === "#manageapplication" && (
+                  <>
+                    {/* Header Section */}
+                    <Box sx={{ 
+                      display: 'flex', 
+                      flexDirection: { xs: 'column', sm: 'row' },
+                      alignItems: { xs: 'stretch', sm: 'center' },
+                      justifyContent: 'space-between',
+                      gap: { xs: 2, sm: 3 },
+                      mb: 3,
+                    }}>
+                      <Typography 
+                        variant="h5" 
+                        sx={{ 
+                          fontWeight: 600,
+                          color: '#1f2937',
+                          fontSize: { xs: '1.125rem', sm: '1.25rem', md: '1.5rem' },
+                        }}
+                      >
+                        Manage Application Users
+                      </Typography>
+                      {!filter.tenantId && HasPermission("UsersAdd") && (
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            setAction("add");
+                            setOpen(true);
+                          }}
+                          sx={{
+                            backgroundColor: '#3b82f6',
+                            '&:hover': {
+                              backgroundColor: '#2563eb',
+                            },
+                            borderRadius: '8px',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                            px: { xs: 2, sm: 3 },
+                            py: { xs: 1, sm: 1.5 },
+                          }}
+                        >
+                          Add New User
+                        </Button>
+                      )}
+                    </Box>
+
+                    {/* Filters Section */}
+                    <Accordion 
+                      sx={{ 
+                        mb: 3, 
+                        borderRadius: '8px !important',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+                        '&:before': { display: 'none' },
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMore />}
+                        sx={{
+                          backgroundColor: '#f8fafc',
+                          borderRadius: '8px',
+                          '&.Mui-expanded': {
+                            borderRadius: '8px 8px 0 0',
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <FilterList sx={{ color: '#6b7280', fontSize: { xs: 18, sm: 20 } }} />
+                          <Typography 
+                            variant="subtitle1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: '#374151',
+                              fontSize: { xs: '0.875rem', sm: '1rem' },
+                            }}
+                          >
+                            Search & Filters
+                          </Typography>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm={6} md={4}>
+                            <Search handleSearch={handleSearch} />
+                          </Grid>
+                          <Grid item xs={12} sm={6} md={4}>
+                            <StatusDropdown
+                              value={filter.status}
                               fn={handleChange}
                             />
+                          </Grid>
+                          {HasPermission("SubTenantView") && (
+                            <Grid item xs={12} sm={6} md={4}>
+                              <PartnerDropdown
+                                value={filter.tenantId}
+                                fn={handleChange}
+                              />
+                            </Grid>
                           )}
-                        </div>
-                      </div>
+                        </Grid>
+                      </AccordionDetails>
+                    </Accordion>
 
-                      <div className="task_table mb-30">
-                        <div className="table-responsive">
-                          <DynamicTable
-                            data={UsersList}
-                            columns={columns}
-                            title="User"
-                            rowActions={
-                              filter.tenantId ? [] : ["edit", "delete"]
-                            }
-                            edituser={handleedit}
-                            handledelete={handledelete}
-                            handlestatus={handlestatus}
-                            deletepermission="UsersDelete"
-                            editpermission="UsersEdit"
-                            handleFilterSortChange={handleFilterSortChange}
-                            sortColumn={filter.sortColumn}
-                            sortDirection={filter.sortDirection}
-                            columnFilters={filter.columnFilters}
-                            handlesearchChange={handlesearchChange}
-                          />
-                          {UsersList && UsersList?.length > 0 && (
-                            <div className="d-flex align-items-center justify-content-end bottom_nav">
-                              <nav aria-label="Page navigation example">
-                                <ul className="pagination">
-                                  <TablePagination
-                                    rowsPerPageOptions={[10, 25, 50, 100]}
-                                    component="div"
-                                    count={paginatedItems}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page - 1}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={
-                                      handleChangeRowsPerPage
-                                    }
-                                  />
-                                </ul>
-                              </nav>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                    {/* Content Section - Responsive Table with Horizontal Scroll */}
+                    <Box sx={{ mt: 3 }}>
+                      <TableContainer 
+                        component={Paper} 
+                        sx={{ 
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                          overflow: 'auto',
+                          border: '1px solid #f1f5f9',
+                          // Mobile horizontal scroll
+                          '&::-webkit-scrollbar': {
+                            height: '8px',
+                          },
+                          '&::-webkit-scrollbar-track': {
+                            backgroundColor: '#f1f5f9',
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: '#d1d5db',
+                            borderRadius: '4px',
+                          },
+                          '&::-webkit-scrollbar-thumb:hover': {
+                            backgroundColor: '#9ca3af',
+                          },
+                        }}
+                      >
+                        <Table sx={{ minWidth: isMobile ? 800 : 'auto' }}>
+                          <TableHead>
+                            <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                              {columns.map((column) => (
+                                <TableCell
+                                  key={column.key}
+                                  sx={{
+                                    fontWeight: 700,
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                    color: '#374151',
+                                    borderBottom: '2px solid #e5e7eb',
+                                    padding: { xs: '8px 6px', sm: '12px', md: '16px' },
+                                    position: 'relative',
+                                    minWidth: isMobile ? '100px' : 'auto',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                >
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <Typography sx={{ 
+                                      fontWeight: 700, 
+                                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                    }}>
+                                      {column.label}
+                                    </Typography>
+                                    {column.sort && (
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => handleFilterSortChange(column.key)}
+                                        sx={{
+                                          color: filter.sortColumn === column.key ? '#3b82f6' : '#9ca3af',
+                                          padding: '2px',
+                                          '&:hover': {
+                                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                          },
+                                        }}
+                                      >
+                                        {filter.sortColumn === column.key && filter.sortDirection === 'desc' ? (
+                                          <ArrowDownward sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />
+                                        ) : (
+                                          <ArrowUpward sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />
+                                        )}
+                                      </IconButton>
+                                    )}
+                                  </Box>
+                                  {!isMobile && (
+                                    <TextField
+                                      size="small"
+                                      placeholder={`Search ${column.label}`}
+                                      value={
+                                        filter.columnFilters.find(f => f.field === column.key)?.value || ''
+                                      }
+                                      onChange={(e) => handlesearchChange(column.key, e.target.value)}
+                                      sx={{
+                                        mt: 1,
+                                        width: '100%',
+                                        '& .MuiOutlinedInput-root': {
+                                          backgroundColor: 'white',
+                                          borderRadius: '6px',
+                                          fontSize: { sm: '0.625rem', md: '0.75rem' },
+                                          '& fieldset': {
+                                            borderColor: '#e5e7eb',
+                                          },
+                                          '&:hover fieldset': {
+                                            borderColor: '#3b82f6',
+                                          },
+                                          '&.Mui-focused fieldset': {
+                                            borderColor: '#3b82f6',
+                                            borderWidth: '1px',
+                                          },
+                                        },
+                                        '& .MuiInputBase-input': {
+                                          padding: { sm: '4px 6px', md: '6px 8px' },
+                                          fontSize: { sm: '0.625rem', md: '0.75rem' },
+                                        },
+                                      }}
+                                    />
+                                  )}
+                                </TableCell>
+                              ))}
+                              <TableCell
+                                sx={{
+                                  fontWeight: 700,
+                                  fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                  color: '#374151',
+                                  borderBottom: '2px solid #e5e7eb',
+                                  padding: { xs: '8px 6px', sm: '12px', md: '16px' },
+                                  textAlign: 'center',
+                                  minWidth: isMobile ? '80px' : 'auto',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                Actions
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {UsersList && UsersList.length > 0 ? (
+                              UsersList.map((user, index) => (
+                                <TableRow
+                                  key={user.userId || index}
+                                  sx={{
+                                    '&:hover': {
+                                      backgroundColor: '#f9fafb',
+                                    },
+                                    '&:nth-of-type(even)': {
+                                      backgroundColor: '#fafbfc',
+                                    },
+                                  }}
+                                >
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '100px' : 'auto',
+                                  }}>
+                                    <Typography sx={{ 
+                                      fontWeight: 600, 
+                                      color: '#1f2937',
+                                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}>
+                                      {user.firstName} {user.lastName}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '120px' : 'auto',
+                                  }}>
+                                    <Typography sx={{ 
+                                      color: '#6b7280',
+                                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}>
+                                      {user.email}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '100px' : 'auto',
+                                  }}>
+                                    <Typography sx={{ 
+                                      color: '#6b7280',
+                                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                      whiteSpace: 'nowrap',
+                                    }}>
+                                      {user.phone || '-'}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '100px' : 'auto',
+                                  }}>
+                                    <Typography sx={{ 
+                                      color: '#6b7280',
+                                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}>
+                                      {user.ghlUserName || '-'}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '80px' : 'auto',
+                                  }}>
+                                    <Chip
+                                      label={user.roleName || 'No Role'}
+                                      size="small"
+                                      sx={{
+                                        backgroundColor: user.roleName ? '#dbeafe' : '#f3f4f6',
+                                        color: user.roleName ? '#1e40af' : '#6b7280',
+                                        fontWeight: 500,
+                                        fontSize: { xs: '0.625rem', sm: '0.75rem', md: '0.875rem' },
+                                        height: { xs: 18, sm: 20, md: 24 },
+                                        '& .MuiChip-label': {
+                                          px: { xs: 0.5, sm: 1 },
+                                        },
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '120px' : 'auto',
+                                  }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => handlestatus(user)}
+                                        sx={{
+                                          color: user.isActive ? '#10b981' : '#ef4444',
+                                          padding: { xs: '2px', sm: '4px' },
+                                          '&:hover': {
+                                            backgroundColor: user.isActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                          },
+                                        }}
+                                      >
+                                        {user.isActive ? (
+                                          <ToggleOn sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }} />
+                                        ) : (
+                                          <ToggleOff sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }} />
+                                        )}
+                                      </IconButton>
+                                      <Chip
+                                        label={user.isActive ? 'Active' : 'Inactive'}
+                                        size="small"
+                                        sx={{
+                                          backgroundColor: user.isActive ? '#dcfce7' : '#fee2e2',
+                                          color: user.isActive ? '#166534' : '#dc2626',
+                                          fontWeight: 500,
+                                          fontSize: { xs: '0.625rem', sm: '0.75rem', md: '0.875rem' },
+                                          height: { xs: 18, sm: 20, md: 24 },
+                                          '& .MuiChip-label': {
+                                            px: { xs: 0.5, sm: 1 },
+                                          },
+                                        }}
+                                      />
+                                    </Box>
+                                  </TableCell>
+                                  <TableCell sx={{ 
+                                    padding: { xs: '6px 6px', sm: '8px 12px', md: '12px 16px' },
+                                    borderBottom: '1px solid #f1f5f9',
+                                    minWidth: isMobile ? '80px' : 'auto',
+                                  }}>
+                                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                                      {!filter.tenantId && HasPermission("UsersEdit") && (
+                                        <IconButton
+                                          size="small"
+                                          onClick={() => handleedit(user)}
+                                          sx={{
+                                            color: '#3b82f6',
+                                            backgroundColor: '#eff6ff',
+                                            padding: { xs: '4px', sm: '6px' },
+                                            '&:hover': {
+                                              backgroundColor: '#dbeafe',
+                                            },
+                                          }}
+                                        >
+                                          <Edit sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />
+                                        </IconButton>
+                                      )}
+                                      {!filter.tenantId && HasPermission("UsersDelete") && (
+                                        <IconButton
+                                          size="small"
+                                          onClick={() => handledelete(user)}
+                                          sx={{
+                                            color: '#ef4444',
+                                            backgroundColor: '#fef2f2',
+                                            padding: { xs: '4px', sm: '6px' },
+                                            '&:hover': {
+                                              backgroundColor: '#fee2e2',
+                                            },
+                                          }}
+                                        >
+                                          <DeleteIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />
+                                        </IconButton>
+                                      )}
+                                    </Box>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell 
+                                  colSpan={columns.length + 1} 
+                                  sx={{ 
+                                    textAlign: 'center', 
+                                    padding: '40px',
+                                    borderBottom: 'none',
+                                  }}
+                                >
+                                  <Paper
+                                    sx={{
+                                      p: 4,
+                                      backgroundColor: '#f9fafb',
+                                      border: '2px dashed #d1d5db',
+                                      borderRadius: '12px',
+                                    }}
+                                  >
+                                    <Typography 
+                                      variant="h6" 
+                                      sx={{ 
+                                        color: '#6b7280',
+                                        fontWeight: 500,
+                                        fontSize: { xs: '1rem', sm: '1rem', md: '1.125rem' },
+                                      }}
+                                    >
+                                      No Users Found
+                                    </Typography>
+                                    <Typography 
+                                      variant="body2" 
+                                      sx={{ 
+                                        color: '#9ca3af',
+                                        mt: 1,
+                                        fontSize: { xs: '0.75rem', sm: '0.75rem', md: '0.875rem' },
+                                      }}
+                                    >
+                                      Try adjusting your search or filter criteria
+                                    </Typography>
+                                  </Paper>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
 
-                {/* manage role tab */}
-                <div
-                  className={`tab-pane fade ${
-                    initialActiveTab === "#manageroletab" ? "show active" : ""
-                  }`}
-                  id="manageroletab"
-                  role="tabpanel"
-                  aria-labelledby="pills-payment-tab"
-                  tabIndex={0}
-                >
-                  {HasPermission("RolesView") &&
-                    tabdata === "#manageroletab" && (
-                      <RoleList handleApihit={handleApihit} />
-                    )}
-                </div>
-              </div>
-            </div>
-          </div>
+                      {/* Original Pagination */}
+                      {UsersList && UsersList?.length > 0 && (
+                        <div className="d-flex align-items-center justify-content-end bottom_nav">
+                          <nav aria-label="Page navigation example">
+                            <ul className="pagination">
+                              <TablePagination
+                                rowsPerPageOptions={[
+                                  { label: '10', value: 10 },
+                                  { label: '25', value: 25 },
+                                  { label: '50', value: 50 },
+                                  { label: '100', value: 100 },
+                                ]}
+                                component="div"
+                                count={paginatedItems || 0}
+                                rowsPerPage={rowsPerPage}
+                                page={Math.max(0, page - 1)}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                              />
+                            </ul>
+                          </nav>
+                        </div>
+                      )}
+                    </Box>
+                  </>
+                )}
+              
+                {(tabdata === "#manageroletab" || initialActiveTab === "#manageroletab") && 
+                 tabdata === "#manageroletab" && <RoleList handleApihit={handleApihit} />}
+              </Box>
+            </Paper>
+          </Container>
         </div>
       </div>
       {open && (

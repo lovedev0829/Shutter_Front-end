@@ -80,7 +80,7 @@ const ViewPaymet = ({ open, handleClose, data }) => {
               <form>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
-                    {show && <ApiLoder />}
+                    <ApiLoder open={show} />
                     <div className="table-responsive">
                       <table className="table">
                         <thead>

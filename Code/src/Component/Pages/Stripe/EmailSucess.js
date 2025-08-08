@@ -48,7 +48,7 @@ export default function EmailSucess() {
 
   return (
     <div className="container">
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="row justify-content-center">
         <div className="col-md-5">
           <div className="message-box _success">

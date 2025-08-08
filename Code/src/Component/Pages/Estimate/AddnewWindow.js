@@ -139,7 +139,7 @@ const AddnewWindow = ({
               <form>
                 <div className="modal-body modale-scroll">
                   <div className="form-design">
-                    {show && <ApiLoder />}
+                    <ApiLoder open={show} />
                     {filteredArray?.map((val, i) => (
                       <div className="living-room-window-table mb-3" key={i}>
                         <div className="d-flex align-items-center justify-content-between">

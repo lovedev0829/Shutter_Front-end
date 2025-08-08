@@ -135,7 +135,7 @@ export default function OrderList({ JobId,listdata }) {
 
   return (
     <>
-      {loder && <ApiLoder />}
+      <ApiLoder open={loder} />
       <div className="d-flex align-items-center justify-content-between mb-30">
         <h2 className="body_heading width-left-border mb-0">Orders</h2>
       </div>
