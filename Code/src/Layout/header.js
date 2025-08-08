@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 export default function Header(props) {
   const users = useSelector((state) => state.UserProfile.profile);
   const user = JSON.parse(localStorage.getItem("userData"));
@@ -115,6 +115,8 @@ export default function Header(props) {
 
             localStorage.setItem("userData", JSON.stringify(completeUserData));
             localStorage.setItem("accessToken", completeUserData.token);
+             localStorage.setItem("userDataold", JSON.stringify(completeUserData));
+            localStorage.setItem("accessTokenold", completeUserData.token);
             
             window.location.reload();
         } 
@@ -133,6 +135,19 @@ export default function Header(props) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
+ const ImpersonateTenant = localStorage.getItem("ImpersonateTenant");
+
+  const Switchtoparent = () => {
+    localStorage.removeItem("ImpersonateTenant");
+    localStorage.setItem("accessToken", localStorage.getItem("accessTokenold"));
+    localStorage.setItem("userData", localStorage.getItem("userDataold"));
+    window.location.href = `/dashboard`;
+  };
+  const olduser = JSON.parse(localStorage.getItem("userDataold"));
+
+
   return (
           <>
         <div 
@@ -144,6 +159,24 @@ export default function Header(props) {
           minHeight: '60px'
         }}
       >
+      {ImpersonateTenant ? (
+          <Link to={`#`} onClick={() => Switchtoparent()}>
+            <img
+              src="/image/refresh.svg"
+              className="me-1"
+              alt=" "
+              loading="lazy"
+              width={22}
+              height={22}
+            />{" "}
+            Back to{" "}
+            <strong>
+              {olduser?.companyName
+                ? olduser?.companyName
+                : olduser?.firstName + olduser?.lastName}{" "}
+            </strong>
+          </Link>
+        ) : (
           <div 
             className="tenant-selector d-flex align-items-center" 
             style={{ 
@@ -186,6 +219,7 @@ export default function Header(props) {
               ))}
             </select>
           </div>
+           )}
         <h1 
           className="header-title text-center flex-grow-1 mx-3"
           style={{ 

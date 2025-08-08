@@ -1,8 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FormatPhoneNumber, HasPermission } from "../../helpers/common";
+import {
+  ErrorMessage,
+  FormatPhoneNumber,
+  HasPermission,
+  SuccessMessage,
+} from "../../helpers/common";
 import moment from "moment";
 import { defaultConfig } from "../../config";
+import { callAPI } from "../../utils/apiUtils";
+import { apiUrls } from "../../utils/apiUrls";
 
 const DynamicTable = ({
   data,
@@ -23,6 +30,27 @@ const DynamicTable = ({
   columnFilters,
   handlesearchChange,
 }) => {
+  const ImpersonateTenant = async (SubTenantId) => {
+    try {
+      const apiResponse = await callAPI(
+        apiUrls.ImpersonateTenant,
+        { subTenantId: SubTenantId },
+        "POST",
+        {}
+      );
+
+      if (apiResponse?.data?.isSuccess) {
+        let res = apiResponse?.data?.data;
+        localStorage.setItem("ImpersonateTenant", "Yes");
+        localStorage.setItem("accessToken", res?.token);
+        localStorage.setItem("userData", JSON.stringify(res));
+        SuccessMessage(apiResponse?.data?.message);
+        window.location.href = `/dashboard`;
+      } else {
+        ErrorMessage(apiResponse?.data?.message);
+      }
+    } catch (error) {}
+  };
   return (
     <table className="table">
       <thead>
@@ -335,6 +363,21 @@ const DynamicTable = ({
                                 loading="lazy"
                               />{" "}
                               Sync GHL
+                            </Link>
+                          </li>
+                        )}
+                        {rowActions.includes("Importunate") && (
+                          <li onClick={() => ImpersonateTenant(row.tenantId)}>
+                            <Link className="dropdown-item" to={`#`}>
+                              <img
+                                src="/image/merge.svg"
+                                className="me-1"
+                                alt=" "
+                                loading="lazy"
+                                width={22}
+                                height={22}
+                              />{" "}
+                              Impersonate
                             </Link>
                           </li>
                         )}

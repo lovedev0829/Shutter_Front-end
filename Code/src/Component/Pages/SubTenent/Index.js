@@ -277,7 +277,7 @@ export default function Index() {
                 data={subtenantList}
                 columns={columns}
                 title="Partners"
-                rowActions={["edit", "delete", "product","ghl"]}
+                rowActions={["edit", "delete", "product","ghl","Importunate"]}
                 edituser={handleedit}
                 handledelete={handledelete}
                 handlestatus={handlestatus}
