@@ -62,6 +62,8 @@ export default function Login() {
         localStorage.setItem("accessToken", res?.token);
         localStorage.setItem("code", JSON.stringify(data.companyCode));
         localStorage.setItem("userData", JSON.stringify(res));
+         localStorage.setItem("accessTokenold", res?.token);
+        localStorage.setItem("userDataold", JSON.stringify(res));
         SuccessMessage(response.data.message);
         navigate("/dashboard");
       } else {

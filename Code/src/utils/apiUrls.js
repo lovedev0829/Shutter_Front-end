@@ -297,4 +297,7 @@ export const apiUrls = {
   PowderCoatColorDelete: `PowderCoatColor/Delete`,
   PowderCoatColorActiveInActive: `PowderCoatColor/ActiveInActive`,
 
+  //Impersonate Tenant
+  ImpersonateTenant:"Auth/ImpersonateTenant"
+
 };
