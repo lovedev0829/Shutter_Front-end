@@ -347,18 +347,23 @@ export default function Index() {
 
   const CouponlistAPI = async (contactId) => {
     try {
+      console.log('Loading discount coupons for contactId:', contactId);
       const apiResponse = await callAPI(
         apiUrls.GetAllDiscount,
         { CustomerId: contactId },
         "GET"
       );
       if (apiResponse?.data?.isSuccess) {
+        console.log('Discount coupons loaded:', apiResponse?.data?.data);
         setCoupan(apiResponse?.data?.data);
       } else {
+        console.log('No discount coupons found or API error:', apiResponse?.data?.message);
         setCoupan([]);
         ErrorMessage(apiResponse?.data?.message);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error loading discount coupons:', error);
+    }
   };
 
   const EstimationUniquename = async () => {
@@ -464,8 +469,19 @@ export default function Index() {
   };
 
   const handleChangecupan = (e) => {
-    if (e.target.value) {
-      setCoupandata(JSON.parse(e.target.value));
+    const selectedCouponCode = e.target.value;
+    
+    if (selectedCouponCode) {
+      // Find the full coupon object by coupon code
+      const selectedCoupon = coupan.find(c => c.couponCode === selectedCouponCode);
+      if (selectedCoupon) {
+        setCoupandata(selectedCoupon);
+        setValue((val) => ({
+          ...val,
+          discountCoupon: selectedCouponCode,
+          discountId: selectedCoupon.discountId,
+        }));
+      }
     } else {
       setValue((val) => ({
         ...val,
@@ -1362,6 +1378,7 @@ export default function Index() {
                         <FormControl 
                           fullWidth 
                           size={isMobile ? "medium" : "small"}
+                          disabled={!coupan || coupan.length === 0}
                           sx={{
                             '& .MuiInputBase-input': {
                               fontSize: isMobile ? '16px' : '14px',
@@ -1371,13 +1388,10 @@ export default function Index() {
                             }
                           }}
                         >
-                          <InputLabel>Discount Coupon</InputLabel>
                           <Select
                             onChange={handleChangecupan}
-                            label="Discount Coupon"
-                            value={value.discountCoupon ? 
-                              JSON.stringify(coupan.find(c => c.couponCode === value.discountCoupon) || {}) : ""
-                            }
+                            value={value.discountCoupon || ""}
+                            displayEmpty
                             MenuProps={{
                               PaperProps: {
                                 sx: {
@@ -1390,13 +1404,27 @@ export default function Index() {
                                 },
                               },
                             }}
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return <em style={{ color: '#999' }}>Select promotional discount, bulk order...</em>;
+                              }
+                              const selectedCoupon = coupan?.find(c => c.couponCode === selected);
+                              if (selectedCoupon) {
+                                return `${selectedCoupon.couponCode} (${selectedCoupon.discountTypeName} - ${
+                                  selectedCoupon.discountTypeName === "Percentage"
+                                    ? `${selectedCoupon.percentageDiscount}%`
+                                    : `${defaultConfig.currencySign}${selectedCoupon.fixedAmount}`
+                                })`;
+                              }
+                              return selected;
+                            }}
                           >
                             <MenuItem value="">
                               <em>Select promotional discount, bulk order...</em>
                             </MenuItem>
                             {coupan?.map((val, i) => (
                               <MenuItem
-                                value={JSON.stringify(val)}
+                                value={val.couponCode}
                                 key={i}
                               >
                                 {val?.couponCode} ({val?.discountTypeName} -{" "}
@@ -1412,6 +1440,7 @@ export default function Index() {
                         <Button
                           variant="contained"
                           onClick={() => Applycopan(value.productsList, true)}
+                          disabled={!cupondata || Object.keys(cupondata).length === 0}
                           sx={{
                             textTransform: 'none',
                             fontWeight: 600,

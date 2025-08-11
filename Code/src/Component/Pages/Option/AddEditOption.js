@@ -555,7 +555,7 @@ const AddEditOption = ({ open, handleclose, LanguageListAPI, action, object }) =
                           opt.requirePriceAtEstimatePreview ? " *" : ""
                         }`}
                         name="additionalCost"
-                        value={opt.additionalCost}
+                        value={opt.additionalCost || 0}
                        
                         onChange={(e) => handleContactPerson(e, i)}
                         error={

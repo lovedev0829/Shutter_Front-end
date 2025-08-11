@@ -13,6 +13,12 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Divider from "@mui/material/Divider";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useEffect, useState } from "react";
@@ -125,6 +131,7 @@ const Breakdown = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isExtraSmall = useMediaQuery(theme.breakpoints.down(480));
 
   return (
     <>
@@ -146,8 +153,8 @@ const Breakdown = ({
       >
         <DialogTitle 
           sx={{ 
-            p: 2,
-            fontSize: isMobile ? '1.1rem' : '1.25rem',
+            p: isSmallMobile ? 1.5 : 2,
+            fontSize: isExtraSmall ? '1rem' : isMobile ? '1.1rem' : '1.25rem',
             fontWeight: 600,
             borderBottom: 1,
             borderColor: 'divider'
@@ -171,8 +178,8 @@ const Breakdown = ({
             }
           }}
         >
-          <Box className="intersight_content" sx={{ p: 2 }}>
-            <Box className="body_content">
+          <Box sx={{ p: isSmallMobile ? 1 : 2 }}>
+            <Box>
               <ApiLoder open={show} />
               
               <Box 
@@ -184,22 +191,23 @@ const Breakdown = ({
                 mb={3}
               >
                 <Typography 
-                  variant="h6" 
+                  variant={isSmallMobile ? "subtitle1" : "h6"}
                   className="body_heading"
                   sx={{ 
-                    fontSize: isMobile ? '1rem' : '1.1rem',
+                    fontSize: isExtraSmall ? '0.95rem' : isMobile ? '1rem' : '1.1rem',
                     fontWeight: 600,
                     borderLeft: 3,
                     borderColor: 'primary.main',
                     pl: 2,
-                    mb: 0
+                    mb: 0,
+                    wordBreak: 'break-word'
                   }}
                 >
                   {data?.label}
                 </Typography>
                 
                 {token && tenantList?.length !== 0 && (
-                  <Box>
+                  <Box sx={{ alignSelf: isMobile ? 'stretch' : 'auto' }}>
                     <ExportFile
                       type="breakdown"
                       serach={""}
@@ -217,162 +225,370 @@ const Breakdown = ({
                   </Box>
                 )}
               </Box>
-              <TableContainer 
-                component={Paper} 
-                sx={{ 
-                  mt: 2,
-                  overflowX: 'auto',
-                  '& .MuiTable-root': {
-                    minWidth: isMobile ? 800 : 'auto'
-                  }
-                }}
-              >
-                <Table size={isMobile ? "small" : "medium"}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Product Type
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Product
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Window Qty
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Product Width
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Product Height
-                      </TableCell>
+              {/* Mobile Card Layout */}
+              {isSmallMobile ? (
+                <Stack spacing={2} sx={{ mt: 2 }}>
+                  {/* Basic Information Card */}
+                  <Card variant="outlined">
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography variant="subtitle2" color="primary" gutterBottom>
+                        Product Information
+                      </Typography>
+                      <Grid container spacing={1}>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            Product Type
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500, wordBreak: 'break-word' }}>
+                            {tenantList[0]?.productTypeName}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="text.secondary">
+                            Product
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            <Link
+                              to={`/products/detail/${tenantList[0]?.productId}`}
+                              target="_blank"
+                              style={{ 
+                                color: theme.palette.primary.main, 
+                                textDecoration: 'none',
+                                wordBreak: 'break-word'
+                              }}
+                            >
+                              {tenantList[0]?.productName}
+                            </Link>
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="caption" color="text.secondary">
+                            Qty
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {tenantList[0]?.quantity}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="caption" color="text.secondary">
+                            Width
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {tenantList[0]?.buildWidth}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="caption" color="text.secondary">
+                            Height
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {tenantList[0]?.buildHeight}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
 
-                      {tenantList?.map(
-                        (val, i) =>
-                          val.componentId && (
-                            <TableCell key={i} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                              <Box display="flex" alignItems="center" gap={1}>
-                                <Link
-                                  to={`/component/detail/${val.componentId}`}
-                                  target="_blank"
-                                  style={{ color: theme.palette.primary.main, textDecoration: 'none' }}
-                                >
-                                  {val?.componentName}
-                                </Link>
-                                {val.isMaterialBreakdown && (
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => {
-                                      handlemat(val?.componentName, val.componentId);
-                                    }}
-                                    sx={{ 
-                                      bgcolor: '#fff',
-                                      width: isMobile ? 20 : 24,
-                                      height: isMobile ? 20 : 24,
-                                      '&:hover': { bgcolor: 'grey.100' }
-                                    }}
-                                  >
-                                    <img 
-                                      src="/image/breakdown.svg" 
-                                      alt="breakdown" 
-                                      style={{ width: isMobile ? 12 : 16, height: isMobile ? 12 : 16 }}
-                                    />
-                                  </IconButton>
-                                )}
+                  {/* Components */}
+                  {tenantList?.filter(val => val.componentId).length > 0 && (
+                    <Card variant="outlined">
+                      <CardContent sx={{ p: 2 }}>
+                        <Typography variant="subtitle2" color="primary" gutterBottom>
+                          Components
+                        </Typography>
+                        <Stack spacing={1}>
+                          {tenantList?.map((val, i) =>
+                            val.componentId && (
+                              <Box key={i} sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                p: 1,
+                                bgcolor: 'grey.50',
+                                borderRadius: 1
+                              }}>
+                                <Box sx={{ flex: 1, mr: 1 }}>
+                                  <Box display="flex" alignItems="center" gap={1}>
+                                    <Link
+                                      to={`/component/detail/${val.componentId}`}
+                                      target="_blank"
+                                      style={{ 
+                                        color: theme.palette.primary.main, 
+                                        textDecoration: 'none',
+                                        fontSize: '0.875rem',
+                                        wordBreak: 'break-word'
+                                      }}
+                                    >
+                                      {val?.componentName}
+                                    </Link>
+                                    {val.isMaterialBreakdown && (
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => {
+                                          handlemat(val?.componentName, val.componentId);
+                                        }}
+                                        sx={{ 
+                                          bgcolor: '#fff',
+                                          width: 20,
+                                          height: 20,
+                                          '&:hover': { bgcolor: 'grey.100' }
+                                        }}
+                                      >
+                                        <img 
+                                          src="/image/breakdown.svg" 
+                                          alt="breakdown" 
+                                          style={{ width: 12, height: 12 }}
+                                        />
+                                      </IconButton>
+                                    )}
+                                  </Box>
+                                </Box>
+                                <Chip 
+                                  label={`${defaultConfig.currencySign} ${val.price ?? 0}`}
+                                  size="small"
+                                  color="primary"
+                                  variant="outlined"
+                                />
                               </Box>
+                            )
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Options */}
+                  {tenantList && 
+                    tenantList.flatMap((val) => val?.optionTaxDetails || []).length > 0 && (
+                    <Card variant="outlined">
+                      <CardContent sx={{ p: 2 }}>
+                        <Typography variant="subtitle2" color="primary" gutterBottom>
+                          Options
+                        </Typography>
+                        <Stack spacing={1}>
+                          {tenantList
+                            .flatMap((val) => val?.optionTaxDetails || [])
+                            .sort((a, b) => a.optionName.localeCompare(b.optionName))
+                            .map((opt, idx) => (
+                              <Box key={idx} sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                p: 1,
+                                bgcolor: 'grey.50',
+                                borderRadius: 1
+                              }}>
+                                <Typography variant="body2" sx={{ wordBreak: 'break-word', flex: 1, mr: 1 }}>
+                                  {opt.optionName} - {opt.optionTypeName}
+                                </Typography>
+                                <Chip 
+                                  label={`${defaultConfig.currencySign} ${opt.optionPrice || 0}`}
+                                  size="small"
+                                  color="secondary"
+                                  variant="outlined"
+                                />
+                              </Box>
+                            ))}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Totals */}
+                  <Card variant="outlined">
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography variant="subtitle2" color="primary" gutterBottom>
+                        Totals
+                      </Typography>
+                      <Stack spacing={1}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Typography variant="body2" color="text.secondary">
+                            Sub Total
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {defaultConfig.currencySign} {(Number(componentprice) + Number(optionprice))?.toFixed(2)}
+                          </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Typography variant="body2" color="text.secondary">
+                            Over Head
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {defaultConfig.currencySign} {overheadprice?.toFixed(2)}
+                          </Typography>
+                        </Box>
+                        <Divider />
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            Total
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                            {defaultConfig.currencySign} {(Number(componentprice) + Number(optionprice) + overheadprice)?.toFixed(2)}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Stack>
+              ) : (
+                /* Desktop/Tablet Table Layout */
+                <TableContainer 
+                  component={Paper} 
+                  sx={{ 
+                    mt: 2,
+                    overflowX: 'auto',
+                    '& .MuiTable-root': {
+                      minWidth: isMobile ? 800 : 'auto'
+                    }
+                  }}
+                >
+                  <Table size={isMobile ? "small" : "medium"}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Product Type
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Product
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Window Qty
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Product Width
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Product Height
+                        </TableCell>
+
+                        {tenantList?.map(
+                          (val, i) =>
+                            val.componentId && (
+                              <TableCell key={i} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                  <Link
+                                    to={`/component/detail/${val.componentId}`}
+                                    target="_blank"
+                                    style={{ color: theme.palette.primary.main, textDecoration: 'none' }}
+                                  >
+                                    {val?.componentName}
+                                  </Link>
+                                  {val.isMaterialBreakdown && (
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => {
+                                        handlemat(val?.componentName, val.componentId);
+                                      }}
+                                      sx={{ 
+                                        bgcolor: '#fff',
+                                        width: isMobile ? 20 : 24,
+                                        height: isMobile ? 20 : 24,
+                                        '&:hover': { bgcolor: 'grey.100' }
+                                      }}
+                                    >
+                                      <img 
+                                        src="/image/breakdown.svg" 
+                                        alt="breakdown" 
+                                        style={{ width: isMobile ? 12 : 16, height: isMobile ? 12 : 16 }}
+                                      />
+                                    </IconButton>
+                                  )}
+                                </Box>
+                              </TableCell>
+                            )
+                        )}
+
+                        {tenantList &&
+                          tenantList
+                            .flatMap((val) => val?.optionTaxDetails || [])
+                            .sort((a, b) =>
+                              a.optionName.localeCompare(b.optionName)
+                            )
+                            .map((opt, idx) => (
+                              <TableCell key={idx} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                {opt.optionName} - {opt.optionTypeName}
+                              </TableCell>
+                            ))}
+
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Sub Total
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Over Head
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          Total
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                          {tenantList[0]?.productTypeName}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                          <Link
+                            to={`/products/detail/${tenantList[0]?.productId}`}
+                            target="_blank"
+                            style={{ color: theme.palette.primary.main, textDecoration: 'none' }}
+                          >
+                            {tenantList[0]?.productName}
+                          </Link>
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                          {tenantList[0]?.quantity}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                          {tenantList[0]?.buildWidth}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                          {tenantList[0]?.buildHeight}
+                        </TableCell>
+                        
+                        {tenantList?.map((val, i) =>
+                          val.componentId ? (
+                            <TableCell key={i} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                              {defaultConfig.currencySign} {val.price ?? 0}
                             </TableCell>
-                          )
-                      )}
+                          ) : null
+                        )}
 
-                      {tenantList &&
-                        tenantList
-                          .flatMap((val) => val?.optionTaxDetails || [])
-                          .sort((a, b) =>
-                            a.optionName.localeCompare(b.optionName)
-                          )
-                          .map((opt, idx) => (
-                            <TableCell key={idx} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                              {opt.optionName} - {opt.optionTypeName}
-                            </TableCell>
-                          ))}
+                        {tenantList &&
+                          tenantList
+                            .flatMap((val) => val?.optionTaxDetails || [])
+                            .sort((a, b) =>
+                              a.optionName.localeCompare(b.optionName)
+                            )
+                            .map((opt, idx) => (
+                              <TableCell key={idx} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                                {defaultConfig.currencySign}{" "}
+                                {opt.optionPrice || 0}
+                              </TableCell>
+                            ))}
 
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Sub Total
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Over Head
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        Total
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                        {tenantList[0]?.productTypeName}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                        <Link
-                          to={`/products/detail/${tenantList[0]?.productId}`}
-                          target="_blank"
-                          style={{ color: theme.palette.primary.main, textDecoration: 'none' }}
-                        >
-                          {tenantList[0]?.productName}
-                        </Link>
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                        {tenantList[0]?.quantity}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                        {tenantList[0]?.buildWidth}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                        {tenantList[0]?.buildHeight}
-                      </TableCell>
-                      
-                      {tenantList?.map((val, i) =>
-                        val.componentId ? (
-                          <TableCell key={i} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                            {defaultConfig.currencySign} {val.price ?? 0}
-                          </TableCell>
-                        ) : null
-                      )}
-
-                      {tenantList &&
-                        tenantList
-                          .flatMap((val) => val?.optionTaxDetails || [])
-                          .sort((a, b) =>
-                            a.optionName.localeCompare(b.optionName)
-                          )
-                          .map((opt, idx) => (
-                            <TableCell key={idx} sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                              {defaultConfig.currencySign}{" "}
-                              {opt.optionPrice || 0}
-                            </TableCell>
-                          ))}
-
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
-                        {defaultConfig.currencySign}{" "}
-                        {(
-                          Number(componentprice) + Number(optionprice)
-                        )?.toFixed(2)}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
-                        {defaultConfig.currencySign}{" "}
-                        {overheadprice?.toFixed(2)}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
-                        {defaultConfig.currencySign}{" "}
-                        {(
-                          Number(componentprice) +
-                          Number(optionprice) +
-                          overheadprice
-                        )?.toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                          {defaultConfig.currencySign}{" "}
+                          {(
+                            Number(componentprice) + Number(optionprice)
+                          )?.toFixed(2)}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                          {defaultConfig.currencySign}{" "}
+                          {overheadprice?.toFixed(2)}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                          {defaultConfig.currencySign}{" "}
+                          {(
+                            Number(componentprice) +
+                            Number(optionprice) +
+                            overheadprice
+                          )?.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
 
               {(!tenantList || tenantList?.length === 0) && (
                 <Box 
@@ -428,8 +644,8 @@ const Breakdown = ({
       >
         <DialogTitle 
           sx={{ 
-            p: 2,
-            fontSize: isMobile ? '1.1rem' : '1.25rem',
+            p: isSmallMobile ? 1.5 : 2,
+            fontSize: isExtraSmall ? '1rem' : isMobile ? '1.1rem' : '1.25rem',
             fontWeight: 600,
             borderBottom: 1,
             borderColor: 'divider'
@@ -453,109 +669,156 @@ const Breakdown = ({
             }
           }}
         >
-          <Box className="intersight_content" sx={{ p: 2 }}>
+          <Box className="intersight_content" sx={{ p: isSmallMobile ? 1 : 2 }}>
             <Box className="body_content">
               <ApiLoder open={show} />
               
               <Box mb={3}>
                 <Typography 
-                  variant="h6" 
+                  variant={isSmallMobile ? "subtitle1" : "h6"}
                   className="body_heading"
                   sx={{ 
-                    fontSize: isMobile ? '1rem' : '1.1rem',
+                    fontSize: isExtraSmall ? '0.95rem' : isMobile ? '1rem' : '1.1rem',
                     fontWeight: 600,
                     borderLeft: 3,
                     borderColor: 'primary.main',
                     pl: 2,
-                    mb: 0
+                    mb: 0,
+                    wordBreak: 'break-word'
                   }}
                 >
                   {name}
                 </Typography>
               </Box>
               
-              <TableContainer 
-                component={Paper} 
-                sx={{ 
-                  mt: 2,
-                  overflowX: 'auto',
-                  '& .MuiTable-root': {
-                    minWidth: isMobile ? 400 : 'auto'
-                  }
-                }}
-              >
-                <Table size={isMobile ? "small" : "medium"}>
-                  <TableHead>
-                    <TableRow>
-                      {tenantList2?.map(
-                        (val, i) =>
-                          val.materialName && val.isMaterialBreakdown && (
-                            <TableCell 
-                              key={i} 
-                              sx={{ 
-                                fontSize: isMobile ? '0.75rem' : '0.875rem', 
-                                fontWeight: 600, 
-                                whiteSpace: 'nowrap' 
-                              }}
-                            >
-                              {val?.materialName}
-                            </TableCell>
-                          )
-                      )}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      {tenantList2?.map(
-                        (val, i) =>
-                          val.materialName && val.isMaterialBreakdown && (
-                            <TableCell 
-                              key={i} 
-                              sx={{ 
-                                fontSize: isMobile ? '0.75rem' : '0.875rem',
-                                fontWeight: 600
-                              }}
-                            >
-                              {defaultConfig.currencySign} {val?.materialPrice}
-                            </TableCell>
-                          )
-                      )}
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              {(!tenantList2 || tenantList2?.length === 0) && (
-                <Box 
-                  display="flex" 
-                  flexDirection="column" 
-                  alignItems="center" 
-                  justifyContent="center"
-                  py={4}
-                  sx={{ textAlign: 'center' }}
+              {/* Mobile Material Breakdown Card Layout */}
+              {isSmallMobile ? (
+                <Stack spacing={2} sx={{ mt: 2 }}>
+                  {tenantList2?.filter(val => val.materialName && val.isMaterialBreakdown).length > 0 ? (
+                    <Card variant="outlined">
+                      <CardContent sx={{ p: 2 }}>
+                        <Typography variant="subtitle2" color="primary" gutterBottom>
+                          Material Breakdown
+                        </Typography>
+                        <Stack spacing={1}>
+                          {tenantList2?.map((val, i) =>
+                            val.materialName && val.isMaterialBreakdown && (
+                              <Box key={i} sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                p: 1,
+                                bgcolor: 'grey.50',
+                                borderRadius: 1
+                              }}>
+                                <Typography variant="body2" sx={{ 
+                                  wordBreak: 'break-word', 
+                                  flex: 1, 
+                                  mr: 1,
+                                  fontWeight: 500
+                                }}>
+                                  {val?.materialName}
+                                </Typography>
+                                <Chip 
+                                  label={`${defaultConfig.currencySign} ${val?.materialPrice}`}
+                                  size="small"
+                                  color="primary"
+                                  variant="outlined"
+                                  sx={{ fontWeight: 600 }}
+                                />
+                              </Box>
+                            )
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Box 
+                      display="flex" 
+                      flexDirection="column" 
+                      alignItems="center" 
+                      justifyContent="center"
+                      py={4}
+                      sx={{ textAlign: 'center' }}
+                    >
+                      <img
+                        src="/image/no-records.svg"
+                        alt="No records"
+                        loading="lazy"
+                        style={{ 
+                          maxWidth: '100%', 
+                          height: 'auto',
+                          width: '120px'
+                        }}
+                      />
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          mt: 2,
+                          fontSize: '0.75rem',
+                          color: 'text.secondary'
+                        }}
+                      >
+                        No Material Breakdown available
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
+              ) : (
+                /* Desktop/Tablet Table Layout */
+                <TableContainer 
+                  component={Paper} 
+                  sx={{ 
+                    mt: 2,
+                    overflowX: 'auto',
+                    '& .MuiTable-root': {
+                      minWidth: isMobile ? 400 : 'auto'
+                    }
+                  }}
                 >
-                  <img
-                    src="/image/no-records.svg"
-                    alt="No records"
-                    loading="lazy"
-                    style={{ 
-                      maxWidth: '100%', 
-                      height: 'auto',
-                      width: isMobile ? '120px' : '150px'
-                    }}
-                  />
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      mt: 2,
-                      fontSize: isMobile ? '0.75rem' : '0.875rem',
-                      color: 'text.secondary'
-                    }}
-                  >
-                    No Breakdown available
-                  </Typography>
-                </Box>
+                  <Table size={isMobile ? "small" : "medium"}>
+                    <TableHead>
+                      <TableRow>
+                        {tenantList2?.map(
+                          (val, i) =>
+                            val.materialName && val.isMaterialBreakdown && (
+                              <TableCell 
+                                key={i} 
+                                sx={{ 
+                                  fontSize: isMobile ? '0.75rem' : '0.875rem', 
+                                  fontWeight: 600, 
+                                  whiteSpace: 'nowrap' 
+                                }}
+                              >
+                                {val?.materialName}
+                              </TableCell>
+                            )
+                        )}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        {tenantList2?.map(
+                          (val, i) =>
+                            val.materialName && val.isMaterialBreakdown && (
+                              <TableCell 
+                                key={i} 
+                                sx={{ 
+                                  fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                  fontWeight: 600
+                                }}
+                              >
+                                {defaultConfig.currencySign} {val?.materialPrice}
+                              </TableCell>
+                            )
+                        )}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
+
+              {/* No records message is now handled within the mobile/desktop conditional layouts */}
             </Box>
           </Box>
         </DialogContent>
