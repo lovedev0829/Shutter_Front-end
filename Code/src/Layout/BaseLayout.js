@@ -19,7 +19,7 @@ export default function BaseLayout(props) {
                     flex: 1,
                     width: '100%',
                     maxWidth: '100vw',
-                    overflow: 'hidden'
+                    overflow: 'auto'
                 }}
             >
                 { props.children }
