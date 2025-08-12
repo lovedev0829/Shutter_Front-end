@@ -349,13 +349,13 @@ export default function Header(props) {
                   display: { xs: "none", md: "block" },
                 }}
               >
-                Sub Tenant
+                Partners
               </InputLabel>
               <Select
                 labelId="subtenant-select-label"
                 value={""}
                 onChange={ImpersonateTenantAcess}
-                label={isSmallScreen ? "" : "Sub Tenant"}
+                label={isSmallScreen ? "" : "Partners"}
                 sx={{
                   fontSize: "0.875rem",
                   "& .MuiSelect-select": {

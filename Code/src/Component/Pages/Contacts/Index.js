@@ -53,7 +53,7 @@ export default function Index() {
   const [filter, setFilter] = useState({
     status: "2",
     tenantId: "",
-    sortColumn: "",
+    sortColumn: "firstName",
     sortDirection: "asc",
      columnFilters: [],
   });
