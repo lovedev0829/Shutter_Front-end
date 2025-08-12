@@ -176,6 +176,10 @@ export default function Sidebar() {
     }
     const newOpen = !mobileOpen;
     setMobileOpen(newOpen);
+     const modal = document.querySelector('.MuiModal-root.MuiDrawer-root');
+  if (modal) {
+    modal.style.display ='block';
+  }
 
     if (!newOpen) {
       document.body.classList.remove('mobile-menu-open');
@@ -208,9 +212,15 @@ export default function Sidebar() {
     if (isMobile) {
       setMobileOpen(false);
       document.body.classList.remove('mobile-menu-open');
+      const modal = document.querySelector('.MuiModal-root.MuiDrawer-root');
+  if (modal) {
+    modal.style.display ='none';
+  }
       document.body.style.top = '';
     }
   };
+
+
 
   // Handle body scroll when mobile menu is open
   useEffect(() => {
@@ -533,6 +543,7 @@ export default function Sidebar() {
         onClose={handleDrawerToggle}
         ModalProps={{ 
           keepMounted: true,
+          hideBackdrop: true,
         }}
         BackdropProps={{
           onClick: () => setMobileOpen(false)
