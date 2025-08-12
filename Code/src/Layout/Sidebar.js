@@ -174,7 +174,13 @@ export default function Sidebar() {
     if (event) {
       event.stopPropagation();
     }
-    setMobileOpen(!mobileOpen);
+    const newOpen = !mobileOpen;
+    setMobileOpen(newOpen);
+
+    if (!newOpen) {
+      document.body.classList.remove('mobile-menu-open');
+      document.body.style.top = '';
+    }
   };
 
   const handleUserMenuClick = (event) => {
@@ -201,6 +207,8 @@ export default function Sidebar() {
   const handleMobileNavigation = () => {
     if (isMobile) {
       setMobileOpen(false);
+      document.body.classList.remove('mobile-menu-open');
+      document.body.style.top = '';
     }
   };
 
