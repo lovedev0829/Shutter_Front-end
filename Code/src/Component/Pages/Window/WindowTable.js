@@ -111,7 +111,7 @@ function WindowTable({ listdata }) {
 
   const handleedit = (item) => {
     const windowdata =
-      item?.productDetails?.map((product) => {
+      item?.productDetails?.map((product, productIndex) => {
         var optionTypes =
           product?.windowOptions?.map((option) => {
             return option?.optionTypeId;
@@ -125,6 +125,32 @@ function WindowTable({ listdata }) {
           buildHeight: product?.buildHeight,
         };
       }) || [];
+
+    // Extract additional costs from window options
+    const additionalCosts = [];
+    item?.productDetails?.forEach((product, productIndex) => {
+      const additionalCostData = {};
+      
+      product?.windowOptions?.forEach((option) => {
+        if (option?.additionalCost && option?.additionalCost > 0) {
+          const costKey = `${option?.optionName}-${productIndex}`;
+          additionalCostData[costKey] = {
+            optionTypeId: option?.optionTypeId,
+            optionGroupName: option?.optionName,
+            optionType: option?.optionName,
+            additionalCost: option?.additionalCost.toString(),
+            requirePriceAtEstimatePreview: true
+          };
+        }
+      });
+
+      if (Object.keys(additionalCostData).length > 0) {
+        additionalCosts.push({
+          indexId: productIndex,
+          data: additionalCostData
+        });
+      }
+    });
 
     const defaultState = {
       windowId: item?.windowId,
@@ -140,6 +166,8 @@ function WindowTable({ listdata }) {
       photo: item?.photo,
       // isRated:item?.isRated,
       windowProducts: windowdata,
+      additionalCosts: additionalCosts,
+      productDetails: item?.productDetails, // Add raw product details for window options
     };
 
     setAction("edit");

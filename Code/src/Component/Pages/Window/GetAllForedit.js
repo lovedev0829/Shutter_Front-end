@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Radio,
@@ -30,7 +30,9 @@ function GetAllForedit({
   setAdditionalCosts = () => {},
   isRender = true,
   buildRequirement = false,
-  showOptionsPopup = false
+  showOptionsPopup = false,
+  existingWindowOptions = [], // New prop for existing window option data
+  onUpdateWindowOptionCost = () => {} // New prop to update window option costs in parent
 }) {
   // Main state
   const [optionList, setOptionList] = useState([]);
@@ -39,7 +41,10 @@ function GetAllForedit({
 
   // Local state for tracking changes
   const [localOptionName, setLocalOptionName] = useState({});
-  const [localAdditionalCosts, setLocalAdditionalCosts] = useState({});
+  const [localAdditionalCosts, setLocalAdditionalCosts] = useState([]);
+  
+  // Ref to track if additional costs have been initialized
+  const costsInitialized = useRef(false);
 
   const fetchOptions = async () => {
     if (!producttypeId) return;
@@ -146,6 +151,28 @@ function GetAllForedit({
     // eslint-disable-next-line
   }, [producttypeId, load, showOptionsPopup, buildRequirement]);
 
+
+  // Separate useEffect to initialize additional costs from existing window options
+  useEffect(() => {
+    if (existingWindowOptions && existingWindowOptions.length > 0) {
+      const initialCosts = [];
+      console.log("existingWindowOptions", existingWindowOptions)
+      existingWindowOptions.forEach((windowOption) => {
+        if (windowOption.additionalCost && windowOption.additionalCost > 0) {
+          initialCosts.push({
+            optionTypeId: windowOption.optionTypeId,
+            additionalCost: windowOption.additionalCost
+          });
+        }
+      });
+
+      if(initialCosts.length > 0){
+         // Set state after forEach completes
+         setLocalAdditionalCosts(initialCosts);
+      }
+    } 
+  }, [existingWindowOptions, indexId]); // Only depend on the actual data we need
+
   useEffect(() => {
     if (allOption.length > 0 && fn) {
       fn({ target: { name, value: allOption.map((obj) => obj.value) } });
@@ -216,18 +243,29 @@ function GetAllForedit({
 
   const handleAdditionalCostChange = (e, optionTypeId, optionGroupName, optionType) => {
     const costValue = e.target.value;
-    const costKey = `${optionTypeId}-${indexId}`;
-    
-    setLocalAdditionalCosts((prev) => ({
-      ...prev,
-      [costKey]: {
-        optionTypeId,
-        optionGroupName,
-        optionType,
-        additionalCost: costValue,
-        requirePriceAtEstimatePreview: costValue.trim() !== ""
+    console.log(optionTypeId)
+    setLocalAdditionalCosts((prev) => {
+      const updated = [...prev];
+      const existingIndex = updated.findIndex(cost => cost.optionTypeId.toLowerCase() === optionTypeId.toLowerCase());
+      
+      if (existingIndex !== -1) {
+        updated[existingIndex] = {
+          optionTypeId,
+          additionalCost: costValue
+        };
+      } else {
+        updated.push({
+          optionTypeId,
+          additionalCost: costValue
+        });
       }
-    }));
+      return updated;
+    });
+
+    // Also update the parent's window option data
+    if (typeof onUpdateWindowOptionCost === "function") {
+      onUpdateWindowOptionCost(indexId, optionTypeId, parseFloat(costValue) || 0);
+    }
   };
 
   return (
@@ -340,21 +378,22 @@ function GetAllForedit({
                                 />
                               }
                               label={
-                                <Typography variant="body2" sx={{ fontWeight: 500, color: '#333' }}>
-                                  {option?.optionType}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#333' }}>
+                                    {option?.optionType}
+                                  </Typography>
                                   {option?.additionalCost && (
                                     <Chip 
                                       label={`$${option.additionalCost}`}
                                       size="small"
                                       sx={{ 
-                                        ml: 1,
                                         backgroundColor: '#e8f5e8',
                                         color: '#2e7d32',
                                         fontSize: '0.75rem'
                                       }}
                                     />
                                   )}
-                                </Typography>
+                                </Box>
                               }
                               sx={{ flexGrow: 1, mr: 2 }}
                             />
@@ -363,8 +402,8 @@ function GetAllForedit({
                               <TextField
                                 size="small"
                                 placeholder="Cost"
-                                type="number"
-                                value={localAdditionalCosts[`${option?.optionTypeId}-${indexId}`]?.additionalCost || ""}
+                                type="text"
+                                value={localAdditionalCosts.find(cost => cost.optionTypeId.toLowerCase() === option?.optionTypeId.toLowerCase())?.additionalCost || ""}
                                 onChange={(e) => handleAdditionalCostChange(e, option?.optionTypeId, item?.optionName, option?.optionType)}
                                 sx={{
                                   width: 100,
