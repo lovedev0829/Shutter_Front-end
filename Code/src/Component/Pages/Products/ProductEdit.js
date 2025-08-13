@@ -283,6 +283,9 @@ export default function ProductEdit() {
           ...(permission && {
             isAvailable: optionType.isAvailable,
           }),
+            ...(permission && {
+            isWholeSaleAppliedOption: optionType.isWholeSaleAppliedOption,
+          }),
           ...(permission && {
             wholeSalePrice: optionType.wholeSalePrice || 0,
           }),
@@ -1141,6 +1144,16 @@ export default function ProductEdit() {
                                                           IsVisible
                                                         </TableCell>
                                                       )}
+                                                      {HasPermission("SubTenantView") && (
+                                                        <TableCell sx={{ 
+                                                          fontWeight: 600,
+                                                          fontSize: isMobile ? '11px' : '14px',
+                                                          py: isMobile ? 0.5 : 1,
+                                                          px: isMobile ? 1 : 2
+                                                        }}>
+                                                         Enable for Calculations
+                                                        </TableCell>
+                                                      )}
                                                       <TableCell sx={{ 
                                                         fontWeight: 600,
                                                         fontSize: isMobile ? '11px' : '14px',
@@ -1321,7 +1334,27 @@ export default function ProductEdit() {
                                                             />
                                                           </TableCell>
                                                         )}
-
+                                                        {HasPermission("SubTenantView") && (
+                                                          <TableCell sx={{ 
+                                                            py: isMobile ? 0.5 : 1,
+                                                            px: isMobile ? 1 : 2
+                                                          }}>
+                                                            <Checkbox
+                                                              disabled={!val.isAvailable}
+                                                              checked={valss?.isWholeSaleAppliedOption}
+                                                              onChange={(e) =>
+                                                                handleOptionChange(e, i, ind, inds, "isWholeSaleAppliedOption")
+                                                              }
+                                                              color="primary"
+                                                              size={isMobile ? "small" : "medium"}
+                                                              sx={{
+                                                                '&.Mui-checked': {
+                                                                  color: theme.palette.primary.main,
+                                                                },
+                                                              }}
+                                                            />
+                                                          </TableCell>
+                                                        )}
                                                         <TableCell sx={{ 
                                                           py: isMobile ? 0.5 : 1,
                                                           px: isMobile ? 1 : 2
