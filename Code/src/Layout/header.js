@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -24,17 +24,19 @@ import {
   Box,
   ClickAwayListener,
   useTheme,
-  useMediaQuery
-} from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+  useMediaQuery,
+} from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { ErrorMessage, HasPermission, SuccessMessage } from "../helpers/common";
 export default function Header(props) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const users = useSelector((state) => state.UserProfile.profile);
   const user = JSON.parse(localStorage.getItem("userData"));
   const [open, setOpen] = useState(false);
   const [notifications, setnotifications] = useState([]);
   const [tenantList, setTenantList] = useState([]);
+  const [subtenantList, setsubTenantList] = useState([]);
   const [tenantsLoading, setTenantsLoading] = useState(true);
   const userName = user?.username;
   const currentTenantId = user?.tenantId;
@@ -53,7 +55,11 @@ export default function Header(props) {
   const getTenantsListByUsername = async () => {
     try {
       setTenantsLoading(true);
-      const apiResponse = await callAPI(apiUrls.GetTenantsListByUsername, {UserName: userName}, "GET");
+      const apiResponse = await callAPI(
+        apiUrls.GetTenantsListByUsername,
+        { UserName: userName },
+        "GET"
+      );
       if (apiResponse?.data?.isSuccess) {
         setTenantList(apiResponse?.data?.data);
       }
@@ -63,11 +69,34 @@ export default function Header(props) {
     } finally {
       setTenantsLoading(false);
     }
-  }
+  };
+
+  const SubTenantlistAPI = async () => {
+    let query = {
+      searchValue: "",
+      pageNo: 1,
+      recordPerPage: 1000,
+      tenantId: "",
+      status: "2",
+    };
+    try {
+      const apiResponse = await callAPI(apiUrls.SubTenant, {}, "POST", query);
+      if (apiResponse?.data?.isSuccess) {
+        setsubTenantList(apiResponse?.data?.data);
+      } else {
+        setsubTenantList([]);
+      }
+    } catch (error) {
+      setsubTenantList([]);
+    }
+  };
 
   useEffect(() => {
     NotificationlistAPI();
     getTenantsListByUsername();
+    if (HasPermission("SubTenantView")) {
+      SubTenantlistAPI();
+    }
   }, []);
 
   const navigate = useNavigate();
@@ -89,12 +118,12 @@ export default function Header(props) {
         localStorage.setItem("activeTab2", "#pills-content");
         navigate(`/contacts/estimate/preview/${notification?.typeId}`);
         break;
-        case "Order":
+      case "Order":
         localStorage.setItem("activeTab", "#orders");
         localStorage.setItem("activeTab2", "#pills-content");
         navigate(`/contacts/order/preview/${notification?.typeId}`);
         break;
-         case "Payment":
+      case "Payment":
         localStorage.setItem("activeTab", "#invoice");
         localStorage.setItem("activeTab2", "#pills-content");
         navigate(`/contacts/payment/${notification?.typeId}`);
@@ -129,7 +158,6 @@ export default function Header(props) {
       );
 
       if (response.data.isSuccess) {
-        
       } else {
       }
     } catch (error) {}
@@ -138,101 +166,216 @@ export default function Header(props) {
   const handleTenantChange = async (e) => {
     const tenantId = e.target.value;
     try {
-        const apiResponse = await callAPI(apiUrls.GetUserDataForTenantSwitch, {
-            UserName: userName,
-            TenantId: tenantId
-        }, "GET");
-      
-        if (apiResponse?.data?.isSuccess) {
+      const apiResponse = await callAPI(
+        apiUrls.GetUserDataForTenantSwitch,
+        {
+          UserName: userName,
+          TenantId: tenantId,
+        },
+        "GET"
+      );
 
-            const completeUserData = apiResponse.data.data;
+      if (apiResponse?.data?.isSuccess) {
+        const completeUserData = apiResponse.data.data;
 
-            localStorage.setItem("userData", JSON.stringify(completeUserData));
-            localStorage.setItem("accessToken", completeUserData.token);
-            
-            window.location.reload();
-        } 
+        localStorage.setItem("userData", JSON.stringify(completeUserData));
+        localStorage.setItem("accessToken", completeUserData.token);
+        localStorage.setItem("userDataold", JSON.stringify(completeUserData));
+        localStorage.setItem("accessTokenold", completeUserData.token);
+
+        window.location.reload();
+      }
     } catch (error) {
-        console.error("Error switching tenant:", error);
+      console.error("Error switching tenant:", error);
     }
-  }
+  };
 
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const anchorRef = useRef(null);
 
   const handleNotificationClose = () => {
     setOpen(false);
   };
 
+  const ImpersonateTenant = localStorage.getItem("ImpersonateTenant");
+
+  const Switchtoparent = () => {
+    localStorage.removeItem("ImpersonateTenant");
+    localStorage.setItem("accessToken", localStorage.getItem("accessTokenold"));
+    localStorage.setItem("userData", localStorage.getItem("userDataold"));
+    window.location.href = `/dashboard`;
+  };
+  const olduser = JSON.parse(localStorage.getItem("userDataold"));
+
+
+  
+    const ImpersonateTenantAcess = async (e) => {
+      try {
+        const apiResponse = await callAPI(
+          apiUrls.ImpersonateTenant,
+          {subTenantId:e.target.value},
+          "POST",
+          {}
+        );
+  
+        if (apiResponse?.data?.isSuccess) {
+           let res = apiResponse?.data?.data;
+           localStorage.setItem("ImpersonateTenant", "Yes");
+          localStorage.setItem("accessToken", res?.token);
+          localStorage.setItem("userData", JSON.stringify(res));
+          SuccessMessage(apiResponse?.data?.message);
+          window.location.href = `/dashboard`;
+        } else {
+          ErrorMessage(apiResponse?.data?.message);
+        }
+      } catch (error) {}
+    };
+
   return (
-    <AppBar 
-      position="static" 
+    <AppBar
+      position="static"
       elevation={1}
-      sx={{ 
-        backgroundColor: 'background.paper',
-        color: 'text.primary',
-        borderBottom: '1px solid',
-        borderColor: 'divider'
+      sx={{
+        backgroundColor: "background.paper",
+        color: "text.primary",
+        borderBottom: "1px solid",
+        borderColor: "divider",
       }}
     >
-      <Toolbar 
-        sx={{ 
-          justifyContent: 'space-between',
+      <Toolbar
+        sx={{
+          justifyContent: "space-between",
           gap: 2,
-          minHeight: '60px !important',
-          px: { xs: 1, sm: 2 }
+          minHeight: "60px !important",
+          px: { xs: 1, sm: 2 },
         }}
       >
         {/* Tenant Selector */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            ml: 1,
-            alignItems: 'center', 
-            gap: 1,
-            minWidth: { xs: 120, sm: 150 },
-            maxWidth: { xs: 200, sm: 280 },
-            flexShrink: 0
-          }}
-        >
-          <FormControl 
-            size="small" 
-            fullWidth
-            variant="outlined"
-          >
-            <InputLabel 
-              id="tenant-select-label"
-              sx={{ 
-                fontSize: '0.875rem',
-                display: { xs: 'none', md: 'block' }
-              }}
-            >
-              Tenant
-            </InputLabel>
-            <Select
-              labelId="tenant-select-label"
-              value={currentTenantId || ''}
-              onChange={handleTenantChange}
-              label={isSmallScreen ? '' : 'Tenant'}
+        {ImpersonateTenant ? (
+          <Link to={`#`} onClick={() => Switchtoparent()}>
+            <Typography
+              variant="h6"
+              component="h1"
               sx={{
-                fontSize: '0.875rem',
-                '& .MuiSelect-select': {
-                  py: 0.75
-                }
+                flexGrow: 1,
+                textAlign: "center",
+                fontWeight: 600,
+                mx: 2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontSize: { xs: "1rem", sm: "1.25rem", lg: "1.5rem" },
               }}
             >
-              {tenantList?.map((tenant) => (
-                <MenuItem 
-                  key={tenant?.tenantId} 
-                  value={tenant?.tenantId}
-                  sx={{ fontSize: '0.875rem' }}
-                >
-                  {tenant?.code}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+              <img
+                src="/image/refresh.svg"
+                className="me-1"
+                alt=" "
+                loading="lazy"
+                width={22}
+                height={22}
+              />{" "}
+              Back to{" "}
+              {olduser?.companyName
+                ? olduser?.companyName
+                : olduser?.firstName + olduser?.lastName}{" "}
+            </Typography>
+          </Link>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              ml: 1,
+              alignItems: "center",
+              gap: 1,
+              minWidth: { xs: 120, sm: 150 },
+              maxWidth: { xs: 200, sm: 280 },
+              flexShrink: 0,
+            }}
+          >
+            <FormControl size="small" fullWidth variant="outlined">
+              <InputLabel
+                id="tenant-select-label"
+                sx={{
+                  fontSize: "0.875rem",
+                  display: { xs: "none", md: "block" },
+                }}
+              >
+                Tenant
+              </InputLabel>
+              <Select
+                labelId="tenant-select-label"
+                value={currentTenantId || ""}
+                onChange={handleTenantChange}
+                label={isSmallScreen ? "" : "Tenant"}
+                sx={{
+                  fontSize: "0.875rem",
+                  "& .MuiSelect-select": {
+                    py: 0.75,
+                  },
+                }}
+              >
+                {tenantList?.map((tenant) => (
+                  <MenuItem
+                    key={tenant?.tenantId}
+                    value={tenant?.tenantId}
+                    sx={{ fontSize: "0.875rem" }}
+                  >
+                    {tenant?.code}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+
+{HasPermission("SubTenantView") &&
+         <Box
+            sx={{
+              display: "flex",
+              ml: 1,
+              alignItems: "center",
+              gap: 1,
+              minWidth: { xs: 120, sm: 150 },
+              maxWidth: { xs: 200, sm: 280 },
+              flexShrink: 0,
+            }}
+          >
+            <FormControl size="small" fullWidth variant="outlined">
+              <InputLabel
+                id="subtenant-select-label"
+                sx={{
+                  fontSize: "0.875rem",
+                  display: { xs: "none", md: "block" },
+                }}
+              >
+                Partners
+              </InputLabel>
+              <Select
+                labelId="subtenant-select-label"
+                value={""}
+                onChange={ImpersonateTenantAcess}
+                label={isSmallScreen ? "" : "Partners"}
+                sx={{
+                  fontSize: "0.875rem",
+                  "& .MuiSelect-select": {
+                    py: 0.75,
+                  },
+                }}
+              >
+                {subtenantList?.map((tenant) => (
+                  <MenuItem
+                    key={tenant?.tenantId}
+                    value={tenant?.tenantId}
+                    sx={{ fontSize: "0.875rem" }}
+                  >
+                    {tenant?.companyName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+}
 
         {/* Header Title */}
         <Typography
@@ -240,19 +383,16 @@ export default function Header(props) {
           component="h1"
           sx={{
             flexGrow: 1,
-            textAlign: 'center',
+            textAlign: "center",
             fontWeight: 600,
             mx: 2,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            fontSize: { xs: '1rem', sm: '1.25rem', lg: '1.5rem' }
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            fontSize: { xs: "1rem", sm: "1.25rem", lg: "1.5rem" },
           }}
         >
-          <Box 
-            component="span" 
-            sx={{ display: { xs: 'none', lg: 'inline' } }}
-          >
+          <Box component="span" sx={{ display: { xs: "none", lg: "inline" } }}>
             {users?.companyName ? users?.companyName : user?.companyName} -{" "}
           </Box>
           {props.title}
@@ -266,22 +406,24 @@ export default function Header(props) {
             sx={{
               width: 40,
               height: 40,
-              color: 'text.primary',
-              '&:hover': {
-                backgroundColor: 'action.hover'
-              }
+              color: "text.primary",
+              "&:hover": {
+                backgroundColor: "action.hover",
+              },
             }}
             aria-label="notifications"
           >
-            <Badge 
-              badgeContent={notifications?.filter((notif) => !notif?.isReaded)?.length}
+            <Badge
+              badgeContent={
+                notifications?.filter((notif) => !notif?.isReaded)?.length
+              }
               color="error"
               sx={{
-                '& .MuiBadge-badge': {
-                  fontSize: '0.75rem',
+                "& .MuiBadge-badge": {
+                  fontSize: "0.75rem",
                   height: 18,
-                  minWidth: 18
-                }
+                  minWidth: 18,
+                },
               }}
             >
               <NotificationsIcon />
@@ -301,29 +443,29 @@ export default function Header(props) {
                 sx={{
                   width: { xs: 300, sm: 400 },
                   maxHeight: 400,
-                  overflow: 'hidden',
+                  overflow: "hidden",
                   mt: 1,
-                  border: '1px solid',
-                  borderColor: 'divider'
+                  border: "1px solid",
+                  borderColor: "divider",
                 }}
               >
                 <Box
                   sx={{
                     p: 2,
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText'
+                    backgroundColor: "primary.main",
+                    color: "primary.contrastText",
                   }}
                 >
                   <Typography variant="subtitle1" fontWeight="bold">
                     NOTIFICATIONS
                   </Typography>
                 </Box>
-                
-                <List 
-                  sx={{ 
-                    p: 0, 
-                    maxHeight: 320, 
-                    overflow: 'auto' 
+
+                <List
+                  sx={{
+                    p: 0,
+                    maxHeight: 320,
+                    overflow: "auto",
                   }}
                 >
                   {notifications?.length > 0 ? (
@@ -332,24 +474,24 @@ export default function Header(props) {
                         <ListItemButton
                           onClick={() => handlestatus(notif)}
                           sx={{
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
+                            flexDirection: "column",
+                            alignItems: "flex-start",
                             py: 1.5,
                             px: 2,
-                            backgroundColor: notif?.isReaded 
-                              ? 'transparent' 
-                              : 'action.hover',
-                            '&:hover': {
-                              backgroundColor: 'action.selected'
-                            }
+                            backgroundColor: notif?.isReaded
+                              ? "transparent"
+                              : "action.hover",
+                            "&:hover": {
+                              backgroundColor: "action.selected",
+                            },
                           }}
                         >
                           <Typography
                             variant="subtitle2"
                             sx={{
                               fontWeight: notif?.isReaded ? 400 : 600,
-                              color: 'text.primary',
-                              mb: 0.5
+                              color: "text.primary",
+                              mb: 0.5,
                             }}
                           >
                             {notif?.subject}
@@ -357,9 +499,9 @@ export default function Header(props) {
                           <Typography
                             variant="body2"
                             sx={{
-                              color: 'text.secondary',
+                              color: "text.secondary",
                               mb: 0.5,
-                              wordBreak: 'break-word'
+                              wordBreak: "break-word",
                             }}
                           >
                             {notif?.body}
@@ -367,11 +509,13 @@ export default function Header(props) {
                           <Typography
                             variant="caption"
                             sx={{
-                              color: 'text.disabled',
-                              fontSize: '0.75rem'
+                              color: "text.disabled",
+                              fontSize: "0.75rem",
                             }}
                           >
-                            {moment(notif?.createdDate).format("MM-DD-YYYY || hh:mm A")}
+                            {moment(notif?.createdDate).format(
+                              "MM-DD-YYYY || hh:mm A"
+                            )}
                           </Typography>
                         </ListItemButton>
                         {i < notifications.length - 1 && <Divider />}
@@ -381,7 +525,7 @@ export default function Header(props) {
                     <ListItem>
                       <ListItemText
                         primary="No notifications"
-                        sx={{ textAlign: 'center', color: 'text.secondary' }}
+                        sx={{ textAlign: "center", color: "text.secondary" }}
                       />
                     </ListItem>
                   )}

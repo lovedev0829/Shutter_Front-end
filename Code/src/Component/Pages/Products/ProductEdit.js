@@ -821,7 +821,7 @@ export default function ProductEdit() {
                                   py: isMobile ? 1 : 2,
                                   px: isMobile ? 1 : 2
                                 }}>
-                                  {val.isComponentAvailable ? (
+                                  
                                     <FormControl 
                                       size="small" 
                                       sx={{ 
@@ -832,7 +832,7 @@ export default function ProductEdit() {
                                       <Select
                                         value={val?.priceType}
                                         onChange={(e) => handleChanges(e, i, "priceType")}
-                                        disabled={!val.isComponentAvailable}
+                                        // disabled={!val.isComponentAvailable}
                                         name="priceType"
                                         sx={{ fontSize: isMobile ? '12px' : '14px' }}
                                       >
@@ -840,18 +840,7 @@ export default function ProductEdit() {
                                         <MenuItem value="Percentage">Percentage</MenuItem>
                                       </Select>
                                     </FormControl>
-                                  ) : (
-                                    <Typography 
-                                      variant={isMobile ? "caption" : "body2"} 
-                                      color="primary"
-                                      sx={{ 
-                                        fontSize: isMobile ? '11px' : '14px',
-                                        lineHeight: isMobile ? 1.2 : 1.5
-                                      }}
-                                    >
-                                      Pricing at Estimation Screen
-                                    </Typography>
-                                  )}
+                                  
                                 </TableCell>
                               )}
 
@@ -860,7 +849,7 @@ export default function ProductEdit() {
                                   py: isMobile ? 1 : 2,
                                   px: isMobile ? 1 : 2
                                 }}>
-                                  {val.isComponentAvailable ? (
+                                  
                                     <TextField
                                       type="number"
                                       size="small"
@@ -876,18 +865,7 @@ export default function ProductEdit() {
                                       }}
                                       variant="outlined"
                                     />
-                                  ) : (
-                                    <Typography 
-                                      variant={isMobile ? "caption" : "body2"} 
-                                      color="primary"
-                                      sx={{ 
-                                        fontSize: isMobile ? '11px' : '14px',
-                                        lineHeight: isMobile ? 1.2 : 1.5
-                                      }}
-                                    >
-                                      Pricing at Estimation Screen
-                                    </Typography>
-                                  )}
+                                 
                                 </TableCell>
                               )}
 
@@ -897,7 +875,7 @@ export default function ProductEdit() {
                               }}>
                                 {HasPermission("SubTenantView") ? (
                                   <>
-                                    {val.isComponentAvailable ? (
+                                   
                                       <TextField
                                         type="number"
                                         size="small"
@@ -913,18 +891,9 @@ export default function ProductEdit() {
                                         }}
                                         variant="outlined"
                                       />
-                                    ) : (
-                                      <Typography 
-                                        variant={isMobile ? "caption" : "body2"} 
-                                        color="primary"
-                                        sx={{ 
-                                          fontSize: isMobile ? '11px' : '14px',
-                                          lineHeight: isMobile ? 1.2 : 1.5
-                                        }}
-                                      >
-                                        Pricing at Estimation Screen
-                                      </Typography>
-                                    )}
+                                   
+                                     
+                                    
                                   </>
                                 ) : (
                                   <TextField
