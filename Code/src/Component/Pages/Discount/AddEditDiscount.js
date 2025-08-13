@@ -1,10 +1,9 @@
-import { Dialog, Button, useTheme, alpha } from "@mui/material";
+import { Dialog, Button, useTheme, alpha, FormControl, InputLabel, Select, MenuItem, Typography, Box } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import SimpleReactValidator from "simple-react-validator";
 import InputField from "../../Form/InputField";
 
 import GetAllCustomer from "../../../helpers/GetAllCustomer";
-import Selectbox from "../../Form/Selectbox";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
 import { ErrorMessage, HasPermission, SuccessMessage } from "../../../helpers/common";
@@ -36,7 +35,7 @@ const [vendor, setvendor] = useState(false);
   const [, forceUpdate] = useState();
   const theme = useTheme();
   const handleChange = (e) => {
-    if (e.target.value === "0" || e.target.value === "0") {
+    if (e.target.value === "0" || e.target.value === 0) {
       if (e.target.name === "appliedFor") {
         simpleValidator.current.purgeFields("customerId");
         setValue((prev) => {
@@ -53,7 +52,6 @@ const [vendor, setvendor] = useState(false);
         ErrorMessage("Percentage discount must be between 0 and 100.");
       }
     } else {
-      console.log("hiii")
       if (e.target.name === "discountType") {
         simpleValidator.current.purgeFields("percentageDiscount");
         setValue((prev) => {
@@ -64,6 +62,9 @@ const [vendor, setvendor] = useState(false);
     setValue((val) => {
       return { ...val, [e.target.name]: e.target.value };
     });
+
+    console.log(value)
+
   };
 
   const languageAdd = async (e) => {
@@ -172,19 +173,56 @@ const [vendor, setvendor] = useState(false);
                   <div className="row">
                     <div className="col-lg-4 col-md-4">
                       <div className="form-group">
-                        <Selectbox
-                          labelName={"Apply To"}
-                          options={[
-                            { value: 1, label: "Customer" },
-                            { value: 0, label: "All" },
-                          ]}
-                          handleChange={handleChange}
-                          id={"appliedFor"}
-                          name={"appliedFor"}
-                          value={value.appliedFor}
-                          required={true}
-                          disabledselectBox={action === "edit" ? true : false}
-                        />
+                        <Box sx={{ mb: 2 }}>
+                          <Typography 
+                            component="label"
+                            sx={{ 
+                              fontSize: '14px',
+                              fontWeight: 500,
+                              mb: 1,
+                              display: 'block',
+                              color: 'text.primary'
+                            }}
+                          >
+                            Apply To <Typography component="sup" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
+                          </Typography>
+                          <FormControl fullWidth variant="outlined" disabled={action === "edit"}>
+                            <Select
+                              value={value.appliedFor}
+                              onChange={handleChange}
+                              name="appliedFor"
+                              id="appliedFor"
+                              displayEmpty
+                              sx={{
+                                borderRadius: 1,
+                                fontSize: '14px',
+                                '& .MuiSelect-select': {
+                                  padding: '12px 14px',
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: theme.palette.divider,
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: theme.palette.primary.main,
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: theme.palette.primary.main,
+                                  borderWidth: 2,
+                                },
+                                '&.Mui-disabled': {
+                                  backgroundColor: alpha(theme.palette.action.disabledBackground, 0.5),
+                                }
+                              }}
+                            >
+                              <MenuItem value={0}>
+                                <Typography sx={{ fontSize: '14px' }}>All</Typography>
+                              </MenuItem>
+                              <MenuItem value={1}>
+                                <Typography sx={{ fontSize: '14px' }}>Customer</Typography>
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Box>
                         <div className="error">
                           {simpleValidator.current.message(
                             "Apply",
@@ -196,7 +234,7 @@ const [vendor, setvendor] = useState(false);
                     </div>
                     {(value.appliedFor === "1" || value.appliedFor === 1) && action !== 'edit' && (
                       <div className="col-lg-4 col-md-4">
-                      <label className="font-14 d-flex align-items-center justify-content-between">
+                      <label className="font-14 d-flex align-items-center justify-content-between" style={{marginTop: "8px"}}>
                       <span> Customer Name <sup>*</sup> </span>
                       {HasPermission("ContactAdd") &&  <img
                               src="/image/plusblue.svg"
@@ -248,18 +286,53 @@ const [vendor, setvendor] = useState(false);
                       </div>
                     )}
                     <div className="col-lg-4 col-md-4">
-                      <Selectbox
-                        labelName={"Discount Type"}
-                        options={[
-                          { value: 0, label: "Percentage" },
-                          { value: 1, label: "fixed Amount" },
-                        ]}
-                        handleChange={handleChange}
-                        id={"discountType"}
-                        name={"discountType"}
-                        value={value.discountType}
-                        required={true}
-                      />
+                      <Box sx={{ mb: 2 }}>
+                        <Typography 
+                          component="label"
+                          sx={{ 
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            mb: 1,
+                            display: 'block',
+                            color: 'text.primary'
+                          }}
+                        >
+                          Discount Type <Typography component="sup" sx={{ color: 'error.main', ml: 0.5 }}>*</Typography>
+                        </Typography>
+                        <FormControl fullWidth variant="outlined">
+                          <Select
+                            value={value.discountType}
+                            onChange={handleChange}
+                            name="discountType"
+                            id="discountType"
+                            displayEmpty
+                            sx={{
+                              borderRadius: 1,
+                              fontSize: '14px',
+                              '& .MuiSelect-select': {
+                                padding: '12px 14px',
+                              },
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: theme.palette.divider,
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: theme.palette.primary.main,
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: theme.palette.primary.main,
+                                borderWidth: 2,
+                              }
+                            }}
+                          >
+                            <MenuItem value={0}>
+                              <Typography sx={{ fontSize: '14px' }}>Percentage</Typography>
+                            </MenuItem>
+                            <MenuItem value={1}>
+                              <Typography sx={{ fontSize: '14px' }}>Fixed Amount</Typography>
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
                       <div className="error">
                         {simpleValidator.current.message(
                           "Discount type",

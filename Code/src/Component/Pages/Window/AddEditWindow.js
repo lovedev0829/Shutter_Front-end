@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
@@ -6,12 +6,8 @@ import {
   ErrorMessage,
   HasPermission,
   PreviewFiles,
-  SelectBoxLoader,
   SuccessMessage,
 } from "../../../helpers/common";
-import SubmitButton from "../../Form/SubmitButton";
-import InputField from "../../Form/InputField";
-import { Link } from "react-router-dom";
 import GetAllProduct from "../../../helpers/GetAllProduct";
 import { PostImage } from "../../../utils/apiCall";
 import GetAllOptions from "../../../helpers/GetAllOptions";
@@ -39,8 +35,6 @@ import {
   Tabs,
   Tab,
   Divider,
-  Card,
-  CardContent,
   FormHelperText,
   CircularProgress,
   Fade
@@ -81,6 +75,7 @@ function AddEditWindow({
         optionTypeId: [],
         buildWidth: "",
         buildHeight: "",
+        sortOrder: 1,
       },
     ],
   };
@@ -183,7 +178,7 @@ function AddEditWindow({
       optionTypeId: [],
       buildWidth: "",
       buildHeight: "",
-      additionalCost: 0,
+      sortOrder: value.windowProducts.length + 1,
     };
     
     setValue((prev) => ({
@@ -196,8 +191,8 @@ function AddEditWindow({
     const { name, value, type } = e.target;
     setValue((prev) => {
       const updatedProducts = [...prev.windowProducts];
-      if (name === "optionTypeId" && type === "radio") {
-        // For radio buttons, we receive an array of all selected option values
+      if (name === "optionTypeId") {
+        // For option type IDs, we always expect an array of selected option values
         updatedProducts[i][name] = Array.isArray(value) ? value : [value];
       } else {
         updatedProducts[i][name] = value;
@@ -303,10 +298,20 @@ function AddEditWindow({
 
   useEffect(() => {
     setValue(action === "edit" ? object : defaultState);
+    
+    // Initialize additional costs for editing
+    if (action === "edit" && object?.additionalCosts) {
+      setAdditionalCosts(object.additionalCosts);
+    } else {
+      setAdditionalCosts([]);
+    }
+    
     fetchProductTypes();
     setvendorlist(false);
     setoptionlist(false);
-    // eslint-disable-next-line
+    
+    console.log(value)
+    
   }, [open, action]);
 
   const UploadImage = async (e) => {
@@ -347,6 +352,36 @@ function AddEditWindow({
   const refreshVendorList = () => setvendorlist((prev) => !prev);
   const refreshProductTypes = () => fetchProductTypes();
   const refreshOptionList = () => setoptionlist((prev) => !prev);
+
+  // Function to update window option additional costs in productDetails
+  const handleUpdateWindowOptionCost = useCallback((productIndex, optionTypeId, additionalCost) => {
+    setValue((prev) => {
+      if (!prev.productDetails || !prev.productDetails[productIndex]) {
+        return prev;
+      }
+
+      const updatedProductDetails = [...prev.productDetails];
+      const product = updatedProductDetails[productIndex];
+      
+      if (product.windowOptions) {
+        product.windowOptions = product.windowOptions.map((option) => {
+          if (option.optionTypeId.toLowerCase() === optionTypeId.toLowerCase()) {
+            return {
+              ...option,
+              additionalCost: additionalCost,
+              windowoptionId: option.windowoptionId // Preserve WindowoptionId
+            };
+          }
+          return option;
+        });
+      }
+
+      return {
+        ...prev,
+        productDetails: updatedProductDetails
+      };
+    });
+  }, []); // Empty dependency array since it only uses setValue
   return (
     <>
       <Dialog
@@ -836,6 +871,8 @@ function AddEditWindow({
                                   showOptionsPopup={false}
                                   optionMapping={optionMapping}
                                   setOptionMapping={setOptionMapping}
+                                  existingWindowOptions={value.productDetails?.[i]?.windowOptions || []}
+                                  onUpdateWindowOptionCost={handleUpdateWindowOptionCost}
                                 />
                               </>
                             )}
@@ -1063,6 +1100,8 @@ function AddEditWindow({
                                     setAdditionalCosts={setAdditionalCosts}
                                     buildRequirement={activeOptionsTab === 'buildRequirements'}
                                     showOptionsPopup={showOptionsPopup}
+                                    optionMapping={optionMapping}
+                                    setOptionMapping={setOptionMapping}
                                   />
                                 ) : (
                                   <GetAllForedit
@@ -1090,6 +1129,8 @@ function AddEditWindow({
                                     setAdditionalCosts={setAdditionalCosts}
                                     buildRequirement={activeOptionsTab === 'buildRequirements'}
                                     showOptionsPopup={showOptionsPopup}
+                                    existingWindowOptions={value.productDetails?.[activeProductIndex]?.windowOptions || []}
+                                    onUpdateWindowOptionCost={handleUpdateWindowOptionCost}
                                   />
                                 )}
                               </Box>

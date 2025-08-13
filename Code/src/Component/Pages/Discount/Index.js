@@ -395,7 +395,7 @@ function Index() {
                 <Delete 
                     open={delOpen} 
                     handleClose={handledelclose}
-                    title={(object.customerName === null || object.customerName === '') ? object.applyforName + `(${object.couponCode})` : object.customerName + `(${object.couponCode})`}
+                    title={(object.customerName === null || object.customerName === '') ? object.applyforName?? "" + `(${object.couponCode})` : object.customerName?? "" + `(${object.couponCode})`}
                     id={object?.discountId} 
                     handleDelete={handleDelete} 
                     loder={loder} 

@@ -40,7 +40,7 @@ export default function GetAllOptions({
 
   // Local state for tracking changes
   const [localOptionName, setLocalOptionName] = useState({});
-  const [localAdditionalCosts, setLocalAdditionalCosts] = useState({});
+  const [localAdditionalCosts, setLocalAdditionalCosts] = useState([]);
 
   const fetchOptions = async () => {
     if (!producttypeId) return;
@@ -210,7 +210,7 @@ export default function GetAllOptions({
       setAdditionalCosts((prev) => {
         const updated = [...prev];
         const existingIndex = updated.findIndex((item) => item.indexId === indexId);
-        const newEntry = { indexId, data: localAdditionalCosts };
+        const newEntry = { indexId, data: localAdditionalCosts };   
 
         if (existingIndex !== -1) {
           updated[existingIndex] = newEntry;
@@ -231,32 +231,20 @@ export default function GetAllOptions({
     // eslint-disable-next-line
   }, [allOption, name]);
 
-  const handleChangeOption = (e, optionId, optionGroupName) => {
-    const newVal = e.target.value;
-    const labelElement = e.target.closest(".form-check")?.querySelector("label");
-    const labelText = labelElement?.innerText || "";
-
+  const handleChangeOption = (e, optionId, optionTypeId, optionGroupName, labelText) => {
+    const updatedOption = {
+      optionName: `${optionId}-${indexId}`,
+      value: optionTypeId,
+    };
+    
     setAllOption((prevOptions) => {
-      const optionName = `${optionId}-${indexId}`;
       const existingIndex = prevOptions.findIndex(
-        (opt) => opt.optionName === optionName
+        (opt) => opt.optionName === updatedOption.optionName
       );
 
-      if (existingIndex !== -1) {
-        // Update existing option
-        return prevOptions.map((opt, index) =>
-          index === existingIndex ? { ...opt, value: newVal } : opt
-        );
-      } else {
-        // Add new option if it doesn't exist
-        return [
-          ...prevOptions,
-          {
-            optionName: optionName,
-            value: newVal,
-          }
-        ];
-      }
+      return existingIndex !== -1
+        ? prevOptions.map((opt, i) => (i === existingIndex ? updatedOption : opt))
+        : [...prevOptions, updatedOption];
     });
 
     setLocalOptionName((prev) => ({
@@ -265,23 +253,29 @@ export default function GetAllOptions({
     }));
 
     // Update option mapping
-    updateOptionMapping({ [`${optionGroupName}-${indexId}`]: newVal }, true);
+    updateOptionMapping({ [`${optionGroupName}-${indexId}`]: optionTypeId }, true);
   };
 
   const handleAdditionalCostChange = (e, optionTypeId, optionGroupName, optionType) => {
     const costValue = e.target.value;
-    const costKey = `${optionTypeId}-${indexId}`;
-    
-    setLocalAdditionalCosts((prev) => ({
-      ...prev,
-      [costKey]: {
-        optionTypeId,
-        optionGroupName,
-        optionType,
-        additionalCost: costValue,
-        requirePriceAtEstimatePreview: costValue.trim() !== ""
+    console.log(optionTypeId)
+    setLocalAdditionalCosts((prev) => {
+      const updated = [...prev];
+      const existingIndex = updated.findIndex(cost => cost.optionTypeId.toLowerCase() === optionTypeId.toLowerCase());
+      
+      if (existingIndex !== -1) {
+        updated[existingIndex] = {
+          optionTypeId,
+          additionalCost: costValue
+        };
+      } else {
+        updated.push({
+          optionTypeId,
+          additionalCost: costValue
+        });
       }
-    }));
+      return updated;
+    });
   };
 
   const handleDoubleClickOption = (optionId, optionGroupName) => {
@@ -375,7 +369,18 @@ export default function GetAllOptions({
                           )?.value || ""
                         }
                         onChange={(e) => {
-                          handleChangeOption(e, item?.optionId, item?.optionName);
+                          const selectedOption = item?.options.find(
+                            (opt) => opt.optionTypeId === e.target.value
+                          );
+                          if (selectedOption) {
+                            handleChangeOption(
+                              e,
+                              item?.optionId,
+                              selectedOption.optionTypeId,
+                              item?.optionName,
+                              selectedOption.optionType
+                            );
+                          }
                         }}
                         sx={{ gap: 1 }}
                       >
@@ -443,7 +448,7 @@ export default function GetAllOptions({
                                 size="small"
                                 placeholder="Cost"
                                 type="number"
-                                value={localAdditionalCosts[`${option?.optionTypeId}-${indexId}`]?.additionalCost || ""}
+                                value={localAdditionalCosts.find(cost => cost.optionTypeId.toLowerCase() === option?.optionTypeId.toLowerCase())?.additionalCost || ""}
                                 onChange={(e) => handleAdditionalCostChange(e, option?.optionTypeId, item?.optionName, option?.optionType)}
                                 sx={{
                                   width: 100,
