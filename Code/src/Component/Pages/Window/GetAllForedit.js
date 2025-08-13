@@ -148,15 +148,13 @@ function GetAllForedit({
       fetchOptions();
       setLocalOptionName({});
     }
-    // eslint-disable-next-line
   }, [producttypeId, load, showOptionsPopup, buildRequirement]);
 
 
-  // Separate useEffect to initialize additional costs from existing window options
   useEffect(() => {
     if (existingWindowOptions && existingWindowOptions.length > 0) {
+
       const initialCosts = [];
-      console.log("existingWindowOptions", existingWindowOptions)
       existingWindowOptions.forEach((windowOption) => {
         if (windowOption.additionalCost && windowOption.additionalCost > 0) {
           initialCosts.push({
@@ -167,11 +165,10 @@ function GetAllForedit({
       });
 
       if(initialCosts.length > 0){
-         // Set state after forEach completes
          setLocalAdditionalCosts(initialCosts);
       }
     } 
-  }, [existingWindowOptions, indexId]); // Only depend on the actual data we need
+  }, []);
 
   useEffect(() => {
     if (allOption.length > 0 && fn) {
