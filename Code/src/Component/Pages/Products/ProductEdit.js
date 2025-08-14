@@ -858,7 +858,7 @@ export default function ProductEdit() {
                                       size="small"
                                       value={val?.wholeSalePrice}
                                       onChange={(e) => handleChanges(e, i, "wholeSalePrice")}
-                                      disabled={!val.isAvailable}
+                                      disabled={!val.isAvailable || !val.isComponentAvailable}
                                       sx={{ 
                                         width: isMobile ? 80 : 120,
                                         '& .MuiInputBase-input': {
