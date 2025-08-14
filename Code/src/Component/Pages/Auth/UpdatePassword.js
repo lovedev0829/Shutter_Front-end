@@ -101,7 +101,7 @@ const UpdatePassword = () => {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <Box sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Box className="intersight_content" sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}>
         <Header title="Change Password" />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Card elevation={3}>

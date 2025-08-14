@@ -251,8 +251,8 @@ export default function JobDetiels() {
                       mb: { xs: 2, sm: 0 },
                       backgroundColor: theme.palette.primary.main,
                       color: 'white',
-                      width: { xs: 40, sm: 48 },
-                      height: { xs: 40, sm: 48 },
+                      width: { xs: 35, sm: 35 },
+                      height: { xs: 35, sm: 35 },
                       alignSelf: { xs: 'flex-start', sm: 'auto' },
                       '&:hover': {
                         backgroundColor: theme.palette.primary.dark,
