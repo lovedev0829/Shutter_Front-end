@@ -904,7 +904,7 @@ export default function ProductEdit() {
                                     size="small"
                                     value={val?.partnerSellingPrice}
                                     onChange={(e) => handleChanges(e, i, "partnerSellingPrice")}
-                                    disabled={val.isComponentAvailable ? false : true}
+                                   
                                     sx={{ 
                                       width: isMobile ? 80 : 120,
                                       '& .MuiInputBase-input': {
@@ -1372,7 +1372,7 @@ export default function ProductEdit() {
                                                                 onChange={(e) =>
                                                                   handleOptionChange(e, i, ind, inds, "priceType")
                                                                 }
-                                                                disabled={val.isComponentAvailable ? false : true}
+                                                               
                                                                 name="priceType"
                                                                 sx={{ fontSize: isMobile ? '11px' : '14px' }}
                                                               >
@@ -1409,7 +1409,7 @@ export default function ProductEdit() {
                                                             py: isMobile ? 0.5 : 1,
                                                             px: isMobile ? 1 : 2
                                                           }}>
-                                                            {val.isComponentAvailable ? (
+                                                            
                                                               <TextField
                                                                 type="number"
                                                                 size="small"
@@ -1427,25 +1427,8 @@ export default function ProductEdit() {
                                                                 }}
                                                                 variant="outlined"
                                                               />
-                                                            ) : (
-                                                              <TextField
-                                                                type="number"
-                                                                size="small"
-                                                                value={valss?.wholeSalePrice}
-                                                                disabled={true}
-                                                                onChange={(e) =>
-                                                                  handleOptionChange(e, i, ind, inds, "wholeSalePrice")
-                                                                }
-                                                                sx={{ 
-                                                                  width: isMobile ? 70 : 120,
-                                                                  '& .MuiInputBase-input': {
-                                                                    fontSize: isMobile ? '11px' : '14px',
-                                                                    padding: isMobile ? '4px 6px' : '8px 12px'
-                                                                  }
-                                                                }}
-                                                                variant="outlined"
-                                                              />
-                                                            )}
+                                                          
+                                                             
                                                           </TableCell>
                                                         )}
 
@@ -1455,7 +1438,7 @@ export default function ProductEdit() {
                                                         }}>
                                                           {HasPermission("SubTenantView") ? (
                                                             <>
-                                                              {val.isComponentAvailable ? (
+                                                              
                                                                 <TextField
                                                                   type="number"
                                                                   size="small"
@@ -1473,32 +1456,14 @@ export default function ProductEdit() {
                                                                   }}
                                                                   variant="outlined"
                                                                 />
-                                                              ) : (
-                                                                <TextField
-                                                                  type="number"
-                                                                  size="small"
-                                                                  value={valss?.maxPrice}
-                                                                  disabled={true}
-                                                                  onChange={(e) =>
-                                                                    handleOptionChange(e, i, ind, inds, "maxPrice")
-                                                                  }
-                                                                  sx={{ 
-                                                                    width: isMobile ? 70 : 120,
-                                                                    '& .MuiInputBase-input': {
-                                                                      fontSize: isMobile ? '11px' : '14px',
-                                                                      padding: isMobile ? '4px 6px' : '8px 12px'
-                                                                    }
-                                                                  }}
-                                                                  variant="outlined"
-                                                                />
-                                                              )}
+                                                             
                                                             </>
                                                           ) : (
                                                             <TextField
                                                               type="number"
                                                               size="small"
                                                               value={valss?.partnerSellingPrice}
-                                                              disabled={val.isComponentAvailable ? false : true}
+                                                             
                                                               onChange={(e) =>
                                                                 handleOptionChange(e, i, ind, inds, "partnerSellingPrice")
                                                               }
