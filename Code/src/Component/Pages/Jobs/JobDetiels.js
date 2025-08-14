@@ -200,8 +200,7 @@ export default function JobDetiels() {
   return (
     <>
       <ApiLoder open={loder} />
-      <Box className="intersight_content">
-        <div className="body_content">
+      <Box className="intersight_content">  
           <Header
             title={`Contacts / ${
               tenantList[0]?.contactFirstName +
@@ -609,7 +608,6 @@ export default function JobDetiels() {
               </CardContent>
             </Card>
           </Container>
-        </div>
       </Box>
     </>
   );
