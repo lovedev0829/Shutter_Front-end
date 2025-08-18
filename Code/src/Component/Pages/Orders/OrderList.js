@@ -132,7 +132,7 @@ export default function OrderList({ JobId,listdata }) {
 
      const Loginuser = JSON.parse(localStorage.getItem("userData"));
 
-
+console.log(listdata)
   return (
     <>
       <ApiLoder open={loder} />
@@ -181,6 +181,7 @@ export default function OrderList({ JobId,listdata }) {
                       {val?.status}
                     </span>
                   </td>
+                
 {listdata?.tenantId === Loginuser?.tenantId &&
                   <td className="text-center">
                     <div className="company-logo-dropdown">

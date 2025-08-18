@@ -559,7 +559,7 @@ export default function JobDetiels() {
                     {HasPermission("OrderView") && tabdata === "#orders" && (
                       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
                         <Box>
-                          <OrderList JobId={param.JobId} />
+                          <OrderList JobId={param.JobId} listdata={tenantList[0]}/>
                         </Box>
                       </Slide>
                     )}
@@ -581,7 +581,7 @@ export default function JobDetiels() {
                     {HasPermission("JobScheduleView") && tabdata === "#jobscheduletab" && (
                       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
                         <Box>
-                          <Jobschedulelist />
+                          <Jobschedulelist listdata={tenantList[0]}/>
                         </Box>
                       </Slide>
                     )}
@@ -590,7 +590,7 @@ export default function JobDetiels() {
                     {HasPermission("JobContactView") && tabdata === "#contacttab" && (
                       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
                         <Box>
-                          <JobContactList />
+                          <JobContactList listdata={tenantList[0]}/>
                         </Box>
                       </Slide>
                     )}
@@ -599,7 +599,7 @@ export default function JobDetiels() {
                     {HasPermission("JobContactView") && tabdata === "#documenttab" && (
                       <Slide direction="up" in={true} mountOnEnter unmountOnExit>
                         <Box>
-                          <AllDocumentlist />
+                          <AllDocumentlist listdata={tenantList[0]}/>
                         </Box>
                       </Slide>
                     )}
