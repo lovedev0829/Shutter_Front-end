@@ -29,6 +29,7 @@ import {
   Stack,
   Divider,
 } from "@mui/material";
+
 import {
   ArrowUpward,
   ArrowDownward,
@@ -49,7 +50,7 @@ import {
 } from "../../../helpers/common";
 import { useDebounce } from "use-debounce";
 import StatusDropdown from "../../../helpers/StatusDropdown";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Index() {
   const theme = useTheme();
@@ -318,6 +319,8 @@ export default function Index() {
       };
     });
   };
+
+  const  navigate  = useNavigate();
 
   return (
     <>
@@ -847,6 +850,32 @@ export default function Index() {
                               flexWrap: "wrap",
                             }}
                           >
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                localStorage.setItem(
+                                  "ghluser",
+                                  partner?.companyName
+                                );
+                                navigate(`/subtenant/${partner.tenantId}`)
+                                
+                              }}
+                              sx={{
+                                backgroundColor: "#e3f2fd",
+                                color: "#1976d2",
+                                padding: isMobile ? "4px" : "6px",
+                                minWidth: isMobile ? "24px" : "28px",
+                                minHeight: isMobile ? "24px" : "28px",
+                                "&:hover": {
+                                  backgroundColor: "#bbdefb",
+                                  transform: "scale(1.1)",
+                                },
+                                transition: "all 0.2s ease",
+                              }}
+                            >
+                              <Sync sx={{ fontSize: isMobile ? 12 : 16 }} />
+                            </IconButton>
+
                             {HasPermission("SubTenantEdit") && (
                               <IconButton
                                 size="small"
