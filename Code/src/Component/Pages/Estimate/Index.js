@@ -200,7 +200,7 @@ export default function Index() {
     }
   };
 
-  const Wholesalepriceget = async (data, productIndex) => {
+  const Wholesalepriceget = async (data, productIndex, subTotal) => {
     const payload = {
       discountId: cupondata?.discountId ? cupondata?.discountId : null,
       products: [
@@ -228,6 +228,22 @@ export default function Index() {
         setList((val) => {
           return { ...val, WindowProductId: updatedTenantList };
         });
+
+        const productmarkupprice = apiResponse?.data?.data.reduce(
+          (sum, item) => sum + (item.productMarkup || 0),
+          0
+        );
+
+        const totals = calculateTotals({
+          subTotal: subTotal + (loginuser?.isTenant ? 0 : productmarkupprice),
+          additionalCost: 0,
+          cupondata,
+        });
+
+        setValue((prev) => ({
+          ...prev,
+          ...totals,
+        }));
       } else {
         ErrorMessage(apiResponse?.data?.message);
       }
@@ -382,22 +398,25 @@ export default function Index() {
 
   const CouponlistAPI = async (contactId) => {
     try {
-      console.log('Loading discount coupons for contactId:', contactId);
+      console.log("Loading discount coupons for contactId:", contactId);
       const apiResponse = await callAPI(
         apiUrls.GetAllDiscount,
         { CustomerId: contactId },
         "GET"
       );
       if (apiResponse?.data?.isSuccess) {
-        console.log('Discount coupons loaded:', apiResponse?.data?.data);
+        console.log("Discount coupons loaded:", apiResponse?.data?.data);
         setCoupan(apiResponse?.data?.data);
       } else {
-        console.log('No discount coupons found or API error:', apiResponse?.data?.message);
+        console.log(
+          "No discount coupons found or API error:",
+          apiResponse?.data?.message
+        );
         setCoupan([]);
         ErrorMessage(apiResponse?.data?.message);
       }
     } catch (error) {
-      console.error('Error loading discount coupons:', error);
+      console.error("Error loading discount coupons:", error);
     }
   };
 
@@ -505,7 +524,7 @@ export default function Index() {
 
   const handleChangecupan = (e) => {
     const selectedValue = e.target.value;
-    
+
     if (selectedValue) {
       try {
         // Parse the JSON string to get the full coupon object
@@ -517,7 +536,7 @@ export default function Index() {
           discountId: selectedCoupon.discountId,
         }));
       } catch (error) {
-        console.error('Error parsing coupon data:', error);
+        console.error("Error parsing coupon data:", error);
       }
     } else {
       setValue((val) => ({
@@ -626,12 +645,6 @@ export default function Index() {
       return { ...val, WindowProductId: updatedTenantList };
     });
 
-    // Debounce API call
-    clearTimeout(debounceTimeout.current);
-    debounceTimeout.current = setTimeout(() => {
-      Wholesalepriceget(updatedTenantList[productIndex], productIndex);
-    }, 500); // wait 500ms after typing stops
-
     const totalPriceSum = updatedTenantList.reduce((sum, item) => {
       return sum + (Number(item.totalPrice) || 0);
     }, 0);
@@ -653,23 +666,26 @@ export default function Index() {
       (sum, item) => sum + item.optionMarkup || 0,
       0
     );
-    //console.log(totalPriceSum,additionalCost,componentMarkup,productMarkup,optionMarkup,totalmarkup)
-    const totals = calculateTotals({
-      subTotal:
-        totalPriceSum +
-        additionalCost +
-        componentMarkup +
-        productMarkup +
-        optionMarkup +
-        totalmarkup,
-      additionalCost: 0,
-      cupondata,
-    });
 
-    setValue((prev) => ({
-      ...prev,
-      ...totals,
-    }));
+    const subtotal =
+      totalPriceSum +
+      additionalCost +
+      componentMarkup +
+      productMarkup +
+      optionMarkup +
+      totalmarkup;
+
+    // Debounce API call
+    clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      Wholesalepriceget(
+        updatedTenantList[productIndex],
+        productIndex,
+        subtotal
+      );
+    }, 500); // wait 500ms after typing stops
+
+    //console.log(totalPriceSum,additionalCost,componentMarkup,productMarkup,optionMarkup,totalmarkup)
 
     // if (
     //   cupondata &&
@@ -761,13 +777,16 @@ export default function Index() {
     <div className="intersight_content">
       <ApiLoder open={loder > 0} />
       <Header
-          title={`Contacts / ${
-            tenantList[0]?.contactFirstName +
-            " " +
-            tenantList[0]?.contactLasttName
-          }`}
-        />
-      <Container maxWidth="xl" sx={{ py: { xs: 1, sm: 2, md: 3 }, px: { xs: 1, sm: 2, md: 3 } }}>
+        title={`Contacts / ${
+          tenantList[0]?.contactFirstName +
+          " " +
+          tenantList[0]?.contactLasttName
+        }`}
+      />
+      <Container
+        maxWidth="xl"
+        sx={{ py: { xs: 1, sm: 2, md: 3 }, px: { xs: 1, sm: 2, md: 3 } }}
+      >
         <Card elevation={2} sx={{ mb: isMobile ? 2 : 3 }}>
           <CardContent sx={{ p: isMobile ? 2 : 3 }}>
             <Box sx={{ mb: isMobile ? 2 : 3 }}>
@@ -775,26 +794,28 @@ export default function Index() {
             </Box>
 
             <Box sx={{ mb: isMobile ? 2 : 3 }}>
-                <IconButton
-                  onClick={() => navigate(`/contacts/job/${tenantList[0]?.jobId}`)}
-                  sx={{
-                    mr: { xs: 0, sm: 2 },
-                    mb: { xs: 2, sm: 0 },
-                    backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    width: { xs: 35, sm: 35 },
-                    height: { xs: 35, sm: 35 },
-                    alignSelf: { xs: 'flex-start', sm: 'auto' },
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark,
-                      transform: 'translateX(-2px)',
-                    },
-                    transition: 'all 0.2s ease-in-out',
-                    boxShadow: `0 4px 12px ${theme.palette.primary.main}30`,
-                  }}
-                >
-                  <ArrowBackIcon sx={{ fontSize: { xs: '18px', sm: '24px' } }} />
-                </IconButton>
+              <IconButton
+                onClick={() =>
+                  navigate(`/contacts/job/${tenantList[0]?.jobId}`)
+                }
+                sx={{
+                  mr: { xs: 0, sm: 2 },
+                  mb: { xs: 2, sm: 0 },
+                  backgroundColor: theme.palette.primary.main,
+                  color: "white",
+                  width: { xs: 35, sm: 35 },
+                  height: { xs: 35, sm: 35 },
+                  alignSelf: { xs: "flex-start", sm: "auto" },
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.dark,
+                    transform: "translateX(-2px)",
+                  },
+                  transition: "all 0.2s ease-in-out",
+                  boxShadow: `0 4px 12px ${theme.palette.primary.main}30`,
+                }}
+              >
+                <ArrowBackIcon sx={{ fontSize: { xs: "18px", sm: "24px" } }} />
+              </IconButton>
 
               <Box sx={{ mt: 2 }}>
                 <JobUi tenantList={tenantList[0]} />
@@ -1577,12 +1598,19 @@ export default function Index() {
                             }}
                             renderValue={(selected) => {
                               if (!selected) {
-                                return <em style={{ color: '#999' }}>Select promotional discount, bulk order...</em>;
+                                return (
+                                  <em style={{ color: "#999" }}>
+                                    Select promotional discount, bulk order...
+                                  </em>
+                                );
                               }
                               try {
                                 const selectedCoupon = JSON.parse(selected);
-                                return `${selectedCoupon.couponCode} (${selectedCoupon.discountTypeName} - ${
-                                  selectedCoupon.discountTypeName === "Percentage"
+                                return `${selectedCoupon.couponCode} (${
+                                  selectedCoupon.discountTypeName
+                                } - ${
+                                  selectedCoupon.discountTypeName ===
+                                  "Percentage"
                                     ? `${selectedCoupon.percentageDiscount}%`
                                     : `${defaultConfig.currencySign}${selectedCoupon.fixedAmount}`
                                 })`;
@@ -1612,7 +1640,9 @@ export default function Index() {
                         <Button
                           variant="contained"
                           onClick={() => Applycopan(value.productsList, true)}
-                          disabled={!cupondata || Object.keys(cupondata).length === 0}
+                          disabled={
+                            !cupondata || Object.keys(cupondata).length === 0
+                          }
                           sx={{
                             textTransform: "none",
                             fontWeight: 600,
