@@ -614,7 +614,7 @@ export default function Index() {
       type === "checkbox" ? checked : Number(e.target.value);
 
     const totalmarkup = updatedTenantList.reduce((sum, item) => {
-      if (!item.isComponentAvailable) {
+      if (!item.isComponentAvailable && loginuser?.isTenant) {
         const markupValue =
           (Number(item.totalPrice || 0) * (Number(item.markup) || 0)) / 100;
         return sum + markupValue;
