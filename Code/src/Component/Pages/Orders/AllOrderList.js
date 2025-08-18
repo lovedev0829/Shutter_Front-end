@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import Header from "../../../Layout/header";
 import TableTitle from "../../Form/TableTitle";
 import { callAPI } from "../../../utils/apiUtils";
-import { ApiLoder, ErrorMessage } from "../../../helpers/common";
+import {
+  ApiLoder,
+  ErrorMessage,
+  SuccessMessage,
+} from "../../../helpers/common";
 import { apiUrls } from "../../../utils/apiUrls";
 import DynamicTable from "../../Form/DynamicTable";
 import { TablePagination } from "@mui/material";
@@ -12,9 +16,11 @@ import Search from "../../Form/Search";
 import { useDebounce } from "use-debounce";
 import GetAllContact from "../../../helpers/GetAllContact";
 import GetAllEstimateContact from "../../../helpers/GetAllEstimateContact";
+import SendApproved from "../Estimate/SendApproved";
 
 export default function AllOrderList() {
   const [tenantList, setTenantList] = useState([]);
+  const [approved, setApproved] = useState(false);
   const [loder, setLoader] = useState(false);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -23,23 +29,36 @@ export default function AllOrderList() {
   const [object, setObject] = useState("");
   const [search, setsearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
-  const [filter, setFilter] = useState({contactId:"",estimateId:"",sortColumn: "",
+  const [filter, setFilter] = useState({
+    contactId: "",
+    estimateId: "",
+    sortColumn: "",
     sortDirection: "asc",
-    columnFilters: [],  });
+    columnFilters: [],
+  });
 
-  const TenantlistAPI = async (page, perpage, search,customerId,estimateId,sortColumn,sortDirection,columnFilters) => {
+  const TenantlistAPI = async (
+    page,
+    perpage,
+    search,
+    customerId,
+    estimateId,
+    sortColumn,
+    sortDirection,
+    columnFilters
+  ) => {
     setLoader(true);
     try {
       const body = {
         searchValue: search ? search : "",
         pageNo: page ? page : 1,
         recordPerPage: perpage ? perpage : 10,
-        customerId:customerId?customerId:"",
+        customerId: customerId ? customerId : "",
         status: 2,
-        estimationId:estimateId?estimateId:"",
-        sortColumn:sortColumn?sortColumn:"",
-      sortDirection:sortDirection?sortDirection:"asc",
-      columnFilters:columnFilters || []
+        estimationId: estimateId ? estimateId : "",
+        sortColumn: sortColumn ? sortColumn : "",
+        sortDirection: sortDirection ? sortDirection : "asc",
+        columnFilters: columnFilters || [],
       };
       const apiResponse = await callAPI(apiUrls.Order, {}, "POST", body);
       setLoader(false);
@@ -55,39 +74,57 @@ export default function AllOrderList() {
     }
   };
 
-   const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
+  const [debouncedSearchcolumn] = useDebounce(filter.columnFilters, 500);
 
   useEffect(() => {
-    TenantlistAPI(1, rowsPerPage, debouncedSearch,filter.contactId,filter.estimateId,
+    TenantlistAPI(
+      1,
+      rowsPerPage,
+      debouncedSearch,
+      filter.contactId,
+      filter.estimateId,
       filter.sortColumn,
       filter.sortDirection,
-     debouncedSearchcolumn);
+      debouncedSearchcolumn
+    );
     setPage(1);
     // eslint-disable-next-line
-  }, [debouncedSearch,debouncedSearchcolumn]);
+  }, [debouncedSearch, debouncedSearchcolumn]);
 
   const columns = [
     { key: "orderNumber", label: "Order Number", link: true, sort: true },
     { key: "firstContactName", label: "Contact Name", link: true, sort: true },
     { key: "estimateName", label: "Estimate Title", sort: true },
     { key: "grandTotal", label: "Total Amount", sign: true, sort: true },
-     { key: "createdDate", label: "Create Date"},
+    { key: "createdDate", label: "Create Date" },
   ];
 
   const handleChangePage = (event, newPage) => {
-    TenantlistAPI(newPage + 1, rowsPerPage, search,filter.contactId,filter.estimateId,
+    TenantlistAPI(
+      newPage + 1,
+      rowsPerPage,
+      search,
+      filter.contactId,
+      filter.estimateId,
       filter.sortColumn,
       filter.sortDirection,
-      filter.columnFilters);
+      filter.columnFilters
+    );
     setPage(newPage + 1);
   };
 
   const handleChangeRowsPerPage = (event) => {
     let pageNo = 1;
-    TenantlistAPI(pageNo, parseInt(event.target.value, 10), search,filter.contactId,filter.estimateId,
+    TenantlistAPI(
+      pageNo,
+      parseInt(event.target.value, 10),
+      search,
+      filter.contactId,
+      filter.estimateId,
       filter.sortColumn,
       filter.sortDirection,
-      filter.columnFilters);
+      filter.columnFilters
+    );
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(pageNo);
   };
@@ -96,10 +133,18 @@ export default function AllOrderList() {
   const handleview = (item) => {
     navigate(`/contacts/order/preview/${item.orderId}`);
   };
+  const edituser = (item) => {
+    navigate(`/contacts/invoice/${item?.jobId}/${item?.orderId}`);
+  };
 
   const handleVersion = (item) => {
     setObject(item);
     setHistory(true);
+  };
+
+   const handleApproved = (item) => {
+    setObject(item);
+    setApproved(true);
   };
 
   const handleSearch = (value) => {
@@ -117,7 +162,6 @@ export default function AllOrderList() {
       filter.sortColumn,
       filter.sortDirection,
       filter.columnFilters
-      
     );
     setPage(1);
     setFilter((val) => {
@@ -125,17 +169,14 @@ export default function AllOrderList() {
     });
   };
 
-
-
   const handlecontact = (item) => {
     localStorage.setItem("activeTab", "#window-measurement");
-      localStorage.setItem("activeTab2", "#pills-overview");
-      const url =`/contacts/detail/${item?.contactId}`;
-      navigate(url)
-    
-    };
+    localStorage.setItem("activeTab2", "#pills-overview");
+    const url = `/contacts/detail/${item?.contactId}`;
+    navigate(url);
+  };
 
-     const handleFilterSortChange = (columnKey) => {
+  const handleFilterSortChange = (columnKey) => {
     setFilter((val) => {
       return {
         ...val,
@@ -145,7 +186,11 @@ export default function AllOrderList() {
     });
 
     TenantlistAPI(
-     1, rowsPerPage, debouncedSearch,filter.contactId,filter.estimateId,
+      1,
+      rowsPerPage,
+      debouncedSearch,
+      filter.contactId,
+      filter.estimateId,
       columnKey,
       filter.sortDirection === "asc" ? "desc" : "asc",
       filter.columnFilters
@@ -170,6 +215,38 @@ export default function AllOrderList() {
         columnFilters: updatedFilters,
       };
     });
+  };
+
+  const handlestatus = async () => {
+    setLoader(true);
+    try {
+      const response = await callAPI(apiUrls.SendInvoice, {}, "POST", {
+        documentType: 2,
+        templateId: null,
+        contactId: object.contactId,
+        estimationId: object.estimateId,
+        orderId: object.orderId,
+      });
+      setLoader(false);
+      if (response.data.isSuccess) {
+        SuccessMessage(response.data.message);
+        setApproved(false);
+        TenantlistAPI(
+          page,
+          rowsPerPage,
+          search,
+          filter.contactId,
+          filter.estimateId,
+          filter.sortColumn,
+          filter.sortDirection,
+          filter.columnFilters
+        );
+      } else {
+        ErrorMessage(response.data.message);
+      }
+    } catch (error) {
+      setLoader(false);
+    }
   };
 
   return (
@@ -199,7 +276,6 @@ export default function AllOrderList() {
                   value={filter.estimateId}
                   fn={handleChanges}
                   ContactId={filter.contactId}
-                  
                 />
               </div>
             </div>
@@ -210,15 +286,17 @@ export default function AllOrderList() {
                   columns={columns}
                   title="Orders"
                   viewUser={handleview}
-                  rowActions={["version"]}
+                  rowActions={["version", "orderview", "editorder"]}
                   editpermission="JobView"
                   handleVersion={handleVersion}
                   handlecontact={handlecontact}
-                   handleFilterSortChange={handleFilterSortChange}
+                  handleFilterSortChange={handleFilterSortChange}
                   sortColumn={filter.sortColumn}
                   sortDirection={filter.sortDirection}
                   columnFilters={filter.columnFilters}
+                  edituser={edituser}
                   handlesearchChange={handlesearchChange}
+                  handleApproved={handleApproved}
                 />
                 {tenantList && tenantList?.length > 0 && (
                   <div className="d-flex align-items-center justify-content-end bottom_nav">
@@ -242,12 +320,27 @@ export default function AllOrderList() {
           </div>
         </div>
       </div>
-      {history &&<VersionHistory
-        open={history}
-        handleClose={() => setHistory(false)}
-        EstimationId={object.estimateId}
+      {history && (
+        <VersionHistory
+          open={history}
+          handleClose={() => setHistory(false)}
+          EstimationId={object.estimateId}
+        />
+      )}
+
+      <SendApproved
+        open={approved}
+        handleClose={() => setApproved(false)}
+        handlestatus={handlestatus}
+        estimateId={object.orderId}
+        isApproved={false}
+        loder={loder}
+        title={"Share Link Via Copy or Email Prospective Customer"}
+        subtitle={
+          "You can send this link via email and copy to send the customer"
+        }
+        url="/contacts/order/preview/"
       />
-}
     </div>
   );
 }

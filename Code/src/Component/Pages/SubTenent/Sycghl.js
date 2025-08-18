@@ -275,7 +275,7 @@ export default function Sycghl() {
                       
                       <FormControl component="fieldset">
                         <RadioGroup
-                          value={value.isGHLConfigSameasTenant.toString()}
+                          value={value?.isGHLConfigSameasTenant?.toString()}
                           onChange={handleRadioChange}
                           sx={{
                             flexDirection: isMobile ? 'column' : 'row',
