@@ -491,14 +491,15 @@ export default function Sidebar() {
           anchorEl={userMenuAnchor}
           open={Boolean(userMenuAnchor)}
           onClose={handleUserMenuClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           PaperProps={{
             sx: { 
-              mt: -1,
+              mt: 1,
               minWidth: 220,
               boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
               borderRadius: 2,
+              zIndex: 1300,
             }
           }}
         >
