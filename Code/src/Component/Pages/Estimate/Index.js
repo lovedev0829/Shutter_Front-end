@@ -61,6 +61,7 @@ import {
   Send as SendIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 
 export default function Index() {
@@ -503,18 +504,20 @@ export default function Index() {
   };
 
   const handleChangecupan = (e) => {
-    const selectedCouponCode = e.target.value;
+    const selectedValue = e.target.value;
     
-    if (selectedCouponCode) {
-      // Find the full coupon object by coupon code
-      const selectedCoupon = coupan.find(c => c.couponCode === selectedCouponCode);
-      if (selectedCoupon) {
+    if (selectedValue) {
+      try {
+        // Parse the JSON string to get the full coupon object
+        const selectedCoupon = JSON.parse(selectedValue);
         setCoupandata(selectedCoupon);
         setValue((val) => ({
           ...val,
-          discountCoupon: selectedCouponCode,
+          discountCoupon: selectedCoupon.couponCode,
           discountId: selectedCoupon.discountId,
         }));
+      } catch (error) {
+        console.error('Error parsing coupon data:', error);
       }
     } else {
       setValue((val) => ({
@@ -757,21 +760,14 @@ export default function Index() {
   return (
     <div className="intersight_content">
       <ApiLoder open={loder > 0} />
-      <Container
-        maxWidth="xl"
-        sx={{
-          py: isMobile ? 1 : 3,
-          px: isMobile ? 1 : 3,
-        }}
-      >
-        <Header
+      <Header
           title={`Contacts / ${
             tenantList[0]?.contactFirstName +
             " " +
             tenantList[0]?.contactLasttName
           }`}
         />
-
+      <Container maxWidth="xl" sx={{ py: { xs: 1, sm: 2, md: 3 }, px: { xs: 1, sm: 2, md: 3 } }}>
         <Card elevation={2} sx={{ mb: isMobile ? 2 : 3 }}>
           <CardContent sx={{ p: isMobile ? 2 : 3 }}>
             <Box sx={{ mb: isMobile ? 2 : 3 }}>
@@ -779,7 +775,27 @@ export default function Index() {
             </Box>
 
             <Box sx={{ mb: isMobile ? 2 : 3 }}>
-              <BackButton link={`/contacts/job/${tenantList[0]?.jobId}`} />
+                <IconButton
+                  onClick={() => navigate(`/contacts/job/${tenantList[0]?.jobId}`)}
+                  sx={{
+                    mr: { xs: 0, sm: 2 },
+                    mb: { xs: 2, sm: 0 },
+                    backgroundColor: theme.palette.primary.main,
+                    color: 'white',
+                    width: { xs: 35, sm: 35 },
+                    height: { xs: 35, sm: 35 },
+                    alignSelf: { xs: 'flex-start', sm: 'auto' },
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.dark,
+                      transform: 'translateX(-2px)',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                    boxShadow: `0 4px 12px ${theme.palette.primary.main}30`,
+                  }}
+                >
+                  <ArrowBackIcon sx={{ fontSize: { xs: '18px', sm: '24px' } }} />
+                </IconButton>
+
               <Box sx={{ mt: 2 }}>
                 <JobUi tenantList={tenantList[0]} />
               </Box>
@@ -1535,7 +1551,6 @@ export default function Index() {
                         >
                           <Select
                             onChange={handleChangecupan}
-                            label="Discount Coupon"
                             value={
                               value.discountCoupon
                                 ? JSON.stringify(
@@ -1564,15 +1579,17 @@ export default function Index() {
                               if (!selected) {
                                 return <em style={{ color: '#999' }}>Select promotional discount, bulk order...</em>;
                               }
-                              const selectedCoupon = coupan?.find(c => c.couponCode === selected);
-                              if (selectedCoupon) {
+                              try {
+                                const selectedCoupon = JSON.parse(selected);
                                 return `${selectedCoupon.couponCode} (${selectedCoupon.discountTypeName} - ${
                                   selectedCoupon.discountTypeName === "Percentage"
                                     ? `${selectedCoupon.percentageDiscount}%`
                                     : `${defaultConfig.currencySign}${selectedCoupon.fixedAmount}`
                                 })`;
+                              } catch (error) {
+                                // Fallback in case of parsing error
+                                return selected;
                               }
-                              return selected;
                             }}
                           >
                             <MenuItem value="">

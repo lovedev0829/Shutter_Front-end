@@ -483,13 +483,6 @@ const DynamicTable = ({
                         fullWidth
                         value={columnFilters.find((f) => f.field === col.key)?.value || ""}
                         onChange={(e) => handlesearchChange(col.key, e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                            </InputAdornment>
-                          ),
-                        }}
                         sx={{
                           mt: 1,
                           '& .MuiInputBase-root': {

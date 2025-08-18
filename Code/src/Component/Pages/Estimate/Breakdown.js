@@ -59,6 +59,7 @@ const Breakdown = ({
       );
       setShow(false);
       if (apiResponse?.data?.isSuccess) {
+        console.log("apiResponse?.data?.data", apiResponse?.data?.data)
         setTenantList(apiResponse?.data?.data);
       } else {
         setTenantList([]);
@@ -564,7 +565,7 @@ const Breakdown = ({
                                 {defaultConfig.currencySign}{" "}
                                 {opt.optionPrice || 0}
                               </TableCell>
-                            ))}
+                        ))}
 
                         <TableCell sx={{ fontSize: isMobile ? '0.75rem' : '0.875rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
                           {defaultConfig.currencySign}{" "}

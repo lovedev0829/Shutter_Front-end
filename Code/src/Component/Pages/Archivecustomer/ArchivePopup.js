@@ -43,8 +43,6 @@ export default function ArchivePopup({
               maxHeight: isMobile ? '90vh' : '85vh',
               position: isMobile ? 'fixed' : 'relative',
               bottom: isMobile ? 0 : 'auto',
-              top: isMobile ? 'auto' : '50%',
-              transform: isMobile ? 'none' : 'translateY(-50%)',
               width: isMobile ? '100%' : 'auto',
               maxWidth: isMobile ? '100%' : '500px',
               boxShadow: isMobile 
