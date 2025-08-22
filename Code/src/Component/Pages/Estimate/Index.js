@@ -1570,8 +1570,18 @@ export default function Index() {
                             },
                           }}
                         >
+                          <InputLabel
+                            id="coupon-label"
+                            shrink={!!value.discountCoupon} // Shrink label if a value is selected
+                            sx={{
+                              display: value.discountCoupon ? "none" : "block", // Hide when selected
+                            }}
+                          >
+                            Select promotional discount, bulk order...
+                          </InputLabel>
                           <Select
                             onChange={handleChangecupan}
+                            labelId="coupon-label" // link label
                             value={
                               value.discountCoupon
                                 ? JSON.stringify(
