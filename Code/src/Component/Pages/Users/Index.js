@@ -391,11 +391,18 @@ export default function Index() {
 
   return (
     <>
-      <ApiLoder open={loder} />
+    <ApiLoder open={loder} />
       <div className="intersight_content">
         <Header title="Users Admin" />
         <div className="body_content">
-          <Container maxWidth={false} sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+        <Container
+            maxWidth={false}
+            sx={{
+              px: isMobile ? 2 : 3,
+              py: isMobile ? 2 : 3,
+              maxWidth: "100%",
+            }}
+          >
             <Paper sx={{ 
               width: '100%', 
               mb: 3,

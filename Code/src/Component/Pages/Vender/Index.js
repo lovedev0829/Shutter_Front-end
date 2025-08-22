@@ -372,6 +372,14 @@ export default function Index() {
       <div className="intersight_content">
         <Header title="Vendor" />
         <div className="body_content">
+          <Container
+            maxWidth={false}
+            sx={{
+              px: isMobile ? 2 : 3,
+              py: isMobile ? 2 : 3,
+              maxWidth: "100%",
+            }}
+          >
           <Paper sx={{ width: '100%', mb: 3 }}>
             <Tabs
               value={getCurrentTabIndex()}
@@ -956,6 +964,7 @@ export default function Index() {
               )}
             </Box>
           </Paper>
+          </Container>
         </div>
       </div>
 
