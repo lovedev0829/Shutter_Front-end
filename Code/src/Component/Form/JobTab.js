@@ -33,7 +33,7 @@ export default function JobTab({ contactId }) {
         navigate(`/contacts/detail/${contactId}`);
         break;
       case 2: // Jobs - stays on current page
-        // Already on jobs page, no navigation needed
+        localStorage.setItem("activeTab2", "#pills-playbook-job");
         break;
       default:
         break;

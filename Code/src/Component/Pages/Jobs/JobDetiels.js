@@ -197,6 +197,17 @@ export default function JobDetiels() {
     return currentTab?.title || 'Details';
   };
 
+  useEffect(() => {
+  const savedTab = localStorage.getItem("activeTab");
+  const isValidTab = Tablist.some(tab => tab.id === savedTab);
+  if (isValidTab) {
+    setTabdata(savedTab);
+  } else {
+    setTabdata(Tablist[0]?.id || "#window-measurement");
+  }
+}, [Tablist]);
+
+
   return (
     <>
       <ApiLoder open={loder} />

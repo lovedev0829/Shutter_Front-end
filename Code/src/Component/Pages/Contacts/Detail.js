@@ -43,7 +43,14 @@ import {
 import Header from "../../../Layout/header";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
-import { ApiLoder, BackButton, ErrorMessage, FormatPhoneNumber, HasPermission, PreviewFiles } from "../../../helpers/common";
+import {
+  ApiLoder,
+  BackButton,
+  ErrorMessage,
+  FormatPhoneNumber,
+  HasPermission,
+  PreviewFiles,
+} from "../../../helpers/common";
 import AddEditContact from "./AddEditContact";
 import Addresslist from "../Address/Addresslist";
 import moment from "moment";
@@ -62,9 +69,7 @@ function TabPanel({ children, value, index, ...other }) {
     >
       {value === index && (
         <Fade in={true} timeout={300}>
-          <Box sx={{ pt: 3 }}>
-            {children}
-          </Box>
+          <Box sx={{ pt: 3 }}>{children}</Box>
         </Fade>
       )}
     </Box>
@@ -74,30 +79,38 @@ function TabPanel({ children, value, index, ...other }) {
 // Info Item Component
 function InfoItem({ icon, label, value, variant = "default" }) {
   if (!value && variant !== "document") return null;
-  
+
   return (
     <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-      <Box sx={{ display: "flex", alignItems: "center", mb: { xs: 0.25, sm: 0.5 } }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          mb: { xs: 0.25, sm: 0.5 },
+        }}
+      >
         {icon && (
-          <Box sx={{ 
-            mr: { xs: 0.75, sm: 1 }, 
-            color: "primary.main", 
-            display: "flex",
-            '& .MuiSvgIcon-root': {
-              fontSize: { xs: '0.875rem', sm: '1rem' }
-            }
-          }}>
+          <Box
+            sx={{
+              mr: { xs: 0.75, sm: 1 },
+              color: "primary.main",
+              display: "flex",
+              "& .MuiSvgIcon-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
+          >
             {icon}
           </Box>
         )}
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            fontWeight: 600, 
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
             color: "text.secondary",
             textTransform: "uppercase",
             letterSpacing: 0.5,
-            fontSize: { xs: '0.6875rem', sm: '0.75rem' }
+            fontSize: { xs: "0.6875rem", sm: "0.75rem" },
           }}
         >
           {label}
@@ -106,14 +119,14 @@ function InfoItem({ icon, label, value, variant = "default" }) {
       {variant === "document" ? (
         value && <PreviewFiles file={value} />
       ) : (
-        <Typography 
-          variant="body1" 
-          sx={{ 
+        <Typography
+          variant="body1"
+          sx={{
             color: "text.primary",
             fontWeight: 500,
             pl: icon ? { xs: 2.5, sm: 3 } : 0,
-            fontSize: { xs: '0.875rem', sm: '1rem' },
-            lineHeight: { xs: 1.4, sm: 1.5 }
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+            lineHeight: { xs: 1.4, sm: 1.5 },
           }}
         >
           {value || "—"}
@@ -144,11 +157,11 @@ export default function Detail() {
       show: HasPermission("AddressView"),
     },
     {
-      label: "Jobs", 
+      label: "Jobs",
       icon: <WorkIcon />,
       show: HasPermission("JobView"),
     },
-  ].filter(tab => tab.show);
+  ].filter((tab) => tab.show);
 
   const TenantlistAPI = async () => {
     let query = {
@@ -156,7 +169,7 @@ export default function Detail() {
       pageNo: 1,
       recordPerPage: 10,
       tenantId: "",
-      status: "2"
+      status: "2",
     };
     setLoader(true);
     try {
@@ -176,11 +189,11 @@ export default function Detail() {
       } else {
         setTenantList([]);
         navigate("/contacts");
-        ErrorMessage(apiResponse?.data?.message)
+        ErrorMessage(apiResponse?.data?.message);
       }
     } catch (error) {
       navigate("/contacts");
-      setLoader(false)
+      setLoader(false);
     }
   };
 
@@ -193,102 +206,146 @@ export default function Detail() {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    switch (newValue) {
+      case 0: // Profile
+        localStorage.setItem("activeTab2", "#pills-overview");
+        break;
+      case 1: // Address
+        localStorage.setItem("activeTab2", "#pills-playbook");
+        break;
+      case 2: // Jobs - stays on current page
+       localStorage.setItem("activeTab2", "#pills-playbook-job");
+        break;
+      default:
+        break;
+    }
   };
 
   const contact = tenantList[0] || {};
   const billingAddress = contact?.billingAddressVm || {};
 
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab2");
+    switch (savedTab) {
+      case "#pills-overview":
+        setTabValue(0); // Profile
+        break;
+      case "#pills-playbook": // Address
+        setTabValue(1);
+        break;
+
+      default:
+        setTabValue(2);
+        break;
+    }
+  }, [tabs]);
+
   return (
     <Box
       sx={{
-        backgroundColor: 'background.default',
-        minHeight: '100vh',
+        backgroundColor: "background.default",
+        minHeight: "100vh",
       }}
     >
       <ApiLoder open={loder} />
       <Box className="intersight_content">
-        <Header title={`Contacts / ${contact?.firstName + " " + contact?.lastName + " " + (contact?.suffix ?? "")}`} />
+        <Header
+          title={`Contacts / ${
+            contact?.firstName +
+            " " +
+            contact?.lastName +
+            " " +
+            (contact?.suffix ?? "")
+          }`}
+        />
 
-        <ResponsiveContainer 
-            maxWidth="xl"
-            disableGutters={false}
-            sx={{ 
-              py: { xs: 1, sm: 2, md: 3 },
-              px: { xs: 1, sm: 2, md: 3 }
-            }}
-          >
+        <ResponsiveContainer
+          maxWidth="xl"
+          disableGutters={false}
+          sx={{
+            py: { xs: 1, sm: 2, md: 3 },
+            px: { xs: 1, sm: 2, md: 3 },
+          }}
+        >
           {/* Header Section */}
-          <Paper 
+          <Paper
             elevation={0}
-            sx={{ 
-              p: 3, 
-              mb: 3, 
-              backgroundColor: 'background.paper',
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2
+            sx={{
+              p: 3,
+              mb: 3,
+              backgroundColor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
             }}
           >
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: { xs: 'column', sm: 'row' },
-              alignItems: { xs: 'flex-start', sm: 'center' }, 
-              justifyContent: 'space-between', 
-              mb: { xs: 3, sm: 2 },
-              gap: { xs: 2, sm: 0 }
-            }}>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: { xs: 1.5, sm: 2 },
-                width: { xs: '100%', sm: 'auto' }
-              }}>
-                                <IconButton 
-                  onClick={() => navigate('/contacts')}
-                  sx={{ 
-                    backgroundColor: 'action.hover',
-                    '&:hover': { backgroundColor: 'action.selected' },
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
+                justifyContent: "space-between",
+                mb: { xs: 3, sm: 2 },
+                gap: { xs: 2, sm: 0 },
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: { xs: 1.5, sm: 2 },
+                  width: { xs: "100%", sm: "auto" },
+                }}
+              >
+                <IconButton
+                  onClick={() => navigate("/contacts")}
+                  sx={{
+                    backgroundColor: "action.hover",
+                    "&:hover": { backgroundColor: "action.selected" },
                     width: { xs: 36, sm: 40 },
-                    height: { xs: 36, sm: 40 }
+                    height: { xs: 36, sm: 40 },
                   }}
                 >
-                  <ArrowBackIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
+                  <ArrowBackIcon
+                    sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
+                  />
                 </IconButton>
-                
-                <Avatar 
-                  sx={{ 
-                    width: { xs: 48, sm: 56 }, 
-                    height: { xs: 48, sm: 56 }, 
-                    backgroundColor: 'primary.main',
-                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                    fontWeight: 600
+
+                <Avatar
+                  sx={{
+                    width: { xs: 48, sm: 56 },
+                    height: { xs: 48, sm: 56 },
+                    backgroundColor: "primary.main",
+                    fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                    fontWeight: 600,
                   }}
                 >
-                  {contact?.firstName?.[0]}{contact?.lastName?.[0]}
+                  {contact?.firstName?.[0]}
+                  {contact?.lastName?.[0]}
                 </Avatar>
-                
+
                 <Box>
-                  <Typography 
-                    variant="h5" 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: 'text.primary',
-                      fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
-                      lineHeight: { xs: 1.3, sm: 1.4 }
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 600,
+                      color: "text.primary",
+                      fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" },
+                      lineHeight: { xs: 1.3, sm: 1.4 },
                     }}
                   >
                     {contact?.firstName} {contact?.lastName} {contact?.suffix}
                   </Typography>
-                  <Chip 
+                  <Chip
                     icon={<ContactTypeIcon />}
-                    label={contact?.contactType || "Contact"} 
+                    label={contact?.contactType || "Contact"}
                     size="small"
                     color="primary"
                     variant="outlined"
-                    sx={{ 
+                    sx={{
                       mt: 0.5,
-                      fontSize: { xs: '0.75rem', sm: '0.8125rem' },
-                      height: { xs: 24, sm: 28 }
+                      fontSize: { xs: "0.75rem", sm: "0.8125rem" },
+                      height: { xs: 24, sm: 28 },
                     }}
                   />
                 </Box>
@@ -301,13 +358,13 @@ export default function Detail() {
                   onClick={() => setOpen(true)}
                   sx={{
                     borderRadius: 2,
-                    textTransform: 'none',
+                    textTransform: "none",
                     fontWeight: 600,
                     px: { xs: 2, sm: 3 },
                     py: { xs: 0.75, sm: 1 },
-                    fontSize: { xs: '0.8125rem', sm: '0.875rem' },
-                    width: { xs: '100%', sm: 'auto' },
-                    mt: { xs: 2, sm: 0 }
+                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                    width: { xs: "100%", sm: "auto" },
+                    mt: { xs: 2, sm: 0 },
                   }}
                 >
                   Edit Profile
@@ -324,20 +381,20 @@ export default function Detail() {
               allowScrollButtonsMobile
               sx={{
                 borderBottom: 1,
-                borderColor: 'divider',
-                '& .MuiTab-root': {
-                  textTransform: 'none',
+                borderColor: "divider",
+                "& .MuiTab-root": {
+                  textTransform: "none",
                   fontWeight: 500,
                   minHeight: { xs: 40, sm: 48 },
-                  fontSize: { xs: '0.8125rem', sm: '0.875rem' },
-                  minWidth: { xs: 'auto', sm: 160 },
+                  fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                  minWidth: { xs: "auto", sm: 160 },
                   px: { xs: 1, sm: 2 },
-                  '&.Mui-selected': {
+                  "&.Mui-selected": {
                     fontWeight: 600,
                   },
                 },
-                '& .MuiTabs-scrollButtons': {
-                  '&.Mui-disabled': {
+                "& .MuiTabs-scrollButtons": {
+                  "&.Mui-disabled": {
                     opacity: 0.3,
                   },
                 },
@@ -349,11 +406,11 @@ export default function Detail() {
                   label={tab.label}
                   icon={tab.icon}
                   iconPosition="start"
-                  sx={{ 
+                  sx={{
                     gap: { xs: 0.5, sm: 1 },
-                    '& .MuiSvgIcon-root': {
-                      fontSize: { xs: '1.125rem', sm: '1.25rem' }
-                    }
+                    "& .MuiSvgIcon-root": {
+                      fontSize: { xs: "1.125rem", sm: "1.25rem" },
+                    },
                   }}
                 />
               ))}
@@ -362,231 +419,264 @@ export default function Detail() {
 
           {/* Tab Content */}
           <Box>
-          {/* Profile Tab */}
-          <TabPanel value={tabValue} index={0}>
-            {HasPermission("ContactView") && (
-              <Grid container spacing={3}>
-                {/* Personal Information */}
-                <Grid item xs={12} lg={6}>
-                  <Card 
-                    elevation={0}
-                    sx={{ 
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                      height: 'fit-content'
-                    }}
-                  >
-                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
-                        <PersonIcon sx={{ 
-                          mr: { xs: 0.75, sm: 1 }, 
-                          color: 'primary.main',
-                          fontSize: { xs: '1.25rem', sm: '1.5rem' }
-                        }} />
-                        <Typography 
-                          variant="h6" 
-                          sx={{ 
-                            fontWeight: 600,
-                            fontSize: { xs: '1rem', sm: '1.125rem' }
+            {/* Profile Tab */}
+            <TabPanel value={tabValue} index={0}>
+              {HasPermission("ContactView") && (
+                <Grid container spacing={3}>
+                  {/* Personal Information */}
+                  <Grid item xs={12} lg={6}>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        height: "fit-content",
+                      }}
+                    >
+                      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            mb: { xs: 2, sm: 3 },
                           }}
                         >
-                          Personal Information
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+                          <PersonIcon
+                            sx={{
+                              mr: { xs: 0.75, sm: 1 },
+                              color: "primary.main",
+                              fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                            }}
+                          />
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: { xs: "1rem", sm: "1.125rem" },
+                            }}
+                          >
+                            Personal Information
+                          </Typography>
+                        </Box>
+                        <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
 
-                      <Grid container spacing={{ xs: 2, sm: 3 }}>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<FullNameIcon fontSize="small" />}
-                            label="Full Name"
-                            value={`${contact?.firstName} ${contact?.lastName} ${contact?.suffix ?? ""}`.trim()}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<ContactTypeIcon fontSize="small" />}
-                            label="Contact Type"
-                            value={contact?.contactType}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<PhoneIcon fontSize="small" />}
-                            label="Phone Number"
-                            value={FormatPhoneNumber(contact?.phoneNumber || "")}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<EmailIcon fontSize="small" />}
-                            label="Email Address"
-                            value={contact?.email}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<BusinessIcon fontSize="small" />}
-                            label="Referral Source"
-                            value={contact?.referral}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<WebsiteIcon fontSize="small" />}
-                            label="Website"
-                            value={contact?.website}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <InfoItem
-                            icon={<NotesIcon fontSize="small" />}
-                            label="Notes"
-                            value={contact?.notes}
-                          />
-                        </Grid>
-                        
-                        {/* Tax Document */}
-                        {contact?.taxExemptionVm?.exemptionCertificate && (
+                        <Grid container spacing={{ xs: 2, sm: 3 }}>
+                          <Grid item xs={12} sm={6}>
+                            <InfoItem
+                              icon={<FullNameIcon fontSize="small" />}
+                              label="Full Name"
+                              value={`${contact?.firstName} ${
+                                contact?.lastName
+                              } ${contact?.suffix ?? ""}`.trim()}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <InfoItem
+                              icon={<ContactTypeIcon fontSize="small" />}
+                              label="Contact Type"
+                              value={contact?.contactType}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <InfoItem
+                              icon={<PhoneIcon fontSize="small" />}
+                              label="Phone Number"
+                              value={FormatPhoneNumber(
+                                contact?.phoneNumber || ""
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <InfoItem
+                              icon={<EmailIcon fontSize="small" />}
+                              label="Email Address"
+                              value={contact?.email}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <InfoItem
+                              icon={<BusinessIcon fontSize="small" />}
+                              label="Referral Source"
+                              value={contact?.referral}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <InfoItem
+                              icon={<WebsiteIcon fontSize="small" />}
+                              label="Website"
+                              value={contact?.website}
+                            />
+                          </Grid>
                           <Grid item xs={12}>
                             <InfoItem
-                              icon={<DocumentIcon fontSize="small" />}
-                              label="Tax Document"
-                              value={contact?.taxExemptionVm?.exemptionCertificate}
-                              variant="document"
+                              icon={<NotesIcon fontSize="small" />}
+                              label="Notes"
+                              value={contact?.notes}
                             />
                           </Grid>
-                        )}
 
-                        {/* Tax Dates */}
-                        {contact?.taxExemptionVm?.effectiveDate && (
+                          {/* Tax Document */}
+                          {contact?.taxExemptionVm?.exemptionCertificate && (
+                            <Grid item xs={12}>
+                              <InfoItem
+                                icon={<DocumentIcon fontSize="small" />}
+                                label="Tax Document"
+                                value={
+                                  contact?.taxExemptionVm?.exemptionCertificate
+                                }
+                                variant="document"
+                              />
+                            </Grid>
+                          )}
+
+                          {/* Tax Dates */}
+                          {contact?.taxExemptionVm?.effectiveDate && (
+                            <Grid item xs={12} sm={6}>
+                              <InfoItem
+                                icon={<EffectiveDateIcon fontSize="small" />}
+                                label="Effective Date"
+                                value={moment(
+                                  contact?.taxExemptionVm?.effectiveDate
+                                ).format("MM-DD-YYYY")}
+                              />
+                            </Grid>
+                          )}
+                          {contact?.taxExemptionVm?.expiryDate && (
+                            <Grid item xs={12} sm={6}>
+                              <InfoItem
+                                icon={<ExpiryDateIcon fontSize="small" />}
+                                label="Expiry Date"
+                                value={moment(
+                                  contact?.taxExemptionVm?.expiryDate
+                                ).format("MM-DD-YYYY")}
+                              />
+                            </Grid>
+                          )}
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  {/* Billing Address */}
+                  <Grid item xs={12} lg={6}>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        height: "fit-content",
+                      }}
+                    >
+                      <CardContent sx={{ p: 3 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", mb: 3 }}
+                        >
+                          <LocationIcon sx={{ mr: 1, color: "primary.main" }} />
+                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            Primary/Billing Address
+                          </Typography>
+                        </Box>
+                        <Divider sx={{ mb: 3 }} />
+
+                        <Grid container spacing={{ xs: 2, sm: 3 }}>
                           <Grid item xs={12} sm={6}>
                             <InfoItem
-                              icon={<EffectiveDateIcon fontSize="small" />}
-                              label="Effective Date"
-                              value={moment(contact?.taxExemptionVm?.effectiveDate).format("MM-DD-YYYY")}
+                              icon={<FullNameIcon fontSize="small" />}
+                              label="Full Name"
+                              value={`${billingAddress?.firstName || ""} ${
+                                billingAddress?.lastName || ""
+                              }`.trim()}
                             />
                           </Grid>
-                        )}
-                        {contact?.taxExemptionVm?.expiryDate && (
                           <Grid item xs={12} sm={6}>
                             <InfoItem
-                              icon={<ExpiryDateIcon fontSize="small" />}
-                              label="Expiry Date"
-                              value={moment(contact?.taxExemptionVm?.expiryDate).format("MM-DD-YYYY")}
+                              icon={<PhoneIcon fontSize="small" />}
+                              label="Phone Number"
+                              value={FormatPhoneNumber(
+                                billingAddress?.phoneNumber || ""
+                              )}
                             />
                           </Grid>
-                        )}
-                      </Grid>
-                    </CardContent>
-                  </Card>
+                          <Grid item xs={12}>
+                            <InfoItem
+                              icon={<EmailIcon fontSize="small" />}
+                              label="Email Address"
+                              value={billingAddress?.email}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <InfoItem
+                              icon={<StreetAddressIcon fontSize="small" />}
+                              label="Street Address"
+                              value={billingAddress?.streetAddress}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <InfoItem
+                              icon={<CityIcon fontSize="small" />}
+                              label="City"
+                              value={billingAddress?.city}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <InfoItem
+                              icon={<StateIcon fontSize="small" />}
+                              label="State"
+                              value={billingAddress?.stateName}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <InfoItem
+                              icon={<ZipcodeIcon fontSize="small" />}
+                              label="Zipcode"
+                              value={billingAddress?.zipCode}
+                            />
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
                 </Grid>
+              )}
+            </TabPanel>
 
-                {/* Billing Address */}
-                <Grid item xs={12} lg={6}>
-                  <Card 
-                    elevation={0}
-                    sx={{ 
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                      height: 'fit-content'
-                    }}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <LocationIcon sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                          Primary/Billing Address
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ mb: 3 }} />
+            {/* Address Tab */}
+            <TabPanel
+              value={tabValue}
+              index={tabs.findIndex((tab) => tab.label === "Address")}
+            >
+              {HasPermission("AddressView") &&
+                tabValue ===
+                  tabs.findIndex((tab) => tab.label === "Address") && (
+                  <Addresslist />
+                )}
+            </TabPanel>
 
-                      <Grid container spacing={{ xs: 2, sm: 3 }}>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<FullNameIcon fontSize="small" />}
-                            label="Full Name"
-                            value={`${billingAddress?.firstName || ""} ${billingAddress?.lastName || ""}`.trim()}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <InfoItem
-                            icon={<PhoneIcon fontSize="small" />}
-                            label="Phone Number"
-                            value={FormatPhoneNumber(billingAddress?.phoneNumber || "")}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <InfoItem
-                            icon={<EmailIcon fontSize="small" />}
-                            label="Email Address"
-                            value={billingAddress?.email}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <InfoItem
-                            icon={<StreetAddressIcon fontSize="small" />}
-                            label="Street Address"
-                            value={billingAddress?.streetAddress}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <InfoItem
-                            icon={<CityIcon fontSize="small" />}
-                            label="City"
-                            value={billingAddress?.city}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <InfoItem
-                            icon={<StateIcon fontSize="small" />}
-                            label="State"
-                            value={billingAddress?.stateName}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <InfoItem
-                            icon={<ZipcodeIcon fontSize="small" />}
-                            label="Zipcode"
-                            value={billingAddress?.zipCode}
-                          />
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            )}
-          </TabPanel>
-
-          {/* Address Tab */}
-          <TabPanel value={tabValue} index={tabs.findIndex(tab => tab.label === "Address")}>
-            {HasPermission("AddressView") && tabValue === tabs.findIndex(tab => tab.label === "Address") && (
-              <Addresslist />
-            )}
-          </TabPanel>
-
-          {/* Jobs Tab */}
-          <TabPanel value={tabValue} index={tabs.findIndex(tab => tab.label === "Jobs")}>
-            {HasPermission("JobView") && tabValue === tabs.findIndex(tab => tab.label === "Jobs") && (
-              <Joblist initialActiveTab="#pills-content" />
-            )}
-          </TabPanel>
+            {/* Jobs Tab */}
+            <TabPanel
+              value={tabValue}
+              index={tabs.findIndex((tab) => tab.label === "Jobs")}
+            >
+              {HasPermission("JobView") &&
+                tabValue === tabs.findIndex((tab) => tab.label === "Jobs") && (
+                  <Joblist initialActiveTab="#pills-content" />
+                )}
+            </TabPanel>
           </Box>
         </ResponsiveContainer>
 
-      {/* Edit Contact Modal */}
-      {open && (
-        <AddEditContact
-          open={open}
-          handleclose={() => setOpen(false)}
-          action={"edit"}
-          LanguageListAPI={TenantlistAPI}
-          object={contact}
-        />
-      )}
+        {/* Edit Contact Modal */}
+        {open && (
+          <AddEditContact
+            open={open}
+            handleclose={() => setOpen(false)}
+            action={"edit"}
+            LanguageListAPI={TenantlistAPI}
+            object={contact}
+          />
+        )}
       </Box>
     </Box>
   );
