@@ -2,12 +2,37 @@ import React, { useEffect, useState } from 'react'
 import { callAPI } from '../../../utils/apiUtils';
 import { apiUrls } from '../../../utils/apiUrls';
 import { ApiLoder, Delete, ErrorMessage, HasPermission, SuccessMessage } from '../../../helpers/common';
-import { TablePagination } from '@mui/material';
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem
+} from '@mui/material';
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+  Schedule as ScheduleIcon
+} from '@mui/icons-material';
 import AddEditJobShedule from './AddEditJobShedule';
 import AddEditButton from '../../Form/AddEditButton';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import StatusDropdown from '../../../helpers/StatusDropdown';
+import { PageHeader, EmptyState } from '../../Form/MaterialUIComponents';
 export default function Jobschedulelist({listdata}) {
   const param = useParams()
 
@@ -139,98 +164,226 @@ export default function Jobschedulelist({listdata}) {
   };
 
   const Loginuser = JSON.parse(localStorage.getItem("userData"));
+  
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       <ApiLoder open={loder} />
-      <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-        <div className='d-flex gap-3 invoice-new'>
-          <h2 className="body_heading width-left-border mb-0">
-            Job Schedule
-          </h2>
-          <div className="filter-dropdown dropdown">
-            <StatusDropdown value={filter.status}
-              fn={handleChange} />
-          </div>
-        </div>
 
-        {HasPermission("JobScheduleAdd") && listdata?.tenantId === Loginuser?.tenantId &&  (
-          <AddEditButton
-            handleClick={() => {
+      <PageHeader
+        title="Job Schedule"
+        subtitle="Manage and track job schedules and appointments"
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={filter.status}
+                label="Status"
+                name="status"
+                onChange={handleChange}
+                sx={{ borderRadius: 2 }}
+              >
+                <MenuItem value="2">All</MenuItem>
+                <MenuItem value="1">Active</MenuItem>
+                <MenuItem value="0">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+            {HasPermission("JobScheduleAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
               setAction("add");
               setOpen(true);
             }}
-            title="Create Schedule"
-          />
-        )}
-      </div>
-      <div className="estimate-table task_table mb-30">
-        <div className="table-responsive">
-          <table className="table jobscheduletable">
-            <thead>
-              <tr>
-                <th scope="col">SN</th>
-                <th scope="col ">Estimate Name</th>
-                <th scope="col">Job Title</th>
-                <th scope="col">Resource Name</th>
-                <th scope="col">Ghl User Name</th>
-                <th scope="col">Start Date</th>
-                <th scope="col">Start Time</th>
-                <th scope="col">End Date</th>
-                <th scope="col">End Time</th>
-                <th scope="col">Status</th>
-                {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && listdata?.tenantId === Loginuser?.tenantId  && <th scope="col" className="text-end">
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  borderRadius: 2,
+                  px: 3
+                }}
+              >
+                Create Schedule
+              </Button>
+            )}
+          </Box>
+        }
+      />
+
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: 2, 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead sx={{ backgroundColor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>SN</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Estimate Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Job Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Resource Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>GHL User Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Start Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Start Time</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>End Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>End Time</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Status</TableCell>
+              {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
+                <TableCell align="right" sx={{ fontWeight: 600, color: 'text.primary' }}>
                   Action
-                </th>}
-              </tr>
-            </thead>
-            <tbody>
-              {
-                tenantList?.map((item, index) => {
-                  return (
-                    <tr>
-                      <td>{(page - 1) * rowsPerPage + index + 1}</td>
-                      <td>{item?.estimateName}</td>
-                      <td>{item?.jobTitle}</td>
-                      <td>{item?.userFullname}</td>
-                      <td>{item?.ghlUserName}</td>
-                      <td>{moment(item?.startDate).format("MM-DD-YYYY")}</td>
-                      <td>{moment(item?.dayStartTime,"HH:mm:ss").format("hh:mm A")}</td>
-                      <td>{moment(item?.endDate).format("MM-DD-YYYY")}</td>
-                      <td>{moment(item?.dayEndDateTime,"HH:mm:ss").format("hh:mm A")}</td>
-                      <td><span className={`tags ${item?.isActive === true ? "active" : "inactive"}-tag`} onClick={() => listdata?.tenantId === Loginuser?.tenantId?handleStatus(item):null}>{item?.isActive === true ? "Active" : "Inactive"}</span></td>
-
-
-                      {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && listdata?.tenantId === Loginuser?.tenantId &&
-                        <td className="text-end">
-                          <span className="d-flex align-items-center justify-content-end gap-3">
-                            {HasPermission("JobScheduleEdit") && <img src="/image/editblue.svg" role="button" alt="" loading="lazy" onClick={() => handleedit(item)} />}
-                            {HasPermission("JobScheduleDelete") && <img src="/image/deleteblue.svg" role="button" alt=""  loading="lazy" onClick={() => handledelete(item)} />}
-                          </span>
-                        </td>
-                      }
-                    </tr>
-                  )
-                })
-              }
-              {(!tenantList || tenantList?.length === 0) && (
-                <tr>
-                  <td className="text-center border-0 no-records" colSpan={7}>
-                    <img
-                      src="/image/no-records.svg"
-                      alt=" "
-                      loading="lazy"
-                      className="img-fluid"
-                    />
-                    <p className="font-14">No Job Schedule Found</p>
-                  </td>
-                </tr>
+                </TableCell>
               )}
-            </tbody>
-          </table>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tenantList?.map((item, index) => (
+              <TableRow 
+                key={index}
+                sx={{ 
+                  '&:hover': { backgroundColor: 'grey.50' },
+                  '&:last-child td, &:last-child th': { border: 0 }
+                }}
+              >
+                <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {item?.estimateName}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ScheduleIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {item?.jobTitle}
+                    </Typography>
+                  </Box>
+                </TableCell>
+                <TableCell>{item?.userFullname}</TableCell>
+                <TableCell>{item?.ghlUserName}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {moment(item?.startDate).format("MM-DD-YYYY")}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={moment(item?.dayStartTime,"HH:mm:ss").format("hh:mm A")} 
+                    size="small" 
+                    variant="outlined" 
+                    color="primary"
+                    sx={{ fontWeight: 500 }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {moment(item?.endDate).format("MM-DD-YYYY")}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={moment(item?.dayEndDateTime,"HH:mm:ss").format("hh:mm A")} 
+                    size="small" 
+                    variant="outlined" 
+                    color="secondary"
+                    sx={{ fontWeight: 500 }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={item?.isActive === true ? "Active" : "Inactive"}
+                    size="small"
+                    color={item?.isActive === true ? "success" : "default"}
+                    variant={item?.isActive === true ? "filled" : "outlined"}
+                    clickable={listdata?.tenantId === Loginuser?.tenantId}
+                    onClick={() => listdata?.tenantId === Loginuser?.tenantId ? handleStatus(item) : null}
+                    sx={{
+                      fontWeight: 500,
+                      minWidth: 80,
+                      cursor: listdata?.tenantId === Loginuser?.tenantId ? 'pointer' : 'default'
+                    }}
+                  />
+                </TableCell>
+                {(HasPermission("JobScheduleEdit") || HasPermission("JobScheduleDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
+                  <TableCell align="right">
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                      {HasPermission("JobScheduleEdit") && (
+                        <IconButton
+                          size="small"
+                          onClick={() => handleedit(item)}
+                          sx={{ 
+                            color: 'primary.main',
+                            '&:hover': { backgroundColor: 'primary.light' }
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                      {HasPermission("JobScheduleDelete") && (
+                        <IconButton
+                          size="small"
+                          onClick={() => handledelete(item)}
+                          sx={{ 
+                            color: 'error.main',
+                            '&:hover': { backgroundColor: 'error.light' }
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+            {(!tenantList || tenantList?.length === 0) && (
+              <TableRow>
+                <TableCell 
+                  colSpan={11} 
+                  sx={{ border: 0, py: 6 }}
+                >
+                  <EmptyState
+                    icon={
+                      <Box
+                        component="img"
+                        src="/image/no-records.svg"
+                        alt="No records"
+                        sx={{ width: 80, height: 80, opacity: 0.5 }}
+                      />
+                    }
+                    title="No Job Schedules Found"
+                    description="There are no job schedules available yet."
+                    action={
+                      HasPermission("JobScheduleAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+                        <Button
+                          variant="contained"
+                          startIcon={<AddIcon />}
+                          onClick={() => {
+                            setAction("add");
+                            setOpen(true);
+                          }}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            borderRadius: 2,
+                            px: 3
+                          }}
+                        >
+                          Create Schedule
+                        </Button>
+                      )
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
           {tenantList && tenantList?.length > 0 && (
-            <div className="d-flex align-items-center justify-content-end bottom_nav">
-              <nav aria-label="Page navigation example">
-                <ul className="pagination">
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                   <TablePagination
                     rowsPerPageOptions={[5, 10, 15, 25, 100]}
                     component="div"
@@ -239,13 +392,20 @@ export default function Jobschedulelist({listdata}) {
                     page={page - 1}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
-                  />
-                </ul>
-              </nav>
-            </div>
-          )}
-        </div>
-      </div>
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+          </Box>
+        )}
+      </TableContainer>
       {open &&<AddEditJobShedule
         open={open}
         handleclose={handleclose}
@@ -263,6 +423,6 @@ export default function Jobschedulelist({listdata}) {
         handleDelete={handleDelete}
         loder={loder}
       />
-    </>
+    </Box>
   )
 }

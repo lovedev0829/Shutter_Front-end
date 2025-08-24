@@ -10,9 +10,33 @@ import {
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
 import AddEditButton from "../../Form/AddEditButton";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Tooltip
+} from "@mui/material";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+  Description as DescriptionIcon,
+  Download as DownloadIcon,
+  InsertDriveFile as FileIcon
+} from "@mui/icons-material";
 import AddEditdocument from "./AddEditdocument";
 import moment from "moment";
+import { PageHeader, EmptyState } from "../../Form/MaterialUIComponents";
 
 function AllDocumentlist({listdata}) {
   const param = useParams();
@@ -167,134 +191,209 @@ function AllDocumentlist({listdata}) {
    const Loginuser = JSON.parse(localStorage.getItem("userData"));
 
   return (
-    <>
-                  <ApiLoder open={loder} />{" "}
-      <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-        <div className="d-flex gap-3 invoice-new">
-          <h2 className="body_heading width-left-border mb-0">Documents</h2>
-        </div>
-        {HasPermission("JobContactAdd") &&  listdata?.tenantId === Loginuser?.tenantId &&(
-          <AddEditButton
-            handleClick={() => {
-              setAction("add");
-              setOpen(true);
-            }}
-            title="Add Document"
-          />
-        )}
-      </div>
-      <div className="estimate-table task_table mb-30">
-        <div className="table-responsive">
-          <table className="table jobscheduletable">
-            <thead>
-              <tr>
-                <th scope="col">SN</th>
-                <th scope="col">Title</th>
-                <th scope="col">Uploaded By</th>
-                <th scope="col">Date</th>
-                <th scope="col">Document</th>
+    <Box sx={{ p: 3 }}>
+      <ApiLoder open={loder} />
 
-                {(HasPermission("JobContactEdit") ||
-                  HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
-                  <th scope="col" className="text-end actionheading">
-                    Action
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {documentslistAPI?.map((item, index) => {
-                return (
-                  <>
-                    <tr>
-                      <td>{(page - 1) * rowsPerPage + index + 1}</td>
-                      <td>{item?.documentTitle}</td>
-                      <td>{item?.createdBy}</td>
-                      <td>
-                        {" "}
-                        {moment(item?.createdAt).format(
-                          "MM-DD-YYYY"
-                        )}{" "}
-                      </td>
-                      <td>
-                        <button
-                          className="dropdown-item"
-                          onClick={() =>
-                            handleDownload(item?.documentId,item?.blobUrl, item?.documentTitle)
-                          }
-                        >
-                          <img
-                            src="/image/export.svg"
-                            className=""
-                            alt=" "
-                            loading="lazy"
-                          />{" "}
-                        </button>
-                      </td>
+      <PageHeader
+        title="Documents"
+        subtitle="Manage and upload documents for this job project"
+        actions={
+          HasPermission("JobContactAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                setAction("add");
+                setOpen(true);
+              }}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 500,
+                borderRadius: 2,
+                px: 3
+              }}
+            >
+              Add Document
+            </Button>
+          )
+        }
+      />
 
-                      {(HasPermission("JobContactEdit") ||
-                        HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
-                        <td className="text-end actiondescription">
-                          <span className="d-flex align-items-center justify-content-end gap-3">
-                            {HasPermission("JobContactEdit") && (
-                              <img
-                                src="/image/editblue.svg"
-                                role="button"
-                                alt=""
-                                loading="lazy"
-                                onClick={() => handleedit(item)}
-                              />
-                            )}
-                            {HasPermission("JobContactDelete") && (
-                              <img
-                                src="/image/deleteblue.svg"
-                                alt=""
-                                loading="lazy"
-                                role="button"
-                                onClick={() => handledelete(item)}
-                              />
-                            )}
-                          </span>
-                        </td>
-                      )}
-                    </tr>
-                  </>
-                );
-              })}
-              {(!documentslistAPI || documentslistAPI?.length === 0) && (
-                <tr>
-                  <td className="text-center border-0 no-records" colSpan={7}>
-                    <img
-                      src="/image/no-records.svg"
-                      alt=" "
-                      loading="lazy"
-                      className="img-fluid"
-                    />
-                    <p className="font-14">No Document Found</p>
-                  </td>
-                </tr>
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: 2, 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead sx={{ backgroundColor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>SN</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Uploaded By</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Document</TableCell>
+              {(HasPermission("JobContactEdit") || HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
+                <TableCell align="right" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Action
+                </TableCell>
               )}
-            </tbody>
-          </table>
-          {documentslistAPI && documentslistAPI?.length > 0 && (
-            <div className="d-flex align-items-center justify-content-end bottom_nav">
-              <nav aria-label="Page navigation example">
-                <ul className="pagination">
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                    component="div"
-                    count={paginatedItems}
-                    rowsPerPage={rowsPerPage}
-                    page={page - 1}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {documentslistAPI?.map((item, index) => (
+              <TableRow 
+                key={index}
+                sx={{ 
+                  '&:hover': { backgroundColor: 'grey.50' },
+                  '&:last-child td, &:last-child th': { border: 0 }
+                }}
+              >
+                <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <DescriptionIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {item?.documentTitle}
+                    </Typography>
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {item?.createdBy}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={moment(item?.createdAt).format("MM-DD-YYYY")} 
+                    size="small" 
+                    variant="outlined" 
+                    sx={{ fontWeight: 500 }}
                   />
-                </ul>
-              </nav>
-            </div>
-          )}
-        </div>
-      </div>
+                </TableCell>
+                <TableCell>
+                  <Tooltip title="Download Document">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDownload(item?.documentId, item?.blobUrl, item?.documentTitle)}
+                      sx={{ 
+                        color: 'success.main',
+                        '&:hover': { 
+                          backgroundColor: 'success.light',
+                          color: 'success.dark'
+                        }
+                      }}
+                    >
+                      <DownloadIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+                {(HasPermission("JobContactEdit") || HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
+                  <TableCell align="right">
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                      {HasPermission("JobContactEdit") && (
+                        <Tooltip title="Edit Document">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleedit(item)}
+                            sx={{ 
+                              color: 'primary.main',
+                              '&:hover': { backgroundColor: 'primary.light' }
+                            }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      {HasPermission("JobContactDelete") && (
+                        <Tooltip title="Delete Document">
+                          <IconButton
+                            size="small"
+                            onClick={() => handledelete(item)}
+                            sx={{ 
+                              color: 'error.main',
+                              '&:hover': { backgroundColor: 'error.light' }
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+            {(!documentslistAPI || documentslistAPI?.length === 0) && (
+              <TableRow>
+                <TableCell 
+                  colSpan={6} 
+                  sx={{ border: 0, py: 6 }}
+                >
+                  <EmptyState
+                    icon={
+                      <Box
+                        component="img"
+                        src="/image/no-records.svg"
+                        alt="No records"
+                        sx={{ width: 80, height: 80, opacity: 0.5 }}
+                      />
+                    }
+                    title="No Documents Found"
+                    description="There are no documents uploaded for this job yet."
+                    action={
+                      HasPermission("JobContactAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+                        <Button
+                          variant="contained"
+                          startIcon={<AddIcon />}
+                          onClick={() => {
+                            setAction("add");
+                            setOpen(true);
+                          }}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            borderRadius: 2,
+                            px: 3
+                          }}
+                        >
+                          Add Document
+                        </Button>
+                      )
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {documentslistAPI && documentslistAPI?.length > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 25, 100]}
+              component="div"
+              count={paginatedItems}
+              rowsPerPage={rowsPerPage}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+          </Box>
+        )}
+      </TableContainer>
       {open && (
         <AddEditdocument
           open={open}
@@ -314,7 +413,7 @@ function AllDocumentlist({listdata}) {
         handleDelete={handleDelete}
         loder={loder}
       />
-    </>
+    </Box>
   );
 }
 

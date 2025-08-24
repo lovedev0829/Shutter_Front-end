@@ -3,7 +3,37 @@ import { useState } from "react";
 import AddEditButton from "../../Form/AddEditButton";
 import { apiUrls } from "../../../utils/apiUrls";
 import { callAPI } from "../../../utils/apiUtils";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  FormControl,
+  Select,
+  InputLabel
+} from "@mui/material";
+import {
+  MoreVert as MoreVertIcon,
+  Visibility as VisibilityIcon,
+  Send as SendIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Receipt as ReceiptIcon,
+  Add as AddIcon
+} from "@mui/icons-material";
 import {
   ApiLoder,
   Delete,
@@ -16,6 +46,7 @@ import AddEditInvoice from "./AddEditInvoice";
 import moment from "moment";
 import StatusDropdown from "../../../helpers/StatusDropdown";
 import { defaultConfig } from "../../../config";
+import { PageHeader, EmptyState } from "../../Form/MaterialUIComponents";
 
 export default function InvoiceList({ JobId,contactId,listdata }) {
   const [open, setOpen] = useState(false);
@@ -28,6 +59,8 @@ export default function InvoiceList({ JobId,contactId,listdata }) {
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [filter, setFilter] = useState({ status: "2", tenantId: "" });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const handleChangePage = (event, newPage) => {
     TenantlistAPI(newPage + 1, rowsPerPage);
@@ -154,6 +187,16 @@ export default function InvoiceList({ JobId,contactId,listdata }) {
     });
   };
 
+  const handleMenuClick = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
   const handlesandinvoice = async (param) => {
     setLoader(true);
     try {
@@ -175,203 +218,283 @@ export default function InvoiceList({ JobId,contactId,listdata }) {
       setLoader(false);
     }
   };
-   const Loginuser = JSON.parse(localStorage.getItem("userData"));
+  const Loginuser = JSON.parse(localStorage.getItem("userData"));
+  
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       <ApiLoder open={loder} />
-      <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-        <div className="d-flex gap-3 invoice-new">
-          <h2 className="body_heading width-left-border mb-0">Invoice</h2>
-          <div className="filter-dropdown dropdown">
-            <StatusDropdown value={filter.status} fn={handleChange} />
-          </div>
-        </div>
-        {HasPermission("InvoiceAdd") && listdata?.tenantId === Loginuser?.tenantId && (
-          <AddEditButton
-            handleClick={() => {
-              setAction("add");
-              setOpen(true);
-            }}
-            title="Add Invoice"
-          />
-        )}
-      </div>
-      <div className="estimate-table task_table mb-30">
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">SN</th>
 
-                <th scope="col ">Invoice Number</th>
-                <th scope="col ">Estimate Name</th>
-                <th scope="col">Issue Date</th>
-                <th scope="col">Due Date</th>
-                <th scope="col">Total Amount</th>
-                <th scope="col">Balance Due</th>
-                <th scope="col">Status</th>
-                 {listdata?.tenantId === Loginuser?.tenantId &&<th scope="col">Action</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {tenantList.map((val, i) => (
-                <tr key={i}>
-                  <td>{(page - 1) * rowsPerPage + i + 1}</td>
-                  <td>
-                    <Link
-                      className={listdata?.tenantId === Loginuser?.tenantId?"color-blue":""}
-                      to={listdata?.tenantId === Loginuser?.tenantId?`/contacts/payment/${val?.invoiceId}`:"#"}
-                    >
-                      {" "}
-                      {val?.invoiceNumber}
-                    </Link>
-                  </td>
-                  <td>{val?.estimateName}</td>
-                  <td>{moment(val?.issueDate).format("MM-DD-YYYY")}</td>
-                  <td>{moment(val?.dueDate).format("MM-DD-YYYY")}</td>
-                  <td>
-                    {defaultConfig.currencySign} {val?.totalAmount}
-                  </td>
-                  <td>
-                    {defaultConfig.currencySign} {val?.balanceDue}
-                  </td>
-                  <td>
-                    <span
-                      className={`tags ${
-                        val?.isActive === true ? "active" : "inactive"
-                      }-tag`}
-                      onClick={() => listdata?.tenantId === Loginuser?.tenantId?handleStatus(val):null}
-                    >
-                      {val?.isActive === true ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  {listdata?.tenantId === Loginuser?.tenantId &&
-                  <td className="text-center">
-                    <div className="company-logo-dropdown">
-                      <div className="dropdown">
-                        <button
-                          className="dropdown-toggle border-0 w-100 d-flex align-items-center"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <img src="/image/three-dot.svg" alt="" loading="lazy"/>
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end w-100 shadow dropdown-menu-big">
-                        {HasPermission("InvoiceEdit") && ( <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() =>
-                                handlesandinvoice(
-                                  val
-                                  
-                                )
-                              }
-                            >
-                              <img
-                                src="/image/export.svg"
-                                className="me-1"
-                                alt=" "
-                                loading="lazy"
-                              />{" "}
-                              Send Invoice
-                            </button>
-                          </li>
-                           )}
-                          <li>
-                            <Link
-                              className="dropdown-item"
-                              to={`/contacts/payment/${val?.invoiceId}`}
-                            >
-                              <img
-                                src="/image/eye.svg"
-                                className="me-1"
-                                alt=""
-                                loading="lazy"
-                              />
-                              View Payment
-                            </Link>
-                          </li>
-                          <li>
-                            {HasPermission("InvoiceEdit") && (
-                              <li>
-                                <Link
-                                  className="dropdown-item"
-                                  to="#"
-                                  onClick={() => handleedit(val)}
-                                >
-                                  <img
-                                    src="/image/edit 1.svg"
-                                    className="me-1"
-                                    role="button"
-                                    alt=""
-                                    loading="lazy"
-                                  />
-                                  Edit
-                                </Link>
-                              </li>
-                            )}
-                          </li>
+      <PageHeader
+        title="Invoice"
+        subtitle="Manage and track invoices for this job"
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={filter.status}
+                label="Status"
+                name="status"
+                onChange={handleChange}
+                sx={{ borderRadius: 2 }}
+              >
+                <MenuItem value="2">All</MenuItem>
+                <MenuItem value="1">Active</MenuItem>
+                <MenuItem value="0">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+            {HasPermission("InvoiceAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setAction("add");
+                  setOpen(true);
+                }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  borderRadius: 2,
+                  px: 3
+                }}
+              >
+                Add Invoice
+              </Button>
+            )}
+          </Box>
+        }
+      />
 
-                          {HasPermission("InvoiceDelete") && (
-                            <li>
-                              <Link
-                                className="dropdown-item"
-                                to="#"
-                                onClick={() => handledelete(val)}
-                              >
-                                <img
-                                  src="/image/delete 1.svg"
-                                  className="me-1"
-                                  role="button"
-                                  alt=""
-                                  loading="lazy"
-                                />
-                                Delete
-                              </Link>
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                  </td>
-}
-                </tr>
-              ))}
-              {(!tenantList || tenantList?.length === 0) && (
-                <tr>
-                  <td className="text-center border-0 no-records" colSpan={7}>
-                    <img
-                      src="/image/no-records.svg"
-                      alt=" "
-                      loading="lazy"
-                      className="img-fluid"
-                    />
-                    <p className="font-14">No Invoices Found</p>
-                  </td>
-                </tr>
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: 2, 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead sx={{ backgroundColor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>SN</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Invoice Number</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Estimate Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Issue Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Due Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Total Amount</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Balance Due</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Status</TableCell>
+              {listdata?.tenantId === Loginuser?.tenantId && (
+                <TableCell align="right" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Action
+                </TableCell>
               )}
-            </tbody>
-          </table>
-          {tenantList && tenantList?.length > 0 && (
-            <div className="d-flex align-items-center justify-content-end bottom_nav">
-              <nav aria-label="Page navigation example">
-                <ul className="pagination">
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                    component="div"
-                    count={paginatedItems}
-                    rowsPerPage={rowsPerPage}
-                    page={page - 1}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tenantList.map((val, i) => (
+              <TableRow 
+                key={i}
+                sx={{ 
+                  '&:hover': { backgroundColor: 'grey.50' },
+                  '&:last-child td, &:last-child th': { border: 0 }
+                }}
+              >
+                <TableCell>{(page - 1) * rowsPerPage + i + 1}</TableCell>
+                <TableCell>
+                  <Button
+                    component={Link}
+                    to={listdata?.tenantId === Loginuser?.tenantId ? `/contacts/payment/${val?.invoiceId}` : "#"}
+                    variant="text"
+                    startIcon={<ReceiptIcon />}
+                    disabled={listdata?.tenantId !== Loginuser?.tenantId}
+                    sx={{
+                      textTransform: 'none',
+                      p: 0,
+                      textDecoration: 'underline',
+                      color: 'primary.main',
+                      fontWeight: 500,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                        backgroundColor: 'transparent'
+                      },
+                      '&.Mui-disabled': {
+                        color: 'text.primary',
+                        textDecoration: 'none'
+                      }
+                    }}
+                  >
+                    {val?.invoiceNumber}
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {val?.estimateName}
+                  </Typography>
+                </TableCell>
+                <TableCell>{moment(val?.issueDate).format("MM-DD-YYYY")}</TableCell>
+                <TableCell>{moment(val?.dueDate).format("MM-DD-YYYY")}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
+                    {defaultConfig.currencySign} {val?.totalAmount}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
+                    {defaultConfig.currencySign} {val?.balanceDue}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={val?.isActive === true ? "Active" : "Inactive"}
+                    size="small"
+                    color={val?.isActive === true ? "success" : "default"}
+                    variant={val?.isActive === true ? "filled" : "outlined"}
+                    clickable={listdata?.tenantId === Loginuser?.tenantId}
+                    onClick={() => listdata?.tenantId === Loginuser?.tenantId ? handleStatus(val) : null}
+                    sx={{
+                      fontWeight: 500,
+                      minWidth: 80,
+                      cursor: listdata?.tenantId === Loginuser?.tenantId ? 'pointer' : 'default'
+                    }}
                   />
-                </ul>
-              </nav>
-            </div>
-          )}
-        </div>
-      </div>
+                </TableCell>
+                {listdata?.tenantId === Loginuser?.tenantId && (
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      onClick={(event) => handleMenuClick(event, val)}
+                      sx={{ 
+                        color: 'text.secondary',
+                        '&:hover': { backgroundColor: 'grey.100' }
+                      }}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+            {(!tenantList || tenantList?.length === 0) && (
+              <TableRow>
+                <TableCell 
+                  colSpan={listdata?.tenantId === Loginuser?.tenantId ? 9 : 8} 
+                  sx={{ border: 0, py: 6 }}
+                >
+                  <EmptyState
+                    icon={
+                      <Box
+                        component="img"
+                        src="/image/no-records.svg"
+                        alt="No records"
+                        sx={{ width: 80, height: 80, opacity: 0.5 }}
+                      />
+                    }
+                    title="No Invoices Found"
+                    description="There are no invoices available for this job yet."
+                  />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {tenantList && tenantList?.length > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 25, 100]}
+              component="div"
+              count={paginatedItems}
+              rowsPerPage={rowsPerPage}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+          </Box>
+        )}
+      </TableContainer>
+
+      {/* Context Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            border: '1px solid',
+            borderColor: 'divider',
+            minWidth: 180,
+          }
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        {HasPermission("InvoiceEdit") && (
+          <MenuItem
+            onClick={() => {
+              handlesandinvoice(selectedRow);
+              handleMenuClose();
+            }}
+          >
+            <ListItemIcon>
+              <SendIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Send Invoice</ListItemText>
+          </MenuItem>
+        )}
+
+        <MenuItem
+          component={Link}
+          to={`/contacts/payment/${selectedRow?.invoiceId}`}
+          onClick={handleMenuClose}
+        >
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View Payment</ListItemText>
+        </MenuItem>
+
+        {HasPermission("InvoiceEdit") && (
+          <MenuItem
+            onClick={() => {
+              handleedit(selectedRow);
+              handleMenuClose();
+            }}
+          >
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
+
+        {HasPermission("InvoiceDelete") && (
+          <MenuItem
+            onClick={() => {
+              handledelete(selectedRow);
+              handleMenuClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" sx={{ color: 'error.main' }} />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
      {open && <AddEditInvoice
         jobid={JobId}
         open={open}
@@ -389,6 +512,6 @@ export default function InvoiceList({ JobId,contactId,listdata }) {
         handleDelete={handleDelete}
         loder={loder}
       />
-    </>
+    </Box>
   );
 }

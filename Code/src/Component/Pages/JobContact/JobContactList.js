@@ -6,7 +6,33 @@ import { apiUrls } from '../../../utils/apiUrls';
 import AddEditJobContact from './AddEditJobContact';
 import AddEditButton from '../../Form/AddEditButton';
 import StatusDropdown from '../../../helpers/StatusDropdown';
-import { TablePagination } from '@mui/material';
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem
+} from '@mui/material';
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+  Person as PersonIcon,
+  ContactPage as ContactPageIcon
+} from '@mui/icons-material';
+import { PageHeader, EmptyState } from '../../Form/MaterialUIComponents';
 
 function JobContactList({listdata}) {
     const param = useParams()
@@ -138,108 +164,232 @@ function JobContactList({listdata}) {
         });
     };
     const Loginuser = JSON.parse(localStorage.getItem("userData"));
+    
     return (
-        <>
+        <Box sx={{ p: 3 }}>
             <ApiLoder open={loder} />
-            <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-                <div className='d-flex gap-3 invoice-new'>
-                    <h2 className="body_heading width-left-border mb-0">
-                        Contacts
-                    </h2>
-                    <div className="filter-dropdown dropdown">
-                        <StatusDropdown value={filter.status}
-                            fn={handleChange} />
-                    </div>
-                </div>
-                {
 
-                    HasPermission("JobContactAdd") && listdata?.tenantId === Loginuser?.tenantId &&
-                    <AddEditButton
-                        handleClick={() => {
-                            setAction("add");
-                            setOpen(true);
-                        }}
-                        title="Add Contact"
-                    />
+            <PageHeader
+                title="Job Contacts"
+                subtitle="Manage contacts associated with job projects"
+                actions={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                                value={filter.status}
+                                label="Status"
+                                name="status"
+                                onChange={handleChange}
+                                sx={{ borderRadius: 2 }}
+                            >
+                                <MenuItem value="2">All</MenuItem>
+                                <MenuItem value="1">Active</MenuItem>
+                                <MenuItem value="0">Inactive</MenuItem>
+                            </Select>
+                        </FormControl>
+                        {HasPermission("JobContactAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+                            <Button
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                onClick={() => {
+                                    setAction("add");
+                                    setOpen(true);
+                                }}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 500,
+                                    borderRadius: 2,
+                                    px: 3
+                                }}
+                            >
+                                Add Contact
+                            </Button>
+                        )}
+                    </Box>
                 }
+            />
 
-            </div>
-            <div className="estimate-table task_table mb-30">
-                <div className="table-responsive">
-                    <table className="table jobscheduletable">
-                        <thead>
-                            <tr>
-                                <th scope="col">SN</th>
-                                <th scope="col">Contact Type</th>
-                                <th scope="col">Contact Name</th>
-                                <th scope="col">Status</th>
-                                {(HasPermission("JobContactEdit") ||
-                                    HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId  && <th scope="col" className="text-end actionheading">
-                                        Action
-                                    </th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tenantList?.map((item, index) => {
-                                return <>
-                                    <tr>
-                                        <td>{(page - 1) * rowsPerPage + index + 1}</td>
-                                        <td>{item?.contactTypeName}</td>
-                                        <td><Link className={listdata?.tenantId === Loginuser?.tenantId?"color-blue":""} to={listdata?.tenantId === Loginuser?.tenantId?`/contacts/detail/${item.contactId}`:"#"}>{item?.contactFirstname + " " + item?.contactLastname}</Link></td>
-                                        <td><span className={`tags ${item?.isActive === true ? "active" : "inactive"}-tag`} onClick={() => listdata?.tenantId === Loginuser?.tenantId?handleStatus(item):null}>{item?.isActive === true ? "Active" : "Inactive"}</span></td>
-
-                                        {
-                                            (HasPermission("JobContactEdit") ||
-                                                HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId  &&<td className="text-end actiondescription">
-                                                <span className="d-flex align-items-center justify-content-end gap-3">
-                                                    {
-                                                        HasPermission("JobContactEdit") &&
-
-                                                        <img src="/image/editblue.svg" role="button"  alt="" loading="lazy" onClick={() => handleedit(item)} />
-                                                    }
-                                                    {
-
-                                                        HasPermission("JobContactDelete") &&
-                                                        <img src="/image/deleteblue.svg" alt=""  loading="lazy" role="button" onClick={() => handledelete(item)} />
-                                                    }
-                                                </span>
-                                            </td>}
-                                    </tr></>
-                            })}
-                            {(!tenantList || tenantList?.length === 0) && (
-                                <tr>
-                                    <td className="text-center border-0 no-records" colSpan={7}>
-                                        <img
-                                            src="/image/no-records.svg"
-                                            alt=" "
-                                            loading="lazy"
-                                            className="img-fluid"
-                                        />
-                                        <p className="font-14">No Contact Job Found</p>
-                                    </td>
-                                </tr>
+            <TableContainer 
+                component={Paper} 
+                sx={{ 
+                    borderRadius: 2, 
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    overflow: 'hidden'
+                }}
+            >
+                <Table sx={{ minWidth: 650 }}>
+                    <TableHead sx={{ backgroundColor: 'grey.50' }}>
+                        <TableRow>
+                            <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>SN</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Contact Type</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Contact Name</TableCell>
+                            <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Status</TableCell>
+                            {(HasPermission("JobContactEdit") || HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
+                                <TableCell align="right" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                    Action
+                                </TableCell>
                             )}
-                        </tbody>
-                    </table>
-                    {tenantList && tenantList?.length > 0 && (
-                        <div className="d-flex align-items-center justify-content-end bottom_nav">
-                            <nav aria-label="Page navigation example">
-                                <ul className="pagination">
-                                    <TablePagination
-                                        rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                                        component="div"
-                                        count={paginatedItems}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page - 1}
-                                        onPageChange={handleChangePage}
-                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {tenantList?.map((item, index) => (
+                            <TableRow 
+                                key={index}
+                                sx={{ 
+                                    '&:hover': { backgroundColor: 'grey.50' },
+                                    '&:last-child td, &:last-child th': { border: 0 }
+                                }}
+                            >
+                                <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
+                                <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <ContactPageIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            {item?.contactTypeName}
+                                        </Typography>
+                                    </Box>
+                                </TableCell>
+                                <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <PersonIcon fontSize="small" sx={{ color: 'secondary.main' }} />
+                                        <Button
+                                            component={Link}
+                                            to={listdata?.tenantId === Loginuser?.tenantId ? `/contacts/detail/${item.contactId}` : "#"}
+                                            variant="text"
+                                            disabled={listdata?.tenantId !== Loginuser?.tenantId}
+                                            sx={{
+                                                textTransform: 'none',
+                                                fontWeight: 500,
+                                                color: listdata?.tenantId === Loginuser?.tenantId ? 'primary.main' : 'text.disabled',
+                                                textDecoration: 'none',
+                                                '&:hover': {
+                                                    backgroundColor: listdata?.tenantId === Loginuser?.tenantId ? 'primary.light' : 'transparent',
+                                                    textDecoration: listdata?.tenantId === Loginuser?.tenantId ? 'underline' : 'none'
+                                                },
+                                                justifyContent: 'flex-start',
+                                                p: 0.5
+                                            }}
+                                        >
+                                            {item?.contactFirstname + " " + item?.contactLastname}
+                                        </Button>
+                                    </Box>
+                                </TableCell>
+                                <TableCell>
+                                    <Chip
+                                        label={item?.isActive === true ? "Active" : "Inactive"}
+                                        size="small"
+                                        color={item?.isActive === true ? "success" : "default"}
+                                        variant={item?.isActive === true ? "filled" : "outlined"}
+                                        clickable={listdata?.tenantId === Loginuser?.tenantId}
+                                        onClick={() => listdata?.tenantId === Loginuser?.tenantId ? handleStatus(item) : null}
+                                        sx={{
+                                            fontWeight: 500,
+                                            minWidth: 80,
+                                            cursor: listdata?.tenantId === Loginuser?.tenantId ? 'pointer' : 'default'
+                                        }}
                                     />
-                                </ul>
-                            </nav>
-                        </div>
-                    )}
-                </div>
-            </div>
+                                </TableCell>
+                                {(HasPermission("JobContactEdit") || HasPermission("JobContactDelete")) && listdata?.tenantId === Loginuser?.tenantId && (
+                                    <TableCell align="right">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                                            {HasPermission("JobContactEdit") && (
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleedit(item)}
+                                                    sx={{ 
+                                                        color: 'primary.main',
+                                                        '&:hover': { backgroundColor: 'primary.light' }
+                                                    }}
+                                                >
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
+                                            {HasPermission("JobContactDelete") && (
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handledelete(item)}
+                                                    sx={{ 
+                                                        color: 'error.main',
+                                                        '&:hover': { backgroundColor: 'error.light' }
+                                                    }}
+                                                >
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
+                                        </Box>
+                                    </TableCell>
+                                )}
+                            </TableRow>
+                        ))}
+                        {(!tenantList || tenantList?.length === 0) && (
+                            <TableRow>
+                                <TableCell 
+                                    colSpan={5} 
+                                    sx={{ border: 0, py: 6 }}
+                                >
+                                    <EmptyState
+                                        icon={
+                                            <Box
+                                                component="img"
+                                                src="/image/no-records.svg"
+                                                alt="No records"
+                                                sx={{ width: 80, height: 80, opacity: 0.5 }}
+                                            />
+                                        }
+                                        title="No Job Contacts Found"
+                                        description="There are no contacts associated with this job yet."
+                                        action={
+                                            HasPermission("JobContactAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+                                                <Button
+                                                    variant="contained"
+                                                    startIcon={<AddIcon />}
+                                                    onClick={() => {
+                                                        setAction("add");
+                                                        setOpen(true);
+                                                    }}
+                                                    sx={{
+                                                        textTransform: 'none',
+                                                        fontWeight: 500,
+                                                        borderRadius: 2,
+                                                        px: 3
+                                                    }}
+                                                >
+                                                    Add Contact
+                                                </Button>
+                                            )
+                                        }
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+
+                {tenantList && tenantList?.length > 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 15, 25, 100]}
+                            component="div"
+                            count={paginatedItems}
+                            rowsPerPage={rowsPerPage}
+                            page={page - 1}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            sx={{
+                                '& .MuiTablePagination-toolbar': {
+                                    paddingLeft: 0,
+                                    paddingRight: 0,
+                                },
+                                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                                    color: 'text.secondary',
+                                    fontSize: '0.875rem',
+                                },
+                            }}
+                        />
+                    </Box>
+                )}
+            </TableContainer>
             {open &&<AddEditJobContact
                 open={open}
                 handleclose={handleclose}
@@ -256,7 +406,8 @@ function JobContactList({listdata}) {
                 id={object?.jobContactId}
                 handleDelete={handleDelete}
                 loder={loder}
-            /></>
+            />
+        </Box>
     )
 }
 

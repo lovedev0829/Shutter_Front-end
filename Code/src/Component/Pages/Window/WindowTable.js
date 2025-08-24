@@ -27,7 +27,8 @@ import {
   MenuItem,
   Radio,
   FormControlLabel,
-  Chip
+  Chip,
+  Stack
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -37,6 +38,9 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
+import { PageHeader } from "../../Form/MaterialUIComponents";
+import { useNavigate } from "react-router-dom";
 
 function WindowTable({ listdata }) {
   const [multiImage, setMultiImage] = useState(false);
@@ -55,6 +59,13 @@ function WindowTable({ listdata }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuItemIndex, setMenuItemIndex] = useState(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleBuildEstimate = () => {
+    if (selectedParentId.length > 0) {
+      navigate(`/contacts/estimate/${listdata?.jobId}`);
+    }
+  };
   const handleChangePage = (event, newPage) => {
     TenantlistAPI(newPage + 1, rowsPerPage);
     setPage(newPage + 1);
@@ -258,66 +269,48 @@ function WindowTable({ listdata }) {
   return (
     <>
       <ApiLoder open={loder} />
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography 
-          variant="h5" 
-          component="h2" 
-          sx={{ 
-            fontWeight: 600,
-            borderLeft: '4px solid #1976d2',
-            paddingLeft: 2,
-            mb: 0
-          }}
-        >
-          Window Measurements
-        </Typography>
-      </Box>
+      <PageHeader
+        title="Window Measurements"
+        subtitle="Manage window specifications and measurements for your project"
+        actions={
+          <Stack direction="row" spacing={2} alignItems="center">
+            {HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId && selectedParentId.length > 0 && (
+              <Button
+                variant="contained"
+                onClick={handleBuildEstimate}
+                disabled={selectedParentId.length === 0}
+                startIcon={<AddIcon />}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  borderRadius: 2
+                }}
+              >
+                Build Estimate ({selectedParentId.length})
+              </Button>
+            )}
+            {HasPermission("WindowAdd") && listdata?.tenantId === Loginuser?.tenantId && (
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setAction("add");
+                  setOpen(true);
+                }}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  borderRadius: 2
+                }}
+              >
+                Add Window
+              </Button>
+            )}
+          </Stack>
+        }
+      />
 
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        mb: 3,
-        flexDirection: { xs: 'column', md: 'row' },
-        gap: 2
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}></Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId && (
-            <Button
-              component={Link}
-              to={`/contacts/estimate/${listdata?.jobId}`}
-              variant="outlined"
-              size="small"
-              disabled={selectedParentId?.length === 0}
-              sx={{
-                textTransform: 'none',
-                borderColor: '#1976d2',
-                color: '#1976d2',
-                '&:hover': {
-                  borderColor: '#1976d2',
-                  backgroundColor: 'rgba(25, 118, 210, 0.04)'
-                },
-                '&.Mui-disabled': {
-                  borderColor: '#e0e0e0',
-                  color: '#bdbdbd'
-                }
-              }}
-            >
-              Build Estimate
-            </Button>
-          )}
-          {HasPermission("WindowAdd") && listdata?.tenantId === Loginuser?.tenantId && (
-            <AddEditButton
-              handleClick={() => {
-                setAction("add");
-                setOpen(true);
-              }}
-              title="Add new Window"
-            />
-          )}
-        </Box>
-      </Box>
+
       {tenantList?.map((val, i) => (
         <Paper key={i} sx={{ mb: 3, p: 3, borderRadius: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
