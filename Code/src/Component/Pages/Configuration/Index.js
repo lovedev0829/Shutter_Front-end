@@ -396,7 +396,11 @@ export default function Index() {
                     <Tab
                       key={index}
                       icon={tab.svg}
-                      label={tab.title}
+                      label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <span style={{ marginLeft: '10px' }}>{tab.title}</span>
+                        </Box>
+                      }
                       iconPosition="start"
                       sx={{
                         textTransform: 'none',
