@@ -308,8 +308,8 @@ export default function Index() {
                   }}
                   sx={{
                     fontSize: { xs: '0.875rem', sm: '1rem' },
-                    py: { xs: 1, sm: 1.5 },
-                    px: { xs: 2, sm: 3 },
+                    py: { xs: 1, sm: 1 },
+                    px: { xs: 2, sm: 2 },
                     minWidth: { xs: '100%', sm: 'auto' }
                   }}
                 >

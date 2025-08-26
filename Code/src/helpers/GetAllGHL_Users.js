@@ -29,6 +29,7 @@ export default function GetAllGHLUsers({
       setShow(false);
       if (apiResponse?.data?.isSuccess) {
         setproductList(apiResponse?.data?.data);
+        console.log(apiResponse?.data?.data)
       } else {
       }
     } catch (error) {

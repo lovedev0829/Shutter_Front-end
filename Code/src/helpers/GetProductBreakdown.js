@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { callAPI } from "../utils/apiUtils";
 import { apiUrls } from "../utils/apiUrls";
-import {
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
-  CircularProgress,
-  Box
-} from '@mui/material';
+import { CircularProgress, Box} from '@mui/material';
 
 export default function GetProductBreakdown({ value = "", fn, name = "windowProdcutId", disabled = false, className = null, EstimationId = "" }) {
     const [productList, setproductList] = useState([]);
@@ -40,104 +33,110 @@ export default function GetProductBreakdown({ value = "", fn, name = "windowProd
     
 
     return (
-        <Box className={`position-relative ${className || ''}`} sx={{ position: 'relative' }}>
-        {show && (
-          <Box sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1,
-          }}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
-        <FormControl 
-          fullWidth 
-          variant="outlined" 
-          disabled={disabled}
-          sx={{
-            minWidth: 200,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
-                },
-              },
-              '&.Mui-focused': {
-                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
-                  borderWidth: '2px',
-                },
-              },
-            },
-            '& .MuiInputLabel-root': {
-              fontWeight: 500,
-              color: '#666',
-              '&.Mui-focused': {
-                color: '#1976d2',
-                fontWeight: 600,
-              },
-            },
-          }}
-        >
-          <InputLabel id={`${name}-label`}>Choose Product</InputLabel>
-          <Select
-            labelId={`${name}-label`}
-            value={value}
-            name={name}
-            onChange={(e) => {
-              if (fn) fn(e);
-            }}
-            label="Choose Product"
-            disabled={disabled}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  borderRadius: '8px',
-                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                  mt: 1,
-                  '& .MuiMenuItem-root': {
-                    padding: '10px 16px',
-                    fontSize: '0.9rem',
-                    transition: 'background-color 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
-                    },
-                    '&.Mui-selected': {
-                      backgroundColor: '#e3f2fd',
-                      '&:hover': {
-                        backgroundColor: '#bbdefb',
-                      },
-                    },
-                  },
-                },
-              },
-            }}
-          >
-            <MenuItem value="">
-              <em style={{ color: '#999' }}>Choose Product</em>
-            </MenuItem>
-            {productList?.map((item, i) => {
-              return (
-                <MenuItem 
-                  key={i} 
-                  value={item?.windowProductIds}
-                  selected={item?.windowProductIds === value ? true : false}
+        <div className="position-relative">
+              {show && (
+                <Box sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 1,
+                }}>
+                  <CircularProgress size={24} />
+                </Box>
+              )}
+            <div className="form-floating">
+                <select 
+                    value={value}
+                    className={`form-select modern-select ${className || ''}`}
+                    name={name}
+                    onChange={(e) => {
+                        if (fn) fn(e);
+                    }}
+                    disabled={disabled}
+                    id="productBreakdownSelect"
+                    style={{
+                        minHeight: '56px',
+                        fontSize: '16px',
+                        backgroundColor: '#fff',
+                        border: '2px solid #e9ecef',
+                        borderRadius: '8px',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        paddingTop: '1.625rem',
+                        paddingBottom: '0.625rem',
+                    }}
+                    onFocus={(e) => {
+                        e.target.style.borderColor = '#0d6efd';
+                        e.target.style.boxShadow = '0 0 0 0.25rem rgba(13, 110, 253, 0.25)';
+                    }}
+                    onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef';
+                        e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                    }}
+                    onMouseEnter={(e) => {
+                        if (!disabled) {
+                            e.target.style.borderColor = '#0d6efd';
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (!e.target.matches(':focus')) {
+                            e.target.style.borderColor = '#e9ecef';
+                        }
+                    }}
                 >
-                  {item?.productName}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-        </Box>
+                    <option value="">Choose Product</option>
+                    {productList?.map((item, i) => (
+                        <option key={i} value={item?.windowProductIds}>
+                            {item?.productName}
+                        </option>
+                    ))}
+                </select>
+                <label 
+                    htmlFor="productBreakdownSelect" 
+                    className="form-label"
+                    style={{
+                        fontSize: '14px',
+                        color: '#6c757d',
+                        fontWeight: '500',
+                    }}
+                >
+                    Choose Product
+                </label>
+            </div>
+            
+            <style jsx>{`
+                .modern-select {
+                    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+                    background-repeat: no-repeat !important;
+                    background-position: right 0.75rem center !important;
+                    background-size: 16px 12px !important;
+                }
+                
+                .modern-select:hover {
+                    transform: translateY(-1px);
+                }
+                
+                .modern-select:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    transform: none !important;
+                }
+                
+                .form-floating > .form-select:focus ~ label,
+                .form-floating > .form-select:not(:placeholder-shown) ~ label {
+                    opacity: 0.85;
+                    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+                }
+                
+                @media (max-width: 768px) {
+                    .modern-select {
+                        min-height: 60px !important;
+                        font-size: 18px !important;
+                    }
+                }
+            `}</style>
+        </div>
     );
 }
 

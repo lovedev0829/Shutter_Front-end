@@ -20,7 +20,9 @@ import {
   Button,
   Divider,
   IconButton,
-  Checkbox
+  Checkbox,
+  CircularProgress,
+  Stack
 } from "@mui/material";
 import SimpleReactValidator from "simple-react-validator";
 import { callAPI } from "../../../utils/apiUtils";
@@ -30,7 +32,7 @@ import {
   HasPermission,
   SuccessMessage,
 } from "../../../helpers/common";
-import SubmitButton from "../../Form/SubmitButton";
+
 import ProductTypeDropdown from "../../../helpers/ProductTypeDropdown";
 import AddEditProductType from "../ProductType/AddEditProductType";
 import AllProductDropdown from "../../../helpers/AllProductDropdown";
@@ -555,7 +557,7 @@ const AddEditOption = ({ open, handleclose, LanguageListAPI, action, object }) =
                           opt.requirePriceAtEstimatePreview ? " *" : ""
                         }`}
                         name="additionalCost"
-                        value={opt.additionalCost || 0}
+                        value={opt.additionalCost || ""}
                        
                         onChange={(e) => handleContactPerson(e, i)}
                         error={
@@ -635,14 +637,60 @@ const AddEditOption = ({ open, handleclose, LanguageListAPI, action, object }) =
             </Box>
           </DialogContent>
 
-          <DialogActions>
-            <Button onClick={handleclose}>Cancel</Button>
-            <SubmitButton
-              type="submit"
-              className="btn blue-btn"
-              name={action === "add" ? "Submit" : "Update"}
-              disabled={loader}
-            />
+          <DialogActions sx={{ 
+            p: 3, 
+            borderTop: '1px solid', 
+            borderColor: 'divider',
+            gap: 2
+          }}>
+            <Stack direction="row" spacing={2} justifyContent="flex-end">
+              <Button
+                variant="text"
+                onClick={handleclose}
+                sx={{ 
+                  textTransform: 'none',
+                  color: 'text.secondary',
+                  fontWeight: 600,
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: 2,
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={loader}
+                startIcon={loader && <CircularProgress size={16} color="inherit" />}
+                sx={{ 
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 2,
+                  minWidth: 120,
+                  boxShadow: 2,
+                  '&:hover': {
+                    boxShadow: 4,
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0)',
+                  },
+                  '&:disabled': {
+                    opacity: 0.7
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                {loader ? 'Processing...' : (action === "add" ? "Submit" : "Update")}
+              </Button>
+            </Stack>
           </DialogActions>
         </form>
       </Dialog>

@@ -68,6 +68,7 @@ export default function Index() {
   };
 
   const handleChange = (e) => {
+    console.log(e.target.name )
     if (e.target.name === "EstimationId") {
       TenantlistAPI(e.target.value, filter.windowProdcutId);
     }
@@ -96,7 +97,6 @@ export default function Index() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <>

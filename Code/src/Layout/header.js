@@ -25,12 +25,16 @@ import {
   ClickAwayListener,
   useTheme,
   useMediaQuery,
+  Stack,
+  Collapse,
+  Menu,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { ErrorMessage, HasPermission, SuccessMessage } from "../helpers/common";
 export default function Header(props) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isExtraSmall = useMediaQuery(theme.breakpoints.down("sm"));
   const users = useSelector((state) => state.UserProfile.profile);
   const user = JSON.parse(localStorage.getItem("userData"));
   const [open, setOpen] = useState(false);
@@ -38,6 +42,7 @@ export default function Header(props) {
   const [tenantList, setTenantList] = useState([]);
   const [subtenantList, setsubTenantList] = useState([]);
   const [tenantsLoading, setTenantsLoading] = useState(true);
+
   const userName = user?.username;
   const currentTenantId = user?.tenantId;
 
@@ -190,7 +195,7 @@ export default function Header(props) {
     }
   };
 
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   const anchorRef = useRef(null);
 
   const handleNotificationClose = () => {
@@ -240,78 +245,107 @@ export default function Header(props) {
         color: "text.primary",
         borderBottom: "1px solid",
         borderColor: "divider",
+        paddingLeft: { xs: 0, md: 2 },
+        paddingRight: { xs: 0, md: 2 },
       }}
     >
+      {/* Main Toolbar */}
       <Toolbar
         sx={{
-          justifyContent: "space-between",
-          gap: 2,
-          minHeight: "60px !important",
+          justifyContent: { xs: "center", md: "space-between" },
+          gap: { xs: 0.5, sm: 1, md: 2 },
+          minHeight: { xs: "56px", sm: "64px" },
           px: { xs: 1, sm: 2 },
+          flexWrap: isMobile ? "wrap" : "nowrap",
         }}
       >
-        {/* Tenant Selector */}
+        {/* Left Section - Tenant/Partner Selectors or Back Button */}
         {ImpersonateTenant ? (
           <Link to={`#`} onClick={() => Switchtoparent()}>
-            <Typography
-              variant="h6"
-              component="h1"
+            <Box
               sx={{
-                flexGrow: 1,
-                textAlign: "center",
-                fontWeight: 600,
-                mx: 2,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontSize: { xs: "1rem", sm: "1.25rem", lg: "1.5rem" },
+                display: "flex",
+                gap: 1,
+                p: 1,
+                width: { xs: "100%", md: "auto" },
+                justifyContent: { xs: "center", md: "center" },
+                borderRadius: 1,
+                backgroundColor: "action.hover",
+                minWidth: { xs: "auto", sm: 200 },
               }}
             >
               <img
                 src="/image/refresh.svg"
-                className="me-1"
-                alt=" "
+                alt="Back"
                 loading="lazy"
-                width={22}
-                height={22}
-              />{" "}
-              Back to{" "}
-              {olduser?.companyName
-                ? olduser?.companyName
-                : olduser?.firstName + olduser?.lastName}{" "}
-            </Typography>
+                width={20}
+                height={20}
+              />
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  display: { xs: "none", sm: "block" },
+                }}
+              >
+                Back to{" "}
+                {olduser?.companyName
+                  ? olduser?.companyName
+                  : `${olduser?.firstName} ${olduser?.lastName}`}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  display: { xs: "block", sm: "none" },
+                }}
+              >
+                Back
+              </Typography>
+            </Box>
           </Link>
         ) : (
           <Box
             sx={{
               display: "flex",
-              ml: 1,
               alignItems: "center",
-              gap: 1,
-              minWidth: { xs: 120, sm: 150 },
-              maxWidth: { xs: 200, sm: 280 },
-              flexShrink: 0,
+              gap: { xs: 0.5, sm: 1 },
+              flexDirection: { xs: "column", md: "row" },
+              width: { xs: "100%", md: "auto" },
+              order: { xs: 2, md: 1 },
             }}
           >
-            <FormControl size="small" fullWidth variant="outlined">
+            {/* Tenant Selector */}
+            <FormControl 
+              size="small" 
+              variant="outlined"
+              sx={{ 
+                marginTop: { xs: 2, md: 0 },
+                marginBottom: { xs: 1, md: 0 },
+                minWidth: { xs: "50%", sm: 120, md: 150 },
+                maxWidth: { xs: "100%", md: 200 }
+              }}
+            >
               <InputLabel
                 id="tenant-select-label"
                 sx={{
-                  fontSize: "0.875rem",
-                  display: { xs: "none", md: "block" },
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  display: { xs: "block", md: "block" },
                 }}
               >
-                Tenant
+                {isExtraSmall ? "Tenant" : "Tenant"}
               </InputLabel>
               <Select
                 labelId="tenant-select-label"
                 value={currentTenantId || ""}
                 onChange={handleTenantChange}
-                label={isSmallScreen ? "" : "Tenant"}
+                label="Tenant"
                 sx={{
-                  fontSize: "0.875rem",
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
                   "& .MuiSelect-select": {
-                    py: 0.75,
+                    py: { xs: 1, sm: 1 },
                   },
                 }}
               >
@@ -319,77 +353,74 @@ export default function Header(props) {
                   <MenuItem
                     key={tenant?.tenantId}
                     value={tenant?.tenantId}
-                    sx={{ fontSize: "0.875rem" }}
+                    sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
                   >
                     {tenant?.code}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+
+            {/* Partner Selector */}
+            {HasPermission("SubTenantView") && (
+              <FormControl 
+                size="small" 
+                variant="outlined"
+                sx={{ 
+                  minWidth: { xs: "50%", sm: 120, md: 150 },
+                  maxWidth: { xs: "100%", md: 200 }
+                }}
+              >
+                <InputLabel
+                  id="subtenant-select-label"
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  }}
+                >
+                  {isExtraSmall ? "Partners" : "Partners"}
+                </InputLabel>
+                <Select
+                  labelId="subtenant-select-label"
+                  value=""
+                  onChange={ImpersonateTenantAcess}
+                  label="Partners"
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    "& .MuiSelect-select": {
+                      py: { xs: 1, sm: 1 },
+                    },
+                  }}
+                >
+                  {subtenantList?.map((tenant) => (
+                    <MenuItem
+                      key={tenant?.tenantId}
+                      value={tenant?.tenantId}
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {tenant?.companyName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
           </Box>
         )}
 
-{HasPermission("SubTenantView") &&
-         <Box
-            sx={{
-              display: "flex",
-              ml: 1,
-              alignItems: "center",
-              gap: 1,
-              minWidth: { xs: 120, sm: 150 },
-              maxWidth: { xs: 200, sm: 280 },
-              flexShrink: 0,
-            }}
-          >
-            <FormControl size="small" fullWidth variant="outlined">
-              <InputLabel
-                id="subtenant-select-label"
-                sx={{
-                  fontSize: "0.875rem",
-                  display: { xs: "none", md: "block" },
-                }}
-              >
-                Partners
-              </InputLabel>
-              <Select
-                labelId="subtenant-select-label"
-                value={""}
-                onChange={ImpersonateTenantAcess}
-                label={isSmallScreen ? "" : "Partners"}
-                sx={{
-                  fontSize: "0.875rem",
-                  "& .MuiSelect-select": {
-                    py: 0.75,
-                  },
-                }}
-              >
-                {subtenantList?.map((tenant) => (
-                  <MenuItem
-                    key={tenant?.tenantId}
-                    value={tenant?.tenantId}
-                    sx={{ fontSize: "0.875rem" }}
-                  >
-                    {tenant?.companyName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-}
-
-        {/* Header Title */}
+        {/* Center Section - Header Title */}
         <Typography
           variant="h6"
           component="h1"
           sx={{
-            flexGrow: 1,
-            textAlign: "center",
+            flexGrow: { xs: 1, md: 1 },
+            textAlign: { xs: "center", md: "center" },
             fontWeight: 600,
-            mx: 2,
+            mx: { xs: 1, sm: 2 },
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            fontSize: { xs: "1rem", sm: "1.25rem", lg: "1.5rem" },
+            fontSize: { xs: "0.875rem", sm: "1rem", md: "1.25rem", lg: "1.5rem" },
+            order: { xs: 1, md: 2 },
+            width: { xs: "100%", md: "auto" },
           }}
         >
           <Box component="span" sx={{ display: { xs: "none", lg: "inline" } }}>
@@ -398,14 +429,23 @@ export default function Header(props) {
           {props.title}
         </Typography>
 
-        {/* Notifications */}
-        <Box sx={{ flexShrink: 0 }}>
+        {/* Right Section - Notifications */}
+        <Box 
+          sx={{ 
+            display: { xs: "flex", md: "flex" },
+            flexShrink: 0,
+            marginTop: { xs: 2, md: 0 },
+            width: { xs: "100%", md: "auto" },
+            order: { xs: 3, md: 3 },
+            justifyContent: { xs: "center", md: "center" },
+          }}
+        >
           <IconButton
             ref={anchorRef}
             onClick={() => setOpen(!open)}
             sx={{
-              width: 40,
-              height: 40,
+              width: { xs: 36, sm: 40 },
+              height: { xs: 36, sm: 40 },
               color: "text.primary",
               "&:hover": {
                 backgroundColor: "action.hover",
@@ -420,13 +460,13 @@ export default function Header(props) {
               color="error"
               sx={{
                 "& .MuiBadge-badge": {
-                  fontSize: "0.75rem",
-                  height: 18,
-                  minWidth: 18,
+                  fontSize: { xs: "0.625rem", sm: "0.75rem" },
+                  height: { xs: 16, sm: 18 },
+                  minWidth: { xs: 16, sm: 18 },
                 },
               }}
             >
-              <NotificationsIcon />
+              <NotificationsIcon sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem" } }} />
             </Badge>
           </IconButton>
 
@@ -436,27 +476,44 @@ export default function Header(props) {
             anchorEl={anchorRef.current}
             placement="bottom-end"
             style={{ zIndex: 1300 }}
+            modifiers={[
+              {
+                name: "preventOverflow",
+                options: {
+                  altAxis: true,
+                  altBoundary: true,
+                  tether: false,
+                  rootBoundary: "viewport",
+                },
+              },
+            ]}
           >
             <ClickAwayListener onClickAway={handleNotificationClose}>
               <Paper
                 elevation={8}
                 sx={{
-                  width: { xs: 300, sm: 400 },
-                  maxHeight: 400,
+                  width: { xs: "calc(100vw - 16px)", sm: 380, md: 400 },
+                  maxWidth: { xs: "calc(100vw - 16px)", sm: 400 },
+                  maxHeight: { xs: "70vh", sm: 400 },
                   overflow: "hidden",
                   mt: 1,
+                  mr: { xs: 1, sm: 0 },
                   border: "1px solid",
                   borderColor: "divider",
                 }}
               >
                 <Box
                   sx={{
-                    p: 2,
+                    p: { xs: 1.5, sm: 2 },
                     backgroundColor: "primary.main",
                     color: "primary.contrastText",
                   }}
                 >
-                  <Typography variant="subtitle1" fontWeight="bold">
+                  <Typography 
+                    variant="subtitle1" 
+                    fontWeight="bold"
+                    sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+                  >
                     NOTIFICATIONS
                   </Typography>
                 </Box>
@@ -464,7 +521,7 @@ export default function Header(props) {
                 <List
                   sx={{
                     p: 0,
-                    maxHeight: 320,
+                    maxHeight: { xs: "calc(70vh - 60px)", sm: 320 },
                     overflow: "auto",
                   }}
                 >
@@ -476,8 +533,8 @@ export default function Header(props) {
                           sx={{
                             flexDirection: "column",
                             alignItems: "flex-start",
-                            py: 1.5,
-                            px: 2,
+                            py: { xs: 1, sm: 1.5 },
+                            px: { xs: 1.5, sm: 2 },
                             backgroundColor: notif?.isReaded
                               ? "transparent"
                               : "action.hover",
@@ -492,6 +549,7 @@ export default function Header(props) {
                               fontWeight: notif?.isReaded ? 400 : 600,
                               color: "text.primary",
                               mb: 0.5,
+                              fontSize: { xs: "0.75rem", sm: "0.875rem" },
                             }}
                           >
                             {notif?.subject}
@@ -502,6 +560,8 @@ export default function Header(props) {
                               color: "text.secondary",
                               mb: 0.5,
                               wordBreak: "break-word",
+                              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                              lineHeight: 1.4,
                             }}
                           >
                             {notif?.body}
@@ -510,11 +570,11 @@ export default function Header(props) {
                             variant="caption"
                             sx={{
                               color: "text.disabled",
-                              fontSize: "0.75rem",
+                              fontSize: { xs: "0.625rem", sm: "0.75rem" },
                             }}
                           >
                             {moment(notif?.createdDate).format(
-                              "MM-DD-YYYY || hh:mm A"
+                              isExtraSmall ? "MM-DD-YY | hh:mm A" : "MM-DD-YYYY || hh:mm A"
                             )}
                           </Typography>
                         </ListItemButton>
@@ -525,7 +585,13 @@ export default function Header(props) {
                     <ListItem>
                       <ListItemText
                         primary="No notifications"
-                        sx={{ textAlign: "center", color: "text.secondary" }}
+                        sx={{ 
+                          textAlign: "center", 
+                          color: "text.secondary",
+                          "& .MuiListItemText-primary": {
+                            fontSize: { xs: "0.875rem", sm: "1rem" }
+                          }
+                        }}
                       />
                     </ListItem>
                   )}

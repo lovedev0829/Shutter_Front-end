@@ -7,12 +7,41 @@ import {
 } from "../../../helpers/common";
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider
+} from "@mui/material";
+import {
+  MoreVert as MoreVertIcon,
+  Visibility as VisibilityIcon,
+  GetApp as GetAppIcon,
+  Edit as EditIcon,
+  Send as SendIcon,
+  History as HistoryIcon,
+  Receipt as ReceiptIcon
+} from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import SendApproved from "../Estimate/SendApproved";
 import VersionHistory from "./VersionHistory";
 import { defaultConfig } from "../../../config";
+import { PageHeader, EmptyState } from "../../Form/MaterialUIComponents";
 
 export default function OrderList({ JobId,listdata }) {
   const [page, setPage] = useState(1);
@@ -23,6 +52,8 @@ export default function OrderList({ JobId,listdata }) {
   const [object, setObject] = useState("");
   const [approved, setApproved] = useState(false);
   const [history, setHistory] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
   const handleChangePage = (event, newPage) => {
     TenantlistAPI(newPage + 1, rowsPerPage);
     setPage(newPage + 1);
@@ -71,6 +102,16 @@ export default function OrderList({ JobId,listdata }) {
   const handledelclosee = () => {
     setApproved(false);
     setObject("");
+  };
+
+  const handleMenuClick = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
   };
 
   const handlestatus = async () => {
@@ -132,204 +173,246 @@ export default function OrderList({ JobId,listdata }) {
 
      const Loginuser = JSON.parse(localStorage.getItem("userData"));
 
-console.log(listdata)
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       <ApiLoder open={loder} />
-      <div className="d-flex align-items-center justify-content-between mb-30">
-        <h2 className="body_heading width-left-border mb-0">Orders</h2>
-      </div>
-      {/* order table */}
-      <div className="estimate-table task_table mb-30">
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">SN</th>
-                <th scope="col">Order Number</th>
-                <th scope="col">Estimate Title</th>
-                <th scope="col">Create Date</th>
-                <th scope="col">Total Amount</th>
-                <th scope="col">Status</th>
-                {listdata?.tenantId === Loginuser?.tenantId &&<th scope="col">Action</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {tenantList?.map((val, i) => (
-                <tr key={i}>
-                  <td>{(page - 1) * rowsPerPage + i + 1}</td>
-                  <td>
-                    <Link
-                      to={`/contacts/order/preview/${val?.orderId}`}
-                      className="cancel text-decoration-underline color-blue"
-                    >
-                      {val?.orderNumber}
-                    </Link>
-                  </td>
-                  <td>{val?.estimateName}</td>
-                  <td>{moment(val?.createdDate).format("MM-DD-YYYY") || ""}</td>
-                  <td>
-                    {" "}
-                    {defaultConfig.currencySign} {val?.grandTotal}
-                  </td>
-                  <td>
-                    <span
-                      className={`btn ${
-                        val?.status === "Approved" ? "approved" : "pending"
-                      } small_btn`}
-                    >
-                      {val?.status}
-                    </span>
-                  </td>
-                
-{listdata?.tenantId === Loginuser?.tenantId &&
-                  <td className="text-center">
-                    <div className="company-logo-dropdown">
-                      <div className="dropdown">
-                        <button
-                          className="dropdown-toggle border-0 w-100 d-flex align-items-center"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <img src="/image/three-dot.svg" alt="" loading="lazy"/>
-                        </button>
-                        <ul
-                          className="dropdown-menu dropdown-menu-end w-100 shadow dropdown-menu-big"
-                          style={{ minWidth: "160px" }}
-                        >
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() =>
-                                navigate(
-                                  `/contacts/order/preview/${val?.orderId}`
-                                )
-                              }
-                            >
-                              <img
-                                src="/image/eye.svg"
-                                className="me-1"
-                                alt=" "
-                                loading="lazy"
-                              />{" "}
-                              View
-                            </button>
-                          </li>
-                          {HasPermission("OrderEdit") && val?.status !== "PendingForApproval" && (
-                            <li>
-                              <Link
-                                className="dropdown-item"
-                                to={`/contacts/invoice/${JobId}/${val?.orderId}`}
-                              >
-                                <img
-                                  src="/image/edit 1.svg"
-                                  className="me-1"
-                                  alt=""
-                                  loading="lazy"
-                                />
-                                Edit
-                              </Link>
-                            </li>
-                          )}
-                          {val?.status !== "Approved" && (
-                            <li>
-                              <Link
-                                className="dropdown-item"
-                                to="#"
-                                onClick={() => {
-                                  setApproved(true);
-                                  setObject(val);
-                                }}
-                              >
-                                <img
-                                  src="/image/message.svg"
-                                  className="me-1"
-                                  alt=""
-                                  loading="lazy"
-                                />
-                                Send For Approval
-                              </Link>
-                            </li>
-                          )}
-                            <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() =>
-                                handleDownload(
-                                  val?.orderId,
-                                  val?.orderNumber
-                                )
-                              }
-                            >
-                              <img
-                                src="/image/export.svg"
-                                className="me-1"
-                                alt=" "
-                                loading="lazy"
-                              />{" "}
-                              Generate Order
-                            </button>
-                          </li>
-                          <li>
-                            <Link
-                              className="dropdown-item"
-                              to="#"
-                              onClick={() => {
-                                setHistory(true);
-                                setObject(val);
-                              }}
-                            >
-                              <img
-                                src="/image/history.svg"
-                                className="me-1"
-                                alt=""
-                                loading="lazy"
-                              />
-                              Version History
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </td>
-}
-                </tr>
-              ))}
-              {(!tenantList || tenantList?.length === 0) && (
-                <tr>
-                  <td className="text-center border-0 no-records" colSpan={7}>
-                    <img
-                      src="/image/no-records.svg"
-                      alt=" "
-                      loading="lazy"
-                      className="img-fluid"
-                    />
-                    <p className="font-14">No Orders Found</p>
-                  </td>
-                </tr>
+
+      <PageHeader
+        title="Orders"
+        subtitle={`Manage and track all orders for this job`}
+      />
+
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: 2, 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead sx={{ backgroundColor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>SN</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Order Number</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Estimate Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Create Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Total Amount</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Status</TableCell>
+              {listdata?.tenantId === Loginuser?.tenantId && (
+                <TableCell align="right" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Action
+                </TableCell>
               )}
-            </tbody>
-          </table>
-          {tenantList && tenantList?.length > 0 && (
-            <div className="d-flex align-items-center justify-content-end bottom_nav">
-              <nav aria-label="Page navigation example">
-                <ul className="pagination">
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                    component="div"
-                    count={paginatedItems}
-                    rowsPerPage={rowsPerPage}
-                    page={page - 1}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tenantList?.map((val, i) => (
+              <TableRow 
+                key={i}
+                sx={{ 
+                  '&:hover': { backgroundColor: 'grey.50' },
+                  '&:last-child td, &:last-child th': { border: 0 }
+                }}
+              >
+                <TableCell>{(page - 1) * rowsPerPage + i + 1}</TableCell>
+                <TableCell>
+                  <Button
+                    component={Link}
+                    to={`/contacts/order/preview/${val?.orderId}`}
+                    variant="text"
+                    startIcon={<ReceiptIcon />}
+                    sx={{
+                      textTransform: 'none',
+                      p: 0,
+                      textDecoration: 'underline',
+                      color: 'primary.main',
+                      fontWeight: 500,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                        backgroundColor: 'transparent'
+                      }
+                    }}
+                  >
+                    {val?.orderNumber}
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {val?.estimateName}
+                  </Typography>
+                </TableCell>
+                <TableCell>{moment(val?.createdDate).format("MM-DD-YYYY") || ""}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
+                    {defaultConfig.currencySign} {val?.grandTotal}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={val?.status}
+                    size="small"
+                    color={val?.status === "Approved" ? "success" : "warning"}
+                    variant={val?.status === "Approved" ? "filled" : "outlined"}
+                    sx={{
+                      fontWeight: 500,
+                      minWidth: 100,
+                      textTransform: 'capitalize'
+                    }}
                   />
-                </ul>
-              </nav>
-            </div>
-          )}
-        </div>
-      </div>
+                </TableCell>
+                {listdata?.tenantId === Loginuser?.tenantId && (
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      onClick={(event) => handleMenuClick(event, val)}
+                      sx={{ 
+                        color: 'text.secondary',
+                        '&:hover': { backgroundColor: 'grey.100' }
+                      }}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+            {(!tenantList || tenantList?.length === 0) && (
+              <TableRow>
+                <TableCell 
+                  colSpan={listdata?.tenantId === Loginuser?.tenantId ? 7 : 6} 
+                  sx={{ border: 0, py: 6 }}
+                >
+                  <EmptyState
+                    icon={
+                      <Box
+                        component="img"
+                        src="/image/no-records.svg"
+                        alt="No records"
+                        sx={{ width: 80, height: 80, opacity: 0.5 }}
+                      />
+                    }
+                    title="No Orders Found"
+                    description="There are no orders available for this job yet."
+                  />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        
+        {tenantList && tenantList?.length > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 25, 100]}
+              component="div"
+              count={paginatedItems}
+              rowsPerPage={rowsPerPage}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+          </Box>
+        )}
+      </TableContainer>
+
+      {/* Context Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            border: '1px solid',
+            borderColor: 'divider',
+            minWidth: 180,
+          }
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem
+          onClick={() => {
+            navigate(`/contacts/order/preview/${selectedRow?.orderId}`);
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View</ListItemText>
+        </MenuItem>
+
+        {HasPermission("OrderEdit") && selectedRow?.status !== "PendingForApproval" && (
+          <MenuItem
+            component={Link}
+            to={`/contacts/invoice/${JobId}/${selectedRow?.orderId}`}
+            onClick={handleMenuClose}
+          >
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
+
+        {selectedRow?.status !== "Approved" && (
+          <>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                setApproved(true);
+                setObject(selectedRow);
+                handleMenuClose();
+              }}
+            >
+              <ListItemIcon>
+                <SendIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Send For Approval</ListItemText>
+            </MenuItem>
+          </>
+        )}
+
+        <MenuItem
+          onClick={() => {
+            handleDownload(selectedRow?.orderId, selectedRow?.orderNumber);
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <GetAppIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Generate Order</ListItemText>
+        </MenuItem>
+
+        <Divider />
+        
+        <MenuItem
+          onClick={() => {
+            setHistory(true);
+            setObject(selectedRow);
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <HistoryIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Version History</ListItemText>
+        </MenuItem>
+      </Menu>
       <SendApproved
         open={approved}
         handleClose={handledelclosee}
@@ -343,12 +426,14 @@ console.log(listdata)
         }
         url="/contacts/order/preview/"
       />
-     {history &&<VersionHistory
-        open={history}
-        handleClose={() => setHistory(false)}
-        EstimationId={object.estimateId}
-      />
-     }
-    </>
+      
+      {history && (
+        <VersionHistory
+          open={history}
+          handleClose={() => setHistory(false)}
+          EstimationId={object.estimateId}
+        />
+      )}
+    </Box>
   );
 }

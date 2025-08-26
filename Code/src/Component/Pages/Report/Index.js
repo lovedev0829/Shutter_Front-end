@@ -44,7 +44,6 @@ export default function Index() {
   const initialActiveTab = localStorage.getItem("activeTab2") || Tablist[0].id;
 
   return (
-    <>
       <div className="intersight_content">
         <Header title="Reports" />
         <div className="body_content">
@@ -116,6 +115,5 @@ export default function Index() {
           </Paper>
         </div>
       </div>
-    </>
   );
 }

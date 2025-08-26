@@ -9,11 +9,39 @@ import {
 
 import { callAPI } from "../../../utils/apiUtils";
 import { apiUrls } from "../../../utils/apiUrls";
-import { TablePagination } from "@mui/material";
+import { 
+  TablePagination,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  CircularProgress
+} from "@mui/material";
+import {
+  MoreVert as MoreVertIcon,
+  Visibility as VisibilityIcon,
+  GetApp as GetAppIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon
+} from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import SendApproved from "./SendApproved";
 import { defaultConfig } from "../../../config";
+import { PageHeader, EmptyState } from "../../Form/MaterialUIComponents";
 
 export default function EstimateList({ listdata }) {
   const [page, setPage] = useState(1);
@@ -22,10 +50,12 @@ export default function EstimateList({ listdata }) {
   const [tenantList, setTenantList] = useState([]);
   const [loder, setLoader] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
-    const [isResend, setisResend] = useState(false);
+  const [isResend, setisResend] = useState(false);
   const [object, setObject] = useState("");
   const [approved, setApproved] = useState(false);
   const [text, setText] = useState("1"); // 1 for approved 2 for reject and 3 for order
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const navigate = useNavigate();
 
@@ -149,6 +179,16 @@ export default function EstimateList({ listdata }) {
     setObject("");
   };
 
+  const handleMenuClick = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
   const handleDownload = async (id, name) => {
     setLoader(true);
     try {
@@ -185,72 +225,115 @@ export default function EstimateList({ listdata }) {
   const Loginuser = JSON.parse(localStorage.getItem("userData"));
 
   return (
-    <>
+    <Box sx={{ p: 3 }}>
       <ApiLoder open={loder} />
 
-      <div className="d-block d-md-flex align-items-center justify-content-between mb-30">
-        <div className="d-flex gap-3 invoice-new">
-          <h2 className="body_heading width-left-border mb-0">Estimate</h2>
-        </div>
-        {HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId && (
-          <Link
-            to={`/contacts/estimate/${listdata?.jobId}`}
-            className={`btn blue-outline-btn small_btn`}
-          >
-            Build Estimate
-          </Link>
-        )}
-      </div>
-      {/* estimate table */}
-      <div className="estimate-table task_table mb-30">
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">SN</th>
-                <th scope="col">Estimate Title</th>
-                <th scope="col">Prepared by</th>
-                <th scope="col">Create Date</th>
-                <th scope="col">Total Amount</th>
-                <th scope="col">Status</th>
-                {listdata?.tenantId === Loginuser?.tenantId &&<th scope="col"></th>}
-                <th scope="col" className="text-end">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tenantList?.map((val, i) => (
-                <tr key={i}>
-                  <td>{(page - 1) * rowsPerPage + i + 1}</td>
-                  <td>
-                    <Link
-                      to={`/contacts/estimate/preview/${val?.estimateId}`}
-                      key={i}
-                      className="cancel text-decoration-underline color-blue"
-                    >
-                      {val?.estimateName}
-                    </Link>
-                  </td>
-                  <td>{val?.preparedByName || "---"}</td>
-                  <td>{moment(val?.createdDate).format("MM-DD-YYYY") || ""}</td>
-                  <td>
+      <PageHeader
+        title="Estimate"
+        actions={
+          HasPermission("EstimateAdd") && listdata?.tenantId === Loginuser?.tenantId ? (
+            <Button
+              component={Link}
+              to={`/contacts/estimate/${listdata?.jobId}`}
+              variant="outlined"
+              startIcon={<AddIcon />}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 500,
+                borderRadius: 2,
+                px: 3
+              }}
+            >
+              Build Estimate
+            </Button>
+          ) : null
+        }
+      />
+      <TableContainer component={Paper} sx={{ 
+        borderRadius: 2, 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        overflow: 'hidden'
+      }}>
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead sx={{ backgroundColor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>SN</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Estimate Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Prepared by</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Create Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Total Amount</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>Status</TableCell>
+              {listdata?.tenantId === Loginuser?.tenantId && (
+                <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}></TableCell>
+              )}
+              <TableCell align="right" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                Action
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tenantList?.map((val, i) => (
+              <TableRow 
+                key={i}
+                sx={{ 
+                  '&:hover': { backgroundColor: 'grey.50' },
+                  '&:last-child td, &:last-child th': { border: 0 }
+                }}
+              >
+                <TableCell>{(page - 1) * rowsPerPage + i + 1}</TableCell>
+                <TableCell>
+                  <Button
+                    component={Link}
+                    to={`/contacts/estimate/preview/${val?.estimateId}`}
+                    variant="text"
+                    sx={{
+                      textTransform: 'none',
+                      p: 0,
+                      textDecoration: 'underline',
+                      color: 'primary.main',
+                      fontWeight: 500,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                        backgroundColor: 'transparent'
+                      }
+                    }}
+                  >
+                    {val?.estimateName}
+                  </Button>
+                </TableCell>
+                <TableCell>{val?.preparedByName || "---"}</TableCell>
+                <TableCell>{moment(val?.createdDate).format("MM-DD-YYYY") || ""}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
                     {defaultConfig.currencySign} {val?.grandTotal}
-                  </td>
-                  <td>
-                    <span
-                      className={`btn ${
-                        val?.status === "Approved" ? "approved" : "pending"
-                      } small_btn`}
-                    >
-                      {val?.status}
-                    </span>
-                  </td>
-                  {val?.status !== "GenerateOrder" && listdata?.tenantId === Loginuser?.tenantId  ? (
-                    <td>
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={val?.status}
+                    size="small"
+                    color={val?.status === "Approved" ? "success" : "default"}
+                    variant={val?.status === "Approved" ? "filled" : "outlined"}
+                    sx={{
+                      fontWeight: 500,
+                      minWidth: 80,
+                      textTransform: 'capitalize'
+                    }}
+                  />
+                </TableCell>
+                {val?.status !== "GenerateOrder" && listdata?.tenantId === Loginuser?.tenantId ? (
+                  <TableCell>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
                       {HasPermission("EstimateEdit") && (
-                        <button
-                          className="btn blue-btn small_btn me-2"
+                        <Button
+                          size="small"
+                          variant="contained"
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            borderRadius: 1,
+                            px: 2
+                          }}
                           onClick={() => {
                             if (
                               val?.status === "New" ||
@@ -267,166 +350,172 @@ export default function EstimateList({ listdata }) {
                               setisResend(false)
                             }
                           }}
-                          disabled={
-                            val?.status === "PendingForApproval" ? true : false
-                          }
+                          disabled={val?.status === "PendingForApproval"}
                         >
                           {val?.status === "Approved"
                             ? "Generate Order"  
                             : "Send for Approval"}
-                        </button>
+                        </Button>
                       )}
                       {HasPermission("EstimateEdit") &&
                         val?.status === "PendingForApproval" && (
-                          <button
-                            className="btn blue-btn small_btn"
+                          <Button
+                            size="small"
+                            variant="contained"
+                            sx={{
+                              textTransform: 'none',
+                              fontWeight: 500,
+                              borderRadius: 1,
+                              px: 2
+                            }}
                             onClick={() => {
-                                setisResend(true)
+                              setisResend(true)
                               setApproved(true);
                               setObject(val);
                               setText("1");
                             }}
                           >
                             Resend
-                          </button>
+                          </Button>
                         )}
-                    </td>
-                  ) : (
-                    listdata?.tenantId === Loginuser?.tenantId?<td></td>:null
-                  )}
-                  <td>
-                    <div className="company-logo-dropdown d-flex justify-content-end">
-                      <div className="dropdown">
-                        <button
-                          className="dropdown-toggle border-0 w-100 d-flex align-items-center"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <img
-                            src="/image/three-dot.svg"
-                            alt=""
-                            loading="lazy"
-                          />
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end w-100 shadow">
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() =>
-                                navigate(
-                                  `/contacts/estimate/preview/${val?.estimateId}`
-                                )
-                              }
-                            >
-                              <img
-                                src="/image/eye.svg"
-                                className="me-1"
-                                alt=" "
-                                loading="lazy"
-                              />{" "}
-                              View
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() =>
-                                handleDownload(
-                                  val?.estimateId,
-                                  val?.estimateName
-                                )
-                              }
-                            >
-                              <img
-                                src="/image/export.svg"
-                                className="me-1"
-                                alt=" "
-                                loading="lazy"
-                              />{" "}
-                              Download Pdf
-                            </button>
-                          </li>
-                          {HasPermission("EstimateEdit") && listdata?.tenantId === Loginuser?.tenantId && (
-                            <li>
-                              {(val?.status === "New" ||
-                                val?.status === "Rejected") && (
-                                <Link
-                                  className="dropdown-item"
-                                  to={`/contacts/estimate/${listdata?.jobId}/${val?.estimateId}`}
-                                >
-                                  <img
-                                    src="/image/edit 1.svg"
-                                    className="me-1"
-                                    alt=""
-                                    loading="lazy"
-                                  />
-                                  Edit
-                                </Link>
-                              )}
-                            </li>
-                          )}
-                          {HasPermission("EstimateDelete") && listdata?.tenantId === Loginuser?.tenantId && (
-                            <li>
-                              {(val?.status === "New" ||
-                                val?.status === "Rejected") && (
-                                <Link
-                                  className="dropdown-item"
-                                  to="#"
-                                  onClick={() => handledelete(val)}
-                                >
-                                  <img
-                                    src="/image/delete 1.svg"
-                                    className="me-1"
-                                    alt=""
-                                    loading="lazy"
-                                  />
-                                  Delete
-                                </Link>
-                              )}
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </Box>
+                  </TableCell>
+                ) : (
+                  listdata?.tenantId === Loginuser?.tenantId ? <TableCell></TableCell> : null
+                )}
+                <TableCell align="right">
+                  <IconButton
+                    size="small"
+                    onClick={(event) => handleMenuClick(event, val)}
+                    sx={{ 
+                      color: 'text.secondary',
+                      '&:hover': { backgroundColor: 'grey.100' }
+                    }}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
 
-              {(!tenantList || tenantList?.length === 0) && (
-                <tr>
-                  <td className="text-center border-0 no-records" colSpan={7}>
-                    <img
-                      src="/image/no-records.svg"
-                      alt=" "
-                      loading="lazy"
-                      className="img-fluid"
-                    />
-                    <p className="font-14">No Estimates Found</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          {tenantList && tenantList?.length > 0 && (
-            <div className="d-flex align-items-center justify-content-end bottom_nav">
-              <nav aria-label="Page navigation example">
-                <ul className="pagination">
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 15, 25, 100]}
-                    component="div"
-                    count={paginatedItems}
-                    rowsPerPage={rowsPerPage}
-                    page={page - 1}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+            {(!tenantList || tenantList?.length === 0) && (
+              <TableRow>
+                <TableCell colSpan={8} sx={{ border: 0, py: 6 }}>
+                  <EmptyState
+                    icon={
+                      <Box
+                        component="img"
+                        src="/image/no-records.svg"
+                        alt="No records"
+                        sx={{ width: 80, height: 80, opacity: 0.5 }}
+                      />
+                    }
+                    title="No Estimates Found"
+                    description="There are no estimates available for this job."
                   />
-                </ul>
-              </nav>
-            </div>
-          )}
-        </div>
-      </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        {tenantList && tenantList?.length > 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 15, 25, 100]}
+              component="div"
+              count={paginatedItems}
+              rowsPerPage={rowsPerPage}
+              page={page - 1}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                '& .MuiTablePagination-toolbar': {
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                },
+                '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+          </Box>
+        )}
+      </TableContainer>
+
+      {/* Context Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            border: '1px solid',
+            borderColor: 'divider',
+            minWidth: 180,
+          }
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem
+          onClick={() => {
+            navigate(`/contacts/estimate/preview/${selectedRow?.estimateId}`);
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View</ListItemText>
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            handleDownload(selectedRow?.estimateId, selectedRow?.estimateName);
+            handleMenuClose();
+          }}
+        >
+          <ListItemIcon>
+            <GetAppIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Download PDF</ListItemText>
+        </MenuItem>
+
+        {HasPermission("EstimateEdit") && 
+         listdata?.tenantId === Loginuser?.tenantId && 
+         (selectedRow?.status === "New" || selectedRow?.status === "Rejected") && (
+          <MenuItem
+            component={Link}
+            to={`/contacts/estimate/${listdata?.jobId}/${selectedRow?.estimateId}`}
+            onClick={handleMenuClose}
+          >
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
+
+        {HasPermission("EstimateDelete") && 
+         listdata?.tenantId === Loginuser?.tenantId && 
+         (selectedRow?.status === "New" || selectedRow?.status === "Rejected") && (
+          <MenuItem
+            onClick={() => {
+              handledelete(selectedRow);
+              handleMenuClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" sx={{ color: 'error.main' }} />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
       <Delete
         open={delOpen}
         handleClose={handledelclose}
@@ -454,6 +543,6 @@ export default function EstimateList({ listdata }) {
         }
         url="/contacts/estimate/preview/"
       />
-    </>
+    </Box>
   );
 }
