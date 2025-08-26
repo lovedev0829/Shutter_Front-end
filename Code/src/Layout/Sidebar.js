@@ -142,7 +142,7 @@ const LogoutMenuItem = styled(MenuItem)(({ theme }) => ({
 
 export default function Sidebar() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -564,7 +564,7 @@ export default function Sidebar() {
       <StyledDrawer
         variant="permanent"
         sx={{
-          display: { xs: 'none', md: 'block' },
+          display: { xs: 'none', md: 'none', lg: 'block' }
         }}
         open
         primarycolor={primaryColor}
