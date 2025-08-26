@@ -316,6 +316,14 @@ const routes = [
     element: lazy(() => import('./Component/Pages/Taxes/Index'))
 
   },
+    {
+    guard: Authenticated,
+    layout: SidebarLayout,
+    exact: true,
+    path: '/taxauthority',
+    element: lazy(() => import('./Component/Pages/Taxauthority/Index'))
+
+  },
   //discount
   {
     guard: Authenticated,

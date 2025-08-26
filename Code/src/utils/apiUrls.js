@@ -40,6 +40,7 @@ export const apiUrls = {
   GetAllJobDetails:"Common/GetAllJobDetails",
   GetAllExpression: "Common/GetAllExpression",
   GetAllState:"Common/GetAllState",
+  GetAllTaxAuthority:"Common/GetAllTaxAuthority",
   GetAllExpressionChip:"Common/GetAllExpressionChip",
   GetAllInvoice:"Common/GetAllInvoice",
   GetAllIMaterial:"Common/GetAllmaterialList",
@@ -298,6 +299,26 @@ export const apiUrls = {
   PowderCoatColorActiveInActive: `PowderCoatColor/ActiveInActive`,
 
   //Impersonate Tenant
-  ImpersonateTenant:"Auth/ImpersonateTenant"
+  ImpersonateTenant:"Auth/ImpersonateTenant",
+
+    //Vendor
+  TaxAuthority: "TaxAuthority/GetAll",
+  TaxAuthorityCreate: "TaxAuthority/Create",
+  TaxAuthorityUpdate: "TaxAuthority/Update",
+  TaxAuthorityDelete: "TaxAuthority/Delete",
+  TaxAuthorityActiveInActive: "TaxAuthority/ActiveInActive",
+  //Tax
+    TaxNew: "Tax/GetAll",
+    TaxNewActiveInActive: "Tax/ActiveInActiveTax",
+    TaxNewDelete: "Tax/Delete",
+    TaxnewCreate: "Tax/Create",
+  TaxnewUpdate: "Tax/Update",
+  CommonGetAllTaxs:"Common/GetAllTaxs",
+  //Tax Group
+  TaxGroup: "TaxGroup/GetAll",
+    TaxGroupCreate: "TaxGroup/Create",
+    TaxGroupUpdate: "TaxGroup/Update",
+ TaxGroupActiveInActive: "TaxGroup/ActiveInActive",
+  TaxGroupDelete: "TaxGroup/Delete",
 
 };
