@@ -9,7 +9,19 @@ import {
 } from "../../../helpers/common";
 import { apiUrls } from "../../../utils/apiUrls";
 import DynamicTable from "../../Form/DynamicTable";
-import { TablePagination } from "@mui/material";
+import {
+  TablePagination,
+  Box,
+  Paper,
+  Container,
+  Stack,
+  Grid,
+  Typography,
+  Backdrop,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import VersionHistory from "./VersionHistory";
 import Search from "../../Form/Search";
@@ -19,6 +31,8 @@ import GetAllEstimateContact from "../../../helpers/GetAllEstimateContact";
 import SendApproved from "../Estimate/SendApproved";
 
 export default function AllOrderList() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [tenantList, setTenantList] = useState([]);
   const [approved, setApproved] = useState(false);
   const [loder, setLoader] = useState(false);
@@ -250,37 +264,76 @@ export default function AllOrderList() {
   };
 
   return (
-    <div className="intersight_content">
-      <ApiLoder open={loder} />
-      <Header title="All Orders" />
-      <div className="body_content">
-        <div className="contact-profile">
-          <div className="engage-tabs">
-            <div className="d-flex align-items-center justify-content-between mb-30">
-              <TableTitle title={`Orders`} />
-            </div>
-            <div className="d-block d-md-flex align-items-center gap-2 mb-30">
-              <div className="filter-dropdown dropdown">
-                <Search handleSearch={handleSearch} />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <GetAllContact
-                  value={filter.contactId}
-                  fn={handleChanges}
-                  load={true}
-                  className="selectboxdropdown"
-                />
-              </div>
-              <div className="filter-dropdown dropdown">
-                <GetAllEstimateContact
-                  value={filter.estimateId}
-                  fn={handleChanges}
-                  ContactId={filter.contactId}
-                />
-              </div>
-            </div>
-            <div className="task_table mb-30">
-              <div className="table-responsive">
+    <Box
+      sx={{
+        backgroundColor: 'background.default',
+        minHeight: '100vh',
+      }}
+    >
+      {/* Loading Backdrop */}
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loder}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      
+      <Box className="intersight_content">
+        <Header title="All Orders" />
+        <Box className="body_content">
+          <Container
+            maxWidth="xl"
+            sx={{
+              py: { xs: 1, sm: 2, md: 3 },
+              px: { xs: 1, sm: 2, md: 3 },
+            }}
+          >
+            <Paper
+              elevation={1}
+              sx={{
+                p: { xs: 2, sm: 3, md: 4 },
+                borderRadius: 2,
+                backgroundColor: 'background.paper',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Page Header */}
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                spacing={2}
+                sx={{ mb: { xs: 2, sm: 3 } }}
+              >
+                <TableTitle title="Orders" />
+              </Stack>
+
+              {/* Filters Section */}
+              <Box sx={{ mb: { xs: 2, sm: 3 } }}>                
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Search handleSearch={handleSearch} />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <GetAllContact
+                      value={filter.contactId}
+                      fn={handleChanges}
+                      load={true}
+                      className="selectboxdropdown"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <GetAllEstimateContact
+                      value={filter.estimateId}
+                      fn={handleChanges}
+                      ContactId={filter.contactId}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Data Table */}
+              <Box sx={{ width: '100%' }}>
                 <DynamicTable
                   data={tenantList}
                   columns={columns}
@@ -298,28 +351,46 @@ export default function AllOrderList() {
                   handlesearchChange={handlesearchChange}
                   handleApproved={handleApproved}
                 />
+                
+                {/* Pagination */}
                 {tenantList && tenantList?.length > 0 && (
-                  <div className="d-flex align-items-center justify-content-end bottom_nav">
-                    <nav aria-label="Page navigation example">
-                      <ul className="pagination">
-                        <TablePagination
-                          rowsPerPageOptions={[10, 25, 50, 100]}
-                          component="div"
-                          count={paginatedItems}
-                          rowsPerPage={rowsPerPage}
-                          page={page - 1}
-                          onPageChange={handleChangePage}
-                          onRowsPerPageChange={handleChangeRowsPerPage}
-                        />
-                      </ul>
-                    </nav>
-                  </div>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      mt: 2,
+                      borderTop: '1px solid',
+                      borderColor: 'divider',
+                      pt: 2,
+                    }}
+                  >
+                    <TablePagination
+                      rowsPerPageOptions={[10, 25, 50, 100]}
+                      component="div"
+                      count={paginatedItems}
+                      rowsPerPage={rowsPerPage}
+                      page={page - 1}
+                      onPageChange={handleChangePage}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                      sx={{
+                        '& .MuiTablePagination-toolbar': {
+                          fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                          alignItems: "baseline",
+                        },
+                        '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                          fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        },
+                      }}
+                    />
+                  </Box>
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Box>
+            </Paper>
+          </Container>
+        </Box>
+      </Box>
+      
+      {/* Version History Modal */}
       {history && (
         <VersionHistory
           open={history}
@@ -328,6 +399,7 @@ export default function AllOrderList() {
         />
       )}
 
+      {/* Send Approved Modal */}
       <SendApproved
         open={approved}
         handleClose={() => setApproved(false)}
@@ -341,6 +413,6 @@ export default function AllOrderList() {
         }
         url="/contacts/order/preview/"
       />
-    </div>
+    </Box>
   );
 }

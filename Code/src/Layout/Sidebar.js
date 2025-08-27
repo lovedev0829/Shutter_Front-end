@@ -45,6 +45,12 @@ const StyledDrawer = styled(Drawer)(({ theme, primarycolor }) => ({
     color: '#fff',
     borderRight: 'none',
     boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+    [theme.breakpoints.between('sm', 'md')]: {
+      width: 260, // Slightly narrower on tablet
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: 280, // Full width on mobile
+    },
   },
 }));
 
@@ -60,16 +66,25 @@ const StyledAccordion = styled(Accordion)(({ theme, primarycolor }) => ({
     backgroundColor: 'transparent',
     padding: '8px 16px',
     minHeight: 'auto',
+    [theme.breakpoints.between('md', 'lg')]: {
+      padding: '10px 16px', // Slightly more padding on tablet
+    },
     '&:hover': {
       backgroundColor: 'rgba(255,255,255,0.05)',
     },
     '& .MuiAccordionSummary-content': {
       margin: '8px 0',
+      [theme.breakpoints.between('md', 'lg')]: {
+        margin: '10px 0', // Better spacing on tablet
+      },
     },
   },
   '& .MuiAccordionDetails-root': {
     padding: '0 0 8px 0',
     backgroundColor: 'rgba(0,0,0,0.1)',
+    [theme.breakpoints.between('md', 'lg')]: {
+      padding: '0 0 10px 0', // Slightly more padding on tablet
+    },
   },
 }));
 
@@ -80,6 +95,10 @@ const LogoContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: '12px',
+  [theme.breakpoints.between('md', 'lg')]: {
+    padding: '18px 16px', // Slightly more padding on tablet
+    gap: '14px',
+  },
 }));
 
 const UserSection = styled(Box)(({ theme }) => ({
@@ -97,8 +116,11 @@ const MenuToggle = styled(IconButton)(({ theme }) => ({
   '&:hover': {
     backgroundColor: 'rgba(255,255,255,0.2)',
   },
-  [theme.breakpoints.up('md')]: {
+  [theme.breakpoints.up('lg')]: {
     display: 'none',
+  },
+  [theme.breakpoints.between('md', 'lg')]: {
+    display: 'flex', // Show on tablet
   },
 }));
 
@@ -109,6 +131,10 @@ const WorkspaceLabel = styled(Typography)(({ theme }) => ({
   color: '#94a3b8',
   textTransform: 'uppercase',
   letterSpacing: '1px',
+  [theme.breakpoints.between('md', 'lg')]: {
+    padding: '18px 16px 10px 16px', // Better spacing on tablet
+    fontSize: '13px',
+  },
 }));
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
@@ -143,6 +169,8 @@ const LogoutMenuItem = styled(MenuItem)(({ theme }) => ({
 export default function Sidebar() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -209,22 +237,22 @@ export default function Sidebar() {
   };
 
   const handleMobileNavigation = () => {
-    if (isMobile) {
+    if (isMobile || isTablet) {
       setMobileOpen(false);
       document.body.classList.remove('mobile-menu-open');
       const modal = document.querySelector('.MuiModal-root.MuiDrawer-root');
-  if (modal) {
-    modal.style.display ='none';
-  }
+      if (modal) {
+        modal.style.display ='none';
+      }
       document.body.style.top = '';
     }
   };
 
 
 
-  // Handle body scroll when mobile menu is open
+  // Handle body scroll when mobile/tablet menu is open
   useEffect(() => {
-    if (isMobile) {
+    if (isMobile || isTablet) {
       if (mobileOpen) {
         document.body.classList.add('mobile-menu-open');
         document.body.style.top = `-${window.scrollY}px`;
@@ -242,7 +270,7 @@ export default function Sidebar() {
       document.body.classList.remove('mobile-menu-open');
       document.body.style.top = '';
     };
-  }, [mobileOpen, isMobile]);
+  }, [mobileOpen, isMobile, isTablet]);
 
   const parentCategories = {
     Contact: "Order management",
@@ -360,7 +388,7 @@ export default function Sidebar() {
           }}
           data-toggle-button="true"
           sx={{
-            display: { xs: 'flex', md: 'none' },
+            display: { xs: 'flex', lg: 'none' },
           }}
         >
           <MenuIcon />
@@ -550,7 +578,7 @@ export default function Sidebar() {
           onClick: () => setMobileOpen(false)
         }}
         sx={{
-          display: { xs: 'block', md: 'none' },
+          display: { xs: 'block', lg: 'none' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
           },
@@ -564,7 +592,7 @@ export default function Sidebar() {
       <StyledDrawer
         variant="permanent"
         sx={{
-          display: { xs: 'none', md: 'block' },
+          display: { xs: 'none', lg: 'block' },
         }}
         open
         primarycolor={primaryColor}
@@ -572,21 +600,21 @@ export default function Sidebar() {
         {drawerContent}
       </StyledDrawer>
 
-      {/* Mobile Menu Button - only show when drawer is closed */}
-      {isMobile && !mobileOpen && (
+      {/* Mobile/Tablet Menu Button - only show when drawer is closed */}
+      {(isMobile || isTablet) && !mobileOpen && (
         <IconButton
           onClick={handleDrawerToggle}
           data-toggle-button="true"
           aria-label="Open navigation menu"
           sx={{
             position: 'fixed',
-            top: { xs: 12, sm: 16 },
-            left: { xs: 12, sm: 16 },
+            top: { xs: 12, sm: 16, md: 20 },
+            left: { xs: 12, sm: 16, md: 20 },
             zIndex: 1400, // Higher than Material UI's modal z-index
             bgcolor: primaryColor,
             color: '#fff',
-            width: { xs: 48, sm: 56 },
-            height: { xs: 48, sm: 56 },
+            width: { xs: 48, sm: 56, md: 60 },
+            height: { xs: 48, sm: 56, md: 60 },
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             border: '2px solid rgba(255,255,255,0.1)',
             '&:hover': { 
@@ -600,7 +628,7 @@ export default function Sidebar() {
             transition: 'all 0.2s ease-in-out',
           }}
         >
-          <MenuIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+          <MenuIcon sx={{ fontSize: { xs: 20, sm: 24, md: 26 } }} />
         </IconButton>
       )}
 
